@@ -1,30 +1,122 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 
 execFileSync(process.execPath, ['scripts/build-netlify-of.mjs'], { stdio: 'inherit' });
 
-const app = await readFile('_site/app.js', 'utf8');
-const shell = await readFile('_site/app-shell.html', 'utf8');
-const index = await readFile('_site/index.html', 'utf8');
-const manifest = JSON.parse(await readFile('_site/manifest.webmanifest', 'utf8'));
-const sw = await readFile('_site/sw.js', 'utf8');
+const sha256 = value => createHash('sha256').update(value).digest('hex');
+const rootAppBuffer = await readFile('app.js');
+const rootApp = rootAppBuffer.toString('utf8');
+const rootBrand = await readFile('faro-brand.js', 'utf8');
+const rootShell = await readFile('app-shell.html', 'utf8');
+const legacyShellBuffer = await readFile('legacy-shell.html');
+const legacyShell = legacyShellBuffer.toString('utf8');
+const rootIndex = await readFile('index.html', 'utf8');
+const rootManifest = JSON.parse(await readFile('manifest.webmanifest', 'utf8'));
+const rootSw = await readFile('sw.js', 'utf8');
+const integrity = JSON.parse(await readFile('ci/baseline-integrity.json', 'utf8'));
 
-assert.match(app, /const STORAGE_KEY = 'faro-app-finance-v1';/);
-assert.match(app, /onboardingComplete: true,/);
-assert.match(app, /prepareOnboarding\(\) \{\n    \/\/ Onboarding reservado para fase futura\.\n    return;/);
-assert.doesNotMatch(app, /vetta-driver-intelligence-v3/);
-assert.match(shell + index, /TESTE NETLIFY OF/);
-assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
-assert.doesNotMatch(index, /Preparando instalação|Instale uma vez|Verificando instalação/i);
-assert.doesNotMatch(app + shell + index, /data-vetta-access-gate|access-gate|password|senha/i);
-assert.equal(manifest.name, 'TESTE NETLIFY OF');
-assert.equal(manifest.short_name, 'TESTE NETLIFY OF');
-assert.match(sw, /teste-netlify-of-open-access-1/);
+const builtApp = await readFile('_site/app.js', 'utf8');
+const builtBrand = await readFile('_site/faro-brand.js', 'utf8');
+const builtShell = await readFile('_site/app-shell.html', 'utf8');
+const builtLegacyShell = await readFile('_site/legacy-shell.html', 'utf8');
+const builtIndex = await readFile('_site/index.html', 'utf8');
+const builtManifest = JSON.parse(await readFile('_site/manifest.webmanifest', 'utf8'));
+const builtSw = await readFile('_site/sw.js', 'utf8');
+
+assert.equal(sha256(rootAppBuffer), integrity.runtimeSourceAppJsSha256, 'app.js fonte deve continuar byte a byte igual ao baseline aprovado');
+assert.equal(sha256(legacyShellBuffer), '2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b', 'legacy-shell deve ser o app-shell aprovado do ZIP, sem reescrita');
+assert.equal(builtLegacyShell, legacyShell);
+
+for (const text of [rootIndex, builtIndex]) {
+  assert.doesNotMatch(text, /\bVETTA\b/);
+  assert.doesNotMatch(text, /TESTE NETLIFY OF/);
+  assert.doesNotMatch(text, /CalculaAê/);
+}
+for (const shell of [rootShell, builtShell]) {
+  assert.match(shell, /replaceAll\('VETTA', 'FARO'\)/);
+  assert.match(shell, /replaceAll\('TESTE NETLIFY OF', 'FARO'\)/);
+  assert.match(shell, /replaceAll\('CalculaAê', 'FARO'\)/);
+}
+assert.match(rootShell, /replaceAll\('VETTA', 'FARO'\)/);
+assert.match(rootShell, /APP DO MOTORISTA!/);
+assert.match(rootShell, /faro-mark\.svg/);
+assert.match(rootShell, /legacy-shell\.html/);
+assert.match(rootShell, /APP DO MOTORISTA!/);
+assert.match(rootShell, /faro-brand\.js\?v=1/);
+assert.match(rootIndex, /location\.replace\('\.\/app-shell\.html'\)/);
+assert.doesNotMatch(rootIndex, /Preparando instalação|Instalar Calcula|Instalar FARO/);
+assert.equal(rootManifest.name, 'FARO — APP DO MOTORISTA!');
+assert.equal(rootManifest.short_name, 'FARO');
+assert.deepEqual(rootManifest.icons, [{ src: './icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]);
+assert.match(rootSw, /faro-brand-1/);
+assert.match(rootSw, /faro-brand\.js\?v=1/);
+assert.match(rootSw, /\.\/icon\.svg/);
+assert.match(rootSw, /\.\/faro-mark\.svg/);
+
+for (const script of [rootBrand, builtBrand]) {
+  assert.match(script, /replaceAll\('VETTA', BRAND\)/);
+  assert.match(script, /replaceAll\('TESTE NETLIFY OF', BRAND\)/);
+  assert.match(script, /replaceAll\('CalculaAê', BRAND\)/);
+  assert.match(script, /app\.shareSummary = async function/);
+  assert.match(script, /app\.exportData = function/);
+  assert.match(script, /app\.printReport = function/);
+  assert.match(script, /app\.toast = function/);
+  assert.match(script, /faro-backup-/);
+}
+
+assert.match(builtApp, /const STORAGE_KEY = 'faro-app-finance-v1';/);
+assert.match(builtApp, /onboardingComplete: true,/);
+assert.match(builtApp, /prepareOnboarding\(\) \{\n    \/\/ Onboarding reservado para fase futura\.\n    return;/);
+assert.equal(builtManifest.name, 'FARO — APP DO MOTORISTA!');
+assert.match(builtSw, /faro-brand-1/);
+
+for (const [path, expected] of Object.entries(integrity.brandAssets)) {
+  const data = await readFile(path);
+  assert.equal(sha256(data), expected, `${path} deve reproduzir o ativo FARO aprovado`);
+  assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
+}
+
+function firstMethod(source, name) {
+  const marker = `  ${name}(`;
+  const start = source.indexOf(marker);
+  assert.notEqual(start, -1, `Método ${name} não localizado`);
+  const brace = source.indexOf('{', start);
+  let depth = 0, quote = null, escaped = false;
+  for (let i = brace; i < source.length; i += 1) {
+    const ch = source[i];
+    if (escaped) { escaped = false; continue; }
+    if (quote) {
+      if (ch === '\\') escaped = true;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
+    if (ch === '{') depth += 1;
+    else if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        let end = i + 1;
+        if (source[end] === ',') end += 1;
+        return source.slice(start, end);
+      }
+    }
+  }
+  throw new Error(`Método ${name} sem fechamento`);
+}
+
+for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
+  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo de branding`);
+}
 
 const root = await readdir('.');
 assert.equal(root.includes('.github'), false, 'Nenhum workflow deve existir nesta fotografia limpa');
 for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','SKILLS.md','START_HERE.md','TESTING_RULES.md']) {
-  assert.equal(root.includes(forbidden), false, `${forbidden} deve ficar no Notion, não no repositório`);
+  assert.equal(root.includes(forbidden), false, `${forbidden} não deve existir nesta fotografia`);
 }
-console.log('baseline contract: ok');
+
+const forbiddenGate = /access-gate|password|senha/i;
+assert.doesNotMatch(rootIndex + rootShell + rootBrand, forbiddenGate);
+
+console.log('FARO branding contract: ok');

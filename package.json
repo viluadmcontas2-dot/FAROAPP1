@@ -1,7 +1,7 @@
 {
-  "name": "teste-netlify-of",
+  "name": "faro-app-do-motorista",
   "private": true,
-  "version": "3.5.1-zip-baseline.3",
+  "version": "3.5.1-faro.1",
   "type": "module",
   "scripts": {
     "check": "node --check scripts/build-netlify-of.mjs && node tests/baseline-contract.test.mjs",

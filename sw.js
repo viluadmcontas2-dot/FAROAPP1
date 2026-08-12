@@ -1,14 +1,15 @@
-const CACHE = 'teste-netlify-of-open-access-1';
+const CACHE = 'faro-brand-1';
 const APP_SHELL = [
   './',
   './index.html',
   './app-shell.html',
-  './app.js?v=3.5.1',
+  './legacy-shell.html',
+  './app.js?v=3.5.1-faro1',
+  './faro-brand.js?v=1',
   './styles.css',
   './manifest.webmanifest',
-  './icon.svg',
-  './icon-192.png',
-  './icon-512.png'
+  './faro-mark.svg',
+  './icon.svg'
 ];
 
 self.addEventListener('install', event => {

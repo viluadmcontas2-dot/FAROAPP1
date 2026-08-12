@@ -4,25 +4,25 @@ import { dirname, join } from 'node:path';
 
 const SITE = '_site';
 const expected = new Map(Object.entries({
-  'app-shell.html': '2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b',
-  'app.js': '9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb',
-  'styles.css': '7befb2cdbe66395fb4b413282e25671a63bab0e313d20e4d01d8b41e25d2af73',
-  'index.html': '8f5388fb186d82369e4a877ad011896e24100c2e8663b3e111c0e65729f4c024',
-  'manifest.webmanifest': '35a93de7ef22e687a233c2fe1d1b94b7be09f04a871f0551f23900ab7259235b',
-  'sw.js': '0f0a989b30ebe3dbfb4fed6d8a050d44173a143ea4686de463b5df78f525bb72',
-  'icon.svg': 'e9a8d61cabdb5fe71189ac5da54ec1305d2695e300d4922d640bdd33a936e6d9',
-  'icon-192.png': 'fa690c0c4738af8a6f57eac9e6c07521772ceac0b071141309c3e378b3996974',
-  'icon-512.png': 'c33d2754336f0878e496b503af6f8b8f502fe47b01ed704f719a4302ce6b64d8',
+  "app-shell.html": "2b669504723579d2e0d3ddef11c029cc27f636cfa011e99518b714e1a3d10ca7",
+  "legacy-shell.html": "2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b",
+  "app.js": "9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb",
+  "faro-brand.js": "eef640211c833154c0272c1e3008201f2a9d0532c2403eb092be6a7d2497d701",
+  "styles.css": "7befb2cdbe66395fb4b413282e25671a63bab0e313d20e4d01d8b41e25d2af73",
+  "index.html": "c0066b474c486104956d768a1340bbf7efbfd62cef11cd563d265a175db2f41d",
+  "manifest.webmanifest": "178ada16f5e3389718adc4edd05d72f08373dd4ba2e95fd447490f09c6cfe2bc",
+  "sw.js": "221445ec5561054c62e47883f239d1e4fec9826f57c2d30e34c5b9a83a356aa5",
+  "icon.svg": "482dca327e2ba36c5893ccd83e43e1a7f05a106e03bfcbfee118877f7d9126ba",
+  "faro-mark.svg": "b47e7aa970e50a90fabbbefb6ec21aca8db7557d8590d6687532f575212f6563"
 }));
 
 const hash = buffer => createHash('sha256').update(buffer).digest('hex');
-const brandText = value => value.replaceAll('CalculaAê', 'TESTE NETLIFY OF').replaceAll('VETTA', 'TESTE NETLIFY OF');
 
 async function verified(path) {
   const buffer = await readFile(path);
   const actual = hash(buffer);
   const wanted = expected.get(path);
-  if (actual !== wanted) throw new Error(`BASELINE DIVERGIU: ${path} esperado=${wanted} recebido=${actual}`);
+  if (actual !== wanted) throw new Error(`FONTE FARO DIVERGIU: ${path} esperado=${wanted} recebido=${actual}`);
   return buffer;
 }
 
@@ -37,7 +37,6 @@ function transformAppJs(source) {
   const onboarding = /  prepareOnboarding\(\) \{\n    if \(this\.state\.onboardingComplete\) return;[\s\S]*?\n  \},\n  fillOnboardingFuel/;
   if (!onboarding.test(value)) throw new Error('Bloco prepareOnboarding não localizado');
   value = value.replace(onboarding, `  prepareOnboarding() {\n    // Onboarding reservado para fase futura.\n    return;\n  },\n  fillOnboardingFuel`);
-  value = brandText(value).replaceAll('vetta-backup-', 'teste-netlify-of-backup-');
   return value;
 }
 
@@ -48,31 +47,18 @@ for (const path of expected.keys()) {
   const buffer = await verified(path);
   const target = join(SITE, path);
   await mkdir(dirname(target), { recursive: true });
-  if (path === 'app.js') {
-    await writeFile(target, transformAppJs(buffer.toString('utf8')));
-  } else if (path === 'app-shell.html' || path === 'index.html') {
-    await writeFile(target, brandText(buffer.toString('utf8')));
-  } else if (path === 'manifest.webmanifest') {
-    const manifest = JSON.parse(buffer.toString('utf8'));
-    manifest.name = 'TESTE NETLIFY OF';
-    manifest.short_name = 'TESTE NETLIFY OF';
-    manifest.description = 'Teste funcional direto para motoristas de aplicativo, baseado no ZIP aprovado.';
-    await writeFile(target, `${JSON.stringify(manifest, null, 2)}\n`);
-  } else if (path === 'sw.js') {
-    const source = buffer.toString('utf8');
-    if (!source.includes("const CACHE = 'teste-netlify-of-open-access-1';")) throw new Error('Cache PWA de acesso aberto não localizado');
-    await writeFile(target, source);
-  } else {
-    await cp(path, target);
-  }
+  if (path === 'app.js') await writeFile(target, transformAppJs(buffer.toString('utf8')));
+  else await cp(path, target);
 }
 
 await mkdir(join(SITE, '.well-known'), { recursive: true });
-await writeFile(join(SITE, '.well-known', 'teste-netlify-of-baseline.json'), `${JSON.stringify({
-  name: 'TESTE NETLIFY OF',
+await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringify({
+  name: 'FARO',
+  tagline: 'APP DO MOTORISTA!',
   sourceZipSha256: '22f83f11d25f4d452ae570e0153e9289d02060c423ad4bd5d7a7bcb96235f5c4',
+  brandAssetSha256: '06d155f9f8bbdef8d18918d29c8f6bf75b7b55c38971d076587a97bb7d45f940',
   branch: process.env.BRANCH || 'FAROAPP1CLEAN',
   commit: process.env.COMMIT_REF || null,
 }, null, 2)}\n`);
 
-console.log('TESTE NETLIFY OF built from verified ZIP baseline');
+console.log('FARO built from verified branded source');

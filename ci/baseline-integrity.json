@@ -1,12 +1,30 @@
 {
   "sourceZipSha256": "22f83f11d25f4d452ae570e0153e9289d02060c423ad4bd5d7a7bcb96235f5c4",
-  "sourceCommitEquivalent": "vitoohugo333/VETTA@2bae08973e8eea65465cc5d9ec8531e4e2113fa2",
+  "brandSourceImageSha256": "06d155f9f8bbdef8d18918d29c8f6bf75b7b55c38971d076587a97bb7d45f940",
+  "brand": "FARO",
+  "tagline": "APP DO MOTORISTA!",
+  "brandAssets": {
+    "faro-mark.svg": "b47e7aa970e50a90fabbbefb6ec21aca8db7557d8590d6687532f575212f6563",
+    "icon.svg": "482dca327e2ba36c5893ccd83e43e1a7f05a106e03bfcbfee118877f7d9126ba"
+  },
+  "coreFunctionSha256": {
+    "normalizeState": "1eceb5eb64fc64f60b6011eda45a6262f04ddab6848e0b062d0069953096d00c",
+    "migrateLegacy": "a864e3fc283e0150f14b77e65706eaf8239b3403ffa951dde4d40e0257fabe59",
+    "weekContext": "f4433ddbd3b8cd165c3f308f55c0e59cb8eba21420c7c02f64f7de4266080d9b",
+    "fuelCostKm": "c4ecdccfd734c9029d1bfbb35e0c9ecc4ad53ea13ded7a3806fb9ebdbb939442",
+    "calculations": "6d9118aabdc2165f022afb84f3e1c19902ac42c9b5d9c0f8e8ed25a2dbe730ef",
+    "saveDay": "d65177cbafa1a29c94c7d6b3648dad13ba29e0248dbe4743d7ad08b5c1317e2f",
+    "learningSuggestions": "ec65932ec705c3cf5d253c7331b729a8787d991e9e9f34405cda7752fe28465f",
+    "renderRecordPreview": "d59e0c2f25f326732335f2fc16585b2e9e85f0b001bb6a75f287a6d47760e1db"
+  },
   "authorizedTransformations": [
-    "visible brand: TESTE NETLIFY OF",
-    "storage namespace: faro-app-finance-v1",
-    "onboarding disabled",
-    "PWA cache renewed",
-    "browser access temporarily open without forced PWA installation",
-    "password/access gate disabled during test"
-  ]
+    "visible brand: FARO",
+    "tagline: APP DO MOTORISTA!",
+    "supplied white-background logo composition embedded in the PWA/app SVG icon",
+    "transparent dog + wheel/loupe mark derived from the supplied logo for the in-app header",
+    "faro-brand.js neutralizes legacy visible brand strings without rewriting the financial engine source",
+    "access remains temporarily open; installation remains optional"
+  ],
+  "runtimeSourceAppJsSha256": "9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb",
+  "runtimeSourceAppShellSha256": "2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b"
 }

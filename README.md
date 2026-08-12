@@ -1,5 +1,5 @@
-# TESTE NETLIFY OF
+# FARO — APP DO MOTORISTA!
 
-Base funcional preservada do ZIP aprovado. O código-fonte de runtime permanece byte a byte igual à base; o build aplica somente as transformações autorizadas de identidade, armazenamento, onboarding e cache PWA.
+Base funcional do ZIP aprovado, agora com identidade FARO. O GitHub Pages serve a branch `FAROAPP1CLEAN` diretamente; instalação e senha permanecem desativadas para o teste atual.
 
-A governança viva fica no Notion. Este repositório mantém apenas o contrato técnico estável em `AGENTS.md`.
+A governança viva fica no Notion. `AGENTS.md` mantém apenas o contrato técnico estável.
