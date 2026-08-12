@@ -1,23 +1,9 @@
 [build]
-  command = "mkdir -p _site && find . -mindepth 1 -maxdepth 1 ! -name _site ! -name .git ! -name node_modules -exec cp -R {} _site/ \\; && mkdir -p _site/.well-known && printf '{\"commit\":\"%s\",\"branch\":\"%s\"}\n' \"$COMMIT_REF\" \"$BRANCH\" > _site/.well-known/vetta-deploy.json"
+  command = "node scripts/build-netlify-of.mjs"
   publish = "_site"
-  edge_functions = "netlify/edge-functions"
 
 [build.environment]
   NODE_VERSION = "22"
-
-[[edge_functions]]
-  path = "/__vetta-oidc-access"
-  function = "robot-oidc-access"
-
-[[edge_functions]]
-  path = "/__vetta-robot-access"
-  function = "robot-access"
-
-[[edge_functions]]
-  path = "/*"
-  excludedPath = ["/manifest.webmanifest", "/sw.js", "/icon.svg", "/icon-192.png", "/icon-512.png"]
-  function = "calculaae-access-gate"
 
 [[redirects]]
   from = "/*"
