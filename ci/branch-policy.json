@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "app": true,
+  "branch": "teste-netlify-of",
+  "role": "zip-baseline-validation",
+  "sourceZipSha256": "22f83f11d25f4d452ae570e0153e9289d02060c423ad4bd5d7a7bcb96235f5c4",
+  "githubActions": "disabled-by-design",
+  "published": {
+    "type": "netlify-branch-test",
+    "url": null
+  }
+}

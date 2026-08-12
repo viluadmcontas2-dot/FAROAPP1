@@ -1,0 +1,10 @@
+{
+  "name": "teste-netlify-of",
+  "private": true,
+  "version": "3.5.1-zip-baseline.1",
+  "type": "module",
+  "scripts": {
+    "check": "node --check scripts/build-netlify-baseline.mjs",
+    "build": "node scripts/build-netlify-baseline.mjs"
+  }
+}
