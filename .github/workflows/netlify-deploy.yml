@@ -1,0 +1,116 @@
+name: Deploy VETTA to Netlify
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netlify-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NETLIFY_SITE_ID: 1aee8ea6-d05c-4bbc-9341-94555a23f725
+      NETLIFY_SITE_NAME: vetta-driver-intelligence
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify exact protected source
+        shell: bash
+        run: |
+          test ! -d parts
+          test ! -f vetta-3.4.3.js
+          test ! -f vetta-3.4.4.js
+          node --check app.js
+          node --check sw.js
+          node --check netlify/edge-functions/access-gate.js
+          node tests/verify-production.mjs
+          node tests/access-gate.test.mjs
+          RELEASE="$(node -e "const fs=require('fs');const s=fs.readFileSync('app.js','utf8');const m=s.match(/const APP_RELEASE = '([^']+)'/);if(!m)process.exit(1);process.stdout.write(m[1]);")"
+          printf 'EXPECTED_RELEASE=%s\n' "$RELEASE" >> "$GITHUB_ENV"
+
+      - name: Prepare static publish directory
+        shell: bash
+        run: |
+          rm -rf _site
+          mkdir _site
+          cp index.html app.js styles.css manifest.webmanifest icon.svg sw.js _site/
+          if [ -f .nojekyll ]; then cp .nojekyll _site/; fi
+
+      - name: Normalize Netlify credential in memory
+        shell: bash
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN" || { echo 'NETLIFY_AUTH_TOKEN ausente'; exit 1; }
+          CLEAN_TOKEN="$(printf '%s' "$NETLIFY_AUTH_TOKEN" | tr -d '\r\n')"
+          CLEAN_TOKEN="${CLEAN_TOKEN#NETLIFY_AUTH_TOKEN=}"
+          CLEAN_TOKEN="${CLEAN_TOKEN#Bearer }"
+          CLEAN_TOKEN="${CLEAN_TOKEN#\"}"
+          CLEAN_TOKEN="${CLEAN_TOKEN%\"}"
+          CLEAN_TOKEN="${CLEAN_TOKEN#\'}"
+          CLEAN_TOKEN="${CLEAN_TOKEN%\'}"
+          CLEAN_TOKEN="$(printf '%s' "$CLEAN_TOKEN" | tr -d '[:space:]')"
+          test -n "$CLEAN_TOKEN" || { echo 'Credencial vazia após normalização'; exit 1; }
+          if [[ ! "$CLEAN_TOKEN" =~ ^[A-Za-z0-9._~-]+$ ]]; then
+            echo 'Credencial contém caracteres incompatíveis mesmo após normalização.'
+            exit 1
+          fi
+          echo "::add-mask::$CLEAN_TOKEN"
+          printf 'NETLIFY_AUTH_TOKEN_CLEAN=%s\n' "$CLEAN_TOKEN" >> "$GITHUB_ENV"
+
+      - name: Verify Netlify project access
+        shell: bash
+        run: |
+          npx --yes netlify-cli@latest sites:list \
+            --json \
+            --auth="$NETLIFY_AUTH_TOKEN_CLEAN" > /tmp/netlify-sites.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const sites = JSON.parse(fs.readFileSync('/tmp/netlify-sites.json', 'utf8'));
+          const expectedId = process.env.NETLIFY_SITE_ID;
+          const expectedName = process.env.NETLIFY_SITE_NAME;
+          const found = sites.some(site => site.id === expectedId || site.name === expectedName || site.site_id === expectedId);
+          if (!found) {
+            console.error('A credencial não possui acesso ao projeto VETTA.');
+            process.exit(1);
+          }
+          console.log('Projeto VETTA autorizado pela credencial.');
+          NODE
+
+      - name: Deploy protected static release
+        run: |
+          npx --yes netlify-cli@latest deploy \
+            --prod \
+            --no-build \
+            --dir=_site \
+            --site="$NETLIFY_SITE_NAME" \
+            --auth="$NETLIFY_AUTH_TOKEN_CLEAN" \
+            --message="VETTA protected ${EXPECTED_RELEASE} ${GITHUB_SHA}"
+
+      - name: Verify live access gate
+        shell: bash
+        run: |
+          for attempt in {1..12}; do
+            STATUS="$(curl -sS -o /tmp/vetta-gate.html -w '%{http_code}' -H 'Cache-Control: no-cache' "https://vetta-driver-intelligence.netlify.app/?release=${EXPECTED_RELEASE}")" || true
+            ASSET_STATUS="$(curl -sS -o /tmp/vetta-asset.txt -w '%{http_code}' -H 'Cache-Control: no-cache' "https://vetta-driver-intelligence.netlify.app/app.js?release=${EXPECTED_RELEASE}")" || true
+            if [ "$STATUS" = "401" ] && grep -q 'data-vetta-access-gate="true"' /tmp/vetta-gate.html && [ "$ASSET_STATUS" = "401" ]; then
+              echo "Netlify protege VETTA ${EXPECTED_RELEASE}."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'A URL pública não ativou a barreira de acesso no prazo esperado.'
+          exit 1

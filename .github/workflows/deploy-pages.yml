@@ -1,0 +1,68 @@
+name: Deploy VETTA to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify protected production source
+        run: |
+          node --check app.js
+          node --check sw.js
+          node --check netlify/edge-functions/access-gate.js
+          node tests/verify-production.mjs
+          node tests/access-gate.test.mjs
+
+      - name: Prepare protected destination notice
+        run: |
+          rm -rf _site
+          mkdir _site
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="pt-BR">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <meta name="robots" content="noindex,nofollow">
+            <meta http-equiv="refresh" content="0;url=https://vetta-driver-intelligence.netlify.app/">
+            <title>VETTA | Demonstração protegida</title>
+          </head>
+          <body>
+            <p>A demonstração protegida está disponível em <a href="https://vetta-driver-intelligence.netlify.app/">vetta-driver-intelligence.netlify.app</a>.</p>
+          </body>
+          </html>
+          HTML
+          cp sw.js _site/sw.js
+          if [ -f .nojekyll ]; then cp .nojekyll _site/; fi
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

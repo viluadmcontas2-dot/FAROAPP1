@@ -1,0 +1,14 @@
+{
+  "name": "vetta-driver-intelligence",
+  "private": true,
+  "version": "3.5.1",
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:pwa": "node tests/pwa-access-boundary.test.mjs && node tests/pwa-standalone-launch.test.mjs",
+    "check:production": "node --check app.js && node --check sw.js && node --check netlify/edge-functions/access-gate.js && node --check netlify/edge-functions/robot-access.js && node tests/verify-production.mjs && node tests/access-gate.test.mjs && node tests/robot-access.test.mjs && node tests/pwa-access-boundary.test.mjs && node tests/pwa-standalone-launch.test.mjs && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

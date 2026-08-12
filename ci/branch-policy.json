@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "app": true,
+  "branch": "netlify/teste-fechado",
+  "role": "stable-testers",
+  "published": {
+    "type": "netlify",
+    "url": "https://calculaae.netlify.app/",
+    "authentication": "github-oidc",
+    "verifyFiles": [
+      "manifest.webmanifest",
+      "sw.js",
+      "icon.svg",
+      "icon-192.png",
+      "icon-512.png"
+    ]
+  }
+}

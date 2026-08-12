@@ -1,0 +1,23 @@
+name: VETTA CI Autônoma
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test:
+    uses: vitoohugo333/VETTA/.github/workflows/ci-engine.yml@main
+    with:
+      target_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      target_branch: ${{ github.head_ref || github.ref_name }}
+      base_sha: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
+      mode: auto
+      allow_published: ${{ github.event_name == 'push' }}
+    permissions:
+      contents: read
+      id-token: write
