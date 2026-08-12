@@ -5,6 +5,8 @@
     "visible brand: TESTE NETLIFY OF",
     "storage namespace: faro-app-finance-v1",
     "onboarding disabled",
-    "PWA cache renewed"
+    "PWA cache renewed",
+    "browser access temporarily open without forced PWA installation",
+    "password/access gate disabled during test"
   ]
 }

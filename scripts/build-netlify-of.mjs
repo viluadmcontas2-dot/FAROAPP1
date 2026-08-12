@@ -7,9 +7,9 @@ const expected = new Map(Object.entries({
   'app-shell.html': '2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b',
   'app.js': '9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb',
   'styles.css': '7befb2cdbe66395fb4b413282e25671a63bab0e313d20e4d01d8b41e25d2af73',
-  'index.html': '4ee9ccf908515816ace3cc9454f4c90955d7c9fdb1a874a4a980a4ec3899ddd7',
+  'index.html': '8f5388fb186d82369e4a877ad011896e24100c2e8663b3e111c0e65729f4c024',
   'manifest.webmanifest': '35a93de7ef22e687a233c2fe1d1b94b7be09f04a871f0551f23900ab7259235b',
-  'sw.js': '44e6fcdfe5eee5593744c8cf2d25e69b8323cf36ae11a0a9506a21e93f3c7129',
+  'sw.js': '0f0a989b30ebe3dbfb4fed6d8a050d44173a143ea4686de463b5df78f525bb72',
   'icon.svg': 'e9a8d61cabdb5fe71189ac5da54ec1305d2695e300d4922d640bdd33a936e6d9',
   'icon-192.png': 'fa690c0c4738af8a6f57eac9e6c07521772ceac0b071141309c3e378b3996974',
   'icon-512.png': 'c33d2754336f0878e496b503af6f8b8f502fe47b01ed704f719a4302ce6b64d8',
@@ -60,8 +60,8 @@ for (const path of expected.keys()) {
     await writeFile(target, `${JSON.stringify(manifest, null, 2)}\n`);
   } else if (path === 'sw.js') {
     const source = buffer.toString('utf8');
-    if (!source.includes("const CACHE = 'calculaae-install-flow-5';")) throw new Error('Cache PWA esperado não localizado');
-    await writeFile(target, source.replace("const CACHE = 'calculaae-install-flow-5';", "const CACHE = 'teste-netlify-of-zip-baseline-1';"));
+    if (!source.includes("const CACHE = 'teste-netlify-of-open-access-1';")) throw new Error('Cache PWA de acesso aberto não localizado');
+    await writeFile(target, source);
   } else {
     await cp(path, target);
   }

@@ -15,9 +15,12 @@ assert.match(app, /onboardingComplete: true,/);
 assert.match(app, /prepareOnboarding\(\) \{\n    \/\/ Onboarding reservado para fase futura\.\n    return;/);
 assert.doesNotMatch(app, /vetta-driver-intelligence-v3/);
 assert.match(shell + index, /TESTE NETLIFY OF/);
+assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
+assert.doesNotMatch(index, /Preparando instalação|Instale uma vez|Verificando instalação/i);
+assert.doesNotMatch(app + shell + index, /data-vetta-access-gate|access-gate|password|senha/i);
 assert.equal(manifest.name, 'TESTE NETLIFY OF');
 assert.equal(manifest.short_name, 'TESTE NETLIFY OF');
-assert.match(sw, /teste-netlify-of-zip-baseline-1/);
+assert.match(sw, /teste-netlify-of-open-access-1/);
 
 const root = await readdir('.');
 assert.equal(root.includes('.github'), false, 'Nenhum workflow deve existir nesta fotografia limpa');

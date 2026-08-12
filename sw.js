@@ -1,4 +1,4 @@
-const CACHE = 'calculaae-install-flow-5';
+const CACHE = 'teste-netlify-of-open-access-1';
 const APP_SHELL = [
   './',
   './index.html',
