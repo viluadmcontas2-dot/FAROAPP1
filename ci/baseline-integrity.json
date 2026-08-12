@@ -23,7 +23,11 @@
     "supplied white-background logo composition embedded in the PWA/app SVG icon",
     "transparent dog + wheel/loupe mark derived from the supplied logo for the in-app header",
     "faro-brand.js neutralizes legacy visible brand strings without rewriting the financial engine source",
-    "access remains temporarily open; installation remains optional"
+    "access remains temporarily open; installation remains optional",
+    "daily home keeps the daily target, primary registration CTA, month/week rhythm and FARO insight while monthly target controls and distribution move to Planning",
+    "hours and fuel remain available but collapse under optional details in the daily record flow",
+    "after a valid save, a result sheet exposes the engine-computed net, cost, revenue per km and consequence for the monthly target",
+    "app.js and legacy-shell.html remain byte-for-byte frozen as the approved functional baseline"
   ],
   "runtimeSourceAppJsSha256": "9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb",
   "runtimeSourceAppShellSha256": "2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b"

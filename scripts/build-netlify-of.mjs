@@ -4,14 +4,14 @@ import { dirname, join } from 'node:path';
 
 const SITE = '_site';
 const expected = new Map(Object.entries({
-  "app-shell.html": "2b669504723579d2e0d3ddef11c029cc27f636cfa011e99518b714e1a3d10ca7",
+  "app-shell.html": "a1c56aa52d23004d43d0754a423e1819c38cda698177d7376e900ed75d58c91b",
   "legacy-shell.html": "2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b",
   "app.js": "9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb",
-  "faro-brand.js": "eef640211c833154c0272c1e3008201f2a9d0532c2403eb092be6a7d2497d701",
+  "faro-brand.js": "88fb61060194ffd129dc62da9aeffd48550e35cccfe71b07cf4933efeb3c77a3",
   "styles.css": "7befb2cdbe66395fb4b413282e25671a63bab0e313d20e4d01d8b41e25d2af73",
   "index.html": "c0066b474c486104956d768a1340bbf7efbfd62cef11cd563d265a175db2f41d",
   "manifest.webmanifest": "178ada16f5e3389718adc4edd05d72f08373dd4ba2e95fd447490f09c6cfe2bc",
-  "sw.js": "221445ec5561054c62e47883f239d1e4fec9826f57c2d30e34c5b9a83a356aa5",
+  "sw.js": "16a113294ff1432302d1d4310817ebe10f5e8544d0eb3a3eb40e6b50d2544148",
   "icon.svg": "482dca327e2ba36c5893ccd83e43e1a7f05a106e03bfcbfee118877f7d9126ba",
   "faro-mark.svg": "b47e7aa970e50a90fabbbefb6ec21aca8db7557d8590d6687532f575212f6563"
 }));

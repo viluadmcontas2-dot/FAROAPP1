@@ -39,19 +39,17 @@ for (const shell of [rootShell, builtShell]) {
   assert.match(shell, /replaceAll\('TESTE NETLIFY OF', 'FARO'\)/);
   assert.match(shell, /replaceAll\('CalculaAê', 'FARO'\)/);
 }
-assert.match(rootShell, /replaceAll\('VETTA', 'FARO'\)/);
 assert.match(rootShell, /APP DO MOTORISTA!/);
 assert.match(rootShell, /faro-mark\.svg/);
 assert.match(rootShell, /legacy-shell\.html/);
-assert.match(rootShell, /APP DO MOTORISTA!/);
-assert.match(rootShell, /faro-brand\.js\?v=1/);
+assert.match(rootShell, /faro-brand\.js\?v=2/);
 assert.match(rootIndex, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(rootIndex, /Preparando instalação|Instalar Calcula|Instalar FARO/);
 assert.equal(rootManifest.name, 'FARO — APP DO MOTORISTA!');
 assert.equal(rootManifest.short_name, 'FARO');
 assert.deepEqual(rootManifest.icons, [{ src: './icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]);
-assert.match(rootSw, /faro-brand-1/);
-assert.match(rootSw, /faro-brand\.js\?v=1/);
+assert.match(rootSw, /faro-daily-1/);
+assert.match(rootSw, /faro-brand\.js\?v=2/);
 assert.match(rootSw, /\.\/icon\.svg/);
 assert.match(rootSw, /\.\/faro-mark\.svg/);
 
@@ -64,13 +62,35 @@ for (const script of [rootBrand, builtBrand]) {
   assert.match(script, /app\.printReport = function/);
   assert.match(script, /app\.toast = function/);
   assert.match(script, /faro-backup-/);
+
+  // Jornada diária: a evolução deve ficar na camada de experiência, não no motor.
+  assert.match(script, /const setupDailyJourney = \(\) =>/);
+  assert.match(script, /faroPlanningDetails/);
+  assert.match(script, /faroOptionalDetails/);
+  assert.match(script, /faroDailyResult/);
+  assert.match(script, /const baseSaveDay = app\.saveDay/);
+  assert.match(script, /const baseShowView = app\.showView/);
+  assert.match(script, /targetProfitDisplay/);
+  assert.match(script, /dreGross/);
+  assert.match(script, /recordHours/);
+  assert.match(script, /recordFuel/);
+  assert.match(script, /this\.recordNumbers\(saved, context\)/);
+  assert.match(script, /this\.calculations\(\)/);
+  assert.doesNotMatch(script, /state\.records\.push|state\.records\.splice/);
+}
+
+for (const requiredId of [
+  'view-dashboard', 'view-planning', 'view-day', 'targetProfitDisplay', 'dreGross',
+  'recordHours', 'recordFuel', 'saveDayButton', 'previewNet', 'historyList'
+]) {
+  assert.match(legacyShell, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId} para a camada de jornada`);
 }
 
 assert.match(builtApp, /const STORAGE_KEY = 'faro-app-finance-v1';/);
 assert.match(builtApp, /onboardingComplete: true,/);
 assert.match(builtApp, /prepareOnboarding\(\) \{\n    \/\/ Onboarding reservado para fase futura\.\n    return;/);
 assert.equal(builtManifest.name, 'FARO — APP DO MOTORISTA!');
-assert.match(builtSw, /faro-brand-1/);
+assert.match(builtSw, /faro-daily-1/);
 
 for (const [path, expected] of Object.entries(integrity.brandAssets)) {
   const data = await readFile(path);
@@ -107,7 +127,7 @@ function firstMethod(source, name) {
 }
 
 for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
-  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo de branding`);
+  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo da jornada diária`);
 }
 
 const root = await readdir('.');
@@ -119,4 +139,4 @@ for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','
 const forbiddenGate = /access-gate|password|senha/i;
 assert.doesNotMatch(rootIndex + rootShell + rootBrand, forbiddenGate);
 
-console.log('FARO branding contract: ok');
+console.log('FARO daily journey contract: ok');

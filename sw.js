@@ -1,11 +1,11 @@
-const CACHE = 'faro-brand-1';
+const CACHE = 'faro-daily-1';
 const APP_SHELL = [
   './',
   './index.html',
   './app-shell.html',
   './legacy-shell.html',
   './app.js?v=3.5.1-faro1',
-  './faro-brand.js?v=1',
+  './faro-brand.js?v=2',
   './styles.css',
   './manifest.webmanifest',
   './faro-mark.svg',
