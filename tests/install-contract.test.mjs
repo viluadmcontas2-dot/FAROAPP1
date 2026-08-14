@@ -46,14 +46,17 @@ contains(shell, 'window.__faroInstallPrompt = null', 'Bootstrap precisa preparar
 contains(shell, "window.addEventListener('beforeinstallprompt'", 'Bootstrap precisa capturar o instalador antes da UI');
 contains(shell, "window.dispatchEvent(new CustomEvent('faro:install-ready'))", 'Bootstrap precisa avisar quando o prompt estiver pronto');
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a nova geração da porta de instalação');
+contains(shell, 'faro-update.js?v=1', 'Shell precisa carregar a política de atualização silenciosa');
 assert.doesNotMatch(shell, /Abrindo FARO…/, 'Shell não deve mostrar tela intermediária antes do gate');
 
-contains(sw, "const CORE_CACHE = 'faro-v1-core-9'", 'Instalabilidade precisa acompanhar a geração atual do PWA');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-11'", 'Instalação precisa acompanhar a geração atual do PWA');
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
+contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
 contains(build, "'icon-192.png'", 'Build precisa copiar ícone 192');
 contains(build, "'icon-512.png'", 'Build precisa copiar ícone 512');
+assert.doesNotMatch(sw, /skipWaiting\s*\(|SKIP_WAITING/, 'Instalação não pode forçar troca de versão durante uso ativo');
 
 assert.deepEqual(pngSize(icon192), [192, 192], 'icon-192.png precisa medir 192×192');
 assert.deepEqual(pngSize(icon512), [512, 512], 'icon-512.png precisa medir 512×512');
@@ -73,4 +76,4 @@ assert.doesNotMatch(platform, /sensação de.*site|como site|barra de navegador/
 assert.doesNotMatch(platform, /É rápido e você só faz isso uma vez|Leva poucos segundos e você faz isso só uma vez/i, 'Copy não deve repetir promessa de rapidez/instalação única');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode recarregar e criar loop de gate');
 
-console.log('FARO: sem piscada, prompt capturado cedo, manifest completo e ícones reais 192/512 — ok');
+console.log('FARO: sem piscada, instalação completa e atualização silenciosa sem troca forçada durante uso — ok');
