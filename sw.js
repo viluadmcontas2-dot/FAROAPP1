@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-7';
+const CORE_CACHE = 'faro-v1-core-8';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -22,7 +22,9 @@ const APP_SHELL = [
   './styles.css',
   './manifest.webmanifest',
   './faro-mark.svg',
-  './icon.svg'
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 const EXTERNAL_SEEDS = [
