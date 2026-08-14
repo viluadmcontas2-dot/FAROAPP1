@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - release/faro-v1-comercial-22-08
+    paths-ignore:
+      - 'AGENTS.md'
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
   workflow_dispatch:
 
 permissions:
