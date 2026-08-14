@@ -20,7 +20,9 @@ assert.match(register, /aria-busy/);
 assert.match(register, /remainingWeek/);
 assert.match(register, /Na semana, faltam/);
 assert.match(register, /No mês, faltam/);
+assert.match(register, /setAttribute\('inputmode', 'decimal'\)/);
+assert.match(register, /\$\('clearDayButton'\)\?\.addEventListener\('click'[\s\S]*clearDraft\(\)/);
 assert.doesNotMatch(register, /state\.records\.push|state\.records\.splice/);
 assert.doesNotMatch(register, /dailyGross\s*=|dailyNet\s*=/, 'Registro UX não cria motor financeiro paralelo');
 
-console.log('FARO: Registro rápido com chips, rascunho, retomada e proteção de save — ok');
+console.log('FARO: Registro rápido com chips, rascunho, limpar coerente, teclado decimal e proteção de save — ok');
