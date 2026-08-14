@@ -10,7 +10,7 @@
     gasoline: { label: 'Gasolina', unit: 'L', price: 6.19, efficiency: 10.5 },
     ethanol: { label: 'Etanol', unit: 'L', price: 4.29, efficiency: 7.4 },
     diesel: { label: 'Diesel', unit: 'L', price: 6.09, efficiency: 11.5 },
-    electric: { label: 'Elétrico', unit: 'kWh', price: 2, efficiency: 0 }
+    electric: { label: 'Elétrico', unit: 'kWh', price: 0, efficiency: 0 }
   };
 
   const $ = id => document.getElementById(id);
@@ -177,7 +177,7 @@
             <input id="faroEnergyEfficiency" type="number" inputmode="decimal" min="0" step=".1" class="input-vetta faro-money">
           </div>
           <div id="faroElectricFields" class="hidden space-y-4">
-            <div><label class="label-micro">Preço médio da energia</label><div class="input-wrapper"><span>R$</span><input id="faroElectricPrice" type="number" inputmode="decimal" min="0" step=".01" class="input-vetta faro-money" placeholder="2,00"></div><p class="faro-helper mt-1">Use o valor médio que você realmente paga por kWh.</p></div>
+            <div><label class="label-micro">Preço médio da energia</label><div class="input-wrapper"><span>R$</span><input id="faroElectricPrice" type="number" inputmode="decimal" min="0" step=".01" class="input-vetta faro-money" placeholder="Ex.: 1,80"></div><p class="faro-helper mt-1">Use o valor médio que você realmente paga por kWh.</p></div>
             <div><label class="label-micro">Tamanho da bateria</label><div class="input-wrapper"><input id="faroBatteryKwh" type="number" inputmode="decimal" min="0" step=".1" class="input-vetta faro-money" placeholder="45"><span>kWh</span></div></div>
             <div><label class="label-micro">Quanto seu carro roda com uma carga?</label><div class="input-wrapper"><input id="faroRangeKm" type="number" inputmode="decimal" min="0" step="1" class="input-vetta faro-money" placeholder="280"><span>km</span></div><p class="faro-helper mt-1">Você informa bateria e autonomia. O FARO calcula sozinho o km/kWh.</p></div>
           </div>
@@ -307,7 +307,7 @@
     capturePendingCost();
     const name = text(draft.pendingCost.name);
     const value = n(draft.pendingCost.value);
-    if (!name && value <= 0) return true;
+    if (!name && value <= 0 && !draft.pendingCost.dueDay) return true;
     if (!name) { app.toast('Dê um nome para este custo.'); return false; }
     if (value <= 0) { app.toast(`Informe o valor de ${name}.`); return false; }
     const item = { id: `onboarding-cost-${Date.now()}`, name, kind:'monthly', category:'obligation', value, active:true, dueDay:clampDueDay(draft.pendingCost.dueDay), source:'onboarding' };
