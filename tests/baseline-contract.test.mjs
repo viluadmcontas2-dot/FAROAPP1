@@ -30,7 +30,6 @@ const builtPlatform = await read('_site/faro-platform.js');
 const builtOnboarding = await read('_site/faro-onboarding.js');
 const builtSw = await read('_site/sw.js');
 
-// Núcleo financeiro e identidade aprovados não podem mudar por acidente.
 assert.equal(sha256(rootAppBuffer), integrity.protectedCore.appJsSha256, 'app.js fonte mudou fora do contrato');
 assert.equal(sha256(legacyBuffer), integrity.protectedCore.legacyShellSha256, 'legacy-shell mudou fora do contrato');
 assert.equal(sha256(markBuffer), integrity.protectedCore.faroMarkSha256, 'marca FARO mudou fora do contrato');
@@ -66,7 +65,6 @@ for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
   assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo`);
 }
 
-// Bootstrap técnico do PWA vem antes de instalação, login ou cobrança.
 assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
 assert.doesNotMatch(index, /serviceWorker\.register/);
@@ -78,15 +76,24 @@ assert.match(platform, /canEnterProduct/);
 assert.doesNotMatch(platform, /stripe|assinatura|password|senha/i);
 assert.equal(builtPlatform, platform);
 
-// Onboarding v2 — fluxo humano, progressivo e sem custo agregado genérico.
 for (const source of [onboarding, builtOnboarding]) {
   assert.match(source, /const DRAFT_KEY = 'faro-onboarding-draft-v2'/);
+  assert.match(source, /const escapeHtml = value =>/);
   assert.match(source, /data-faro-step="rental"/);
   assert.match(source, /data-faro-step="finance"/);
   assert.match(source, /data-faro-step="costs"/);
   assert.match(source, /data-faro-step="reserve"/);
   assert.match(source, /Quanto você paga por semana\?/);
   assert.match(source, /Valor da parcela mensal/);
+  assert.match(source, /rentalDueWeekday: ''/);
+  assert.match(source, /financeDueDay: ''/);
+  assert.match(source, /<option value="">Escolha o dia<\/option>/);
+  assert.match(source, /Escolha o dia em que o aluguel normalmente vence\./);
+  assert.match(source, /Informe o dia do vencimento da parcela\./);
+  assert.match(source, /escapeHtml\(item\.name\)/);
+  assert.doesNotMatch(source, /rentalDueWeekday:\s*5/);
+  assert.doesNotMatch(source, /financeDueDay:\s*10/);
+  assert.doesNotMatch(source, /financeDueDay\s*=.*\|\|\s*10/);
   assert.match(source, /otherCosts: \[\]/);
   assert.match(source, /pendingCost:/);
   assert.match(source, /dueDay:clampDueDay|dueDay: clampDueDay/);
@@ -106,7 +113,6 @@ for (const source of [onboarding, builtOnboarding]) {
   assert.doesNotMatch(source, /id="faroFinanceMonthly"[^>]*step="\.01"/);
 }
 
-// PWA/offline — núcleo nunca depende da disponibilidade de CDN.
 for (const source of [sw, builtSw]) {
   assert.match(source, /faro-v1-core-2/);
   assert.match(source, /faro-v1-external-2/);
@@ -120,7 +126,6 @@ for (const source of [sw, builtSw]) {
   assert.match(source, /fonts\.gstatic\.com/);
 }
 
-// Marca e experiência já aprovadas continuam presentes.
 assert.match(shell, /APP DO MOTORISTA!/);
 assert.match(shell, /faro-mark\.svg/);
 assert.match(brand, /replaceAll\('VETTA', BRAND\)/);
@@ -133,7 +138,6 @@ for (const requiredId of ['view-dashboard','view-planning','view-day','targetPro
   assert.match(legacy, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId}`);
 }
 
-// Actions — linguagem humana e zero execução automática em push comum.
 assert.match(workflow, /^name: Validar FARO v1 comercial/m);
 assert.match(workflow, /workflow_dispatch:/);
 assert.doesNotMatch(workflow, /^\s*push:/m, 'Push comum deve consumir zero Actions por padrão');
@@ -150,4 +154,4 @@ for (const path of ['faro-platform.js','faro-onboarding.js','sw.js','app-shell.h
   assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
 }
 
-console.log('FARO: onboarding refinado, PWA protegido, Actions econômicas e núcleo financeiro preservado — ok');
+console.log('FARO: onboarding refinado, vencimentos reais, PWA protegido, Actions econômicas e núcleo financeiro preservado — ok');
