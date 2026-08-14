@@ -67,12 +67,12 @@ for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
   assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo`);
 }
 
-// Bootstrap técnico antes de qualquer gate comercial.
 assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
 assert.doesNotMatch(index, /serviceWorker\.register/);
 assert.match(shell, /faro-platform\.js\?v=1/);
 assert.match(shell, /faro-energy\.js\?v=1/);
+assert.match(shell, /faro-home\.js\?v=1/);
 assert.match(shell, /faro-onboarding\.js\?v=2/);
 assert.match(platform, /const INSTALL_GATE_ENFORCED = false/);
 assert.match(platform, /window\.FaroPlatform/);
@@ -80,7 +80,6 @@ assert.match(platform, /canEnterProduct/);
 assert.doesNotMatch(platform, /stripe|assinatura|password|senha/i);
 assert.equal(builtPlatform, platform);
 
-// Elétrico precisa continuar elétrico fora do onboarding.
 for (const source of [energy, builtEnergy]) {
   assert.match(source, /type: 'electric'/);
   assert.match(source, /label: 'Elétrico'/);
@@ -93,7 +92,6 @@ for (const source of [energy, builtEnergy]) {
 }
 assert.equal(builtEnergy, energy);
 
-// Onboarding progressivo e retomável.
 for (const source of [onboarding, builtOnboarding]) {
   assert.match(source, /const DRAFT_KEY = 'faro-onboarding-draft-v2'/);
   assert.match(source, /const escapeHtml = value =>/);
@@ -138,12 +136,12 @@ for (const source of [onboarding, builtOnboarding]) {
   assert.doesNotMatch(source, /id="faroFinanceMonthly"[^>]*step="\.01"/);
 }
 
-// Offline/installado.
 for (const source of [sw, builtSw]) {
-  assert.match(source, /faro-v1-core-4/);
+  assert.match(source, /faro-v1-core-5/);
   assert.match(source, /faro-v1-external-2/);
   assert.match(source, /faro-platform\.js\?v=1/);
   assert.match(source, /faro-energy\.js\?v=1/);
+  assert.match(source, /faro-home\.js\?v=1/);
   assert.match(source, /faro-onboarding\.js\?v=2/);
   assert.match(source, /Promise\.allSettled\(EXTERNAL_SEEDS\.map\(cacheExternalSeed\)\)/);
   assert.match(source, /Dependência externa nunca pode impedir o núcleo FARO de instalar/);
@@ -165,7 +163,6 @@ for (const requiredId of ['view-dashboard','view-planning','view-day','targetPro
   assert.match(legacy, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId}`);
 }
 
-// Actions econômicas e legíveis.
 assert.match(workflow, /^name: Validar FARO v1 comercial/m);
 assert.match(workflow, /workflow_dispatch:/);
 assert.doesNotMatch(workflow, /^\s*push:/m, 'Push comum deve consumir zero Actions por padrão');
@@ -179,8 +176,8 @@ for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','
   assert.equal(root.includes(forbidden), false, `${forbidden} não pertence a esta fotografia`);
 }
 
-for (const path of ['faro-platform.js','faro-energy.js','faro-onboarding.js','sw.js','app-shell.html']) {
+for (const path of ['faro-platform.js','faro-energy.js','faro-home.js','faro-onboarding.js','sw.js','app-shell.html']) {
   assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
 }
 
-console.log('FARO: onboarding retomável, elétrico coerente, PWA protegido, Actions econômicas e núcleo financeiro preservado — ok');
+console.log('FARO: onboarding retomável, Home integrada, elétrico coerente, PWA protegido e núcleo financeiro preservado — ok');
