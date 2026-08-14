@@ -399,6 +399,8 @@
 
   const showProcessing = () => {
     const preset = ENERGY[draft.energy] || ENERGY.gnv;
+    draft.stepId = 'processing';
+    saveDraft();
     app.state.targetProfit = draft.target;
     app.state.workWeekdays = app.weekdaysForCount(draft.days);
     app.state.fuel = { type:draft.energy, label:preset.label, unit:preset.unit, price:draft.energyPrice, efficiency:draft.energyEfficiency };
@@ -422,10 +424,15 @@
   };
 
   const showResult = () => {
-    app.state.onboardingComplete = true; app.save(); app.syncInputs(); app.render();
+    draft.stepId = 'result';
+    saveDraft();
+    app.state.onboardingComplete = false;
+    app.save();
     const c = app.calculations(); const week = app.weekContext(c);
     const estimated = draft.revenueEstimated || draft.energyPriceEstimated || draft.energyEfficiencyEstimated;
     sections.forEach(section => section.classList.toggle('hidden', section.dataset.faroStep !== 'result'));
+    $('faroOnboardingHeader').classList.add('hidden');
+    $('faroOnboardingActions').classList.add('hidden');
     $('faroPlanStatus').classList.toggle('hidden', !estimated);
     $('faroPlanDailyGross').textContent = app.money(c.dailyGross,0);
     $('faroPlanDays').textContent = `${c.ctx.plannedDays} dias`;
@@ -436,14 +443,17 @@
     $('faroPlanExplanation').textContent = `Para buscar ${app.money(draft.target,0)} líquidos no mês${vehicle}, este é o ponto de partida do seu FARO.`;
     $('faroPlanDailyHint').textContent = `Com ${draft.days} dia(s) por semana e ${app.money(draft.revenueKm)} de receita por km.`;
     $('faroPlanNote').textContent = estimated ? 'Alguns valores ainda são estimativas. Seus registros reais vão deixar o plano cada vez mais fiel.' : 'Seu primeiro plano foi montado com os valores informados e pode ser ajustado em Planejar.';
-    $('faroFinish').classList.remove('hidden'); clearDraft();
+    $('faroFinish').classList.remove('hidden');
   };
 
   modal.querySelectorAll('[data-days]').forEach(button => button.addEventListener('click', () => { draft.days = Number(button.dataset.days); selectButtons('[data-days]', draft.days, 'days'); saveDraft(); }));
   modal.querySelectorAll('[data-vehicle]').forEach(button => button.addEventListener('click', () => { draft.vehicle = button.dataset.vehicle; selectButtons('[data-vehicle]', draft.vehicle, 'vehicle'); saveDraft(); }));
   $('faroRentalWeekly').addEventListener('input', renderRentalPreview); $('faroRentalDue').addEventListener('change', renderRentalPreview);
   $('faroFinanceMonthly').addEventListener('input', () => { draft.financeMonthly = n($('faroFinanceMonthly').value); saveDraft(); }); $('faroFinanceDue').addEventListener('input', () => { draft.financeDueDay = clampDueDay($('faroFinanceDue').value) ?? ''; saveDraft(); });
-  $('faroTargetSlider').addEventListener('input', e => syncTarget(e.target.value)); $('faroTargetNumber').addEventListener('input', e => syncTarget(e.target.value)); modal.querySelectorAll('[data-target-add]').forEach(button => button.addEventListener('click', () => syncTarget(draft.target + Number(button.dataset.targetAdd))));
+  $('faroTargetSlider').addEventListener('input', e => syncTarget(e.target.value));
+  $('faroTargetNumber').addEventListener('input', e => { if (e.target.value !== '') syncTarget(e.target.value); });
+  $('faroTargetNumber').addEventListener('blur', e => { if (e.target.value === '') e.target.value = draft.target; });
+  modal.querySelectorAll('[data-target-add]').forEach(button => button.addEventListener('click', () => syncTarget(draft.target + Number(button.dataset.targetAdd))));
   $('faroEnergyType').addEventListener('change', e => { draft.energy = e.target.value; renderEnergy(true); });
   $('faroEnergyPrice').addEventListener('input', () => { draft.energyPriceEstimated = false; renderEnergy(false); }); $('faroEnergyEfficiency').addEventListener('input', () => { draft.energyEfficiencyEstimated = false; renderEnergy(false); });
   $('faroElectricPrice').addEventListener('input', () => { draft.energyPriceEstimated = false; calculateEnergy(); }); $('faroBatteryKwh').addEventListener('input', calculateEnergy); $('faroRangeKm').addEventListener('input', calculateEnergy);
@@ -459,11 +469,24 @@
   $('faroRevenueKm').addEventListener('input', e => { draft.revenueKm=n(e.target.value); draft.revenueEstimated=Math.abs(draft.revenueKm-DEFAULT_REVENUE_KM)<.001; $('faroRevenueEstimate').classList.toggle('hidden',!draft.revenueEstimated); saveDraft(); });
   $('faroBack').addEventListener('click', () => { const seq=sequence(); const index=seq.indexOf(draft.stepId); if(index<=0)return; draft.stepId=seq[index-1]; saveDraft(); renderStep(); });
   $('faroNext').addEventListener('click', () => { if(!validateStep())return; const seq=sequence(); const index=seq.indexOf(draft.stepId); if(index<seq.length-1){draft.stepId=seq[index+1];saveDraft();renderStep();}else showProcessing(); });
-  $('faroFinish').addEventListener('click', () => { modal.classList.add('hidden'); app.navigateToPrimary('dashboard'); app.toast('Seu FARO está pronto. Ajuste quando sua rotina mudar.'); });
+  $('faroFinish').addEventListener('click', () => {
+    app.state.onboardingComplete = true;
+    app.save();
+    app.syncInputs();
+    app.render();
+    clearDraft();
+    modal.classList.add('hidden');
+    app.navigateToPrimary('dashboard');
+    app.toast('Seu FARO está pronto. Ajuste quando sua rotina mudar.');
+  });
 
   $('faroRentalWeekly').value = draft.rentalWeekly || ''; $('faroRentalDue').value = draft.rentalDueWeekday === '' ? '' : String(draft.rentalDueWeekday);
   $('faroFinanceMonthly').value = draft.financeMonthly || ''; $('faroFinanceDue').value = draft.financeDueDay || '';
   $('faroReserveName').value = draft.reserveDraft.name || ''; $('faroReserveValue').value = draft.reserveDraft.value || '';
   $('faroRevenueKm').value = draft.revenueKm; $('faroRevenueEstimate').classList.toggle('hidden',!draft.revenueEstimated);
-  syncTarget(draft.target); renderEnergy(false); renderCosts(); renderStep(); modal.classList.remove('hidden');
+  syncTarget(draft.target); renderEnergy(false); renderCosts();
+  if (draft.stepId === 'processing') showProcessing();
+  else if (draft.stepId === 'result') showResult();
+  else renderStep();
+  modal.classList.remove('hidden');
 })();
