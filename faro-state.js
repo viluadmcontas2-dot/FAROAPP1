@@ -13,16 +13,18 @@
     return state;
   };
 
+  const baseCloneDefaults = app.cloneDefaults;
+  app.cloneDefaults = function() {
+    return ensureExtensions(baseCloneDefaults.call(this));
+  };
+
   const baseNormalizeState = app.normalizeState;
   app.normalizeState = function(value) {
     return ensureExtensions(baseNormalizeState.call(this, value));
   };
 
-  const current = ensureExtensions(app.state);
-  if (current !== app.state) app.state = current;
+  app.state = ensureExtensions(app.state);
   app.save();
 
-  window.FaroState = Object.freeze({
-    ensure: ensureExtensions
-  });
+  window.FaroState = Object.freeze({ ensure: ensureExtensions });
 })();
