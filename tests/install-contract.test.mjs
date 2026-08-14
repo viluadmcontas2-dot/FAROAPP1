@@ -48,7 +48,7 @@ contains(shell, "window.dispatchEvent(new CustomEvent('faro:install-ready'))", '
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a nova geração da porta de instalação');
 assert.doesNotMatch(shell, /Abrindo FARO…/, 'Shell não deve mostrar tela intermediária antes do gate');
 
-contains(sw, "const CORE_CACHE = 'faro-v1-core-8'", 'Instalabilidade completa precisa de nova geração de cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-9'", 'Instalabilidade precisa acompanhar a geração atual do PWA');
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
