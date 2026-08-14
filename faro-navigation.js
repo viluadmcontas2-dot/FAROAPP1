@@ -49,6 +49,13 @@
     historyView.insertBefore(historyListSection, historyChart);
   }
 
+  // Planejar vira o destino principal quando o usuário decide editar custos.
+  document.getElementById('faroManageCosts')?.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    app.navigateToPrimary('settings');
+  }, true);
+
   // Radar continua preservado no estado legado, mas não integra a superfície comercial da v1.
   const eventCard = document.getElementById('eventList')?.closest('.card-vetta');
   if (eventCard) {
@@ -122,8 +129,17 @@
     document.getElementById('faroHistoryDetailNet').textContent = app.money(numbers.net);
     document.getElementById('faroHistoryDetailKm').textContent = `${app.integer(numbers.km)} km`;
     document.getElementById('faroHistoryDetailRevenueKm').textContent = `${app.money(numbers.revenuePerKm)}/km`;
-    document.getElementById('faroHistoryDetailContext').textContent = `Custos e combustível deste registro permanecem ligados aos parâmetros salvos no próprio dia.`;
+    document.getElementById('faroHistoryDetailContext').textContent = 'Custos e combustível deste registro permanecem ligados aos parâmetros salvos no próprio dia.';
     detail.classList.remove('hidden');
+  };
+
+  const decorateHistoryRows = () => {
+    historyList?.querySelectorAll('.history-row').forEach(row => {
+      row.tabIndex = 0;
+      row.setAttribute('role', 'button');
+      const edit = row.querySelector('[data-action="edit"][data-date]');
+      if (edit?.dataset.date) row.setAttribute('aria-label', `Abrir detalhe do dia ${edit.dataset.date}`);
+    });
   };
 
   historyList?.addEventListener('click', event => {
@@ -132,6 +148,16 @@
     if (!row) return;
     const edit = row.querySelector('[data-action="edit"][data-date]');
     if (edit?.dataset.date) openDetail(edit.dataset.date);
+  });
+
+  historyList?.addEventListener('keydown', event => {
+    if (event.target.closest('button') || (event.key !== 'Enter' && event.key !== ' ')) return;
+    const row = event.target.closest('.history-row');
+    if (!row) return;
+    const edit = row.querySelector('[data-action="edit"][data-date]');
+    if (!edit?.dataset.date) return;
+    event.preventDefault();
+    openDetail(edit.dataset.date);
   });
 
   document.getElementById('faroHistoryDetailEdit').addEventListener('click', () => {
@@ -163,6 +189,14 @@
     app.openSecondary('day');
     app.renderRecordPreview();
   }, true);
+
+  const baseRenderHistory = app.renderHistory;
+  app.renderHistory = function(...args) {
+    const result = baseRenderHistory.apply(this, args);
+    decorateHistoryRows();
+    return result;
+  };
+  decorateHistoryRows();
 
   const baseSaveDay = app.saveDay;
   app.saveDay = function(...args) {
