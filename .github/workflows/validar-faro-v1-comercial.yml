@@ -2,11 +2,6 @@ name: Validar FARO v1 comercial
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - release/faro-v1-comercial-22-08
-    paths:
-      - .github/VALIDAR_AGORA
 
 permissions:
   contents: read
