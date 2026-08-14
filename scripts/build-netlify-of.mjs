@@ -22,6 +22,7 @@ const copyFiles = [
   'faro-energy.js',
   'faro-home.js',
   'faro-register.js',
+  'faro-finance.js',
   'faro-onboarding.js',
   'styles.css',
   'index.html',
