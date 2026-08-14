@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-6';
+const CORE_CACHE = 'faro-v1-core-7';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -8,7 +8,7 @@ const APP_SHELL = [
   './legacy-shell.html',
   './app.js?v=3.5.1-faro1',
   './faro-brand.js?v=2',
-  './faro-platform.js?v=2',
+  './faro-platform.js?v=3',
   './faro-energy.js?v=1',
   './faro-home.js?v=1',
   './faro-register.js?v=1',
@@ -50,7 +50,6 @@ async function cacheExternalSeed(url) {
     const cache = await caches.open(EXTERNAL_CACHE);
     await cache.put(request, response.clone());
   } catch (error) {
-    // Dependência externa nunca pode impedir o núcleo FARO de instalar.
     console.warn('FARO: dependência externa não foi pré-cacheada', url, error);
   }
 }
