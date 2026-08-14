@@ -11,6 +11,11 @@
   marker.hidden = true;
   dayView.prepend(marker);
 
+  ['recordGross', 'recordKm', 'recordHours', 'recordFuel'].forEach(id => {
+    const input = $(id);
+    if (input) input.setAttribute('inputmode', 'decimal');
+  });
+
   const readForm = () => ({
     date: $('recordDate')?.value || app.todayKey(),
     gross: $('recordGross')?.value || '',
@@ -101,6 +106,11 @@
   note.innerHTML = '<i class="fas fa-cloud-arrow-down" aria-hidden="true"></i><span>Rascunho recuperado. Continue de onde parou.</span>';
   const firstCard = $('recordDate')?.closest('.card-vetta');
   if (firstCard) firstCard.insertBefore(note, firstCard.firstChild);
+
+  $('clearDayButton')?.addEventListener('click', () => {
+    clearDraft();
+    note.classList.add('hidden');
+  });
 
   dayView.addEventListener('click', event => {
     const chip = event.target.closest('.faro-register-chip');
