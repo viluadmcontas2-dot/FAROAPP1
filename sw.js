@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-9';
+const CORE_CACHE = 'faro-v1-core-10';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -62,7 +62,6 @@ self.addEventListener('install', event => {
     const core = await caches.open(CORE_CACHE);
     await core.addAll(APP_SHELL);
     await Promise.allSettled(EXTERNAL_SEEDS.map(cacheExternalSeed));
-    await self.skipWaiting();
   })());
 });
 
@@ -73,10 +72,6 @@ self.addEventListener('activate', event => {
     await Promise.all(keys.filter(key => !allowed.has(key)).map(key => caches.delete(key)));
     await self.clients.claim();
   })());
-});
-
-self.addEventListener('message', event => {
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 async function externalResponse(request) {
