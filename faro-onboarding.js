@@ -16,6 +16,12 @@
   const $ = id => document.getElementById(id);
   const n = value => app.number(value);
   const text = value => String(value || '').trim().replace(/\s+/g, ' ');
+  const escapeHtml = value => String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
   const clampDueDay = value => {
     const parsed = Math.round(n(value));
     return parsed >= 1 && parsed <= 31 ? parsed : null;
@@ -85,9 +91,9 @@
     days: app.state.workWeekdays?.length || 6,
     vehicle: app.state.onboardingProfile?.vehicle || 'own',
     rentalWeekly: 0,
-    rentalDueWeekday: 5,
+    rentalDueWeekday: '',
     financeMonthly: 0,
-    financeDueDay: 10,
+    financeDueDay: '',
     target: Number(app.state.targetProfit) || 4000,
     energy: app.state.fuel?.type && ENERGY[app.state.fuel.type] ? app.state.fuel.type : 'gnv',
     energyPrice: Number(app.state.fuel?.price) || initialFuel.price,
@@ -143,14 +149,14 @@
         <section data-faro-step="rental" class="hidden space-y-5">
           <div><span class="label-micro !text-blue-600">Carro alugado</span><h3 class="text-xl font-extrabold">Seu aluguel</h3><p class="faro-helper mt-2">Aluguel costuma ser semanal. O FARO cuida da conversão para o mês sem te obrigar a fazer conta.</p></div>
           <div><label class="label-micro">Quanto você paga por semana?</label><div class="input-wrapper"><span>R$</span><input id="faroRentalWeekly" class="input-vetta faro-money" type="number" inputmode="decimal" min="0" step="10" placeholder="800"></div></div>
-          <div><label class="label-micro">Que dia normalmente vence?</label><select id="faroRentalDue" class="input-vetta"><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select></div>
+          <div><label class="label-micro">Que dia normalmente vence?</label><select id="faroRentalDue" class="input-vetta"><option value="">Escolha o dia</option><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select></div>
           <div id="faroRentalPreview" class="faro-card bg-blue-50 border-blue-100 text-sm text-blue-800"></div>
         </section>
 
         <section data-faro-step="finance" class="hidden space-y-5">
           <div><span class="label-micro !text-blue-600">Carro financiado</span><h3 class="text-xl font-extrabold">Sua parcela</h3><p class="faro-helper mt-2">A parcela é uma obrigação do carro. Depois você poderá acrescentar seguro, rastreador e outros custos separadamente.</p></div>
           <div><label class="label-micro">Valor da parcela mensal</label><div class="input-wrapper"><span>R$</span><input id="faroFinanceMonthly" class="input-vetta faro-money" type="number" inputmode="decimal" min="0" step="10" placeholder="950"></div></div>
-          <div><label class="label-micro">Dia do vencimento</label><input id="faroFinanceDue" class="input-vetta no-mask" type="number" inputmode="numeric" min="1" max="31" placeholder="10"></div>
+          <div><label class="label-micro">Dia do vencimento</label><input id="faroFinanceDue" class="input-vetta no-mask" type="number" inputmode="numeric" min="1" max="31" placeholder="Ex.: 10"></div>
         </section>
 
         <section data-faro-step="target" class="hidden space-y-5">
@@ -290,7 +296,7 @@
   const renderCosts = () => {
     const list = $('faroAddedCosts');
     list.innerHTML = draft.otherCosts.length ? draft.otherCosts.map((item,index) => `
-      <div class="faro-cost-row"><div><strong class="text-sm">${item.name}</strong><span class="block text-xs text-slate-500">${app.money(item.value)}/mês${item.dueDay ? ` · vence dia ${item.dueDay}` : ''}</span></div><div class="faro-cost-actions"><button type="button" data-cost-edit="${index}" class="faro-cost-action">Editar</button><button type="button" data-cost-delete="${index}" class="faro-cost-action">×</button></div></div>`).join('') : '<p class="faro-helper">Nenhum outro custo adicionado ainda.</p>';
+      <div class="faro-cost-row"><div><strong class="text-sm">${escapeHtml(item.name)}</strong><span class="block text-xs text-slate-500">${app.money(item.value)}/mês${item.dueDay ? ` · vence dia ${item.dueDay}` : ''}</span></div><div class="faro-cost-actions"><button type="button" data-cost-edit="${index}" class="faro-cost-action">Editar</button><button type="button" data-cost-delete="${index}" class="faro-cost-action">×</button></div></div>`).join('') : '<p class="faro-helper">Nenhum outro custo adicionado ainda.</p>';
     $('faroCostName').value = draft.pendingCost.name || '';
     $('faroCostValue').value = draft.pendingCost.value || '';
     $('faroCostDue').value = draft.pendingCost.dueDay || '';
@@ -317,9 +323,13 @@
 
   const renderRentalPreview = () => {
     const value = n($('faroRentalWeekly').value);
-    const due = Number($('faroRentalDue').value);
-    draft.rentalWeekly = value; draft.rentalDueWeekday = due; saveDraft();
-    $('faroRentalPreview').textContent = value > 0 ? `${app.money(value,0)} por semana · normalmente vence ${weekdays[due]}.` : 'Informe o valor semanal do aluguel.';
+    const rawDue = $('faroRentalDue').value;
+    draft.rentalWeekly = value;
+    draft.rentalDueWeekday = rawDue === '' ? '' : Number(rawDue);
+    saveDraft();
+    if (value <= 0) $('faroRentalPreview').textContent = 'Informe o valor semanal do aluguel.';
+    else if (rawDue === '') $('faroRentalPreview').textContent = `${app.money(value,0)} por semana · escolha o dia do vencimento.`;
+    else $('faroRentalPreview').textContent = `${app.money(value,0)} por semana · normalmente vence ${weekdays[Number(rawDue)]}.`;
   };
 
   const renderStep = () => {
@@ -347,11 +357,13 @@
     if (draft.stepId === 'rental') {
       renderRentalPreview();
       if (draft.rentalWeekly <= 0) { app.toast('Informe o valor semanal do aluguel.'); return false; }
+      if ($('faroRentalDue').value === '') { app.toast('Escolha o dia em que o aluguel normalmente vence.'); return false; }
     }
     if (draft.stepId === 'finance') {
       draft.financeMonthly = n($('faroFinanceMonthly').value);
-      draft.financeDueDay = clampDueDay($('faroFinanceDue').value) || 10;
+      draft.financeDueDay = clampDueDay($('faroFinanceDue').value);
       if (draft.financeMonthly <= 0) { app.toast('Informe o valor mensal da parcela.'); return false; }
+      if (!draft.financeDueDay) { app.toast('Informe o dia do vencimento da parcela.'); return false; }
     }
     if (draft.stepId === 'target' && draft.target < 500) { app.toast('Informe sua meta líquida mensal.'); return false; }
     if (draft.stepId === 'energy') {
@@ -430,7 +442,7 @@
   modal.querySelectorAll('[data-days]').forEach(button => button.addEventListener('click', () => { draft.days = Number(button.dataset.days); selectButtons('[data-days]', draft.days, 'days'); saveDraft(); }));
   modal.querySelectorAll('[data-vehicle]').forEach(button => button.addEventListener('click', () => { draft.vehicle = button.dataset.vehicle; selectButtons('[data-vehicle]', draft.vehicle, 'vehicle'); saveDraft(); }));
   $('faroRentalWeekly').addEventListener('input', renderRentalPreview); $('faroRentalDue').addEventListener('change', renderRentalPreview);
-  $('faroFinanceMonthly').addEventListener('input', () => { draft.financeMonthly = n($('faroFinanceMonthly').value); saveDraft(); }); $('faroFinanceDue').addEventListener('input', () => { draft.financeDueDay = clampDueDay($('faroFinanceDue').value) || 10; saveDraft(); });
+  $('faroFinanceMonthly').addEventListener('input', () => { draft.financeMonthly = n($('faroFinanceMonthly').value); saveDraft(); }); $('faroFinanceDue').addEventListener('input', () => { draft.financeDueDay = clampDueDay($('faroFinanceDue').value) ?? ''; saveDraft(); });
   $('faroTargetSlider').addEventListener('input', e => syncTarget(e.target.value)); $('faroTargetNumber').addEventListener('input', e => syncTarget(e.target.value)); modal.querySelectorAll('[data-target-add]').forEach(button => button.addEventListener('click', () => syncTarget(draft.target + Number(button.dataset.targetAdd))));
   $('faroEnergyType').addEventListener('change', e => { draft.energy = e.target.value; renderEnergy(true); });
   $('faroEnergyPrice').addEventListener('input', () => { draft.energyPriceEstimated = false; renderEnergy(false); }); $('faroEnergyEfficiency').addEventListener('input', () => { draft.energyEfficiencyEstimated = false; renderEnergy(false); });
@@ -449,7 +461,7 @@
   $('faroNext').addEventListener('click', () => { if(!validateStep())return; const seq=sequence(); const index=seq.indexOf(draft.stepId); if(index<seq.length-1){draft.stepId=seq[index+1];saveDraft();renderStep();}else showProcessing(); });
   $('faroFinish').addEventListener('click', () => { modal.classList.add('hidden'); app.navigateToPrimary('dashboard'); app.toast('Seu FARO está pronto. Ajuste quando sua rotina mudar.'); });
 
-  $('faroRentalWeekly').value = draft.rentalWeekly || ''; $('faroRentalDue').value = draft.rentalDueWeekday;
+  $('faroRentalWeekly').value = draft.rentalWeekly || ''; $('faroRentalDue').value = draft.rentalDueWeekday === '' ? '' : String(draft.rentalDueWeekday);
   $('faroFinanceMonthly').value = draft.financeMonthly || ''; $('faroFinanceDue').value = draft.financeDueDay || '';
   $('faroReserveName').value = draft.reserveDraft.name || ''; $('faroReserveValue').value = draft.reserveDraft.value || '';
   $('faroRevenueKm').value = draft.revenueKm; $('faroRevenueEstimate').classList.toggle('hidden',!draft.revenueEstimated);
