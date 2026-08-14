@@ -2,6 +2,11 @@ name: Validar FARO v1 comercial
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - release/faro-v1-comercial-22-08
+    paths:
+      - .github/VALIDAR_AGORA
 
 permissions:
   contents: read
@@ -27,18 +32,14 @@ jobs:
           node-version: 22
           package-manager-cache: false
 
-      - name: Conferir sintaxe e mostrar assinaturas dos arquivos
-        shell: bash
+      - name: Conferir sintaxe dos arquivos alterados
         run: |
           node --check app.js
           node --check faro-brand.js
+          node --check faro-platform.js
           node --check faro-onboarding.js
           node --check sw.js
           node --check scripts/build-netlify-of.mjs
-          for arquivo in app-shell.html faro-onboarding.js sw.js; do
-            assinatura="$(sha256sum "$arquivo" | cut -d ' ' -f 1)"
-            echo "::notice file=$arquivo::SHA256 real: $assinatura"
-          done
 
       - name: Conferir contrato e build do FARO
         run: npm run check
