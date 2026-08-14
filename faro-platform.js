@@ -3,14 +3,53 @@
   if (!app) return;
 
   const INSTALL_GATE_ENFORCED = true;
+  const root = document.documentElement;
 
   const isAndroid = () => /Android/i.test(navigator.userAgent);
   const isSamsungBrowser = () => /SamsungBrowser/i.test(navigator.userAgent);
   const isInstallRequired = () => INSTALL_GATE_ENFORCED && !app.isStandalone();
   const getActivationStage = () => isInstallRequired() ? 'install' : 'product';
   const deviceKind = () => app.isIos() ? 'ios' : isAndroid() ? 'android' : 'desktop';
-
   const deviceLabel = kind => ({ ios:'iPhone ou iPad', android:'Android', desktop:'Computador' })[kind] || 'Dispositivo';
+
+  const getInstallPrompt = () => window.__faroInstallPrompt || app.deferredPrompt || null;
+  const rememberInstallPrompt = event => {
+    event.preventDefault();
+    window.__faroInstallPrompt = event;
+    app.deferredPrompt = event;
+    window.dispatchEvent(new CustomEvent('faro:install-ready'));
+  };
+  const clearInstallPrompt = () => {
+    window.__faroInstallPrompt = null;
+    app.deferredPrompt = null;
+  };
+
+  const ensureInstallInfrastructure = async () => {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      await navigator.serviceWorker.register('./sw.js');
+    } catch (error) {
+      console.warn('FARO: service worker não registrado pela plataforma', error);
+    }
+  };
+
+  const waitForInstallPrompt = (timeout = 1800) => new Promise(resolve => {
+    const current = getInstallPrompt();
+    if (current) return resolve(current);
+
+    let settled = false;
+    let timer = null;
+    const finish = value => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('faro:install-ready', onReady);
+      resolve(value || null);
+    };
+    const onReady = () => finish(getInstallPrompt());
+    window.addEventListener('faro:install-ready', onReady, { once:true });
+    timer = setTimeout(() => finish(getInstallPrompt()), timeout);
+  });
 
   const tutorialFor = (kind, manual = false) => {
     if (kind === 'ios') {
@@ -45,7 +84,7 @@
       return {
         title: 'Instalar no Android',
         steps: ['Toque em “Instalar FARO” abaixo.', 'Confirme quando o celular perguntar.', 'Quando terminar, abra o FARO pelo novo ícone.'],
-        help: 'Leva poucos segundos e você faz isso só uma vez.',
+        help: '',
         button: 'INSTALAR FARO'
       };
     }
@@ -62,7 +101,7 @@
     return {
       title: 'Instalar no computador',
       steps: ['Clique em “Instalar FARO”.', 'Confirme quando aparecer a instalação.', 'Depois abra o FARO pelo novo ícone ou atalho criado.'],
-      help: 'Leva poucos segundos e você faz isso só uma vez.',
+      help: '',
       button: 'INSTALAR FARO'
     };
   };
@@ -72,7 +111,7 @@
     const style = document.createElement('style');
     style.id = 'faroPlatformStyles';
     style.textContent = `
-      #faroInstallGate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(11,17,33,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:auto}
+      #faroInstallGate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:#0B1121;overflow:auto}
       #faroInstallGate .faro-install-sheet{width:min(100%,500px);max-height:calc(100dvh - 28px);overflow:auto;border-radius:28px;background:#fff;padding:24px;box-shadow:0 24px 80px rgba(2,6,23,.42)}
       #faroInstallGate .faro-install-mark{width:72px;height:72px;border-radius:23px;background:#eff6ff;display:grid;place-items:center;margin-bottom:18px}
       #faroInstallGate .faro-install-mark img{width:56px;height:56px;object-fit:contain}
@@ -104,9 +143,11 @@
 
   const renderTutorial = (gate, kind, manual = false) => {
     const tutorial = tutorialFor(kind, manual);
+    const help = gate.querySelector('#faroInstallGateHelp');
     gate.querySelector('#faroInstallTutorialTitle').textContent = tutorial.title;
     gate.querySelector('#faroInstallSteps').innerHTML = tutorial.steps.map(step => `<li>${step}</li>`).join('');
-    gate.querySelector('#faroInstallGateHelp').textContent = tutorial.help;
+    help.textContent = tutorial.help;
+    help.classList.toggle('hidden', !tutorial.help);
     gate.querySelector('#faroInstallGateButton').textContent = tutorial.button;
   };
 
@@ -116,7 +157,9 @@
     gate.querySelector('#faroInstallLead').textContent = 'O FARO já está instalado neste aparelho.';
     gate.querySelector('#faroInstallTutorialTitle').textContent = 'Agora é só abrir';
     gate.querySelector('#faroInstallSteps').innerHTML = '<li>Feche esta aba.</li><li>Procure o ícone FARO na tela inicial, menu de apps ou área de aplicativos.</li><li>Toque no ícone FARO para começar.</li>';
-    gate.querySelector('#faroInstallGateHelp').textContent = 'Nos próximos acessos, entre sempre pelo ícone FARO.';
+    const help = gate.querySelector('#faroInstallGateHelp');
+    help.textContent = 'Nos próximos acessos, entre sempre pelo ícone FARO.';
+    help.classList.remove('hidden');
     gate.querySelector('#faroInstallGateButton').classList.add('hidden');
   };
 
@@ -135,7 +178,7 @@
         <div class="faro-install-mark"><img src="./faro-mark.svg" alt="Símbolo FARO"></div>
         <span class="label-micro !text-blue-600">FARO · APP DO MOTORISTA</span>
         <h1 id="faroInstallTitle" class="text-2xl font-extrabold mt-2">Instale o FARO</h1>
-        <p id="faroInstallLead" class="text-sm text-slate-500 mt-3 leading-relaxed">É rápido e você só faz isso uma vez.</p>
+        <p id="faroInstallLead" class="text-sm text-slate-500 mt-3 leading-relaxed">Seu FARO, sempre à mão.</p>
         <span class="faro-install-device">${deviceLabel(kind)}</span>
         <div class="faro-install-benefits" aria-label="Vantagens da instalação">
           <div class="faro-install-benefit">Acesso rápido</div>
@@ -147,7 +190,7 @@
           <ol id="faroInstallSteps"></ol>
         </div>
         <button id="faroInstallGateButton" type="button" class="faro-install-button"></button>
-        <p id="faroInstallGateHelp" class="faro-install-help" aria-live="polite"></p>
+        <p id="faroInstallGateHelp" class="faro-install-help hidden" aria-live="polite"></p>
         <p class="text-[10px] text-slate-400 text-center mt-4">Já instalou? Abra o FARO pelo ícone.</p>
       </div>`;
     document.body.appendChild(gate);
@@ -160,54 +203,71 @@
     button.addEventListener('click', async () => {
       if (kind === 'ios') {
         gate.querySelector('#faroInstallTutorial')?.scrollIntoView({ behavior:'smooth', block:'center' });
-        gate.querySelector('#faroInstallGateHelp').classList.add('font-bold', 'text-blue-700');
+        const help = gate.querySelector('#faroInstallGateHelp');
+        help.classList.remove('hidden');
+        help.classList.add('font-bold', 'text-blue-700');
         return;
       }
 
       if (installing) return;
-      const prompt = app.deferredPrompt;
+      installing = true;
+      button.disabled = true;
+      button.textContent = 'PREPARANDO…';
+
+      await ensureInstallInfrastructure();
+      const prompt = await waitForInstallPrompt();
       if (!prompt) {
         renderTutorial(gate, kind, true);
         gate.querySelector('#faroInstallTutorial')?.scrollIntoView({ behavior:'smooth', block:'center' });
+        button.disabled = false;
+        installing = false;
         return;
       }
 
-      installing = true;
-      button.disabled = true;
       button.textContent = 'ABRINDO INSTALAÇÃO…';
       try {
-        prompt.prompt();
+        await prompt.prompt();
         const choice = await prompt.userChoice;
-        app.deferredPrompt = null;
+        clearInstallPrompt();
         if (choice?.outcome === 'accepted') {
-          gate.querySelector('#faroInstallGateHelp').textContent = 'Instalação confirmada. Aguarde o aparelho concluir.';
+          const help = gate.querySelector('#faroInstallGateHelp');
+          help.textContent = 'Instalação confirmada. Aguarde o aparelho concluir.';
+          help.classList.remove('hidden');
           button.textContent = 'FINALIZANDO…';
         } else {
           renderTutorial(gate, kind, true);
-          gate.querySelector('#faroInstallGateHelp').textContent = 'Instalação não concluída. Use o passo a passo acima e tente novamente.';
+          const help = gate.querySelector('#faroInstallGateHelp');
+          help.textContent = 'Instalação não concluída. Use o passo a passo acima e tente novamente.';
+          help.classList.remove('hidden');
           button.disabled = false;
           installing = false;
         }
       } catch (error) {
         console.warn('FARO: instalador automático indisponível', error);
+        clearInstallPrompt();
         renderTutorial(gate, kind, true);
         button.disabled = false;
         installing = false;
       }
     });
 
-    window.addEventListener('beforeinstallprompt', () => {
+    window.addEventListener('beforeinstallprompt', event => {
+      rememberInstallPrompt(event);
       if (kind !== 'ios' && gate.dataset.state !== 'installed') renderTutorial(gate, kind, false);
     });
-
-    window.addEventListener('appinstalled', () => showInstalledState(gate), { once:true });
+    window.addEventListener('appinstalled', () => {
+      clearInstallPrompt();
+      showInstalledState(gate);
+    }, { once:true });
     requestAnimationFrame(() => button.focus());
   };
 
-  document.documentElement.dataset.faroInstallGate = INSTALL_GATE_ENFORCED ? 'obrigatorio' : 'liberado-para-testes';
-  document.documentElement.dataset.faroActivationStage = getActivationStage();
+  root.dataset.faroInstallGate = INSTALL_GATE_ENFORCED ? 'obrigatorio' : 'liberado-para-testes';
+  root.dataset.faroActivationStage = getActivationStage();
   injectStyles();
+  ensureInstallInfrastructure();
   showInstallGate();
+  root.dataset.faroPlatformReady = 'true';
 
   window.FaroPlatform = Object.freeze({
     installGateEnforced: INSTALL_GATE_ENFORCED,
