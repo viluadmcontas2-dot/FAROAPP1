@@ -14,6 +14,7 @@ const APP_SHELL = [
   './faro-register.js?v=1',
   './faro-finance.js?v=1',
   './faro-reserves.js?v=1',
+  './faro-navigation.js?v=1',
   './faro-onboarding.js?v=2',
   './styles.css',
   './manifest.webmanifest',
