@@ -17,6 +17,7 @@ const APP_SHELL = [
   './faro-navigation.js?v=1',
   './faro-config.js?v=1',
   './faro-account.js?v=1',
+  './faro-notifications.js?v=1',
   './faro-onboarding.js?v=2',
   './styles.css',
   './manifest.webmanifest',
@@ -117,5 +118,44 @@ self.addEventListener('fetch', event => {
       }
       throw error;
     }
+  })());
+});
+
+const safeFaroUrl = value => {
+  try {
+    const url = new URL(value || './', self.location.origin);
+    return url.origin === self.location.origin ? url.href : new URL('./', self.location.origin).href;
+  } catch {
+    return new URL('./', self.location.origin).href;
+  }
+};
+
+self.addEventListener('push', event => {
+  let payload = {};
+  try { payload = event.data?.json?.() || {}; }
+  catch { payload = { body: event.data?.text?.() || '' }; }
+  const title = String(payload.title || 'FARO');
+  const options = {
+    body: String(payload.body || 'Você tem uma atualização útil no FARO.'),
+    icon: './icon-192.png',
+    badge: './icon-192.png',
+    tag: String(payload.tag || 'faro-aviso'),
+    data: { url: safeFaroUrl(payload.url) }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = safeFaroUrl(event.notification.data?.url);
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const existing = windows.find(client => new URL(client.url).origin === self.location.origin);
+    if (existing) {
+      await existing.focus();
+      if ('navigate' in existing) await existing.navigate(target);
+      return;
+    }
+    await self.clients.openWindow(target);
   })());
 });
