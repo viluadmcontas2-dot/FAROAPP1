@@ -4,7 +4,7 @@
   "version": "3.5.1-faro.1",
   "type": "module",
   "scripts": {
-    "check": "node --check scripts/build-netlify-of.mjs && node tests/baseline-contract.test.mjs && node tests/ui-grammar.test.mjs && node tests/home-contract.test.mjs && node tests/register-contract.test.mjs && node tests/finance-contract.test.mjs",
+    "check": "node --check scripts/build-netlify-of.mjs && node tests/baseline-contract.test.mjs && node tests/ui-grammar.test.mjs && node tests/home-contract.test.mjs && node tests/register-contract.test.mjs && node tests/finance-contract.test.mjs && node tests/reserves-contract.test.mjs",
     "build": "node scripts/build-netlify-of.mjs"
   }
 }
