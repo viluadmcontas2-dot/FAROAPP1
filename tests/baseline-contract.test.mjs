@@ -18,6 +18,7 @@ const iconBuffer = await readFile('icon.svg');
 const shell = await read('app-shell.html');
 const brand = await read('faro-brand.js');
 const platform = await read('faro-platform.js');
+const state = await read('faro-state.js');
 const energy = await read('faro-energy.js');
 const onboarding = await read('faro-onboarding.js');
 const sw = await read('sw.js');
@@ -28,6 +29,7 @@ const manifest = JSON.parse(await read('manifest.webmanifest'));
 const builtApp = await read('_site/app.js');
 const builtLegacy = await read('_site/legacy-shell.html');
 const builtPlatform = await read('_site/faro-platform.js');
+const builtState = await read('_site/faro-state.js');
 const builtEnergy = await read('_site/faro-energy.js');
 const builtOnboarding = await read('_site/faro-onboarding.js');
 const builtSw = await read('_site/sw.js');
@@ -71,6 +73,7 @@ assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
 assert.doesNotMatch(index, /serviceWorker\.register/);
 assert.match(shell, /faro-platform\.js\?v=3/);
+assert.match(shell, /faro-state\.js\?v=1/);
 assert.match(shell, /faro-energy\.js\?v=1/);
 assert.match(shell, /faro-home\.js\?v=1/);
 assert.match(shell, /faro-onboarding\.js\?v=2/);
@@ -79,6 +82,7 @@ assert.match(platform, /window\.FaroPlatform/);
 assert.match(platform, /canEnterProduct/);
 assert.doesNotMatch(platform, /stripe|assinatura|password|senha/i);
 assert.equal(builtPlatform, platform);
+assert.equal(builtState, state);
 
 for (const source of [energy, builtEnergy]) {
   assert.match(source, /type: 'electric'/);
@@ -137,9 +141,10 @@ for (const source of [onboarding, builtOnboarding]) {
 }
 
 for (const source of [sw, builtSw]) {
-  assert.match(source, /faro-v1-core-8/);
+  assert.match(source, /faro-v1-core-9/);
   assert.match(source, /faro-v1-external-2/);
   assert.match(source, /faro-platform\.js\?v=3/);
+  assert.match(source, /faro-state\.js\?v=1/);
   assert.match(source, /faro-energy\.js\?v=1/);
   assert.match(source, /faro-home\.js\?v=1/);
   assert.match(source, /faro-onboarding\.js\?v=2/);
@@ -176,8 +181,8 @@ for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','
   assert.equal(root.includes(forbidden), false, `${forbidden} não pertence a esta fotografia`);
 }
 
-for (const path of ['faro-platform.js','faro-energy.js','faro-home.js','faro-onboarding.js','sw.js','app-shell.html']) {
+for (const path of ['faro-platform.js','faro-state.js','faro-energy.js','faro-home.js','faro-onboarding.js','sw.js','app-shell.html']) {
   assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
 }
 
-console.log('FARO: onboarding retomável, Home integrada, elétrico coerente, PWA protegido e núcleo financeiro preservado — ok');
+console.log('FARO: onboarding retomável, estado moderno preservado, elétrico coerente, PWA protegido e núcleo financeiro intacto — ok');
