@@ -32,9 +32,9 @@
   attention.className = 'hidden w-full card-vetta p-5 text-left faro-home-attention';
   attention.innerHTML = `
     <div class="flex items-center gap-3">
-      <span class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 grid place-items-center shrink-0" aria-hidden="true"><i class="fas fa-calendar-day"></i></span>
+      <span id="faroAttentionIcon" class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 grid place-items-center shrink-0" aria-hidden="true"><i class="fas fa-calendar-day"></i></span>
       <span class="min-w-0 flex-1">
-        <span class="label-micro !mb-1 !text-amber-700">Próximo compromisso</span>
+        <span id="faroAttentionLabel" class="label-micro !mb-1 !text-amber-700">Próximo compromisso</span>
         <strong id="faroAttentionTitle" class="block text-sm text-slate-800"></strong>
         <span id="faroAttentionText" class="block text-xs text-slate-500 mt-1"></span>
       </span>
@@ -51,7 +51,8 @@
     style.textContent = `
       #view-dashboard [data-faro-role="week"]{border-color:#dbeafe;background:linear-gradient(180deg,#fff,#f8fbff)}
       #view-dashboard [data-faro-role="month"]{box-shadow:0 12px 30px -18px rgba(15,23,42,.18)}
-      #faroHomeAttention{border-color:#fed7aa;background:linear-gradient(180deg,#fff,#fffaf5);transition:transform .12s ease,border-color .16s ease}
+      #faroHomeAttention{border-color:#fed7aa;background:linear-gradient(180deg,#fff,#fffaf5);transition:transform .12s ease,border-color .16s ease,background-color .16s ease}
+      #faroHomeAttention[data-overdue="true"]{border-color:#fecaca;background:linear-gradient(180deg,#fff,#fff7f7)}
       #faroHomeAttention:active{transform:scale(.99)}
       #view-dashboard [data-view="day"]{position:relative;overflow:hidden}
       #view-dashboard [data-view="day"]::after{content:'';position:absolute;inset:auto -30px -45px auto;width:110px;height:110px;border-radius:999px;background:rgba(255,255,255,.08);pointer-events:none}
@@ -89,6 +90,8 @@
   };
 
   const nextCommitment = () => {
+    const tracked = window.FaroFinance?.nextPendingOccurrence?.();
+    if (tracked) return tracked;
     const today = startOfToday();
     const candidates = (app.state.costs || [])
       .filter(cost => cost?.active !== false && cost?.category === 'obligation')
@@ -135,9 +138,18 @@
       attention.classList.add('hidden');
       return;
     }
-    const when = item.days === 0 ? 'vence hoje' : item.days === 1 ? 'vence amanhã' : `vence em ${item.days} dias`;
+    const overdue = item.days < 0;
+    const when = overdue
+      ? `venceu há ${Math.abs(item.days)} ${Math.abs(item.days) === 1 ? 'dia' : 'dias'}`
+      : item.days === 0 ? 'vence hoje' : item.days === 1 ? 'vence amanhã' : `vence em ${item.days} dias`;
+    const label = document.getElementById('faroAttentionLabel');
+    const icon = document.getElementById('faroAttentionIcon');
+    attention.dataset.overdue = overdue ? 'true' : 'false';
+    label.textContent = overdue ? 'Atenção financeira' : 'Próximo compromisso';
+    label.className = `label-micro !mb-1 ${overdue ? '!text-red-700' : '!text-amber-700'}`;
+    icon.className = `w-11 h-11 rounded-2xl grid place-items-center shrink-0 ${overdue ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`;
     document.getElementById('faroAttentionTitle').textContent = `${item.cost.name} · ${app.money(Number(item.cost.value || 0), 0)}`;
-    document.getElementById('faroAttentionText').textContent = `${when}. Abra seus custos para conferir.`;
+    document.getElementById('faroAttentionText').textContent = `${when}. Abra seus vencimentos para conferir.`;
     attention.classList.remove('hidden');
   };
 
