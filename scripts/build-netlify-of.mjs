@@ -34,6 +34,8 @@ const copyFiles = [
   'manifest.webmanifest',
   'sw.js',
   'icon.svg',
+  'icon-192.png',
+  'icon-512.png',
   'faro-mark.svg'
 ];
 
