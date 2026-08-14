@@ -1,0 +1,35 @@
+name: Validar agora — atualização silenciosa FARO
+
+on:
+  push:
+    branches:
+      - release/faro-v1-comercial-22-08
+    paths:
+      - VALIDAR_UPDATE_SILENCIOSO
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    name: Conferir atualização silenciosa sem publicar
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar fotografia remota
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Preparar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Conferir sintaxe da política de atualização
+        run: |
+          node --check faro-update.js
+          node --check sw.js
+      - name: Conferir todos os contratos e build
+        run: npm run check
+      - name: Confirmar ausência de publicação explícita
+        run: echo "Atualização silenciosa validada sem deploy explícito."
