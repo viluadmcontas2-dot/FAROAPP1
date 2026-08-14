@@ -23,8 +23,8 @@
           'Toque em “Adicionar” e depois abra o FARO pelo novo ícone.'
         ],
         help: app.isSafari()
-          ? 'A instalação é feita pelo menu de compartilhamento do iPhone.'
-          : 'Se “Adicionar à Tela de Início” não aparecer neste navegador, abra este mesmo link no Safari.',
+          ? 'No Safari, use o menu Compartilhar para concluir.'
+          : 'Se “Adicionar à Tela de Início” não aparecer, abra este mesmo link no Safari.',
         button: 'VER PASSO A PASSO'
       };
     }
@@ -35,8 +35,8 @@
         title: samsung ? 'Instalar pelo Samsung Internet' : 'Instalar pelo menu do Android',
         steps: samsung
           ? ['Toque no menu ☰.', 'Escolha “Adicionar página a”.', 'Escolha “Tela inicial” e confirme.', 'Abra o FARO pelo ícone criado.']
-          : ['Toque no menu ⋮ do navegador.', 'Escolha “Instalar app” ou “Adicionar à tela inicial”.', 'Confirme a instalação.', 'Abra o FARO pelo ícone criado.'],
-        help: 'O instalador automático não apareceu. Esse caminho faz a mesma instalação.',
+          : ['Toque no menu ⋮.', 'Escolha “Instalar app” ou “Adicionar à tela inicial”.', 'Confirme a instalação.', 'Abra o FARO pelo ícone criado.'],
+        help: 'Use esse passo a passo se o instalador não abrir sozinho.',
         button: 'TENTAR INSTALAR DE NOVO'
       };
     }
@@ -44,8 +44,8 @@
     if (kind === 'android') {
       return {
         title: 'Instalar no Android',
-        steps: ['Toque em “Instalar FARO” abaixo.', 'Confirme a instalação quando o celular perguntar.', 'Quando terminar, feche esta página e abra o ícone FARO.'],
-        help: 'Leva poucos segundos. Depois o FARO abre como aplicativo, sem barra de navegador.',
+        steps: ['Toque em “Instalar FARO” abaixo.', 'Confirme quando o celular perguntar.', 'Quando terminar, abra o FARO pelo novo ícone.'],
+        help: 'Leva poucos segundos e você faz isso só uma vez.',
         button: 'INSTALAR FARO'
       };
     }
@@ -54,15 +54,15 @@
       return {
         title: 'Instalar no computador',
         steps: ['Abra o menu do navegador.', 'Procure “Instalar FARO”, “Instalar app” ou opção equivalente.', 'Confirme.', 'Abra o FARO pelo novo ícone ou atalho criado.'],
-        help: 'O instalador automático não apareceu. Use o menu do navegador para concluir.',
+        help: 'Use esse passo a passo se o instalador não abrir sozinho.',
         button: 'TENTAR INSTALAR DE NOVO'
       };
     }
 
     return {
       title: 'Instalar no computador',
-      steps: ['Clique em “Instalar FARO”.', 'Confirme quando o navegador perguntar.', 'Depois abra o FARO pelo ícone ou atalho criado.'],
-      help: 'O FARO foi pensado para abrir como aplicativo também no computador.',
+      steps: ['Clique em “Instalar FARO”.', 'Confirme quando aparecer a instalação.', 'Depois abra o FARO pelo novo ícone ou atalho criado.'],
+      help: 'Leva poucos segundos e você faz isso só uma vez.',
       button: 'INSTALAR FARO'
     };
   };
@@ -112,11 +112,11 @@
 
   const showInstalledState = gate => {
     gate.dataset.state = 'installed';
-    gate.querySelector('#faroInstallTitle').textContent = 'FARO instalado.';
-    gate.querySelector('#faroInstallLead').textContent = 'Agora feche esta página e abra o FARO pelo ícone que apareceu no seu aparelho.';
-    gate.querySelector('#faroInstallTutorialTitle').textContent = 'Último passo';
-    gate.querySelector('#faroInstallSteps').innerHTML = '<li>Feche esta aba.</li><li>Procure o ícone FARO na tela inicial, menu de apps ou área de aplicativos.</li><li>Abra por ele. A partir daí você entra no FARO como aplicativo.</li>';
-    gate.querySelector('#faroInstallGateHelp').textContent = 'Esta página continua bloqueada de propósito para evitar usar o FARO como site.';
+    gate.querySelector('#faroInstallTitle').textContent = 'Tudo pronto!';
+    gate.querySelector('#faroInstallLead').textContent = 'O FARO já está instalado neste aparelho.';
+    gate.querySelector('#faroInstallTutorialTitle').textContent = 'Agora é só abrir';
+    gate.querySelector('#faroInstallSteps').innerHTML = '<li>Feche esta aba.</li><li>Procure o ícone FARO na tela inicial, menu de apps ou área de aplicativos.</li><li>Toque no ícone FARO para começar.</li>';
+    gate.querySelector('#faroInstallGateHelp').textContent = 'Nos próximos acessos, entre sempre pelo ícone FARO.';
     gate.querySelector('#faroInstallGateButton').classList.add('hidden');
   };
 
@@ -134,13 +134,13 @@
       <div class="faro-install-sheet">
         <div class="faro-install-mark"><img src="./faro-mark.svg" alt="Símbolo FARO"></div>
         <span class="label-micro !text-blue-600">FARO · APP DO MOTORISTA</span>
-        <h1 id="faroInstallTitle" class="text-2xl font-extrabold mt-2">Instale o FARO para continuar</h1>
-        <p id="faroInstallLead" class="text-sm text-slate-500 mt-3 leading-relaxed">O FARO foi feito para funcionar como aplicativo. A instalação coloca o ícone no seu aparelho e tira a sensação de estar usando um site.</p>
-        <span class="faro-install-device">${deviceLabel(kind)} detectado</span>
+        <h1 id="faroInstallTitle" class="text-2xl font-extrabold mt-2">Instale o FARO</h1>
+        <p id="faroInstallLead" class="text-sm text-slate-500 mt-3 leading-relaxed">É rápido e você só faz isso uma vez.</p>
+        <span class="faro-install-device">${deviceLabel(kind)}</span>
         <div class="faro-install-benefits" aria-label="Vantagens da instalação">
-          <div class="faro-install-benefit">Abre pelo ícone do FARO</div>
-          <div class="faro-install-benefit">Sem barra de navegador</div>
-          <div class="faro-install-benefit">Mais preparado para a pista</div>
+          <div class="faro-install-benefit">Acesso rápido</div>
+          <div class="faro-install-benefit">Instalação única</div>
+          <div class="faro-install-benefit">Mais preparado pra pista</div>
         </div>
         <div id="faroInstallTutorial" class="faro-install-tutorial">
           <strong id="faroInstallTutorialTitle" class="text-sm text-blue-900"></strong>
@@ -148,7 +148,7 @@
         </div>
         <button id="faroInstallGateButton" type="button" class="faro-install-button"></button>
         <p id="faroInstallGateHelp" class="faro-install-help" aria-live="polite"></p>
-        <p class="text-[10px] text-slate-400 text-center mt-4">Já instalou? Feche esta página e abra o FARO pelo ícone do aplicativo.</p>
+        <p class="text-[10px] text-slate-400 text-center mt-4">Já instalou? Abra o FARO pelo ícone.</p>
       </div>`;
     document.body.appendChild(gate);
     lockProductBehindGate(gate);
@@ -184,7 +184,7 @@
           button.textContent = 'FINALIZANDO…';
         } else {
           renderTutorial(gate, kind, true);
-          gate.querySelector('#faroInstallGateHelp').textContent = 'A instalação continua necessária para entrar no FARO. Você pode tentar novamente pelo menu do navegador.';
+          gate.querySelector('#faroInstallGateHelp').textContent = 'Instalação não concluída. Use o passo a passo acima e tente novamente.';
           button.disabled = false;
           installing = false;
         }
