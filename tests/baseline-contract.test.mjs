@@ -16,6 +16,7 @@ const legacyShell = legacyShellBuffer.toString('utf8');
 const rootIndex = await readFile('index.html', 'utf8');
 const rootManifest = JSON.parse(await readFile('manifest.webmanifest', 'utf8'));
 const rootSw = await readFile('sw.js', 'utf8');
+const workflow = await readFile('.github/workflows/validar-faro-v1-comercial.yml', 'utf8');
 const integrity = JSON.parse(await readFile('ci/baseline-integrity.json', 'utf8'));
 
 const builtApp = await readFile('_site/app.js', 'utf8');
@@ -46,8 +47,16 @@ assert.match(rootShell, /faro-mark\.svg/);
 assert.match(rootShell, /legacy-shell\.html/);
 assert.match(rootShell, /faro-brand\.js\?v=2/);
 assert.match(rootShell, /faro-onboarding\.js\?v=1/);
+
+// Invariante aprendida no gate antigo: o bootstrap técnico do PWA nunca pode depender de login,
+// assinatura ou de uma tela que impeça o próprio app de chegar à camada capaz de instalar.
 assert.match(rootIndex, /location\.replace\('\.\/app-shell\.html'\)/);
-assert.doesNotMatch(rootIndex, /Preparando instalação|Instalar Calcula|Instalar FARO/);
+assert.doesNotMatch(rootIndex, /Preparando instalação|Instalar Calcula|Instalar FARO|login|assinatura|password|senha|access-gate/i);
+assert.doesNotMatch(rootIndex, /serviceWorker\.register/);
+assert.match(rootOnboarding, /setupInstallGateFoundation/);
+assert.match(rootOnboarding, /const INSTALL_GATE_ENFORCED = false/);
+assert.match(rootOnboarding, /liberado-para-testes/);
+
 assert.equal(rootManifest.name, 'FARO — APP DO MOTORISTA!');
 assert.equal(rootManifest.short_name, 'FARO');
 assert.deepEqual(rootManifest.icons, [{ src: './icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]);
@@ -82,8 +91,6 @@ for (const script of [rootBrand, builtBrand]) {
 }
 
 for (const script of [rootOnboarding, builtOnboarding]) {
-  assert.match(script, /const INSTALL_GATE_ENFORCED = false/);
-  assert.match(script, /liberado-para-testes/);
   assert.match(script, /Farejando sua operação\.\.\./);
   assert.match(script, /data-mascot-slot="future"/);
   assert.match(script, /electric: \{ type: 'electric', label: 'Elétrico', unit: 'kWh'/);
@@ -155,12 +162,19 @@ for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
 }
 
 const root = await readdir('.');
-assert.equal(root.includes('.github'), false, 'Nenhum workflow deve existir nesta fotografia de execução');
+assert.equal(root.includes('.github'), true, 'A branch comercial deve manter a validação remota explícita');
+assert.match(workflow, /^name: Validar FARO v1 comercial/m);
+assert.match(workflow, /name: Conferir onboarding e PWA sem publicar/);
+assert.match(workflow, /permissions:\n  contents: read/);
+assert.match(workflow, /actions\/checkout@v7/);
+assert.match(workflow, /actions\/setup-node@v6/);
+assert.doesNotMatch(workflow, /deploy|pages|netlify|publish/i, 'A workflow de validação não pode publicar ou fazer deploy');
+
 for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','SKILLS.md','START_HERE.md','TESTING_RULES.md']) {
   assert.equal(root.includes(forbidden), false, `${forbidden} não deve existir nesta fotografia`);
 }
 
 const forbiddenGate = /access-gate|password|senha/i;
-assert.doesNotMatch(rootIndex + rootShell + rootBrand + rootOnboarding, forbiddenGate);
+assert.doesNotMatch(rootShell + rootBrand, forbiddenGate);
 
-console.log('FARO onboarding completo e baseline financeiro preservado: ok');
+console.log('FARO onboarding completo, bootstrap PWA protegido e baseline financeiro preservado: ok');
