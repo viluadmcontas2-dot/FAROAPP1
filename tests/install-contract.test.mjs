@@ -4,10 +4,17 @@ import { readFile } from 'node:fs/promises';
 const platform = await readFile('faro-platform.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
+const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
 const onboarding = await readFile('faro-onboarding.js', 'utf8');
 const manifest = JSON.parse(await readFile('manifest.webmanifest', 'utf8'));
+const icon192 = await readFile('icon-192.png');
+const icon512 = await readFile('icon-512.png');
 
 const contains = (source, snippet, label) => assert.equal(source.includes(snippet), true, label);
+const pngSize = buffer => {
+  assert.equal(buffer.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', 'Arquivo precisa ser PNG válido');
+  return [buffer.readUInt32BE(16), buffer.readUInt32BE(20)];
+};
 
 contains(platform, 'const INSTALL_GATE_ENFORCED = true', 'Instalação comercial precisa ser obrigatória');
 contains(platform, "!app.isStandalone()", 'Gate deve liberar somente o app instalado');
@@ -41,14 +48,29 @@ contains(shell, "window.dispatchEvent(new CustomEvent('faro:install-ready'))", '
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a nova geração da porta de instalação');
 assert.doesNotMatch(shell, /Abrindo FARO…/, 'Shell não deve mostrar tela intermediária antes do gate');
 
-contains(sw, "const CORE_CACHE = 'faro-v1-core-7'", 'Mudança de bootstrap precisa de nova geração de cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-8'", 'Instalabilidade completa precisa de nova geração de cache');
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
+contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
+contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
+contains(build, "'icon-192.png'", 'Build precisa copiar ícone 192');
+contains(build, "'icon-512.png'", 'Build precisa copiar ícone 512');
 
+assert.deepEqual(pngSize(icon192), [192, 192], 'icon-192.png precisa medir 192×192');
+assert.deepEqual(pngSize(icon512), [512, 512], 'icon-512.png precisa medir 512×512');
+const manifest192 = manifest.icons.find(icon => icon.src === './icon-192.png');
+const manifest512 = manifest.icons.find(icon => icon.src === './icon-512.png');
+assert.equal(manifest192?.sizes, '192x192', 'Manifest precisa declarar ícone 192');
+assert.equal(manifest192?.type, 'image/png', 'Ícone 192 precisa ser PNG');
+assert.equal(manifest512?.sizes, '512x512', 'Manifest precisa declarar ícone 512');
+assert.equal(manifest512?.type, 'image/png', 'Ícone 512 precisa ser PNG');
 assert.equal(manifest.display, 'standalone', 'FARO instalado precisa abrir em modo standalone');
 assert.equal(manifest.start_url, './app-shell.html', 'FARO instalado precisa abrir direto no app');
+assert.equal(manifest.prefer_related_applications, false, 'Manifest não pode preferir outro aplicativo');
+assert.equal(manifest.background_color, '#0B1121', 'Splash instalado precisa manter identidade FARO');
+
 assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /sensação de.*site|como site|barra de navegador/i, 'Microcopy não deve explicar tecnologia nem comparar FARO com site');
 assert.doesNotMatch(platform, /É rápido e você só faz isso uma vez|Leva poucos segundos e você faz isso só uma vez/i, 'Copy não deve repetir promessa de rapidez/instalação única');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode recarregar e criar loop de gate');
 
-console.log('FARO: sem piscada da Home, instalação obrigatória, prompt capturado cedo e linguagem app-first — ok');
+console.log('FARO: sem piscada, prompt capturado cedo, manifest completo e ícones reais 192/512 — ok');
