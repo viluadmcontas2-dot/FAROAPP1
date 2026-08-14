@@ -1,0 +1,36 @@
+name: Validar agora — instalação completa FARO
+
+on:
+  push:
+    branches:
+      - release/faro-v1-comercial-22-08
+    paths:
+      - VALIDAR_INSTALACAO_COMPLETA
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    name: Conferir instalação completa sem publicar
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar fotografia remota
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Preparar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Conferir sintaxe da fundação PWA
+        run: |
+          node --check faro-platform.js
+          node --check sw.js
+          node --check scripts/build-netlify-of.mjs
+      - name: Conferir todos os contratos e build
+        run: npm run check
+      - name: Confirmar ausência de publicação explícita
+        run: echo "Instalação completa validada sem deploy explícito."
