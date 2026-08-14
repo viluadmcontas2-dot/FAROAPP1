@@ -9,15 +9,36 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon.svg">
   <title>FARO | APP DO MOTORISTA!</title>
+  <style>html,body{margin:0;min-height:100%;background:#0B1121}</style>
 </head>
 <body>
-  <p style="font-family:system-ui,sans-serif;text-align:center;padding:2rem">Abrindo FARO…</p>
   <script>
     (async () => {
       const response = await fetch('./legacy-shell.html', { cache: 'no-store' });
       if (!response.ok) throw new Error(`FARO shell indisponível: ${response.status}`);
       let html = await response.text();
+      const bootstrap = `
+<style id="faroBootGuard">
+  html{background:#0B1121}
+  html:not([data-faro-platform-ready="true"]) body>*{visibility:hidden!important}
+  html[data-faro-activation-stage="install"] body>[data-faro-install-locked="true"]{display:none!important}
+  html[data-faro-activation-stage="install"] #faroInstallGate{display:grid!important;visibility:visible!important}
+</style>
+<script>
+(() => {
+  const root = document.documentElement;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  root.dataset.faroActivationStage = standalone ? 'product' : 'install';
+  window.__faroInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    window.__faroInstallPrompt = event;
+    window.dispatchEvent(new CustomEvent('faro:install-ready'));
+  });
+})();
+<\/script>`;
       html = html
+        .replace('<head>', `<head>${bootstrap}`)
         .replaceAll('VETTA', 'FARO')
         .replaceAll('TESTE NETLIFY OF', 'FARO')
         .replaceAll('CalculaAê', 'FARO')
@@ -27,13 +48,13 @@
           '<img src="./faro-mark.svg" alt="Símbolo FARO" class="w-12 h-12 object-contain shrink-0">'
         )
         .replace('./app.js?v=3.5.1', './app.js?v=3.5.1-faro1')
-        .replace('</body>', '<script src="./faro-brand.js?v=2" defer><\/script><script src="./faro-platform.js?v=2" defer><\/script><script src="./faro-energy.js?v=1" defer><\/script><script src="./faro-home.js?v=1" defer><\/script><script src="./faro-register.js?v=1" defer><\/script><script src="./faro-finance.js?v=1" defer><\/script><script src="./faro-reserves.js?v=1" defer><\/script><script src="./faro-navigation.js?v=1" defer><\/script><script src="./faro-config.js?v=1" defer><\/script><script src="./faro-account.js?v=1" defer><\/script><script src="./faro-notifications.js?v=1" defer><\/script><script src="./faro-onboarding.js?v=2" defer><\/script></body>');
+        .replace('</body>', '<script src="./faro-brand.js?v=2" defer><\/script><script src="./faro-platform.js?v=3" defer><\/script><script src="./faro-energy.js?v=1" defer><\/script><script src="./faro-home.js?v=1" defer><\/script><script src="./faro-register.js?v=1" defer><\/script><script src="./faro-finance.js?v=1" defer><\/script><script src="./faro-reserves.js?v=1" defer><\/script><script src="./faro-navigation.js?v=1" defer><\/script><script src="./faro-config.js?v=1" defer><\/script><script src="./faro-account.js?v=1" defer><\/script><script src="./faro-notifications.js?v=1" defer><\/script><script src="./faro-onboarding.js?v=2" defer><\/script></body>');
       document.open();
       document.write(html);
       document.close();
     })().catch(error => {
       console.error(error);
-      document.body.innerHTML = '<main style="font-family:system-ui,sans-serif;max-width:32rem;margin:4rem auto;padding:1rem"><h1>FARO</h1><p>Não foi possível abrir o app agora. Atualize a página.</p></main>';
+      document.body.innerHTML = '<main style="font-family:system-ui,sans-serif;max-width:32rem;margin:4rem auto;padding:1rem;color:white"><h1>FARO</h1><p>Não foi possível abrir o app agora. Atualize a página.</p></main>';
     });
   </script>
 </body>
