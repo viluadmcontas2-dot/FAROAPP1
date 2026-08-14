@@ -140,7 +140,7 @@ for (const source of [onboarding, builtOnboarding]) {
 
 // Offline/installado.
 for (const source of [sw, builtSw]) {
-  assert.match(source, /faro-v1-core-3/);
+  assert.match(source, /faro-v1-core-4/);
   assert.match(source, /faro-v1-external-2/);
   assert.match(source, /faro-platform\.js\?v=1/);
   assert.match(source, /faro-energy\.js\?v=1/);
