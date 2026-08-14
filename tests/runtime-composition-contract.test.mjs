@@ -6,6 +6,7 @@ const files = [
   'app-shell.html',
   'faro-brand.js',
   'faro-platform.js',
+  'faro-update.js',
   'faro-state.js',
   'faro-energy.js',
   'faro-home.js',
@@ -38,6 +39,7 @@ const shell = await readFile('app-shell.html', 'utf8');
 const orderedModules = [
   'faro-brand.js?v=2',
   'faro-platform.js?v=3',
+  'faro-update.js?v=1',
   'faro-state.js?v=1',
   'faro-energy.js?v=1',
   'faro-home.js?v=1',
@@ -58,7 +60,9 @@ for (const module of orderedModules) {
   previous = current;
 }
 
+const updateIndex = orderedModules.indexOf('faro-update.js?v=1');
 const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
+assert.ok(updateIndex < stateIndex, 'Política de atualização precisa estar pronta antes do estado e dos módulos de produto');
 assert.ok(stateIndex < orderedModules.indexOf('faro-finance.js?v=1'), 'Estado precisa ser protegido antes do Financeiro');
 assert.ok(stateIndex < orderedModules.indexOf('faro-reserves.js?v=1'), 'Estado precisa ser protegido antes das Reservas');
 assert.ok(stateIndex < orderedModules.indexOf('faro-account.js?v=1'), 'Estado precisa ser protegido antes da Conta');
