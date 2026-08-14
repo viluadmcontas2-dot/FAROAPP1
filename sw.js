@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-11';
+const CORE_CACHE = 'faro-v1-core-12';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -71,8 +71,11 @@ self.addEventListener('activate', event => {
     const allowed = new Set([CORE_CACHE, EXTERNAL_CACHE]);
     const keys = await caches.keys();
     await Promise.all(keys.filter(key => !allowed.has(key)).map(key => caches.delete(key)));
-    await self.clients.claim();
   })());
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'FARO_ACTIVATE_WHEN_SAFE') self.skipWaiting();
 });
 
 async function externalResponse(request) {
