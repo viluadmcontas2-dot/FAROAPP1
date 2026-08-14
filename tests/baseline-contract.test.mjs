@@ -9,6 +9,7 @@ const sha256 = value => createHash('sha256').update(value).digest('hex');
 const rootAppBuffer = await readFile('app.js');
 const rootApp = rootAppBuffer.toString('utf8');
 const rootBrand = await readFile('faro-brand.js', 'utf8');
+const rootOnboarding = await readFile('faro-onboarding.js', 'utf8');
 const rootShell = await readFile('app-shell.html', 'utf8');
 const legacyShellBuffer = await readFile('legacy-shell.html');
 const legacyShell = legacyShellBuffer.toString('utf8');
@@ -19,6 +20,7 @@ const integrity = JSON.parse(await readFile('ci/baseline-integrity.json', 'utf8'
 
 const builtApp = await readFile('_site/app.js', 'utf8');
 const builtBrand = await readFile('_site/faro-brand.js', 'utf8');
+const builtOnboarding = await readFile('_site/faro-onboarding.js', 'utf8');
 const builtShell = await readFile('_site/app-shell.html', 'utf8');
 const builtLegacyShell = await readFile('_site/legacy-shell.html', 'utf8');
 const builtIndex = await readFile('_site/index.html', 'utf8');
@@ -43,13 +45,15 @@ assert.match(rootShell, /APP DO MOTORISTA!/);
 assert.match(rootShell, /faro-mark\.svg/);
 assert.match(rootShell, /legacy-shell\.html/);
 assert.match(rootShell, /faro-brand\.js\?v=2/);
+assert.match(rootShell, /faro-onboarding\.js\?v=1/);
 assert.match(rootIndex, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(rootIndex, /Preparando instalação|Instalar Calcula|Instalar FARO/);
 assert.equal(rootManifest.name, 'FARO — APP DO MOTORISTA!');
 assert.equal(rootManifest.short_name, 'FARO');
 assert.deepEqual(rootManifest.icons, [{ src: './icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]);
-assert.match(rootSw, /faro-daily-1/);
+assert.match(rootSw, /faro-v1-onboarding-1/);
 assert.match(rootSw, /faro-brand\.js\?v=2/);
+assert.match(rootSw, /faro-onboarding\.js\?v=1/);
 assert.match(rootSw, /\.\/icon\.svg/);
 assert.match(rootSw, /\.\/faro-mark\.svg/);
 
@@ -62,8 +66,6 @@ for (const script of [rootBrand, builtBrand]) {
   assert.match(script, /app\.printReport = function/);
   assert.match(script, /app\.toast = function/);
   assert.match(script, /faro-backup-/);
-
-  // Jornada diária: a evolução deve ficar na camada de experiência, não no motor.
   assert.match(script, /const setupDailyJourney = \(\) =>/);
   assert.match(script, /faroPlanningDetails/);
   assert.match(script, /faroOptionalDetails/);
@@ -79,18 +81,40 @@ for (const script of [rootBrand, builtBrand]) {
   assert.doesNotMatch(script, /state\.records\.push|state\.records\.splice/);
 }
 
+for (const script of [rootOnboarding, builtOnboarding]) {
+  assert.match(script, /const INSTALL_GATE_ENFORCED = false/);
+  assert.match(script, /liberado-para-testes/);
+  assert.match(script, /Farejando sua operação\.\.\./);
+  assert.match(script, /data-mascot-slot="future"/);
+  assert.match(script, /electric: \{ type: 'electric', label: 'Elétrico', unit: 'kWh'/);
+  assert.match(script, /vehicle: initialVehicle/);
+  assert.match(script, /kind: 'weekly'/);
+  assert.match(script, /dueWeekday: draft\.rentalDueWeekday/);
+  assert.match(script, /name: 'Parcela do carro'/);
+  assert.match(script, /revenueKmEstimated/);
+  assert.match(script, /maintenanceEstimated/);
+  assert.match(script, /app\.state\.onboardingProfile/);
+  assert.match(script, /app\.calculations\(\)/);
+  assert.match(script, /app\.weekContext\(c\)/);
+  assert.match(script, /faroOnboardingTargetSlider/);
+  assert.match(script, /faroOnboardingTargetNumber/);
+  assert.match(script, /Estimativa inicial|estimativa inicial/);
+  assert.doesNotMatch(script, /state\.records\.push|state\.records\.splice/);
+}
+
 for (const requiredId of [
   'view-dashboard', 'view-planning', 'view-day', 'targetProfitDisplay', 'dreGross',
-  'recordHours', 'recordFuel', 'saveDayButton', 'previewNet', 'historyList'
+  'recordHours', 'recordFuel', 'saveDayButton', 'previewNet', 'historyList', 'onboardingModal'
 ]) {
-  assert.match(legacyShell, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId} para a camada de jornada`);
+  assert.match(legacyShell, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId} para a camada de experiência`);
 }
 
 assert.match(builtApp, /const STORAGE_KEY = 'faro-app-finance-v1';/);
-assert.match(builtApp, /onboardingComplete: true,/);
-assert.match(builtApp, /prepareOnboarding\(\) \{\n    \/\/ Onboarding reservado para fase futura\.\n    return;/);
+assert.match(builtApp, /onboardingComplete: false,/);
+assert.doesNotMatch(builtApp, /Onboarding reservado para fase futura/);
 assert.equal(builtManifest.name, 'FARO — APP DO MOTORISTA!');
-assert.match(builtSw, /faro-daily-1/);
+assert.match(builtSw, /faro-v1-onboarding-1/);
+assert.equal(builtOnboarding, rootOnboarding);
 
 for (const [path, expected] of Object.entries(integrity.brandAssets)) {
   const data = await readFile(path);
@@ -127,16 +151,16 @@ function firstMethod(source, name) {
 }
 
 for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
-  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo da jornada diária`);
+  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo do onboarding`);
 }
 
 const root = await readdir('.');
-assert.equal(root.includes('.github'), false, 'Nenhum workflow deve existir nesta fotografia limpa');
+assert.equal(root.includes('.github'), false, 'Nenhum workflow deve existir nesta fotografia de execução');
 for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','SKILLS.md','START_HERE.md','TESTING_RULES.md']) {
   assert.equal(root.includes(forbidden), false, `${forbidden} não deve existir nesta fotografia`);
 }
 
 const forbiddenGate = /access-gate|password|senha/i;
-assert.doesNotMatch(rootIndex + rootShell + rootBrand, forbiddenGate);
+assert.doesNotMatch(rootIndex + rootShell + rootBrand + rootOnboarding, forbiddenGate);
 
-console.log('FARO daily journey contract: ok');
+console.log('FARO onboarding completo e baseline financeiro preservado: ok');

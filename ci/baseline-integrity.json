@@ -7,6 +7,11 @@
     "faro-mark.svg": "b47e7aa970e50a90fabbbefb6ec21aca8db7557d8590d6687532f575212f6563",
     "icon.svg": "482dca327e2ba36c5893ccd83e43e1a7f05a106e03bfcbfee118877f7d9126ba"
   },
+  "experienceModules": {
+    "faroOnboardingSha256": "9efc03403318e5a69713e76af2f9940a36b431487ae4c9f01e75cd6eaaa3644d",
+    "appShellSha256": "7258e318cac7866b441efeed9882514c923295569fe05b3b1b0b40deaafdf822",
+    "serviceWorkerSha256": "e86d956b159043ce2b0d563bc61ccf72a7badb47074e1bef4d1eaf2df0b4bace"
+  },
   "coreFunctionSha256": {
     "normalizeState": "1eceb5eb64fc64f60b6011eda45a6262f04ddab6848e0b062d0069953096d00c",
     "migrateLegacy": "a864e3fc283e0150f14b77e65706eaf8239b3403ffa951dde4d40e0257fabe59",
@@ -23,11 +28,17 @@
     "supplied white-background logo composition embedded in the PWA/app SVG icon",
     "transparent dog + wheel/loupe mark derived from the supplied logo for the in-app header",
     "faro-brand.js neutralizes legacy visible brand strings without rewriting the financial engine source",
-    "access remains temporarily open; installation remains optional",
     "daily home keeps the daily target, primary registration CTA, month/week rhythm and FARO insight while monthly target controls and distribution move to Planning",
     "hours and fuel remain available but collapse under optional details in the daily record flow",
     "after a valid save, a result sheet exposes the engine-computed net, cost, revenue per km and consequence for the monthly target",
-    "app.js and legacy-shell.html remain byte-for-byte frozen as the approved functional baseline"
+    "faro-onboarding.js owns the new progressive onboarding without rewriting app.js or legacy-shell.html",
+    "onboarding collects work rhythm, vehicle ownership, liquid target, energy, essential costs and revenue per km before presenting the first plan",
+    "electric energy is supported as kWh through the experience module while preserving the existing price divided by efficiency cost-per-km model",
+    "rental onboarding stores weekly cost and weekday metadata so the later payment-occurrence layer can use the same recurring rule",
+    "target slider remains part of onboarding and is paired with an explicit editable numeric value",
+    "the short Farejando sua operação transition uses the FARO mark as a temporary visual slot until the mascot asset is formally defined",
+    "commercial install gate foundation exists but remains explicitly disabled on the current refinement branch to preserve test speed",
+    "Netlify build keeps FARO storage isolation but no longer disables onboarding"
   ],
   "runtimeSourceAppJsSha256": "9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb",
   "runtimeSourceAppShellSha256": "2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b"

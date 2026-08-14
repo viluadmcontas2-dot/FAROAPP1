@@ -1,4 +1,4 @@
-const CACHE = 'faro-daily-1';
+const CACHE = 'faro-v1-onboarding-1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const APP_SHELL = [
   './legacy-shell.html',
   './app.js?v=3.5.1-faro1',
   './faro-brand.js?v=2',
+  './faro-onboarding.js?v=1',
   './styles.css',
   './manifest.webmanifest',
   './faro-mark.svg',
