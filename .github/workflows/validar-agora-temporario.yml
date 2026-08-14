@@ -57,7 +57,49 @@ jobs:
       - name: Conferir Home e Faro do Dia
         run: node tests/home-contract.test.mjs
 
-      - name: Conferir Registro rápido
+      - name: Registro — integração no app instalado
+        run: |
+          grep -Fq 'faro-register.js?v=1' app-shell.html
+          grep -Fq 'faro-register.js?v=1' sw.js
+          grep -Fq "'faro-register.js'" scripts/build-netlify-of.mjs
+
+      - name: Registro — atalhos rápidos
+        run: |
+          grep -Fq '+ R$50' faro-register.js
+          grep -Fq '+ R$100' faro-register.js
+          grep -Fq '+ R$200' faro-register.js
+          grep -Fq '+ 5 km' faro-register.js
+          grep -Fq '+ 10 km' faro-register.js
+          grep -Fq '+ 50 km' faro-register.js
+          grep -Fq 'current + increment' faro-register.js
+
+      - name: Registro — rascunho e retomada
+        run: |
+          grep -Fq "const DRAFT_KEY = 'faro-record-draft-v1'" faro-register.js
+          grep -Fq 'localStorage.setItem(DRAFT_KEY' faro-register.js
+          grep -Fq 'visibilitychange' faro-register.js
+          grep -Fq 'editingExisting' faro-register.js
+
+      - name: Registro — teclado e limpar coerente
+        run: |
+          grep -Fq "setAttribute('inputmode', 'decimal')" faro-register.js
+          grep -Fq "$('clearDayButton')?.addEventListener" faro-register.js
+          grep -Fq 'clearDraft();' faro-register.js
+
+      - name: Registro — proteção de save e consequência financeira
+        run: |
+          grep -Fq 'if (saving) return' faro-register.js
+          grep -Fq 'aria-busy' faro-register.js
+          grep -Fq 'remainingWeek' faro-register.js
+          grep -Fq 'Na semana, faltam' faro-register.js
+          grep -Fq 'No mês, faltam' faro-register.js
+
+      - name: Registro — sem motor financeiro paralelo
+        run: |
+          ! grep -Eq 'state\.records\.(push|splice)' faro-register.js
+          ! grep -Eq 'dailyGross[[:space:]]*=|dailyNet[[:space:]]*=' faro-register.js
+
+      - name: Conferir contrato completo do Registro
         run: node tests/register-contract.test.mjs
 
       - name: Conferir vencimentos e Planejar
