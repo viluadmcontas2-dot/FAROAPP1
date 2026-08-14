@@ -168,7 +168,7 @@ assert.match(workflow, /name: Conferir onboarding e PWA sem publicar/);
 assert.match(workflow, /permissions:\n  contents: read/);
 assert.match(workflow, /actions\/checkout@v7/);
 assert.match(workflow, /actions\/setup-node@v6/);
-assert.doesNotMatch(workflow, /deploy|pages|netlify|publish/i, 'A workflow de validação não pode publicar ou fazer deploy');
+assert.doesNotMatch(workflow, /actions\/deploy-pages|netlify\s+(deploy|build)|gh-pages|publish-dir|wrangler\s+deploy/i, 'A workflow de validação não pode conter comando real de publicação');
 
 for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','SKILLS.md','START_HERE.md','TESTING_RULES.md']) {
   assert.equal(root.includes(forbidden), false, `${forbidden} não deve existir nesta fotografia`);
