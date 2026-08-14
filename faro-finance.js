@@ -216,9 +216,9 @@
     card.innerHTML = `
       <div class="flex justify-between items-start gap-3"><div><span class="label-micro !text-blue-600">Seu plano agora</span><h3 class="text-xl font-extrabold">O que a pista precisa entregar</h3></div><i class="fas fa-route text-blue-500" aria-hidden="true"></i></div>
       <div class="grid grid-cols-2 gap-3 mt-5">
-        <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Faturamento/dia</span><strong id="faroPlanDailyGross" class="text-lg"></strong></div>
+        <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Faturamento/dia</span><strong id="faroPlanningDailyGross" class="text-lg"></strong></div>
         <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Km/dia</span><strong id="faroPlanDailyKm" class="text-lg"></strong></div>
-        <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Energia/km</span><strong id="faroPlanEnergyKm" class="text-lg"></strong></div>
+        <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Energia/km</span><strong id="faroPlanningEnergyKm" class="text-lg"></strong></div>
         <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Contas + reservas</span><strong id="faroPlanFixed" class="text-lg"></strong></div>
       </div>
       <button id="faroManageCosts" type="button" class="w-full mt-4 rounded-2xl bg-blue-50 text-blue-700 font-extrabold text-xs">GERENCIAR CUSTOS E VENCIMENTOS</button>`;
@@ -269,9 +269,9 @@
   const renderPlan = () => {
     if (!$('faroPlanNow')) return;
     const c = app.calculations();
-    $('faroPlanDailyGross').textContent = app.money(c.dailyGross,0);
+    $('faroPlanningDailyGross').textContent = app.money(c.dailyGross,0);
     $('faroPlanDailyKm').textContent = `${app.integer(c.dailyKm)} km`;
-    $('faroPlanEnergyKm').textContent = `${app.money(c.fuelKm)}/km`;
+    $('faroPlanningEnergyKm').textContent = `${app.money(c.fuelKm)}/km`;
     $('faroPlanFixed').textContent = app.money(c.costs.monthlyFixed,0);
   };
 
