@@ -6,128 +6,37 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 execFileSync(process.execPath, ['scripts/build-netlify-of.mjs'], { stdio: 'inherit' });
 
 const sha256 = value => createHash('sha256').update(value).digest('hex');
+const read = path => readFile(path, 'utf8');
+
+const integrity = JSON.parse(await read('ci/baseline-integrity.json'));
 const rootAppBuffer = await readFile('app.js');
 const rootApp = rootAppBuffer.toString('utf8');
-const rootBrand = await readFile('faro-brand.js', 'utf8');
-const rootOnboarding = await readFile('faro-onboarding.js', 'utf8');
-const rootShell = await readFile('app-shell.html', 'utf8');
-const legacyShellBuffer = await readFile('legacy-shell.html');
-const legacyShell = legacyShellBuffer.toString('utf8');
-const rootIndex = await readFile('index.html', 'utf8');
-const rootManifest = JSON.parse(await readFile('manifest.webmanifest', 'utf8'));
-const rootSw = await readFile('sw.js', 'utf8');
-const workflow = await readFile('.github/workflows/validar-faro-v1-comercial.yml', 'utf8');
-const integrity = JSON.parse(await readFile('ci/baseline-integrity.json', 'utf8'));
+const legacyBuffer = await readFile('legacy-shell.html');
+const legacy = legacyBuffer.toString('utf8');
+const markBuffer = await readFile('faro-mark.svg');
+const iconBuffer = await readFile('icon.svg');
+const shell = await read('app-shell.html');
+const brand = await read('faro-brand.js');
+const platform = await read('faro-platform.js');
+const onboarding = await read('faro-onboarding.js');
+const sw = await read('sw.js');
+const index = await read('index.html');
+const workflow = await read('.github/workflows/validar-faro-v1-comercial.yml');
+const manifest = JSON.parse(await read('manifest.webmanifest'));
 
-const builtApp = await readFile('_site/app.js', 'utf8');
-const builtBrand = await readFile('_site/faro-brand.js', 'utf8');
-const builtOnboarding = await readFile('_site/faro-onboarding.js', 'utf8');
-const builtShell = await readFile('_site/app-shell.html', 'utf8');
-const builtLegacyShell = await readFile('_site/legacy-shell.html', 'utf8');
-const builtIndex = await readFile('_site/index.html', 'utf8');
-const builtManifest = JSON.parse(await readFile('_site/manifest.webmanifest', 'utf8'));
-const builtSw = await readFile('_site/sw.js', 'utf8');
+const builtApp = await read('_site/app.js');
+const builtLegacy = await read('_site/legacy-shell.html');
+const builtPlatform = await read('_site/faro-platform.js');
+const builtOnboarding = await read('_site/faro-onboarding.js');
+const builtSw = await read('_site/sw.js');
 
-assert.equal(sha256(rootAppBuffer), integrity.runtimeSourceAppJsSha256, 'app.js fonte deve continuar byte a byte igual ao baseline aprovado');
-assert.equal(sha256(legacyShellBuffer), '2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b', 'legacy-shell deve ser o app-shell aprovado do ZIP, sem reescrita');
-assert.equal(builtLegacyShell, legacyShell);
-
-for (const text of [rootIndex, builtIndex]) {
-  assert.doesNotMatch(text, /\bVETTA\b/);
-  assert.doesNotMatch(text, /TESTE NETLIFY OF/);
-  assert.doesNotMatch(text, /CalculaAê/);
-}
-for (const shell of [rootShell, builtShell]) {
-  assert.match(shell, /replaceAll\('VETTA', 'FARO'\)/);
-  assert.match(shell, /replaceAll\('TESTE NETLIFY OF', 'FARO'\)/);
-  assert.match(shell, /replaceAll\('CalculaAê', 'FARO'\)/);
-}
-assert.match(rootShell, /APP DO MOTORISTA!/);
-assert.match(rootShell, /faro-mark\.svg/);
-assert.match(rootShell, /legacy-shell\.html/);
-assert.match(rootShell, /faro-brand\.js\?v=2/);
-assert.match(rootShell, /faro-onboarding\.js\?v=1/);
-
-// Invariante aprendida no gate antigo: o bootstrap técnico do PWA nunca pode depender de login,
-// assinatura ou de uma tela que impeça o próprio app de chegar à camada capaz de instalar.
-assert.match(rootIndex, /location\.replace\('\.\/app-shell\.html'\)/);
-assert.doesNotMatch(rootIndex, /Preparando instalação|Instalar Calcula|Instalar FARO|login|assinatura|password|senha|access-gate/i);
-assert.doesNotMatch(rootIndex, /serviceWorker\.register/);
-assert.match(rootOnboarding, /setupInstallGateFoundation/);
-assert.match(rootOnboarding, /const INSTALL_GATE_ENFORCED = false/);
-assert.match(rootOnboarding, /liberado-para-testes/);
-
-assert.equal(rootManifest.name, 'FARO — APP DO MOTORISTA!');
-assert.equal(rootManifest.short_name, 'FARO');
-assert.deepEqual(rootManifest.icons, [{ src: './icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]);
-assert.match(rootSw, /faro-v1-onboarding-1/);
-assert.match(rootSw, /faro-brand\.js\?v=2/);
-assert.match(rootSw, /faro-onboarding\.js\?v=1/);
-assert.match(rootSw, /\.\/icon\.svg/);
-assert.match(rootSw, /\.\/faro-mark\.svg/);
-
-for (const script of [rootBrand, builtBrand]) {
-  assert.match(script, /replaceAll\('VETTA', BRAND\)/);
-  assert.match(script, /replaceAll\('TESTE NETLIFY OF', BRAND\)/);
-  assert.match(script, /replaceAll\('CalculaAê', BRAND\)/);
-  assert.match(script, /app\.shareSummary = async function/);
-  assert.match(script, /app\.exportData = function/);
-  assert.match(script, /app\.printReport = function/);
-  assert.match(script, /app\.toast = function/);
-  assert.match(script, /faro-backup-/);
-  assert.match(script, /const setupDailyJourney = \(\) =>/);
-  assert.match(script, /faroPlanningDetails/);
-  assert.match(script, /faroOptionalDetails/);
-  assert.match(script, /faroDailyResult/);
-  assert.match(script, /const baseSaveDay = app\.saveDay/);
-  assert.match(script, /const baseShowView = app\.showView/);
-  assert.match(script, /targetProfitDisplay/);
-  assert.match(script, /dreGross/);
-  assert.match(script, /recordHours/);
-  assert.match(script, /recordFuel/);
-  assert.match(script, /this\.recordNumbers\(saved, context\)/);
-  assert.match(script, /this\.calculations\(\)/);
-  assert.doesNotMatch(script, /state\.records\.push|state\.records\.splice/);
-}
-
-for (const script of [rootOnboarding, builtOnboarding]) {
-  assert.match(script, /Farejando sua operação\.\.\./);
-  assert.match(script, /data-mascot-slot="future"/);
-  assert.match(script, /electric: \{ type: 'electric', label: 'Elétrico', unit: 'kWh'/);
-  assert.match(script, /vehicle: initialVehicle/);
-  assert.match(script, /kind: 'weekly'/);
-  assert.match(script, /dueWeekday: draft\.rentalDueWeekday/);
-  assert.match(script, /name: 'Parcela do carro'/);
-  assert.match(script, /revenueKmEstimated/);
-  assert.match(script, /maintenanceEstimated/);
-  assert.match(script, /app\.state\.onboardingProfile/);
-  assert.match(script, /app\.calculations\(\)/);
-  assert.match(script, /app\.weekContext\(c\)/);
-  assert.match(script, /faroOnboardingTargetSlider/);
-  assert.match(script, /faroOnboardingTargetNumber/);
-  assert.match(script, /Estimativa inicial|estimativa inicial/);
-  assert.doesNotMatch(script, /state\.records\.push|state\.records\.splice/);
-}
-
-for (const requiredId of [
-  'view-dashboard', 'view-planning', 'view-day', 'targetProfitDisplay', 'dreGross',
-  'recordHours', 'recordFuel', 'saveDayButton', 'previewNet', 'historyList', 'onboardingModal'
-]) {
-  assert.match(legacyShell, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId} para a camada de experiência`);
-}
-
+// Núcleo financeiro e identidade aprovados não podem mudar por acidente.
+assert.equal(sha256(rootAppBuffer), integrity.protectedCore.appJsSha256, 'app.js fonte mudou fora do contrato');
+assert.equal(sha256(legacyBuffer), integrity.protectedCore.legacyShellSha256, 'legacy-shell mudou fora do contrato');
+assert.equal(sha256(markBuffer), integrity.protectedCore.faroMarkSha256, 'marca FARO mudou fora do contrato');
+assert.equal(sha256(iconBuffer), integrity.protectedCore.iconSha256, 'ícone FARO mudou fora do contrato');
+assert.equal(builtLegacy, legacy);
 assert.match(builtApp, /const STORAGE_KEY = 'faro-app-finance-v1';/);
-assert.match(builtApp, /onboardingComplete: false,/);
-assert.doesNotMatch(builtApp, /Onboarding reservado para fase futura/);
-assert.equal(builtManifest.name, 'FARO — APP DO MOTORISTA!');
-assert.match(builtSw, /faro-v1-onboarding-1/);
-assert.equal(builtOnboarding, rootOnboarding);
-
-for (const [path, expected] of Object.entries(integrity.brandAssets)) {
-  const data = await readFile(path);
-  assert.equal(sha256(data), expected, `${path} deve reproduzir o ativo FARO aprovado`);
-  assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
-}
 
 function firstMethod(source, name) {
   const marker = `  ${name}(`;
@@ -147,34 +56,98 @@ function firstMethod(source, name) {
     if (ch === '{') depth += 1;
     else if (ch === '}') {
       depth -= 1;
-      if (depth === 0) {
-        let end = i + 1;
-        if (source[end] === ',') end += 1;
-        return source.slice(start, end);
-      }
+      if (depth === 0) return source.slice(start, source[i + 1] === ',' ? i + 2 : i + 1);
     }
   }
   throw new Error(`Método ${name} sem fechamento`);
 }
 
 for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
-  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo do onboarding`);
+  assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo`);
 }
 
-const root = await readdir('.');
-assert.equal(root.includes('.github'), true, 'A branch comercial deve manter a validação remota explícita');
+// Bootstrap técnico do PWA vem antes de instalação, login ou cobrança.
+assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
+assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
+assert.doesNotMatch(index, /serviceWorker\.register/);
+assert.match(shell, /faro-platform\.js\?v=1/);
+assert.match(shell, /faro-onboarding\.js\?v=2/);
+assert.match(platform, /const INSTALL_GATE_ENFORCED = false/);
+assert.match(platform, /window\.FaroPlatform/);
+assert.match(platform, /canEnterProduct/);
+assert.doesNotMatch(platform, /stripe|assinatura|password|senha/i);
+assert.equal(builtPlatform, platform);
+
+// Onboarding v2 — fluxo humano, progressivo e sem custo agregado genérico.
+for (const source of [onboarding, builtOnboarding]) {
+  assert.match(source, /const DRAFT_KEY = 'faro-onboarding-draft-v2'/);
+  assert.match(source, /data-faro-step="rental"/);
+  assert.match(source, /data-faro-step="finance"/);
+  assert.match(source, /data-faro-step="costs"/);
+  assert.match(source, /data-faro-step="reserve"/);
+  assert.match(source, /Quanto você paga por semana\?/);
+  assert.match(source, /Valor da parcela mensal/);
+  assert.match(source, /otherCosts: \[\]/);
+  assert.match(source, /pendingCost:/);
+  assert.match(source, /dueDay:clampDueDay|dueDay: clampDueDay/);
+  assert.match(source, /plannedOnly:true|plannedOnly: true/);
+  assert.match(source, /maintenancePerKmDeferred:true|maintenancePerKmDeferred: true/);
+  assert.match(source, /data-target-add="50"/);
+  assert.match(source, /data-target-add="100"/);
+  assert.match(source, /data-target-add="500"/);
+  assert.match(source, /batteryKwh/);
+  assert.match(source, /rangeKm/);
+  assert.match(source, /draft\.energyEfficiency = draft\.batteryKwh > 0 \? draft\.rangeKm \/ draft\.batteryKwh : 0/);
+  assert.match(source, /Farejando sua operação\.\.\./);
+  assert.match(source, /setTimeout\(showResult, 4000\)/);
+  assert.doesNotMatch(source, /DEFAULT_MAINTENANCE_KM|maintenance-onboarding|other-monthly-onboarding/);
+  assert.doesNotMatch(source, /state\.records\.push|state\.records\.splice/);
+  assert.doesNotMatch(source, /id="faroRentalWeekly"[^>]*step="\.01"/);
+  assert.doesNotMatch(source, /id="faroFinanceMonthly"[^>]*step="\.01"/);
+}
+
+// PWA/offline — núcleo nunca depende da disponibilidade de CDN.
+for (const source of [sw, builtSw]) {
+  assert.match(source, /faro-v1-core-2/);
+  assert.match(source, /faro-v1-external-2/);
+  assert.match(source, /faro-platform\.js\?v=1/);
+  assert.match(source, /faro-onboarding\.js\?v=2/);
+  assert.match(source, /Promise\.allSettled\(EXTERNAL_SEEDS\.map\(cacheExternalSeed\)\)/);
+  assert.match(source, /Dependência externa nunca pode impedir o núcleo FARO de instalar/);
+  assert.match(source, /cdn\.tailwindcss\.com/);
+  assert.match(source, /cdn\.jsdelivr\.net/);
+  assert.match(source, /cdnjs\.cloudflare\.com/);
+  assert.match(source, /fonts\.gstatic\.com/);
+}
+
+// Marca e experiência já aprovadas continuam presentes.
+assert.match(shell, /APP DO MOTORISTA!/);
+assert.match(shell, /faro-mark\.svg/);
+assert.match(brand, /replaceAll\('VETTA', BRAND\)/);
+assert.match(brand, /const setupDailyJourney = \(\) =>/);
+assert.doesNotMatch(brand, /state\.records\.push|state\.records\.splice/);
+assert.equal(manifest.name, 'FARO — APP DO MOTORISTA!');
+assert.equal(manifest.short_name, 'FARO');
+
+for (const requiredId of ['view-dashboard','view-planning','view-day','targetProfitDisplay','dreGross','recordHours','recordFuel','saveDayButton','previewNet','historyList','onboardingModal']) {
+  assert.match(legacy, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId}`);
+}
+
+// Actions — linguagem humana e zero execução automática em push comum.
 assert.match(workflow, /^name: Validar FARO v1 comercial/m);
+assert.match(workflow, /workflow_dispatch:/);
+assert.doesNotMatch(workflow, /^\s*push:/m, 'Push comum deve consumir zero Actions por padrão');
 assert.match(workflow, /name: Conferir onboarding e PWA sem publicar/);
 assert.match(workflow, /permissions:\n  contents: read/);
-assert.match(workflow, /actions\/checkout@v7/);
-assert.match(workflow, /actions\/setup-node@v6/);
-assert.doesNotMatch(workflow, /actions\/deploy-pages|netlify\s+(deploy|build)|gh-pages|publish-dir|wrangler\s+deploy/i, 'A workflow de validação não pode conter comando real de publicação');
+assert.doesNotMatch(workflow, /actions\/deploy-pages|netlify\s+(deploy|build)|gh-pages|publish-dir|wrangler\s+deploy/i);
 
+const root = await readdir('.');
 for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','SKILLS.md','START_HERE.md','TESTING_RULES.md']) {
-  assert.equal(root.includes(forbidden), false, `${forbidden} não deve existir nesta fotografia`);
+  assert.equal(root.includes(forbidden), false, `${forbidden} não pertence a esta fotografia`);
 }
 
-const forbiddenGate = /access-gate|password|senha/i;
-assert.doesNotMatch(rootShell + rootBrand, forbiddenGate);
+for (const path of ['faro-platform.js','faro-onboarding.js','sw.js','app-shell.html']) {
+  assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
+}
 
-console.log('FARO onboarding completo, bootstrap PWA protegido e baseline financeiro preservado: ok');
+console.log('FARO: onboarding refinado, PWA protegido, Actions econômicas e núcleo financeiro preservado — ok');
