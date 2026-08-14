@@ -18,6 +18,7 @@ const iconBuffer = await readFile('icon.svg');
 const shell = await read('app-shell.html');
 const brand = await read('faro-brand.js');
 const platform = await read('faro-platform.js');
+const energy = await read('faro-energy.js');
 const onboarding = await read('faro-onboarding.js');
 const sw = await read('sw.js');
 const index = await read('index.html');
@@ -27,6 +28,7 @@ const manifest = JSON.parse(await read('manifest.webmanifest'));
 const builtApp = await read('_site/app.js');
 const builtLegacy = await read('_site/legacy-shell.html');
 const builtPlatform = await read('_site/faro-platform.js');
+const builtEnergy = await read('_site/faro-energy.js');
 const builtOnboarding = await read('_site/faro-onboarding.js');
 const builtSw = await read('_site/sw.js');
 
@@ -65,10 +67,12 @@ for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
   assert.equal(sha256(firstMethod(rootApp, name)), expected, `${name} mudou fora do escopo`);
 }
 
+// Bootstrap técnico antes de qualquer gate comercial.
 assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
 assert.doesNotMatch(index, /serviceWorker\.register/);
 assert.match(shell, /faro-platform\.js\?v=1/);
+assert.match(shell, /faro-energy\.js\?v=1/);
 assert.match(shell, /faro-onboarding\.js\?v=2/);
 assert.match(platform, /const INSTALL_GATE_ENFORCED = false/);
 assert.match(platform, /window\.FaroPlatform/);
@@ -76,6 +80,20 @@ assert.match(platform, /canEnterProduct/);
 assert.doesNotMatch(platform, /stripe|assinatura|password|senha/i);
 assert.equal(builtPlatform, platform);
 
+// Elétrico precisa continuar elétrico fora do onboarding.
+for (const source of [energy, builtEnergy]) {
+  assert.match(source, /type: 'electric'/);
+  assert.match(source, /label: 'Elétrico'/);
+  assert.match(source, /unit: 'kWh'/);
+  assert.match(source, /baseChangeFuelType/);
+  assert.match(source, /baseUpdateFuelFromForm/);
+  assert.match(source, /type !== 'electric'/);
+  assert.match(source, /Elétrico selecionado\. Informe preço por kWh e rendimento/);
+  assert.match(source, /window\.FaroEnergy/);
+}
+assert.equal(builtEnergy, energy);
+
+// Onboarding progressivo e retomável.
 for (const source of [onboarding, builtOnboarding]) {
   assert.match(source, /const DRAFT_KEY = 'faro-onboarding-draft-v2'/);
   assert.match(source, /const escapeHtml = value =>/);
@@ -107,16 +125,25 @@ for (const source of [onboarding, builtOnboarding]) {
   assert.match(source, /draft\.energyEfficiency = draft\.batteryKwh > 0 \? draft\.rangeKm \/ draft\.batteryKwh : 0/);
   assert.match(source, /Farejando sua operação\.\.\./);
   assert.match(source, /setTimeout\(showResult, 4000\)/);
+  assert.match(source, /draft\.stepId = 'processing'/);
+  assert.match(source, /draft\.stepId = 'result'/);
+  assert.match(source, /if \(draft\.stepId === 'processing'\) showProcessing\(\)/);
+  assert.match(source, /else if \(draft\.stepId === 'result'\) showResult\(\)/);
+  assert.match(source, /faroTargetNumber.*addEventListener\('blur'/s);
+  assert.match(source, /app\.state\.onboardingComplete = true;[\s\S]*clearDraft\(\);[\s\S]*navigateToPrimary\('dashboard'\)/);
+  assert.doesNotMatch(source, /const showResult = \(\) => \{\s*app\.state\.onboardingComplete = true/);
   assert.doesNotMatch(source, /DEFAULT_MAINTENANCE_KM|maintenance-onboarding|other-monthly-onboarding/);
   assert.doesNotMatch(source, /state\.records\.push|state\.records\.splice/);
   assert.doesNotMatch(source, /id="faroRentalWeekly"[^>]*step="\.01"/);
   assert.doesNotMatch(source, /id="faroFinanceMonthly"[^>]*step="\.01"/);
 }
 
+// Offline/installado.
 for (const source of [sw, builtSw]) {
-  assert.match(source, /faro-v1-core-2/);
+  assert.match(source, /faro-v1-core-3/);
   assert.match(source, /faro-v1-external-2/);
   assert.match(source, /faro-platform\.js\?v=1/);
+  assert.match(source, /faro-energy\.js\?v=1/);
   assert.match(source, /faro-onboarding\.js\?v=2/);
   assert.match(source, /Promise\.allSettled\(EXTERNAL_SEEDS\.map\(cacheExternalSeed\)\)/);
   assert.match(source, /Dependência externa nunca pode impedir o núcleo FARO de instalar/);
@@ -138,10 +165,12 @@ for (const requiredId of ['view-dashboard','view-planning','view-day','targetPro
   assert.match(legacy, new RegExp(`id="${requiredId}"`), `baseline precisa manter ${requiredId}`);
 }
 
+// Actions econômicas e legíveis.
 assert.match(workflow, /^name: Validar FARO v1 comercial/m);
 assert.match(workflow, /workflow_dispatch:/);
 assert.doesNotMatch(workflow, /^\s*push:/m, 'Push comum deve consumir zero Actions por padrão');
 assert.match(workflow, /name: Conferir onboarding e PWA sem publicar/);
+assert.match(workflow, /node --check faro-energy\.js/);
 assert.match(workflow, /permissions:\n  contents: read/);
 assert.doesNotMatch(workflow, /actions\/deploy-pages|netlify\s+(deploy|build)|gh-pages|publish-dir|wrangler\s+deploy/i);
 
@@ -150,8 +179,8 @@ for (const forbidden of ['PROJECT_STATE.md','LEARNING_RULES.md','PWA_RULES.md','
   assert.equal(root.includes(forbidden), false, `${forbidden} não pertence a esta fotografia`);
 }
 
-for (const path of ['faro-platform.js','faro-onboarding.js','sw.js','app-shell.html']) {
+for (const path of ['faro-platform.js','faro-energy.js','faro-onboarding.js','sw.js','app-shell.html']) {
   assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
 }
 
-console.log('FARO: onboarding refinado, vencimentos reais, PWA protegido, Actions econômicas e núcleo financeiro preservado — ok');
+console.log('FARO: onboarding retomável, elétrico coerente, PWA protegido, Actions econômicas e núcleo financeiro preservado — ok');
