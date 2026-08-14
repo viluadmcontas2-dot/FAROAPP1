@@ -70,7 +70,7 @@ for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
 assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
 assert.doesNotMatch(index, /serviceWorker\.register/);
-assert.match(shell, /faro-platform\.js\?v=2/);
+assert.match(shell, /faro-platform\.js\?v=3/);
 assert.match(shell, /faro-energy\.js\?v=1/);
 assert.match(shell, /faro-home\.js\?v=1/);
 assert.match(shell, /faro-onboarding\.js\?v=2/);
@@ -137,14 +137,14 @@ for (const source of [onboarding, builtOnboarding]) {
 }
 
 for (const source of [sw, builtSw]) {
-  assert.match(source, /faro-v1-core-6/);
+  assert.match(source, /faro-v1-core-7/);
   assert.match(source, /faro-v1-external-2/);
-  assert.match(source, /faro-platform\.js\?v=2/);
+  assert.match(source, /faro-platform\.js\?v=3/);
   assert.match(source, /faro-energy\.js\?v=1/);
   assert.match(source, /faro-home\.js\?v=1/);
   assert.match(source, /faro-onboarding\.js\?v=2/);
   assert.match(source, /Promise\.allSettled\(EXTERNAL_SEEDS\.map\(cacheExternalSeed\)\)/);
-  assert.match(source, /Dependência externa nunca pode impedir o núcleo FARO de instalar/);
+  assert.match(source, /FARO: dependência externa não foi pré-cacheada/);
   assert.match(source, /cdn\.tailwindcss\.com/);
   assert.match(source, /cdn\.jsdelivr\.net/);
   assert.match(source, /cdnjs\.cloudflare\.com/);
