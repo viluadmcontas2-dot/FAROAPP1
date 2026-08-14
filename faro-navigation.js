@@ -41,6 +41,13 @@
     if (description) description.textContent = 'Seus dados, aplicativo e ferramentas ocasionais.';
   }
 
+  const dataCard = document.getElementById('exportButton')?.closest('.card-vetta');
+  const dataLabel = dataCard?.querySelector('.label-micro');
+  if (dataLabel) dataLabel.textContent = 'Meus dados';
+
+  const compareLabel = document.getElementById('compareDetails')?.querySelector('.label-micro');
+  if (compareLabel) compareLabel.textContent = 'Ferramenta ocasional';
+
   // Histórico: fatos primeiro, análise depois.
   const historyList = document.getElementById('historyList');
   const historyListSection = historyList?.parentElement;
@@ -72,11 +79,28 @@
     safety.innerHTML = `
       <span class="label-micro !text-red-600">Zona de segurança</span>
       <h3 class="font-extrabold">Restaurar parâmetros</h3>
-      <p class="text-xs text-slate-500 mt-2">Use só quando quiser recomeçar as configurações. Seus registros e dados preservados pelo FARO continuam seguindo as regras atuais do aplicativo.</p>`;
+      <p class="text-xs text-slate-500 mt-2">Volta meta, agenda e energia aos valores iniciais sem apagar seus dias, custos, pagamentos ou reservas.</p>`;
     resetButton.className = 'w-full mt-4 py-4 rounded-2xl bg-red-50 text-red-700 text-sm font-extrabold';
     safety.appendChild(resetButton);
     more.appendChild(safety);
   }
+
+  // Reset seguro: altera apenas parâmetros futuros; fatos financeiros permanecem intactos.
+  app.reset = function() {
+    const confirmed = confirm('Restaurar meta, agenda, energia e receita por km aos valores iniciais? Seus dias, custos, pagamentos e reservas serão preservados.');
+    if (!confirmed) return;
+    const fresh = this.cloneDefaults();
+    this.state.targetProfit = fresh.targetProfit;
+    this.state.workWeekdays = [...fresh.workWeekdays];
+    this.state.extraDaysOff = fresh.extraDaysOff;
+    this.state.revenueKm = fresh.revenueKm;
+    this.state.fuel = { ...fresh.fuel };
+    this.state.compare = { ...fresh.compare };
+    this.save();
+    this.syncInputs();
+    this.render();
+    this.toast('Meta, agenda e energia restauradas. Seus dados financeiros foram preservados.');
+  };
 
   if (more && !document.getElementById('faroCentralIntro')) {
     const intro = document.createElement('div');
