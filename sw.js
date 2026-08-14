@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-2';
+const CORE_CACHE = 'faro-v1-core-3';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -9,6 +9,7 @@ const APP_SHELL = [
   './app.js?v=3.5.1-faro1',
   './faro-brand.js?v=2',
   './faro-platform.js?v=1',
+  './faro-energy.js?v=1',
   './faro-onboarding.js?v=2',
   './styles.css',
   './manifest.webmanifest',
