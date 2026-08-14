@@ -201,6 +201,7 @@
     return result;
   };
 
+  window.addEventListener('load', updateHome, { once:true });
   updateHome();
   window.FaroHome = { refresh: updateHome, nextCommitment };
 })();
