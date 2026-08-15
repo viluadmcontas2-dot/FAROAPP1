@@ -13,6 +13,14 @@ assert.match(navigation, /more: 'Central'/);
 assert.doesNotMatch(navigation, /navigateToPrimary\s*=|openSecondary\s*=|initializeNavigation\s*=/);
 assert.match(navigation, /faroManageCosts[\s\S]*navigateToPrimary\('settings'\)/);
 
+// B9 9.38–9.39: Voltar continua no router existente e estado inválido nunca deixa o app sem tela.
+assert.match(navigation, /const baseRestoreNavigation = app\.restoreNavigation/);
+assert.match(navigation, /document\.getElementById\(`view-\$\{requestedView\}`\)/);
+assert.match(navigation, /document\.getElementById\(`view-\$\{requestedPrimary\}`\)/);
+assert.match(navigation, /if \(!viewExists \|\| !primaryExists\) \{[\s\S]*view:'dashboard', primaryView:'dashboard'[\s\S]*history\.replaceState\(safe[\s\S]*this\.showView\('dashboard', 'dashboard'\)/,
+  'Rota desconhecida precisa cair em Início sem tela vazia');
+assert.match(navigation, /return baseRestoreNavigation\.call\(this, state\)/, 'Rota válida precisa continuar usando o router original');
+
 // Histórico continua consumindo o registro real e prioriza lista antes da análise.
 assert.match(navigation, /app\.state\.records/);
 assert.match(navigation, /recordNumbers\(record, app\.monthContext/);
@@ -45,4 +53,4 @@ assert.match(shell, /faro-navigation\.js\?v=1/);
 assert.match(build, /'faro-navigation\.js'/);
 assert.match(sw, /faro-navigation\.js\?v=1/);
 
-console.log('FARO: navegação humana, Histórico acessível, retorno contextual, Reset seguro e Radar fora da superfície v1 — ok');
+console.log('FARO: navegação humana, retorno seguro, Histórico acessível, Reset seguro e Radar fora da superfície v1 — ok');
