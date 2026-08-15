@@ -15,6 +15,20 @@
     more: 'Central'
   };
 
+  const baseRestoreNavigation = app.restoreNavigation;
+  app.restoreNavigation = function(state) {
+    const requestedView = state?.vettaNavigation ? state.view : 'dashboard';
+    const requestedPrimary = state?.vettaNavigation ? state.primaryView : 'dashboard';
+    const viewExists = Boolean(document.getElementById(`view-${requestedView}`));
+    const primaryExists = Boolean(document.getElementById(`view-${requestedPrimary}`));
+    if (!viewExists || !primaryExists) {
+      const safe = { vettaNavigation:true, view:'dashboard', primaryView:'dashboard' };
+      history.replaceState(safe, '', window.location.href);
+      return this.showView('dashboard', 'dashboard');
+    }
+    return baseRestoreNavigation.call(this, state);
+  };
+
   document.querySelectorAll('.nav-item[data-view]').forEach(button => {
     const label = navLabels[button.dataset.view];
     if (!label) return;
@@ -131,7 +145,7 @@
         <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Faturamento</span><strong id="faroHistoryDetailGross" class="text-lg"></strong></div>
         <div class="bg-emerald-50 rounded-2xl p-4"><span class="label-micro !text-emerald-700">Líquido estimado</span><strong id="faroHistoryDetailNet" class="text-lg text-emerald-700"></strong></div>
         <div class="bg-blue-50 rounded-2xl p-4"><span class="label-micro !text-blue-700">Quilômetros</span><strong id="faroHistoryDetailKm" class="text-lg"></strong></div>
-        <div class="bg-amber-50 rounded-2xl p-4"><span class="label-micro !text-amber-700">Receita/km</span><strong id="faroHistoryDetailRevenueKm" class="text-lg"></strong></div>
+        <div class="bg-amber-50 rounded-2xl p-4"><span class="label-micro !text-amber-700">Receita/km</span><strong id="faroHistoryDetailRevenueKm" class="text-lg text-amber-700"></strong></div>
       </div>
       <p id="faroHistoryDetailContext" class="text-xs text-slate-500 mt-4"></p>
       <button id="faroHistoryDetailEdit" type="button" class="w-full mt-5 py-4 rounded-2xl bg-blue-600 text-white font-extrabold">EDITAR ESTE DIA</button>
