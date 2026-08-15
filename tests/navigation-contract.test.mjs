@@ -21,6 +21,10 @@ assert.match(navigation, /if \(!viewExists \|\| !primaryExists\) \{[\s\S]*view:'
   'Rota desconhecida precisa cair em Início sem tela vazia');
 assert.match(navigation, /return baseRestoreNavigation\.call\(this, state\)/, 'Rota válida precisa continuar usando o router original');
 
+// B9 9.40–9.41: lista grande só é montada quando Histórico está realmente aberto.
+assert.match(navigation, /const baseRenderHistory = app\.renderHistory;[\s\S]*app\.renderHistory = function\(\.\.\.args\) \{[\s\S]*if \(this\.currentView !== 'history'\) return;[\s\S]*baseRenderHistory\.apply\(this, args\)/,
+  'Render global não deve reconstruir o Histórico escondido');
+
 // Histórico continua consumindo o registro real e prioriza lista antes da análise.
 assert.match(navigation, /app\.state\.records/);
 assert.match(navigation, /recordNumbers\(record, app\.monthContext/);
@@ -53,4 +57,4 @@ assert.match(shell, /faro-navigation\.js\?v=1/);
 assert.match(build, /'faro-navigation\.js'/);
 assert.match(sw, /faro-navigation\.js\?v=1/);
 
-console.log('FARO: navegação humana, retorno seguro, Histórico acessível, Reset seguro e Radar fora da superfície v1 — ok');
+console.log('FARO: navegação humana, retorno seguro, Histórico sob demanda, Reset seguro e Radar fora da superfície v1 — ok');
