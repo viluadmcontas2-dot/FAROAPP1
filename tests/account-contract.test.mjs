@@ -20,7 +20,13 @@ for (const source of [config, account, shell]) {
   assert.doesNotMatch(source, /sk_live_|sk_test_|sb_secret_|service_role|SUPABASE_SECRET_KEYS|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET/);
 }
 
-// Phone-first e conflito explícito.
+// Estado vivo desta branch: fundação presente, serviço online ainda não conectado.
+assert.match(config, /supabaseUrl: ''/, 'Branch de validação não pode fingir Supabase conectado');
+assert.match(config, /supabasePublishableKey: ''/, 'Branch de validação não pode fingir chave publicável configurada');
+assert.match(account, /A fundação de conta está pronta; o serviço online ainda não está conectado nesta validação\./, 'UI precisa informar estado local quando backend está ausente');
+assert.match(account, /A conta online ainda não está conectada nesta branch de validação\. Seu FARO continua salvo neste aparelho\./, 'Tentativa de login sem backend deve falhar de forma honesta e preservar dados locais');
+
+// Phone-first e conflito explícito quando o backend vier a ser configurado.
 assert.match(account, /signInWithOtp/);
 assert.match(account, /channel:'whatsapp'/);
 assert.match(account, /verifyOtp\(\{ phone:pendingPhone, token, type:'sms' \}\)/);
@@ -81,4 +87,4 @@ assert.match(build, /'faro-account\.js'/);
 assert.match(sw, /faro-config\.js\?v=1/);
 assert.match(sw, /faro-account\.js\?v=1/);
 
-console.log('FARO: conta phone-first, sync local-first, RLS e cobrança server-side protegidos — ok');
+console.log('FARO: dados locais ativos; fundação de conta/sync protegida e backend corretamente classificado como não conectado — ok');
