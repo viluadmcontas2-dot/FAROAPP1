@@ -61,6 +61,27 @@
     document.head.appendChild(style);
   }
 
+  const optimizeTargetSlider = () => {
+    const slider = dashboard.querySelector('input[data-model="targetProfit"][type="range"]');
+    if (!slider || slider.dataset.faroOptimized === 'true') return slider;
+    const optimized = slider.cloneNode(true);
+    optimized.dataset.faroOptimized = 'true';
+    slider.replaceWith(optimized);
+    let renderFrame = null;
+    optimized.addEventListener('input', event => {
+      app.state.targetProfit = app.number(event.currentTarget.value);
+      app.save();
+      app.syncInputs('targetProfit', event.currentTarget);
+      if (renderFrame !== null) return;
+      renderFrame = requestAnimationFrame(() => {
+        renderFrame = null;
+        app.render();
+      });
+    });
+    return optimized;
+  };
+  optimizeTargetSlider();
+
   const startOfToday = () => {
     const date = new Date();
     date.setHours(12, 0, 0, 0);
@@ -220,5 +241,5 @@
   window.setInterval(refreshCalendarIfNeeded, 60 * 1000);
   window.addEventListener('load', updateHome, { once:true });
   updateHome();
-  window.FaroHome = { refresh: updateHome, refreshCalendarIfNeeded, nextCommitment };
+  window.FaroHome = { refresh: updateHome, refreshCalendarIfNeeded, optimizeTargetSlider, nextCommitment };
 })();
