@@ -18,7 +18,7 @@ assert.match(home, /Próximo compromisso/);
 assert.match(home, /week\.target - week\.actual/);
 assert.match(home, /plannedWeekRemaining/);
 
-// B9 9.18–9.20: relógio/data e virada de mês não podem deixar a Home presa no período antigo.
+// B9 9.18–9.22: relógio/data e virada de mês não podem deixar a Home presa no período antigo.
 assert.match(home, /let calendarKey = app\.todayKey\(\)/, 'Home precisa memorizar a data que está exibindo');
 assert.match(home, /const refreshCalendarIfNeeded = \(\) => \{[\s\S]*const nextKey = app\.todayKey\(\);[\s\S]*if \(nextKey === calendarKey\) return false;[\s\S]*calendarKey = nextKey;[\s\S]*app\.render\(\);/,
   'Mudança de data precisa recalcular o app inteiro');
@@ -27,7 +27,15 @@ assert.match(home, /document\.addEventListener\('visibilitychange'[\s\S]*documen
 assert.match(home, /window\.addEventListener\('pageshow', refreshAfterResume\)/, 'Retomada da página precisa conferir mudança de calendário');
 assert.match(home, /window\.setInterval\(refreshCalendarIfNeeded, 60 \* 1000\)/, 'App aberto continuamente precisa detectar virada de dia sem navegação');
 
+// B9 9.44: slider principal não pode recriar toda a Home várias vezes dentro do mesmo frame.
+assert.match(home, /const optimizeTargetSlider = \(\) => \{[\s\S]*cloneNode\(true\)[\s\S]*slider\.replaceWith\(optimized\)/,
+  'Slider FARO precisa substituir o listener legado que renderiza a cada input');
+assert.match(home, /app\.state\.targetProfit = app\.number\(event\.currentTarget\.value\);[\s\S]*app\.save\(\);/,
+  'Cada valor do slider precisa continuar sendo salvo imediatamente');
+assert.match(home, /if \(renderFrame !== null\) return;[\s\S]*renderFrame = requestAnimationFrame\(\(\) => \{[\s\S]*app\.render\(\);/,
+  'Render do slider precisa ser limitado a no máximo um por frame');
+
 assert.match(home, /window\.FaroHome/);
 assert.doesNotMatch(home, /pendente|atrasado|vencido/i, 'B4 não pode inventar status de pagamento antes de B6');
 
-console.log('FARO: Home organizada em Hoje, Semana e Mês, com virada de calendário automática e sem inventar pagamento — ok');
+console.log('FARO: Home, calendário e slider de meta protegidos contra estado antigo e renders redundantes — ok');
