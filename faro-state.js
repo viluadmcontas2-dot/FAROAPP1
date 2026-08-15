@@ -23,6 +23,30 @@
     return ensureExtensions(baseNormalizeState.call(this, value));
   };
 
+  const baseRecordNumbers = app.recordNumbers;
+  app.recordNumbers = function(record, context) {
+    const result = baseRecordNumbers.call(this, record, context);
+    const km = this.number(record?.km);
+
+    if (record?.fuelCostKmSnapshot != null && this.number(record?.fuelSpend) <= 0) {
+      const expectedFuel = km * this.number(record.fuelCostKmSnapshot);
+      const fuelDelta = result.fuel - expectedFuel;
+      result.fuel = expectedFuel;
+      result.contribution += fuelDelta;
+      result.net += fuelDelta;
+      result.costPerKm = km > 0 ? (result.fuel + result.variable + result.percentCost) / km : 0;
+    }
+
+    if (record?.fixedShareSnapshot != null) {
+      const expectedFixedShare = this.number(record.fixedShareSnapshot);
+      const fixedDelta = result.fixedShare - expectedFixedShare;
+      result.fixedShare = expectedFixedShare;
+      result.net += fixedDelta;
+    }
+
+    return result;
+  };
+
   app.exportData = function() {
     const payload = {
       app: 'FARO',
