@@ -23,8 +23,25 @@
     return ensureExtensions(baseNormalizeState.call(this, value));
   };
 
+  app.exportData = function() {
+    const payload = {
+      app: 'FARO',
+      version: Number(this.state?.version || 1),
+      exportedAt: new Date().toISOString(),
+      data: this.state
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `faro-backup-${this.todayKey()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    this.toast('Backup FARO exportado.');
+  };
+
   app.state = ensureExtensions(app.state);
   app.save();
 
-  window.FaroState = Object.freeze({ ensure: ensureExtensions });
+  window.FaroState = Object.freeze({ ensure: ensureExtensions, backupFormat: 'FARO' });
 })();
