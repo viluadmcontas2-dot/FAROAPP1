@@ -49,14 +49,25 @@ contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a nova geração
 contains(shell, 'faro-update.js?v=1', 'Shell precisa carregar a política de atualização silenciosa');
 assert.doesNotMatch(shell, /Abrindo FARO…/, 'Shell não deve mostrar tela intermediária antes do gate');
 
-contains(sw, "const CORE_CACHE = 'faro-v1-core-11'", 'Instalação precisa acompanhar a geração atual do PWA');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-12'", 'Instalação precisa acompanhar a geração atual do PWA');
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
 contains(build, "'icon-192.png'", 'Build precisa copiar ícone 192');
 contains(build, "'icon-512.png'", 'Build precisa copiar ícone 512');
-assert.doesNotMatch(sw, /skipWaiting\s*\(|SKIP_WAITING/, 'Instalação não pode forçar troca de versão durante uso ativo');
+contains(sw, "event.data?.type === 'FARO_ACTIVATE_WHEN_SAFE'", 'Worker só pode antecipar atualização pelo sinal de saída segura');
+
+const installStart = sw.indexOf("self.addEventListener('install'");
+const activateStart = sw.indexOf("self.addEventListener('activate'");
+const messageStart = sw.indexOf("self.addEventListener('message'");
+assert.ok(installStart >= 0 && activateStart > installStart && messageStart > activateStart, 'Ciclo install/activate/message precisa existir na ordem esperada');
+const installBlock = sw.slice(installStart, activateStart);
+const activateBlock = sw.slice(activateStart, messageStart);
+const messageBlock = sw.slice(messageStart, sw.indexOf('async function externalResponse'));
+assert.doesNotMatch(installBlock, /skipWaiting\s*\(/, 'Instalação não pode forçar troca de versão durante uso ativo');
+assert.doesNotMatch(activateBlock, /clients\.claim\s*\(/, 'Ativação não pode tomar a página atual do motorista');
+assert.match(messageBlock, /FARO_ACTIVATE_WHEN_SAFE[\s\S]*self\.skipWaiting\(\)/, 'Ativação antecipada só pode ocorrer após sinal explícito de saída segura');
 
 assert.deepEqual(pngSize(icon192), [192, 192], 'icon-192.png precisa medir 192×192');
 assert.deepEqual(pngSize(icon512), [512, 512], 'icon-512.png precisa medir 512×512');
@@ -76,4 +87,4 @@ assert.doesNotMatch(platform, /sensação de.*site|como site|barra de navegador/
 assert.doesNotMatch(platform, /É rápido e você só faz isso uma vez|Leva poucos segundos e você faz isso só uma vez/i, 'Copy não deve repetir promessa de rapidez/instalação única');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode recarregar e criar loop de gate');
 
-console.log('FARO: sem piscada, instalação completa e atualização silenciosa sem troca forçada durante uso — ok');
+console.log('FARO: sem piscada, instalação completa e atualização segura somente na saída — ok');
