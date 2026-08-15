@@ -145,7 +145,7 @@ for (const source of [onboarding, builtOnboarding]) {
 }
 
 for (const source of [sw, builtSw]) {
-  assert.match(source, /faro-v1-core-11/);
+  assert.match(source, /faro-v1-core-12/);
   assert.match(source, /faro-v1-external-2/);
   assert.match(source, /faro-platform\.js\?v=3/);
   assert.match(source, /faro-update\.js\?v=1/);
