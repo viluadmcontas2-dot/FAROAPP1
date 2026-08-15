@@ -201,7 +201,24 @@
     return result;
   };
 
+  let calendarKey = app.todayKey();
+  const refreshCalendarIfNeeded = () => {
+    const nextKey = app.todayKey();
+    if (nextKey === calendarKey) return false;
+    calendarKey = nextKey;
+    app.render();
+    return true;
+  };
+  const refreshAfterResume = () => {
+    if (!refreshCalendarIfNeeded()) updateHome();
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshAfterResume();
+  });
+  window.addEventListener('pageshow', refreshAfterResume);
+  window.setInterval(refreshCalendarIfNeeded, 60 * 1000);
   window.addEventListener('load', updateHome, { once:true });
   updateHome();
-  window.FaroHome = { refresh: updateHome, nextCommitment };
+  window.FaroHome = { refresh: updateHome, refreshCalendarIfNeeded, nextCommitment };
 })();
