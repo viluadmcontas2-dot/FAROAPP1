@@ -62,7 +62,6 @@
   const compareLabel = document.getElementById('compareDetails')?.querySelector('.label-micro');
   if (compareLabel) compareLabel.textContent = 'Ferramenta ocasional';
 
-  // Histórico: fatos primeiro, análise depois.
   const historyList = document.getElementById('historyList');
   const historyListSection = historyList?.parentElement;
   const historyChart = document.getElementById('historyChart')?.closest('.card-vetta');
@@ -70,14 +69,12 @@
     historyView.insertBefore(historyListSection, historyChart);
   }
 
-  // Planejar vira o destino principal quando o usuário decide editar custos.
   document.getElementById('faroManageCosts')?.addEventListener('click', event => {
     event.preventDefault();
     event.stopImmediatePropagation();
     app.navigateToPrimary('settings');
   }, true);
 
-  // Radar continua preservado no estado legado, mas não integra a superfície comercial da v1.
   const eventCard = document.getElementById('eventList')?.closest('.card-vetta');
   if (eventCard) {
     eventCard.classList.add('hidden');
@@ -99,7 +96,6 @@
     more.appendChild(safety);
   }
 
-  // Reset seguro: altera apenas parâmetros futuros; fatos financeiros permanecem intactos.
   app.reset = function() {
     const confirmed = confirm('Restaurar meta, agenda, energia e receita por km aos valores iniciais? Seus dias, custos, pagamentos e reservas serão preservados.');
     if (!confirmed) return;
@@ -211,7 +207,6 @@
     app.renderRecordPreview();
   });
 
-  // O botão EDITAR legado passa a respeitar o contexto de origem do Histórico.
   historyList?.addEventListener('click', event => {
     const button = event.target.closest('[data-action="edit"][data-date]');
     if (!button) return;
@@ -230,6 +225,7 @@
 
   const baseRenderHistory = app.renderHistory;
   app.renderHistory = function(...args) {
+    if (this.currentView !== 'history') return;
     const result = baseRenderHistory.apply(this, args);
     decorateHistoryRows();
     return result;
