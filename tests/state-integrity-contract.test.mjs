@@ -27,6 +27,18 @@ contains(state, 'if (!Array.isArray(state.reserveContributions)) state.reserveCo
 contains(state, 'state.reserveProfiles = {}', 'Perfis de reserva antigos precisam de objeto vazio válido');
 assert.doesNotMatch(state, /paymentOccurrences\.push|reserveContributions\.push/, 'Guardião não pode inventar pagamentos ou aportes');
 
+// 9.13 — cache do PWA e estado financeiro precisam permanecer em superfícies diferentes.
+contains(app, 'localStorage.getItem(STORAGE_KEY)', 'Estado financeiro precisa ser lido do armazenamento local, não do cache do PWA');
+contains(app, 'localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state))', 'Estado financeiro precisa ser salvo no armazenamento local');
+assert.doesNotMatch(sw, /localStorage|indexedDB|STORAGE_KEY/, 'Service worker não pode ler, gravar ou apagar o armazenamento financeiro');
+
+// 9.14 — backup manual precisa ter identidade FARO e continuar passando pela normalização canônica ao restaurar.
+contains(state, 'app.exportData = function()', 'Camada FARO precisa assumir a exportação de backup');
+contains(state, "app: 'FARO'", 'Backup precisa se identificar como FARO');
+contains(state, 'version: Number(this.state?.version || 1)', 'Backup precisa carregar a versão real do estado exportado');
+contains(state, 'link.download = `faro-backup-${this.todayKey()}.json`', 'Arquivo de backup precisa usar nome FARO');
+contains(state, "this.toast('Backup FARO exportado.')", 'Confirmação do backup precisa usar identidade FARO');
+
 contains(app, 'const normalized = { ...base, ...value }', 'Normalização canônica deve preservar campos adicionais já existentes');
 contains(app, 'this.state = data.version >= 3 ? this.normalizeState(data) : this.migrateLegacy(data)', 'Importação precisa passar por normalização');
 contains(account, 'app.state = app.normalizeState(remote.state || {})', 'Restauração da conta precisa passar por normalização');
@@ -43,4 +55,4 @@ assert.ok(stateIndex > -1 && stateIndex < financeIndex && stateIndex < reservesI
 contains(sw, 'faro-state.js?v=1', 'PWA precisa armazenar o guardião de estado');
 contains(build, "'faro-state.js'", 'Build precisa copiar o guardião de estado');
 
-console.log('FARO: backup antigo, remoto antigo, logout e reset preservam estruturas financeiras modernas — ok');
+console.log('FARO: cache separado dos dados, backup FARO, restauração, logout e reset preservam o estado financeiro — ok');
