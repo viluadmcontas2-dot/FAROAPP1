@@ -29,4 +29,11 @@ assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.match(invariants, /id = 'extraDaysOffBadge'/);
 assert.match(invariants, /hidden = true/);
 
-console.log('FARO UX-R2: meta, drafts, subcontextos, DRE e invariantes do motor protegidos — ok');
+// Campo exato deve aceitar digitação livre e delegar ao owner do slider, não salvar sozinho.
+assert.match(invariants, /const freeInput = exact\.cloneNode\(true\)/);
+assert.match(invariants, /freeInput\.addEventListener\('change', commitExact\)/);
+assert.match(invariants, /freeInput\.addEventListener\('blur', commitExact\)/);
+assert.match(invariants, /slider\.dispatchEvent\(new Event\('input'/);
+assert.doesNotMatch(invariants, /app\.state\.targetProfit\s*=|app\.save\(\)/, 'Guard de digitação não pode virar writer financeiro');
+
+console.log('FARO UX-R2: meta, drafts, subcontextos, DRE, digitação exata e invariantes do motor protegidos — ok');
