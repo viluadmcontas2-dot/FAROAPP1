@@ -17,8 +17,9 @@ export function auditPlanningComposition({ shell = '', appShell = '', brand = ''
   }
 
   const legacyCostsRoute = has(navigation, /faroManageCosts[\s\S]*navigateToPrimary\(['"]settings['"]\)/);
-  const planningCapturesCosts = has(planning, /faroManageCosts[\s\S]*stopImmediatePropagation\(\)[\s\S]*openSubview\(['"]planning-costs['"]\)/);
-  if (legacyCostsRoute && !planningCapturesCosts) {
+  const r2CapturesCosts = has(planning, /faroManageCosts[\s\S]*stopImmediatePropagation\(\)[\s\S]*planning-costs/);
+  const r3OwnsMoney = has(planning, /id=\"faroOpenMoney\"[\s\S]*const openMoney =/);
+  if (legacyCostsRoute && !r2CapturesCosts && !r3OwnsMoney) {
     push('PLANNING_COSTS_ROUTE_SPLIT', 'Gerenciar custos ainda escapa do Planejar unificado.');
   }
 
@@ -26,20 +27,14 @@ export function auditPlanningComposition({ shell = '', appShell = '', brand = ''
     brand,
     /const targetCard = document\.getElementById\(['"]targetProfitDisplay['"]\)\?\.closest\(['"]\.card-vetta['"]\);[\s\S]*planningDetails\.appendChild\(card\)/
   );
-  if (brandMovesTarget) {
-    push('TARGET_CARD_REPARENTED_BY_BRAND', 'A camada de marca ainda assume responsabilidade de composição da meta.');
-  }
+  if (brandMovesTarget) push('TARGET_CARD_REPARENTED_BY_BRAND', 'A camada de marca ainda assume responsabilidade de composição da meta.');
 
   const brandMovesDre = has(
     brand,
     /const distributionCard = document\.getElementById\(['"]dreGross['"]\)\?\.closest\(['"]\.card-vetta['"]\);[\s\S]*planningDetails\.appendChild\(card\)/
   );
-  if (brandMovesDre) {
-    push('DRE_REPARENTED_BY_BRAND', 'A camada de marca ainda assume responsabilidade de composição da DRE.');
-  }
+  if (brandMovesDre) push('DRE_REPARENTED_BY_BRAND', 'A camada de marca ainda assume responsabilidade de composição da DRE.');
 
-  // Intencionalmente largo: o falsificador deve reconhecer o comportamento legado
-  // mesmo se aspas/espaçamento mudarem, sem espelhar a implementação linha a linha.
   const homeLooksForDashboardSlider = has(home, /dashboard\.querySelector\([^\n;]*targetProfit[^\n;]*range/);
   const brandIndex = indexOfModule(appShell, 'faro-brand.js');
   const homeIndex = indexOfModule(appShell, 'faro-home.js');
@@ -48,16 +43,16 @@ export function auditPlanningComposition({ shell = '', appShell = '', brand = ''
   }
 
   const legacyAdjustesCopy = has(shell, /view-planning[\s\S]*edição do planejamento continua em Ajustes/);
-  if (legacyAdjustesCopy && !finalPlanningReplaced) {
-    push('LEGACY_ADJUSTES_MENTAL_MODEL', 'A superfície final ainda ensina Ajustes como segundo destino mental.');
-  }
+  if (legacyAdjustesCopy && !finalPlanningReplaced) push('LEGACY_ADJUSTES_MENTAL_MODEL', 'A superfície final ainda ensina Ajustes como segundo destino mental.');
 
   if (planning && !has(planning, /slider\.removeAttribute\(['"]data-model['"]\)/)) {
     push('TARGET_SLIDER_LEGACY_AUTOSAVE', 'O slider final ainda conserva o autosave legado por input.');
   }
 
-  if (planning && !has(planning, /openSubview\(['"]planning-days['"]\)[\s\S]*openSubview\(['"]planning-operation['"]\)[\s\S]*openSubview\(['"]planning-costs['"]\)/)) {
-    push('PLANNING_SUBCONTEXTS_MISSING', 'Dias, Operação e Contas não convergem como subcontextos do mesmo Planejar.');
+  const r2Subcontexts = has(planning, /planning-days[\s\S]*planning-operation[\s\S]*planning-costs/);
+  const r3Cockpit = has(planning, /id=\"faroOpenMeta\"[\s\S]*id=\"faroOpenAgenda\"[\s\S]*id=\"faroOpenPlanDetail\"[\s\S]*id=\"faroOpenOperation\"[\s\S]*id=\"faroOpenMoney\"/);
+  if (planning && !(r2Subcontexts || r3Cockpit)) {
+    push('PLANNING_ACTIONS_MISSING', 'Meta, Agenda, Meu planejamento, Operação e Dinheiro não convergem numa única superfície de Planejar.');
   }
 
   return violations;
