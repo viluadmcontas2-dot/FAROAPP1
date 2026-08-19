@@ -16,15 +16,15 @@ const violations = auditPlanningComposition({ shell, appShell, brand, home, plan
 assert.deepEqual(
   violations,
   [],
-  `FARO UX-R2: composição final de Planejar ainda viola o contrato:\n${violations
-    .map(item => `- ${item.code}: ${item.detail}`)
-    .join('\n')}`
+  `FARO UX-R3: composição final de Planejar ainda viola o contrato:\n${violations.map(item => `- ${item.code}: ${item.detail}`).join('\n')}`
 );
 
 assert.match(appShell, /faro-brand-r2\.js\?v=1/);
 assert.match(appShell, /faro-home-r2\.js\?v=1/);
-assert.match(appShell, /faro-planning\.js\?v=1/);
+assert.match(appShell, /faro-interactions\.js\?v=1/);
+assert.match(appShell, /faro-planning\.js\?v=2/);
+assert.match(appShell, /faro-r3-routing\.js\?v=1/);
 assert.doesNotMatch(appShell, /faro-brand\.js\?v=2/);
 assert.doesNotMatch(appShell, /faro-home\.js\?v=1/);
 
-console.log('FARO UX-R2: Planejar possui uma única arquitetura ativa coerente — ok');
+console.log('FARO UX-R3: Planejar possui uma única arquitetura ativa em cockpit — ok');
