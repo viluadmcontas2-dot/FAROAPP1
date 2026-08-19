@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 
 const routing = fs.readFileSync(new URL('../faro-r3-routing.js', import.meta.url), 'utf8');
 const planning = fs.readFileSync(new URL('../faro-planning.js', import.meta.url), 'utf8');
+const shell = fs.readFileSync(new URL('../app-shell.html', import.meta.url), 'utf8');
+const sw = fs.readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 
 assert.match(routing, /mode:'single-workspace-depth'/, 'R3-B.3 must declare the single-workspace navigation mode');
 assert.match(routing, /faroMoneyInlineFlow/, 'Compromissos must own an internal depth surface');
@@ -20,5 +22,8 @@ assert.doesNotMatch(routing, /app\.state\.costs\s*=|reserveContributions\.push|r
 assert.match(routing, /event\.key !== 'Escape'[\s\S]*closeFlow\(\)/, 'Escape inside depth must return one level, not dismiss the whole workspace');
 assert.match(routing, /faro-dialog-close[\s\S]*closeFlow\(\)/, 'The visible close affordance must behave as Back while inside depth');
 assert.match(planning, /faroMoneyDialog/, 'The coherent navigation must stay inside the existing Compromissos workspace');
+assert.match(shell, /faro-r3-routing\.js\?v=2/, 'The shell must request the R3-B.3 routing generation');
+assert.match(sw, /faro-v1-core-16/, 'R3-B.3 must advance the PWA cache generation');
+assert.match(sw, /faro-r3-routing\.js\?v=2/, 'The service worker must cache the same R3-B.3 routing generation');
 
 console.log('planning-r3b3-navigation-contract: ok');
