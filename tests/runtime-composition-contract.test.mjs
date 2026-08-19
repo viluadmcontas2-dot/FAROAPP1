@@ -13,8 +13,10 @@ const files = [
   'faro-register.js',
   'faro-finance.js',
   'faro-reserves.js',
+  'faro-interactions.js',
   'faro-planning.js',
   'faro-planning-invariants.js',
+  'faro-r3-routing.js',
   'faro-navigation.js',
   'faro-account.js',
   'faro-notifications.js',
@@ -50,8 +52,10 @@ const orderedModules = [
   'faro-register.js?v=1',
   'faro-finance.js?v=1',
   'faro-reserves.js?v=1',
-  'faro-planning.js?v=1',
+  'faro-interactions.js?v=1',
+  'faro-planning.js?v=2',
   'faro-planning-invariants.js?v=1',
+  'faro-r3-routing.js?v=1',
   'faro-navigation.js?v=1',
   'faro-config.js?v=1',
   'faro-account.js?v=1',
@@ -73,15 +77,17 @@ assert.doesNotMatch(shell, /faro-home\.js\?v=1/, 'Home legado não pode continua
 
 const updateIndex = orderedModules.indexOf('faro-update.js?v=1');
 const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
-const planningIndex = orderedModules.indexOf('faro-planning.js?v=1');
+const planningIndex = orderedModules.indexOf('faro-planning.js?v=2');
 const navigationIndex = orderedModules.indexOf('faro-navigation.js?v=1');
 assert.ok(updateIndex < stateIndex, 'Política de atualização precisa estar pronta antes do estado');
 assert.ok(stateIndex < orderedModules.indexOf('faro-finance.js?v=1'), 'Estado precisa estar protegido antes do Financeiro');
-assert.ok(orderedModules.indexOf('faro-finance.js?v=1') < planningIndex, 'Financeiro precisa injetar seus consumidores antes do Planejar reparentar');
-assert.ok(orderedModules.indexOf('faro-reserves.js?v=1') < planningIndex, 'Reservas precisam existir antes do Planejar reparentar');
-assert.ok(planningIndex < navigationIndex, 'Planejar precisa trocar settings→planning antes da navegação rotular a barra');
+assert.ok(orderedModules.indexOf('faro-finance.js?v=1') < planningIndex, 'Financeiro precisa expor consumidores antes do cockpit');
+assert.ok(orderedModules.indexOf('faro-reserves.js?v=1') < planningIndex, 'Reservas precisam existir antes do cockpit');
+assert.ok(orderedModules.indexOf('faro-interactions.js?v=1') < planningIndex, 'Fundação de dialog/motion precisa existir antes do Planejar R3');
+assert.ok(planningIndex < orderedModules.indexOf('faro-r3-routing.js?v=1'), 'Cockpit precisa existir antes das rotas herdadas chamarem suas ações');
+assert.ok(orderedModules.indexOf('faro-r3-routing.js?v=1') < navigationIndex, 'Rotas herdadas precisam convergir antes da navegação operacional');
 assert.ok(orderedModules.indexOf('faro-planning-invariants.js?v=1') < navigationIndex, 'Invariantes do motor precisam existir antes da navegação operacional');
 assert.ok(orderedModules.indexOf('faro-onboarding.js?v=2') < orderedModules.indexOf('faro-tour.js?v=1'), 'Tour precisa ligar seu handoff depois que onboarding criar o CTA final');
 assert.ok(orderedModules.indexOf('faro-tour.js?v=1') < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
 
-console.log('FARO UX-R2: módulos ativos, ownership e ordem final de composição protegidos — ok');
+console.log('FARO UX-R3: módulos ativos, ownership e ordem final do cockpit protegidos — ok');
