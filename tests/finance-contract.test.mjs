@@ -32,14 +32,18 @@ assert.doesNotMatch(finance, /id="faroPlanEnergyKm"/);
 assert.match(finance, /id="faroPlanningDailyGross"/);
 assert.match(finance, /id="faroPlanningEnergyKm"/);
 
-// Financeiro continua fonte canônica; Planejar só compõe e chama calculations().
+// Financeiro continua fonte canônica; Planejar consome APIs e calculations(), sem fórmula paralela.
 assert.match(finance, /app\.calculations\(\)/);
 assert.match(planning, /app\.calculations\(\)/);
 assert.doesNotMatch(finance, /cost\.active\s*=\s*false|\.active\s*=\s*false/, 'Marcar pago não pode desativar regra recorrente');
 assert.doesNotMatch(finance, /dailyGross\s*=|dailyKm\s*=|contributionKm\s*=/, 'Financeiro UX não deve criar motor paralelo');
 assert.doesNotMatch(planning, /function\s+calculations|const\s+calculations\s*=|dailyGross\s*=|contributionKm\s*=/, 'Planejar não pode criar fórmula financeira paralela');
 assert.match(home, /FaroFinance\?\.nextPendingOccurrence/);
-assert.match(planning, /paymentCenter[\s\S]*reserveCenter[\s\S]*costCard/);
-assert.match(planning, /openSubview\('planning-costs'\)/);
+assert.match(planning, /FaroFinance\?\.occurrences/);
+assert.match(planning, /FaroFinance\?\.markPaid/);
+assert.match(planning, /FaroFinance\?\.undoPaid/);
+assert.match(planning, /paymentCenter\.classList\.add\('hidden'\)/);
+assert.match(planning, /reserveCenter\.classList\.add\('hidden'\)/);
+assert.doesNotMatch(planning, /\[paymentCenter, reserveCenter, costCard\][\s\S]*appendChild/, 'R3 não pode despejar os três centros gigantes no Planejar');
 
-console.log('FARO UX-R2: recorrência, pagamentos, reservas e previews continuam consumindo o motor financeiro canônico — ok');
+console.log('FARO UX-R3: recorrência, pagamentos, reservas e cockpit continuam consumindo o motor financeiro canônico — ok');
