@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+// Owners que declaram superfícies simultâneas entram no detector de IDs.
+// R3-B fica fora desta lista porque substitui o innerHTML do hero existente
+// preservando IDs canônicos; ele não mantém duas cópias desses nós no DOM.
 const files = [
   'legacy-shell.html',
   'app-shell.html',
@@ -16,7 +19,6 @@ const files = [
   'faro-interactions.js',
   'faro-planning.js',
   'faro-planning-invariants.js',
-  'faro-r3b.js',
   'faro-r3-routing.js',
   'faro-navigation.js',
   'faro-account.js',
@@ -43,6 +45,7 @@ const duplicates = [...declarations.entries()]
 assert.deepEqual(duplicates, [], `IDs declarados por mais de uma superfície ativa:\n${duplicates.join('\n')}`);
 
 const shell = await readFile('app-shell.html', 'utf8');
+const r3b = await readFile('faro-r3b.js', 'utf8');
 const orderedModules = [
   'faro-brand-r2.js?v=1',
   'faro-platform.js?v=3',
@@ -76,6 +79,9 @@ for (const module of orderedModules) {
 
 assert.doesNotMatch(shell, /faro-brand\.js\?v=2/, 'Brand legado não pode continuar ativo junto do owner R2');
 assert.doesNotMatch(shell, /faro-home\.js\?v=1/, 'Home legado não pode continuar ativo junto do owner R2');
+assert.match(r3b, /hero\.innerHTML =/);
+assert.match(r3b, /root\.insertBefore\(hero, firstGrid\)/);
+assert.doesNotMatch(r3b, /appendChild\(hero\.cloneNode|cloneNode\(true\)[\s\S]*faroOpenPlanDetail/, 'R3-B não pode duplicar o card protagonista');
 
 const updateIndex = orderedModules.indexOf('faro-update.js?v=1');
 const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
@@ -96,4 +102,4 @@ assert.ok(routingIndex < navigationIndex, 'Rotas herdadas precisam convergir ant
 assert.ok(orderedModules.indexOf('faro-onboarding.js?v=2') < orderedModules.indexOf('faro-tour.js?v=1'), 'Tour precisa ligar seu handoff depois que onboarding criar o CTA final');
 assert.ok(orderedModules.indexOf('faro-tour.js?v=1') < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
 
-console.log('FARO UX-R3-B: módulos ativos, ownership e ordem do identity pass protegidos — ok');
+console.log('FARO UX-R3-B: módulos ativos, ownership real e ordem do identity pass protegidos — ok');
