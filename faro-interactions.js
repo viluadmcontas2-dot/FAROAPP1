@@ -43,7 +43,7 @@
       @keyframes faroSheetIn{from{opacity:.4;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
       @keyframes faroSheetOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(16px)}}
       @keyframes faroFocusIn{from{opacity:.12;transform:translate(var(--faro-origin-x,0),var(--faro-origin-y,8px)) scale(.94)}to{opacity:1;transform:translate(0,0) scale(1)}}
-      @keyframes faroFocusOut{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(calc(var(--faro-origin-x,0) * .55),calc(var(--faro-origin-y,8px) * .55)) scale(.965)}}
+      @keyframes faroFocusOut{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--faro-close-x,0),var(--faro-close-y,6px)) scale(.965)}}
       @media(max-width:360px){.faro-dialog--focus{width:min(94vw,430px)}.faro-dialog--workspace{width:95vw}.faro-dialog--focus .faro-dialog-shell,.faro-dialog--workspace .faro-dialog-shell{border-radius:26px}.faro-dialog-title{font-size:20px}}
       @media(prefers-reduced-motion:reduce){.faro-action-card,.faro-dialog-close{transition:none}.faro-action-card:active,.faro-dialog-close:active{transform:none}dialog.faro-dialog::backdrop,dialog.faro-dialog[data-closing="true"]::backdrop,.faro-dialog-shell,dialog.faro-dialog[data-closing="true"] .faro-dialog-shell{animation:none!important}}
     `;
@@ -53,8 +53,7 @@
   const restoreFocus = dialog => {
     const opener = openerByDialog.get(dialog);
     openerByDialog.delete(dialog);
-    dialog.style.removeProperty('--faro-origin-x');
-    dialog.style.removeProperty('--faro-origin-y');
+    for (const property of ['--faro-origin-x','--faro-origin-y','--faro-close-x','--faro-close-y']) dialog.style.removeProperty(property);
     if (opener && document.contains(opener) && typeof opener.focus === 'function') requestAnimationFrame(() => opener.focus({ preventScroll:true }));
   };
 
@@ -92,8 +91,12 @@
     const rect = opener.getBoundingClientRect();
     const x = rect.left + rect.width / 2 - window.innerWidth / 2;
     const y = rect.top + rect.height / 2 - window.innerHeight / 2;
-    dialog.style.setProperty('--faro-origin-x', `${clamp(x,-44,44)}px`);
-    dialog.style.setProperty('--faro-origin-y', `${clamp(y,-58,58)}px`);
+    const originX = clamp(x,-44,44);
+    const originY = clamp(y,-58,58);
+    dialog.style.setProperty('--faro-origin-x', `${originX}px`);
+    dialog.style.setProperty('--faro-origin-y', `${originY}px`);
+    dialog.style.setProperty('--faro-close-x', `${clamp(originX * .55,-24,24)}px`);
+    dialog.style.setProperty('--faro-close-y', `${clamp(originY * .55,-32,32)}px`);
   };
 
   const open = (dialog, opener = document.activeElement) => {
