@@ -30,7 +30,12 @@
     const exportCard = document.getElementById('exportButton')?.closest('.card-vetta');
     const compareCard = document.getElementById('compareDetails')?.closest('.card-vetta') || document.getElementById('compareDetails');
     const installCard = document.getElementById('installCardButton');
+    const help = document.getElementById('faroTourHelp');
     const safety = document.getElementById('faroSafetyZone');
+
+    if (help && safety && help.parentElement === safety.parentElement) {
+      safety.parentElement.insertBefore(help, safety);
+    }
 
     const addGroupLabel = (node, text) => {
       if (!node?.parentElement || node.previousElementSibling?.dataset?.faroCentralGroup === text) return;
@@ -43,8 +48,9 @@
     addGroupLabel(account || exportCard, 'Conta e dados');
     if (compareCard) addGroupLabel(compareCard.closest?.('.card-vetta') || compareCard, 'Ferramentas');
     if (installCard) addGroupLabel(installCard, 'Aplicativo');
+    if (help) addGroupLabel(help, 'Ajuda');
     if (safety) addGroupLabel(safety, 'Segurança');
   }
 
-  window.FaroR2Polish = Object.freeze({ historyCollapsed:true, centralGrouped:true });
+  window.FaroR2Polish = Object.freeze({ historyCollapsed:true, centralGrouped:true, helpBeforeSafety:true });
 })();
