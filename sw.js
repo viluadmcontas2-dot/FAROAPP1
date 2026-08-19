@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-12';
+const CORE_CACHE = 'faro-v1-core-13';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -7,20 +7,24 @@ const APP_SHELL = [
   './app-shell.html',
   './legacy-shell.html',
   './app.js?v=3.5.1-faro1',
-  './faro-brand.js?v=2',
+  './faro-brand-r2.js?v=1',
   './faro-platform.js?v=3',
   './faro-update.js?v=1',
   './faro-state.js?v=1',
   './faro-energy.js?v=1',
-  './faro-home.js?v=1',
+  './faro-home-r2.js?v=1',
   './faro-register.js?v=1',
   './faro-finance.js?v=1',
   './faro-reserves.js?v=1',
+  './faro-planning.js?v=1',
+  './faro-planning-invariants.js?v=1',
   './faro-navigation.js?v=1',
   './faro-config.js?v=1',
   './faro-account.js?v=1',
   './faro-notifications.js?v=1',
+  './faro-r2-polish.js?v=1',
   './faro-onboarding.js?v=2',
+  './faro-tour.js?v=1',
   './styles.css',
   './manifest.webmanifest',
   './faro-mark.svg',
@@ -114,9 +118,7 @@ self.addEventListener('fetch', event => {
     } catch (error) {
       const cached = await caches.match(event.request, { ignoreSearch: true });
       if (cached) return cached;
-      if (event.request.mode === 'navigate') {
-        return (await caches.match('./index.html')) || (await caches.match('./'));
-      }
+      if (event.request.mode === 'navigate') return (await caches.match('./index.html')) || (await caches.match('./'));
       throw error;
     }
   })());
@@ -138,9 +140,7 @@ self.addEventListener('push', event => {
   const title = String(payload.title || 'FARO');
   const options = {
     body: String(payload.body || 'Você tem uma atualização útil no FARO.'),
-    icon: './icon-192.png',
-    badge: './icon-192.png',
-    tag: String(payload.tag || 'faro-aviso'),
+    icon: './icon-192.png', badge: './icon-192.png', tag: String(payload.tag || 'faro-aviso'),
     data: { url: safeFaroUrl(payload.url) }
   };
   event.waitUntil(self.registration.showNotification(title, options));
