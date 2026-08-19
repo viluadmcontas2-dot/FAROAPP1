@@ -61,6 +61,16 @@ assert.match(routing, /navigateToPrimary\('planning'\)/);
 assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(routing, /faroHomeAttention/);
 
+// Formulários legados não podem abrir atrás do <dialog> da top-layer.
+assert.match(routing, /const moneyDialog = document\.getElementById\('faroMoneyDialog'\)/);
+assert.match(routing, /FaroInteractions\?\.close\?\.\(moneyDialog, 'handoff'\)/);
+assert.match(routing, /setTimeout\(callback, handoffDelay\(\)\)/);
+assert.match(routing, /data-r3-reserve-contribute/);
+assert.match(routing, /data-r3-reserve-goal/);
+assert.match(routing, /#faroMoneyAddBill/);
+assert.match(routing, /#faroMoneyCreateReserve/);
+assert.match(routing, /event\.stopImmediatePropagation\(\)/);
+
 // PWA/build carregam a mesma geração.
 assert.match(shell, /faro-interactions\.js\?v=1[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-r3-routing\.js\?v=1/);
 assert.match(sw, /faro-v1-core-14/);
@@ -74,4 +84,4 @@ assert.match(build, /'faro-r3-routing\.js'/);
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.doesNotMatch(planning, /STORAGE_KEY|localStorage\.setItem\([^)]*targetProfit/);
 
-console.log('FARO UX-R3-A: cockpit 2–1–2, sheets, detalhe focado, dinheiro e motion nativo protegidos — ok');
+console.log('FARO UX-R3-A: cockpit 2–1–2, sheets, detalhe focado, dinheiro, handoff de modais e motion nativo protegidos — ok');
