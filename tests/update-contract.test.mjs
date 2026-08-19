@@ -16,9 +16,11 @@ assert.match(update, /window\.addEventListener\('pageshow', \(\) => checkForUpda
 assert.match(update, /worker\.postMessage\(\{ type: 'FARO_ACTIVATE_WHEN_SAFE' \}\)/);
 assert.doesNotMatch(update, /location\.reload|skipWaiting\s*\(/);
 
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-13'/, 'UX-R2 precisa invalidar o cache anterior');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-14'/, 'UX-R3 precisa invalidar o cache anterior');
 assert.match(sw, /\.\/faro-update\.js\?v=1/);
-assert.match(sw, /\.\/faro-planning\.js\?v=1/);
+assert.match(sw, /\.\/faro-interactions\.js\?v=1/);
+assert.match(sw, /\.\/faro-planning\.js\?v=2/);
+assert.match(sw, /\.\/faro-r3-routing\.js\?v=1/);
 assert.match(sw, /\.\/faro-tour\.js\?v=1/);
 assert.match(sw, /self\.addEventListener\('message', event => \{\s*if \(event\.data\?\.type === 'FARO_ACTIVATE_WHEN_SAFE'\) self\.skipWaiting\(\);\s*\}\);/s);
 
@@ -35,4 +37,4 @@ assert.match(shell, /faro-update\.js\?v=1/);
 assert.ok(shell.indexOf('faro-update.js?v=1') < shell.indexOf('faro-state.js?v=1'));
 assert.match(build, /'faro-update\.js'/);
 
-console.log('FARO UX-R2: atualização silenciosa preservada e nova composição recebe cache próprio — ok');
+console.log('FARO UX-R3: atualização silenciosa preservada e cockpit recebe cache próprio — ok');
