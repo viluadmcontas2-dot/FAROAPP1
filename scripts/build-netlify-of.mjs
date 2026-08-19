@@ -17,20 +17,24 @@ const copyFiles = [
   'app-shell.html',
   'legacy-shell.html',
   'app.js',
-  'faro-brand.js',
+  'faro-brand-r2.js',
   'faro-platform.js',
   'faro-update.js',
   'faro-state.js',
   'faro-energy.js',
-  'faro-home.js',
+  'faro-home-r2.js',
   'faro-register.js',
   'faro-finance.js',
   'faro-reserves.js',
+  'faro-planning.js',
+  'faro-planning-invariants.js',
   'faro-navigation.js',
   'faro-config.js',
   'faro-account.js',
   'faro-notifications.js',
+  'faro-r2-polish.js',
   'faro-onboarding.js',
+  'faro-tour.js',
   'styles.css',
   'index.html',
   'manifest.webmanifest',
@@ -82,4 +86,4 @@ await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringi
   commit: process.env.COMMIT_REF || null
 }, null, 2)}\n`);
 
-console.log('FARO pronto para validação: núcleo protegido e experiência atual copiada');
+console.log('FARO pronto para validação: núcleo protegido e experiência UX-R2 copiada');
