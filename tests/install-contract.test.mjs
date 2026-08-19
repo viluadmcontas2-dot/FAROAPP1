@@ -37,18 +37,25 @@ contains(shell, 'window.__faroInstallPrompt = null', 'Bootstrap precisa preparar
 contains(shell, "window.addEventListener('beforeinstallprompt'", 'Bootstrap precisa capturar o instalador antes da UI');
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a porta de instalação');
 contains(shell, 'faro-update.js?v=1', 'Shell precisa carregar a política de atualização silenciosa');
+contains(shell, 'faro-interactions.js?v=1', 'Shell precisa carregar a fundação de interação R3');
+contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit R3');
+contains(shell, 'faro-r3-routing.js?v=1', 'Shell precisa convergir as rotas herdadas para o cockpit');
 
-contains(sw, "const CORE_CACHE = 'faro-v1-core-13'", 'Instalação precisa acompanhar a geração UX-R2 do PWA');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-14'", 'Instalação precisa acompanhar a geração UX-R3 do PWA');
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
-contains(sw, 'faro-planning.js?v=1', 'PWA precisa armazenar Planejar R2');
-contains(sw, 'faro-tour.js?v=1', 'PWA precisa armazenar o tour R2');
+contains(sw, 'faro-interactions.js?v=1', 'PWA precisa armazenar a fundação de interação R3');
+contains(sw, 'faro-planning.js?v=2', 'PWA precisa armazenar Planejar R3');
+contains(sw, 'faro-r3-routing.js?v=1', 'PWA precisa armazenar rotas R3');
+contains(sw, 'faro-tour.js?v=1', 'PWA precisa armazenar o tour');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
 contains(build, "'icon-192.png'", 'Build precisa copiar ícone 192');
 contains(build, "'icon-512.png'", 'Build precisa copiar ícone 512');
-contains(build, "'faro-planning.js'", 'Build precisa copiar Planejar R2');
-contains(build, "'faro-tour.js'", 'Build precisa copiar o tour R2');
+contains(build, "'faro-interactions.js'", 'Build precisa copiar a fundação de interação R3');
+contains(build, "'faro-planning.js'", 'Build precisa copiar Planejar R3');
+contains(build, "'faro-r3-routing.js'", 'Build precisa copiar rotas R3');
+contains(build, "'faro-tour.js'", 'Build precisa copiar o tour');
 contains(sw, "event.data?.type === 'FARO_ACTIVATE_WHEN_SAFE'", 'Worker só pode antecipar atualização pelo sinal de saída segura');
 
 const installStart = sw.indexOf("self.addEventListener('install'");
@@ -76,4 +83,4 @@ assert.equal(manifest.background_color, '#0B1121');
 assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode criar loop de reload');
 
-console.log('FARO UX-R2: instalação, cache e atualização segura incluem a composição nova — ok');
+console.log('FARO UX-R3: instalação, cache e atualização segura incluem o cockpit — ok');
