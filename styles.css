@@ -29,3 +29,6 @@ input[type=range]::-webkit-slider-thumb{height:30px;width:30px}
 @media(max-width:380px){.padding-bottom-nav{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}.modal-sheet{border-radius:24px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.nav-item:active{transform:none}}
 @media(prefers-contrast:more){.card-vetta,.history-row,.cost-row,.event-row,.input-vetta{border-color:#CBD5E1}.input-vetta:focus{border-color:#1D4ED8}.label-micro,.faro-support-text{color:#475569}}
+
+/* R3-B.2 uses only Plus Jakarta weights that are actually loaded. */
+.faro-r3b2-bill-name{font-weight:700!important}
