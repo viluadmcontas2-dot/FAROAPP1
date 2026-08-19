@@ -40,15 +40,15 @@ contains(shell, 'faro-update.js?v=1', 'Shell precisa carregar a política de atu
 contains(shell, 'faro-interactions.js?v=2', 'Shell precisa carregar a fundação de interação R3-B');
 contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit estrutural R3');
 contains(shell, 'faro-r3b.js?v=1', 'Shell precisa carregar a identidade/interação R3-B');
-contains(shell, 'faro-r3-routing.js?v=1', 'Shell precisa convergir as rotas herdadas para o cockpit');
+contains(shell, 'faro-r3-routing.js?v=2', 'Shell precisa carregar a navegação R3-B.3 dentro do mesmo workspace');
 
-contains(sw, "const CORE_CACHE = 'faro-v1-core-15'", 'Instalação precisa acompanhar a geração UX-R3-B do PWA');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-16'", 'Instalação precisa acompanhar a geração UX-R3-B.3 do PWA');
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
 contains(sw, 'faro-interactions.js?v=2', 'PWA precisa armazenar a fundação de interação R3-B');
 contains(sw, 'faro-planning.js?v=2', 'PWA precisa armazenar Planejar R3');
 contains(sw, 'faro-r3b.js?v=1', 'PWA precisa armazenar a camada R3-B');
-contains(sw, 'faro-r3-routing.js?v=1', 'PWA precisa armazenar rotas R3');
+contains(sw, 'faro-r3-routing.js?v=2', 'PWA precisa armazenar rotas R3-B.3');
 contains(sw, 'faro-tour.js?v=1', 'PWA precisa armazenar o tour');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
@@ -86,4 +86,4 @@ assert.equal(manifest.background_color, '#0B1121');
 assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode criar loop de reload');
 
-console.log('FARO UX-R3-B: instalação, cache e atualização segura incluem a identidade do cockpit — ok');
+console.log('FARO UX-R3-B.3: instalação, cache e atualização segura acompanham a navegação atual — ok');

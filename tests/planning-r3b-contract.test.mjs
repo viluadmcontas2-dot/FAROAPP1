@@ -82,10 +82,17 @@ assert.match(r3b, /Definir objetivo/);
 assert.match(r3b, /Detalhes e últimos aportes/);
 assert.match(r3b, /data-r3-reserve-remove/);
 
-// Continuidade: formularios legados não deixam o usuário perdido fora do Radar.
-assert.match(routing, /reopenAfterLegacy/);
-assert.match(routing, /costModal','bills/);
-assert.match(routing, /costModal','reserves/);
+// Continuidade R3-B.3: ações financeiras aprofundam dentro do mesmo Radar.
+assert.match(routing, /mode:'single-workspace-depth'/);
+assert.match(routing, /faroMoneyInlineFlow/);
+assert.match(routing, /data-r3b2-edit-cost/);
+assert.match(routing, /data-r3-reserve-contribute/);
+assert.match(routing, /data-r3-reserve-goal/);
+assert.doesNotMatch(routing, /reopenAfterLegacy|afterMoneyClose|afterWorkspaceClose/);
+assert.doesNotMatch(routing, /app\.openCostModal\(/);
+
+// A camada R3-B.2 mantém seus helpers de retorno como compatibilidade interna,
+// mas o roteamento ativo R3-B.3 intercepta as ações antes do handoff legado.
 assert.match(r3b, /returnAfterLegacy/);
 assert.match(r3b, /faroReserveModal/);
 assert.match(r3b, /scrollIntoView/);
@@ -120,4 +127,4 @@ assert.match(r3b, /#faroMetaDialog \.input-wrapper>span\{z-index:1\}/);
 assert.doesNotMatch(shell, /faro-r3c/i);
 assert.match(r3b, /mode:'financial-radar'/);
 
-console.log('FARO UX-R3-B.2: radar financeiro operacional, timeline, proteção e continuidade — ok');
+console.log('FARO UX-R3-B.3: radar financeiro operacional e navegação em profundidade única protegidos — ok');

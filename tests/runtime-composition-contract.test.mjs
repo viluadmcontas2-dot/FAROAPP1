@@ -60,7 +60,7 @@ const orderedModules = [
   'faro-planning.js?v=2',
   'faro-planning-invariants.js?v=1',
   'faro-r3b.js?v=1',
-  'faro-r3-routing.js?v=1',
+  'faro-r3-routing.js?v=2',
   'faro-navigation.js?v=1',
   'faro-config.js?v=1',
   'faro-account.js?v=1',
@@ -88,7 +88,7 @@ const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
 const planningIndex = orderedModules.indexOf('faro-planning.js?v=2');
 const invariantsIndex = orderedModules.indexOf('faro-planning-invariants.js?v=1');
 const r3bIndex = orderedModules.indexOf('faro-r3b.js?v=1');
-const routingIndex = orderedModules.indexOf('faro-r3-routing.js?v=1');
+const routingIndex = orderedModules.indexOf('faro-r3-routing.js?v=2');
 const navigationIndex = orderedModules.indexOf('faro-navigation.js?v=1');
 assert.ok(updateIndex < stateIndex, 'Política de atualização precisa estar pronta antes do estado');
 assert.ok(stateIndex < orderedModules.indexOf('faro-finance.js?v=1'), 'Estado precisa estar protegido antes do Financeiro');
