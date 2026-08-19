@@ -19,6 +19,7 @@ const shell = await read('app-shell.html');
 const brand = await read('faro-brand-r2.js');
 const planning = await read('faro-planning.js');
 const interactions = await read('faro-interactions.js');
+const r3b = await read('faro-r3b.js');
 const routing = await read('faro-r3-routing.js');
 const home = await read('faro-home-r2.js');
 const tour = await read('faro-tour.js');
@@ -61,9 +62,10 @@ assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
 assert.match(shell, /faro-brand-r2\.js\?v=1/);
 assert.match(shell, /faro-home-r2\.js\?v=1/);
-assert.match(shell, /faro-interactions\.js\?v=1/);
+assert.match(shell, /faro-interactions\.js\?v=2/);
 assert.match(shell, /faro-planning\.js\?v=2/);
 assert.match(shell, /faro-planning-invariants\.js\?v=1/);
+assert.match(shell, /faro-r3b\.js\?v=1/);
 assert.match(shell, /faro-r3-routing\.js\?v=1/);
 assert.match(shell, /faro-tour\.js\?v=1/);
 assert.doesNotMatch(shell, /faro-brand\.js\?v=2/);
@@ -105,17 +107,21 @@ assert.match(planning, /planning\.replaceChildren\(root\)/);
 assert.match(planning, /slider\.removeAttribute\('data-model'\)/);
 assert.match(planning, /id=\"faroOpenMeta\"[\s\S]*id=\"faroOpenAgenda\"[\s\S]*id=\"faroOpenPlanDetail\"[\s\S]*id=\"faroOpenOperation\"[\s\S]*id=\"faroOpenMoney\"/);
 assert.match(interactions, /showModal/);
+assert.match(interactions, /faro-dialog--focus/);
+assert.match(r3b, /Seu plano para/);
+assert.match(r3b, /root\.insertBefore\(hero, firstGrid\)/);
 assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(tour, /faro-ui-tour-v1/);
 
 for (const source of [sw, await read('_site/sw.js')]) {
-  assert.match(source, /faro-v1-core-14/);
+  assert.match(source, /faro-v1-core-15/);
   assert.match(source, /faro-platform\.js\?v=3/);
   assert.match(source, /faro-update\.js\?v=1/);
   assert.match(source, /faro-brand-r2\.js\?v=1/);
   assert.match(source, /faro-home-r2\.js\?v=1/);
-  assert.match(source, /faro-interactions\.js\?v=1/);
+  assert.match(source, /faro-interactions\.js\?v=2/);
   assert.match(source, /faro-planning\.js\?v=2/);
+  assert.match(source, /faro-r3b\.js\?v=1/);
   assert.match(source, /faro-r3-routing\.js\?v=1/);
   assert.match(source, /faro-tour\.js\?v=1/);
   assert.match(source, /Promise\.allSettled\(EXTERNAL_SEEDS\.map\(cacheExternalSeed\)\)/);
@@ -123,7 +129,7 @@ for (const source of [sw, await read('_site/sw.js')]) {
 
 assert.equal(await read('_site/legacy-shell.html'), legacy);
 assert.match(await read('_site/app.js'), /const STORAGE_KEY = 'faro-app-finance-v1';/);
-for (const path of ['faro-brand-r2.js','faro-home-r2.js','faro-interactions.js','faro-planning.js','faro-planning-invariants.js','faro-r3-routing.js','faro-tour.js','faro-platform.js','faro-update.js','faro-state.js','faro-energy.js','faro-onboarding.js','sw.js','app-shell.html']) {
+for (const path of ['faro-brand-r2.js','faro-home-r2.js','faro-interactions.js','faro-planning.js','faro-planning-invariants.js','faro-r3b.js','faro-r3-routing.js','faro-tour.js','faro-platform.js','faro-update.js','faro-state.js','faro-energy.js','faro-onboarding.js','sw.js','app-shell.html']) {
   assert.ok((await stat(path)).size > 0, `${path} não pode estar vazio`);
   assert.ok((await stat(`_site/${path}`)).size > 0, `${path} precisa estar presente no build`);
 }
@@ -137,4 +143,4 @@ assert.equal(manifest.short_name, 'FARO');
 assert.equal(manifest.start_url, './app-shell.html');
 assert.equal(manifest.display, 'standalone');
 
-console.log('FARO UX-R3: núcleo financeiro e shell legado intactos; cockpit está integralmente no build — ok');
+console.log('FARO UX-R3-B: núcleo financeiro e shell legado intactos; identidade do cockpit está integralmente no build — ok');
