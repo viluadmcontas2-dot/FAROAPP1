@@ -26,8 +26,10 @@ const copyFiles = [
   'faro-register.js',
   'faro-finance.js',
   'faro-reserves.js',
+  'faro-interactions.js',
   'faro-planning.js',
   'faro-planning-invariants.js',
+  'faro-r3-routing.js',
   'faro-navigation.js',
   'faro-config.js',
   'faro-account.js',
@@ -86,4 +88,4 @@ await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringi
   commit: process.env.COMMIT_REF || null
 }, null, 2)}\n`);
 
-console.log('FARO pronto para validação: núcleo protegido e experiência UX-R2 copiada');
+console.log('FARO pronto para validação: núcleo protegido e experiência UX-R3-A copiada');
