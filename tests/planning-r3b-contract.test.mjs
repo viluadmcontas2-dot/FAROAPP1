@@ -17,7 +17,7 @@ assert.doesNotMatch(r3b, /app\.state\.[A-Za-z0-9_]+\s*=/, 'R3-B não pode virar 
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.match(planning, /app\.state\.targetProfit = targetDraft/);
 
-// Identidade FARO: Plus Jakarta real, sem peso sintético 900 no novo acabamento.
+// Identidade FARO: Plus Jakarta real, sem peso sintético 900 no acabamento.
 assert.match(r3b, /Plus Jakarta Sans/);
 assert.doesNotMatch(r3b, /font-weight\s*:\s*900/);
 assert.doesNotMatch(interactions, /font-weight\s*:\s*900/);
@@ -33,6 +33,24 @@ assert.match(r3b, /Entender meu plano/);
 for (const copy of ['Meta do mês','Dias na pista','Custo para rodar','Compromissos']) assert.match(r3b,new RegExp(copy));
 assert.doesNotMatch(r3b, /setText\([^\n]*['"]Dinheiro['"]|setText\([^\n]*['"]Agenda['"]|setText\([^\n]*['"]Operação['"]/);
 
+// R3-B.1: cards precisam declarar interação e ter identidade interna própria.
+for (const action of ['Ajustar','Editar dias','Recalcular','Ver compromissos']) assert.match(r3b,new RegExp(action));
+assert.match(r3b, /faro-r3b-card-cta/);
+assert.match(r3b, /faro-r3b-week-strip/);
+assert.match(r3b, /data-r3b-weekday/);
+assert.match(r3b, /faro-r3b-status-pill/);
+assert.match(r3b, /data-r3b-state/);
+assert.match(r3b, /commitmentState/);
+assert.match(r3b, /Conta atrasada/);
+assert.match(r3b, /Vence hoje/);
+assert.match(r3b, /Tudo em dia/);
+assert.match(r3b, /energyIcon/);
+assert.match(r3b, /electric:'fa-bolt'/);
+
+// Regressão física: prefixo R$ não pode ocupar a mesma posição do número.
+assert.match(r3b, /#faroMetaDialog #faroTargetExact\{padding-left:40px!important\}/);
+assert.match(r3b, /#faroMetaDialog \.input-wrapper>span\{z-index:1\}/);
+
 // Microcopy precisa responder intenção + consequência, não arquitetura interna.
 assert.match(r3b, /Quanto você quer que sobre no fim do mês\?/);
 assert.match(r3b, /Quais dias você pretende rodar\?/);
@@ -42,6 +60,17 @@ assert.match(r3b, /Aplicar no meu plano/);
 assert.match(r3b, /Aplicar dias ao meu plano/);
 assert.match(r3b, /Com esses dias, você terá/);
 assert.match(r3b, /Com esses números, o FARO estima/);
+assert.match(r3b, /Marcar como paga/);
+assert.match(r3b, /Definir meta/);
+
+// Motion é causal e curto: card, número e modal respondem sem animação contínua.
+assert.match(r3b, /faro-r3b-live-change/);
+assert.match(r3b, /faroR3BLive/);
+assert.match(r3b, /translateX\(4px\)/);
+assert.match(r3b, /--faro-dialog-accent/);
+assert.match(r3b, /wireLiveMotion/);
+assert.match(r3b, /prefers-reduced-motion:reduce/);
+assert.doesNotMatch(r3b, /animation[^;]*(infinite|linear infinite)/);
 
 // Cada intenção recebe a superfície correta.
 assert.match(r3b, /id:'faroMetaDialog', variant:'focus'/);
@@ -56,11 +85,17 @@ assert.match(interactions, /restoreFocus/);
 assert.match(interactions, /prefers-reduced-motion:reduce/);
 assert.match(r3b, /document\.startViewTransition/);
 
-// Build/PWA precisam carregar exatamente a camada validada.
+// Não nasce uma terceira camada visual para empilhar correções.
+assert.doesNotMatch(shell, /faro-r3c/i);
+assert.doesNotMatch(sw, /faro-r3c/i);
+assert.doesNotMatch(build, /faro-r3c/i);
+assert.match(r3b, /mode:'premium-polish'/);
+
+// Build/PWA continuam carregando a camada R3-B consolidada.
 assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=1/);
 assert.match(sw, /faro-v1-core-15/);
 assert.match(sw, /faro-interactions\.js\?v=2/);
 assert.match(sw, /faro-r3b\.js\?v=1/);
 assert.match(build, /'faro-r3b\.js'/);
 
-console.log('FARO UX-R3-B: identidade, ordem protagonista, microcopy e modais centrais protegidos — ok');
+console.log('FARO UX-R3-B.1: premium polish, affordance, estados e regressão do R$ protegidos — ok');
