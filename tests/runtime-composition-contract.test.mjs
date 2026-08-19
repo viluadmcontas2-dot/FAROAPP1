@@ -18,9 +18,9 @@ const files = [
   'faro-navigation.js',
   'faro-account.js',
   'faro-notifications.js',
-  'faro-r2-polish.js',
   'faro-onboarding.js',
-  'faro-tour.js'
+  'faro-tour.js',
+  'faro-r2-polish.js'
 ];
 
 const declarations = new Map();
@@ -34,8 +34,6 @@ for (const file of files) {
   }
 }
 
-// IDs que nascem no shell e são apenas referenciados pelos módulos não entram aqui;
-// a proteção procura declarações concorrentes entre módulos ativos.
 const duplicates = [...declarations.entries()]
   .filter(([, owners]) => new Set(owners).size > 1)
   .map(([id, owners]) => `${id} → ${[...new Set(owners)].join(', ')}`);
@@ -58,9 +56,9 @@ const orderedModules = [
   'faro-config.js?v=1',
   'faro-account.js?v=1',
   'faro-notifications.js?v=1',
-  'faro-r2-polish.js?v=1',
   'faro-onboarding.js?v=2',
-  'faro-tour.js?v=1'
+  'faro-tour.js?v=1',
+  'faro-r2-polish.js?v=1'
 ];
 
 let previous = -1;
@@ -83,6 +81,7 @@ assert.ok(orderedModules.indexOf('faro-finance.js?v=1') < planningIndex, 'Financ
 assert.ok(orderedModules.indexOf('faro-reserves.js?v=1') < planningIndex, 'Reservas precisam existir antes do Planejar reparentar');
 assert.ok(planningIndex < navigationIndex, 'Planejar precisa trocar settings→planning antes da navegação rotular a barra');
 assert.ok(orderedModules.indexOf('faro-planning-invariants.js?v=1') < navigationIndex, 'Invariantes do motor precisam existir antes da navegação operacional');
-assert.ok(orderedModules.indexOf('faro-onboarding.js?v=2') < orderedModules.indexOf('faro-tour.js?v=1'), 'Tour precisa ligar seu handoff depois que o onboarding criar o CTA final');
+assert.ok(orderedModules.indexOf('faro-onboarding.js?v=2') < orderedModules.indexOf('faro-tour.js?v=1'), 'Tour precisa ligar seu handoff depois que onboarding criar o CTA final');
+assert.ok(orderedModules.indexOf('faro-tour.js?v=1') < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
 
-console.log('FARO UX-R2: módulos ativos, ownership e ordem de composição protegidos — ok');
+console.log('FARO UX-R2: módulos ativos, ownership e ordem final de composição protegidos — ok');
