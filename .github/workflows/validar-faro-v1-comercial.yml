@@ -2,6 +2,9 @@ name: Validar FARO v1 comercial
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - test/ux-r2-00-composition-contracts
 
 permissions:
   contents: read
@@ -16,10 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Baixar a fotografia da branch
+      - name: Baixar a fotografia exata auditada
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+
+      - name: Confirmar SHA auditado
+        run: |
+          echo "audit_sha=$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.base.sha || github.sha }}"
 
       - name: Preparar Node.js para os testes
         uses: actions/setup-node@v6
