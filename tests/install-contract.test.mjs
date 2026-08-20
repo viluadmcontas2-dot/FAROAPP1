@@ -34,6 +34,7 @@ contains(onboarding, 'FaroPlatform && !window.FaroPlatform.canEnterProduct()', '
 
 contains(shell, 'data-faro-platform-ready', 'Shell precisa esconder UI até a plataforma ficar pronta');
 contains(shell, 'visibility:hidden!important', 'Shell precisa impedir piscada da Home no primeiro frame');
+contains(shell, '#onboardingModal:not(:has(#faroFinish)){visibility:hidden!important}', 'Owner legado do onboarding não pode ganhar frame visível');
 contains(shell, 'window.__faroInstallPrompt = null', 'Bootstrap precisa preparar captura precoce do instalador');
 contains(shell, "window.addEventListener('beforeinstallprompt'", 'Bootstrap precisa capturar o instalador antes da UI');
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a porta de instalação');
@@ -43,15 +44,13 @@ contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit estrut
 contains(shell, 'faro-r3b.js?v=1', 'Shell precisa carregar a identidade/interação R3-B');
 contains(shell, 'faro-r3-routing.js?v=2', 'Shell precisa carregar a navegação R3-B.3 dentro do mesmo workspace');
 
-// HF3 — primeiro frame e splash nativo precisam casar com a arte branca do ícone.
 assert.equal(manifest.background_color, '#FFFFFF');
 assert.equal(manifest.theme_color, '#FFFFFF');
 contains(index, '<meta name="theme-color" content="#FFFFFF">', 'Entrada inicial deve anunciar tema branco ao navegador');
 contains(shell, '<meta name="theme-color" content="#FFFFFF">', 'Shell externo deve nascer branco');
 contains(shell, 'background:#FFFFFF', 'Primeiro frame/boot guard deve usar fundo branco');
-contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<meta name=\"theme-color\" content=\"#FFFFFF\">')",
-  'Transformação do shell legado precisa neutralizar o theme-color escuro antes do primeiro paint');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-17'", 'Mudança de splash precisa gerar novo core cache para instalações existentes');
+contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<meta name=\"theme-color\" content=\"#FFFFFF\">')", 'Transformação do shell legado precisa neutralizar o theme-color escuro antes do primeiro paint');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-18'", 'Correções físicas precisam gerar novo core cache para instalações existentes');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
@@ -95,4 +94,4 @@ assert.equal(manifest.prefer_related_applications, false);
 assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode criar loop de reload');
 
-console.log('FARO HF3: instalação segura preservada e splash branco acompanha a marca — ok');
+console.log('FARO físico: instalação segura, splash e owner único do onboarding — ok');
