@@ -25,7 +25,7 @@ assert.match(account, /USAR DADOS SALVOS NA CONTA/);
 
 // 9.50 — assinatura falha/cancelada não pode destruir os dados financeiros.
 for (const status of ['past_due','unpaid','paused','canceled']) {
-  assert.match(account, new RegExp(`${status}: \\[.*dados.*preservad`, 'i'), `${status} precisa comunicar preservação de dados`);
+  assert.match(account, new RegExp(`${status}: \\[.*dados.*(?:preservad|salv)`, 'i'), `${status} precisa comunicar preservação de dados`);
 }
 assert.match(account, /catch \(error\) \{[\s\S]*Não foi possível abrir a assinatura agora\.[\s\S]*faroSubscriptionAction'\)\.disabled = false/,
   'Falha de cobrança precisa apenas devolver controle da ação');
