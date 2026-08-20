@@ -16,13 +16,14 @@ assert.match(update, /window\.addEventListener\('pageshow', \(\) => checkForUpda
 assert.match(update, /worker\.postMessage\(\{ type: 'FARO_ACTIVATE_WHEN_SAFE' \}\)/);
 assert.doesNotMatch(update, /location\.reload|skipWaiting\s*\(/);
 
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-19'/, 'Correções físicas precisam invalidar o cache anterior');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-20'/, 'Correção do onboarding precisa invalidar o cache anterior');
 assert.match(sw, /\.\/faro-update\.js\?v=1/);
 assert.match(sw, /\.\/faro-interactions\.js\?v=2/);
 assert.match(sw, /\.\/faro-planning\.js\?v=2/);
 assert.match(sw, /\.\/faro-r3b\.js\?v=1/);
 assert.match(sw, /\.\/faro-r3-routing\.js\?v=2/);
-assert.match(sw, /\.\/faro-tour\.js\?v=1/);
+assert.match(sw, /\.\/faro-onboarding\.js\?v=3/);
+assert.match(sw, /\.\/faro-tour\.js\?v=2/);
 assert.match(sw, /self\.addEventListener\('message', event => \{\s*if \(event\.data\?\.type === 'FARO_ACTIVATE_WHEN_SAFE'\) self\.skipWaiting\(\);\s*\}\);/s);
 
 const installStart = sw.indexOf("self.addEventListener('install'");
@@ -38,8 +39,10 @@ assert.match(shell, /faro-update\.js\?v=1/);
 assert.match(shell, /faro-interactions\.js\?v=2/);
 assert.match(shell, /faro-r3b\.js\?v=1/);
 assert.match(shell, /faro-r3-routing\.js\?v=2/);
+assert.match(shell, /faro-onboarding\.js\?v=3/);
+assert.match(shell, /faro-tour\.js\?v=2/);
 assert.ok(shell.indexOf('faro-update.js?v=1') < shell.indexOf('faro-state.js?v=1'));
 assert.match(build, /'faro-update\.js'/);
 assert.match(build, /'faro-r3b\.js'/);
 
-console.log('FARO físico: atualização silenciosa preservada e cache 19 renovado — ok');
+console.log('FARO físico: atualização silenciosa preservada e cache 20 renovado — ok');
