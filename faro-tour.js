@@ -111,11 +111,11 @@
     if (!replay && (state.status === 'done' || state.status === 'skipped')) return false;
 
     const shouldReset = replay || state.status === 'idle';
+    const shouldResume = state.status === 'active';
+    if (!shouldReset && !shouldResume) return false;
     if (shouldReset) {
       state = { status:'active', step:0 };
       writeState(state);
-    } else if (state.status !== 'active') {
-      return false;
     }
 
     if (resetToHome && shouldReset && app.currentView !== 'dashboard') app.navigateToPrimary('dashboard');
