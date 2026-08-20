@@ -67,14 +67,14 @@ assert.match(shell, /faro-planning\.js\?v=2/);
 assert.match(shell, /faro-planning-invariants\.js\?v=1/);
 assert.match(shell, /faro-r3b\.js\?v=1/);
 assert.match(shell, /faro-r3-routing\.js\?v=2/);
-assert.match(shell, /faro-tour\.js\?v=1/);
+assert.match(shell, /faro-tour\.js\?v=2/);
 assert.doesNotMatch(shell, /faro-brand\.js\?v=2/);
 assert.doesNotMatch(shell, /faro-home\.js\?v=1/);
 assert.match(shell, /faro-platform\.js\?v=3/);
 assert.match(shell, /faro-update\.js\?v=1/);
 assert.match(shell, /faro-state\.js\?v=1/);
 assert.match(shell, /faro-energy\.js\?v=1/);
-assert.match(shell, /faro-onboarding\.js\?v=2/);
+assert.match(shell, /faro-onboarding\.js\?v=3/);
 
 assert.match(platform, /const INSTALL_GATE_ENFORCED = true/);
 assert.match(platform, /window\.FaroPlatform/);
@@ -114,7 +114,7 @@ assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(tour, /faro-ui-tour-v1/);
 
 for (const source of [sw, await read('_site/sw.js')]) {
-  assert.match(source, /faro-v1-core-19/);
+  assert.match(source, /faro-v1-core-20/);
   assert.match(source, /faro-platform\.js\?v=3/);
   assert.match(source, /faro-update\.js\?v=1/);
   assert.match(source, /faro-brand-r2\.js\?v=1/);
@@ -123,7 +123,7 @@ for (const source of [sw, await read('_site/sw.js')]) {
   assert.match(source, /faro-planning\.js\?v=2/);
   assert.match(source, /faro-r3b\.js\?v=1/);
   assert.match(source, /faro-r3-routing\.js\?v=2/);
-  assert.match(source, /faro-tour\.js\?v=1/);
+  assert.match(source, /faro-tour\.js\?v=2/);
   assert.match(source, /Promise\.allSettled\(EXTERNAL_SEEDS\.map\(cacheExternalSeed\)\)/);
 }
 
@@ -143,4 +143,4 @@ assert.equal(manifest.short_name, 'FARO');
 assert.equal(manifest.start_url, './app-shell.html');
 assert.equal(manifest.display, 'standalone');
 
-console.log('FARO físico: núcleo financeiro e shell legado intactos; cache 19 propagado no build — ok');
+console.log('FARO físico: núcleo financeiro e shell legado intactos; cache 20 propagado no build — ok');
