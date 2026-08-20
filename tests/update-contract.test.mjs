@@ -16,7 +16,7 @@ assert.match(update, /window\.addEventListener\('pageshow', \(\) => checkForUpda
 assert.match(update, /worker\.postMessage\(\{ type: 'FARO_ACTIVATE_WHEN_SAFE' \}\)/);
 assert.doesNotMatch(update, /location\.reload|skipWaiting\s*\(/);
 
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-16'/, 'UX-R3-B.3 precisa invalidar o cache anterior');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-17'/, 'HF3 precisa invalidar o cache anterior e propagar o splash branco');
 assert.match(sw, /\.\/faro-update\.js\?v=1/);
 assert.match(sw, /\.\/faro-interactions\.js\?v=2/);
 assert.match(sw, /\.\/faro-planning\.js\?v=2/);
@@ -42,4 +42,4 @@ assert.ok(shell.indexOf('faro-update.js?v=1') < shell.indexOf('faro-state.js?v=1
 assert.match(build, /'faro-update\.js'/);
 assert.match(build, /'faro-r3b\.js'/);
 
-console.log('FARO UX-R3-B.3: atualização silenciosa preservada e cache da navegação atual renovado — ok');
+console.log('FARO HF3: atualização silenciosa preservada e cache 17 do splash renovado — ok');
