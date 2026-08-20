@@ -10,7 +10,6 @@ const sw = await readFile('sw.js','utf8');
 const build = await readFile('scripts/build-netlify-of.mjs','utf8');
 const app = await readFile('app.js','utf8');
 
-// O substrato R3-A mantém as cinco intenções; R3-B recompõe a ordem visual em runtime.
 for (const id of ['faroOpenMeta','faroOpenAgenda','faroOpenPlanDetail','faroOpenOperation','faroOpenMoney']) {
   assert.match(planning, new RegExp(`id=\\"${id}\\"`), `${id} precisa existir no cockpit`);
 }
@@ -61,25 +60,26 @@ assert.match(interactions, /faro-dialog--workspace/);
 assert.match(routing, /navigateToPrimary\('planning'\)/);
 assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(routing, /faroHomeAttention/);
-
 assert.match(routing, /const \$ = id => document\.getElementById\(id\)/);
 assert.match(routing, /const moneyDialog = \$\('faroMoneyDialog'\)/);
 assert.match(routing, /flow\.id = 'faroMoneyInlineFlow'/);
 assert.match(routing, /moneyShell\?\.appendChild\(flow\)/);
 assert.match(routing, /saveCostThroughCanonicalWriter[\s\S]*app\.saveCost\(\)/);
 assert.match(routing, /saveContributionThroughCanonicalWriter[\s\S]*save\.dataset\.mode = 'contribution'[\s\S]*save\.click\(\)/);
+assert.match(routing, /draftId\s*:\s*app\.uid\('cost'\)/);
+assert.match(routing, /flowCommitPending/);
 assert.match(routing, /data-r3-reserve-contribute/);
 assert.match(routing, /data-r3-reserve-goal/);
 assert.match(routing, /#faroMoneyAddBill/);
 assert.match(routing, /#faroMoneyCreateReserve/);
 assert.match(routing, /event\.stopImmediatePropagation\(\)/);
 
-assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=2/);
-assert.match(sw, /faro-v1-core-20/);
+assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=3/);
+assert.match(sw, /faro-v1-core-21/);
 assert.match(sw, /faro-interactions\.js\?v=2/);
 assert.match(sw, /faro-planning\.js\?v=2/);
 assert.match(sw, /faro-r3b\.js\?v=1/);
-assert.match(sw, /faro-r3-routing\.js\?v=2/);
+assert.match(sw, /faro-r3-routing\.js\?v=3/);
 assert.match(build, /'faro-interactions\.js'/);
 assert.match(build, /'faro-r3b\.js'/);
 assert.match(build, /'faro-r3-routing\.js'/);
@@ -87,4 +87,4 @@ assert.match(build, /'faro-r3-routing\.js'/);
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.doesNotMatch(planning, /STORAGE_KEY|localStorage\.setItem\([^)]*targetProfit/);
 
-console.log('FARO UX-R3-B.3: cockpit, fluxo Money interno, writers canônicos e cache 20 reconciliados — ok');
+console.log('FARO UX-R3-B.3: cockpit, fluxo Money idempotente, writers canônicos e cache 21 reconciliados — ok');
