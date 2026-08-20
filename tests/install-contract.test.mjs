@@ -43,6 +43,8 @@ contains(shell, 'faro-interactions.js?v=2', 'Shell precisa carregar a fundação
 contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit estrutural R3');
 contains(shell, 'faro-r3b.js?v=1', 'Shell precisa carregar a identidade/interação R3-B');
 contains(shell, 'faro-r3-routing.js?v=2', 'Shell precisa carregar a navegação R3-B.3 dentro do mesmo workspace');
+contains(shell, 'faro-onboarding.js?v=3', 'Shell precisa carregar a geração corrigida do onboarding');
+contains(shell, 'faro-tour.js?v=2', 'Shell precisa carregar a geração corrigida do tour');
 
 assert.equal(manifest.id, './', 'Refresh do splash não pode criar uma segunda identidade de app');
 assert.equal(manifest.background_color, '#FFFFFF');
@@ -54,7 +56,7 @@ contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<m
 contains(index, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Entrada deve pedir a geração nova do manifest ao Android/Chrome');
 contains(shell, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Shell deve pedir a mesma geração nova do manifest');
 contains(shell, ".replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">', '<link rel=\"manifest\" href=\"./manifest.webmanifest?v=2\">')", 'Shell final não pode reintroduzir a geração antiga do manifest ao escrever o legado');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-19'", 'Nova geração de metadata do splash precisa renovar o core cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-20'", 'Nova geração do onboarding precisa renovar o core cache');
 contains(sw, "'./manifest.webmanifest?v=2'", 'PWA deve armazenar a mesma geração versionada do manifest');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
@@ -63,7 +65,8 @@ contains(sw, 'faro-interactions.js?v=2', 'PWA precisa armazenar a fundação de 
 contains(sw, 'faro-planning.js?v=2', 'PWA precisa armazenar Planejar R3');
 contains(sw, 'faro-r3b.js?v=1', 'PWA precisa armazenar a camada R3-B');
 contains(sw, 'faro-r3-routing.js?v=2', 'PWA precisa armazenar rotas R3-B.3');
-contains(sw, 'faro-tour.js?v=1', 'PWA precisa armazenar o tour');
+contains(sw, 'faro-onboarding.js?v=3', 'PWA precisa armazenar o onboarding corrigido');
+contains(sw, 'faro-tour.js?v=2', 'PWA precisa armazenar o tour corrigido');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
 contains(sw, './faro-mark.svg', 'PWA precisa armazenar o símbolo FARO usado pelo splash adaptativo');
