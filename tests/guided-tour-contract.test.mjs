@@ -28,28 +28,39 @@ assert.match(onboarding, /id="faroFinish"/);
 assert.match(planning, /dataset\.faroTour = 'planning'/);
 assert.match(planning, /dataset\.faroTour = 'today'/);
 
-// Handoff pós-onboarding: onboarding continua dono da conclusão; tour só começa depois do commit do gesto.
-const onboardingIndex = shell.indexOf('faro-onboarding.js');
-const tourIndex = shell.indexOf('faro-tour.js');
+// Handoff pós-onboarding: onboarding é o único owner do gesto final.
+const onboardingIndex = shell.indexOf('faro-onboarding.js?v=3');
+const tourIndex = shell.indexOf('faro-tour.js?v=2');
 assert.ok(onboardingIndex >= 0 && tourIndex > onboardingIndex, 'Onboarding precisa carregar antes do tour');
-assert.match(tour, /queueMicrotask\(\(\) =>/,
-  'Tour deve observar a conclusão somente depois que os listeners do gesto terminaram');
-assert.match(tour, /faro:onboarding-complete/,
-  'Handoff precisa virar um evento explícito, sem segunda navegação concorrente no mesmo clique');
-const finishStart = tour.indexOf("const finish = document.getElementById('faroFinish')");
-assert.ok(finishStart >= 0, 'Bridge pós-onboarding precisa existir');
-const finishEnd = tour.indexOf('const schedulePlace', finishStart);
-const finishBlock = tour.slice(finishStart, finishEnd);
-assert.doesNotMatch(finishBlock, /state\s*=\s*\{\s*status:'active',\s*step:0/,
-  'Clique final não pode resetar o tour diretamente');
-assert.match(finishBlock, /app\.state\.onboardingComplete/,
-  'Bridge só pode liberar tour depois da persistência do onboarding');
-assert.match(tour, /if \(!replay && state\.status !== 'idle'\) return/,
-  'Start normal precisa ser idempotente contra duplo clique/reentrada');
+assert.match(onboarding, /window\.dispatchEvent\(new CustomEvent\('faro:onboarding-complete'\)\)/,
+  'Onboarding precisa emitir o handoff somente depois de concluir o próprio commit');
+assert.doesNotMatch(tour, /getElementById\('faroFinish'\)|querySelector\(['"]#faroFinish['"]\)/,
+  'Tour não pode ser segundo owner do botão final do onboarding');
+assert.match(tour, /window\.addEventListener\('faro:onboarding-complete'/,
+  'Tour deve consumir apenas o evento de domínio pós-persistência');
+
+const finishStart = onboarding.indexOf("$('faroFinish').addEventListener('click'");
+assert.ok(finishStart >= 0, 'Conclusão final do onboarding precisa existir');
+const finishEnd = onboarding.indexOf("$('faroRentalWeekly').value", finishStart);
+const finishBlock = onboarding.slice(finishStart, finishEnd);
+assert.match(finishBlock, /onboardingComplete = true;[\s\S]*app\.save\(\);[\s\S]*modal\.classList\.add\('hidden'\);[\s\S]*navigateToPrimary\('dashboard'\);[\s\S]*faro:onboarding-complete/,
+  'Persistir → fechar onboarding → Home → handoff deve ser uma única sequência canônica');
+assert.match(finishBlock, /finalizing|disabled = true/,
+  'Duplo toque não pode executar a conclusão duas vezes');
+
+const startAt = tour.indexOf('function start(');
+const nextAt = tour.indexOf('function next()', startAt);
+const startBlock = tour.slice(startAt, nextAt);
+assert.match(startBlock, /!app\.state\.onboardingComplete/,
+  'Tour jamais pode aparecer enquanto onboarding estiver incompleto');
+assert.match(startBlock, /state\.status === 'active'/,
+  'Tour ativo precisa retomar o passo salvo em vez de travar o handoff');
+assert.match(startBlock, /state\.status === 'done'[\s\S]*state\.status === 'skipped'/,
+  'Tour concluído ou pulado não pode reiniciar automaticamente');
 assert.match(tour, /function complete\(\)[\s\S]*navigateToPrimary\('dashboard'\)/,
   'Fim do tour precisa devolver o motorista ao ponto de partida real');
 
 assert.doesNotMatch(tour, /app\.state\.(targetProfit|workWeekdays|fuel|costs|records|paymentOccurrences|reserveContributions)\s*=/,
   'Tour é preferência de UI e não pode gravar estado financeiro');
 
-console.log('FARO HF1: onboarding entrega uma vez e tour didático percorre telas reais sem reset concorrente — ok');
+console.log('FARO HF1: onboarding possui o handoff e tour percorre telas reais sem concorrência — ok');
