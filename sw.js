@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-16';
+const CORE_CACHE = 'faro-v1-core-17';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
