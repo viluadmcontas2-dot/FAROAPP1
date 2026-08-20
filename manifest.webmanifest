@@ -6,8 +6,8 @@
   "start_url": "./app-shell.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0B1121",
-  "theme_color": "#0B1121",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "orientation": "portrait-primary",
   "lang": "pt-BR",
   "categories": [
