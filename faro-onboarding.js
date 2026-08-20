@@ -469,14 +469,29 @@
   $('faroRevenueKm').addEventListener('input', e => { draft.revenueKm=n(e.target.value); draft.revenueEstimated=Math.abs(draft.revenueKm-DEFAULT_REVENUE_KM)<.001; $('faroRevenueEstimate').classList.toggle('hidden',!draft.revenueEstimated); saveDraft(); });
   $('faroBack').addEventListener('click', () => { const seq=sequence(); const index=seq.indexOf(draft.stepId); if(index<=0)return; draft.stepId=seq[index-1]; saveDraft(); renderStep(); });
   $('faroNext').addEventListener('click', () => { if(!validateStep())return; const seq=sequence(); const index=seq.indexOf(draft.stepId); if(index<seq.length-1){draft.stepId=seq[index+1];saveDraft();renderStep();}else showProcessing(); });
+  let finalizing = false;
   $('faroFinish').addEventListener('click', () => {
+    if (finalizing || app.state.onboardingComplete) return;
+    finalizing = true;
+    const finishButton = $('faroFinish');
+    finishButton.disabled = true;
     app.state.onboardingComplete = true;
-    app.save();
+    try {
+      app.save();
+    } catch (error) {
+      app.state.onboardingComplete = false;
+      finalizing = false;
+      finishButton.disabled = false;
+      console.error('FARO onboarding: falha ao persistir conclusão', error);
+      app.toast('Não foi possível concluir agora. Tente novamente.');
+      return;
+    }
     app.syncInputs();
     app.render();
     clearDraft();
     modal.classList.add('hidden');
     app.navigateToPrimary('dashboard');
+    window.dispatchEvent(new CustomEvent('faro:onboarding-complete'));
     app.toast('Seu FARO está pronto. Ajuste quando sua rotina mudar.');
   });
 
