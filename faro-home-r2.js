@@ -93,12 +93,6 @@
         return due ? { cost,due,days:daysBetween(today,due) } : null;
       }).filter(Boolean).sort((a,b) => a.due - b.due || Number(b.cost.value || 0) - Number(a.cost.value || 0))[0] || null;
   };
-  const plannedWeekRemaining = () => {
-    const today = startOfToday(); const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay()+6)%7));
-    const sunday = new Date(monday); sunday.setDate(monday.getDate()+6); const recordDates = new Set((app.state.records || []).map(record => record.date)); let remaining = 0;
-    for (const cursor = new Date(today); cursor <= sunday; cursor.setDate(cursor.getDate()+1)) if (app.state.workWeekdays.includes(cursor.getDay()) && !recordDates.has(app.dateKey(cursor))) remaining += 1;
-    return remaining;
-  };
   const setRegisterCopy = hasToday => {
     if (!registerButton) return;
     const small = registerButton.querySelector('span.block'); const strong = registerButton.querySelector('strong');
@@ -120,10 +114,22 @@
     attention.classList.remove('hidden');
   };
   const updateWeek = calculation => {
-    if (!weekCard) return; const week = app.weekContext(calculation); const remaining = Math.max(0,week.target-week.actual); const remainingDays = plannedWeekRemaining();
-    const title = document.getElementById('weekStatusTitle'); const text = document.getElementById('weekStatusText');
-    if (title) title.textContent = week.actual >= week.target && week.target > 0 ? 'Semana no ritmo' : remaining > 0 ? `${app.money(remaining,0)} para fechar a semana` : 'Seu ritmo desta semana';
-    if (text) text.textContent = remainingDays > 0 ? `${remainingDays} ${remainingDays===1?'dia planejado restante':'dias planejados restantes'}.` : 'Nenhum dia planejado restante nesta semana.';
+    if (!weekCard) return;
+    const week = app.weekContext(calculation);
+    if (!Number.isFinite(week.targetGross)) { weekCard.style.visibility = 'hidden'; return; }
+    weekCard.style.visibility = '';
+    const targetNode = document.getElementById('weekTarget');
+    const actualNode = document.getElementById('weekActual');
+    const title = document.getElementById('weekStatusTitle');
+    const text = document.getElementById('weekStatusText');
+    const targetLabel = targetNode?.previousElementSibling;
+    const actualLabel = actualNode?.previousElementSibling;
+    if (targetLabel) targetLabel.textContent = 'Bruto necessário';
+    if (actualLabel) actualLabel.textContent = 'Bruto realizado';
+    if (targetNode) targetNode.textContent = app.money(week.targetGross, 0);
+    if (actualNode) actualNode.textContent = app.money(week.actualGross, 0);
+    if (title) title.textContent = week.remainingGross > 0 ? `${app.money(week.remainingGross,0)} bruto ainda nesta semana` : 'Semana no ritmo';
+    if (text) text.textContent = `${app.money(week.targetGross,0)} bruto para buscar ${app.money(week.targetNet,0)} líquido. ${week.remainingDays > 0 ? `${week.remainingDays} ${week.remainingDays===1?'dia planejado restante':'dias planejados restantes'}.` : 'Nenhum dia planejado restante.'}`;
   };
   const updateHome = () => {
     const calculation = app.calculations(); const hasToday = (app.state.records || []).some(record => record.date === app.todayKey());
