@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-// Owners que declaram superfícies simultâneas entram no detector de IDs.
-// R3-B fica fora desta lista porque substitui o innerHTML do hero existente
-// preservando IDs canônicos; ele não mantém duas cópias desses nós no DOM.
 const files = [
   'legacy-shell.html',
   'app-shell.html',
@@ -24,6 +21,7 @@ const files = [
   'faro-account.js',
   'faro-notifications.js',
   'faro-onboarding.js',
+  'faro-onboarding-commit.js',
   'faro-tour.js',
   'faro-r2-polish.js'
 ];
@@ -60,13 +58,14 @@ const orderedModules = [
   'faro-planning.js?v=2',
   'faro-planning-invariants.js?v=1',
   'faro-r3b.js?v=1',
-  'faro-r3-routing.js?v=2',
+  'faro-r3-routing.js?v=3',
   'faro-navigation.js?v=1',
   'faro-config.js?v=1',
   'faro-account.js?v=1',
   'faro-notifications.js?v=1',
-  'faro-onboarding.js?v=2',
-  'faro-tour.js?v=1',
+  'faro-onboarding.js?v=3',
+  'faro-onboarding-commit.js?v=1',
+  'faro-tour.js?v=2',
   'faro-r2-polish.js?v=1'
 ];
 
@@ -88,8 +87,11 @@ const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
 const planningIndex = orderedModules.indexOf('faro-planning.js?v=2');
 const invariantsIndex = orderedModules.indexOf('faro-planning-invariants.js?v=1');
 const r3bIndex = orderedModules.indexOf('faro-r3b.js?v=1');
-const routingIndex = orderedModules.indexOf('faro-r3-routing.js?v=2');
+const routingIndex = orderedModules.indexOf('faro-r3-routing.js?v=3');
 const navigationIndex = orderedModules.indexOf('faro-navigation.js?v=1');
+const onboardingIndex = orderedModules.indexOf('faro-onboarding.js?v=3');
+const commitIndex = orderedModules.indexOf('faro-onboarding-commit.js?v=1');
+const tourIndex = orderedModules.indexOf('faro-tour.js?v=2');
 assert.ok(updateIndex < stateIndex, 'Política de atualização precisa estar pronta antes do estado');
 assert.ok(stateIndex < orderedModules.indexOf('faro-finance.js?v=1'), 'Estado precisa estar protegido antes do Financeiro');
 assert.ok(orderedModules.indexOf('faro-finance.js?v=1') < planningIndex, 'Financeiro precisa expor consumidores antes do cockpit');
@@ -99,7 +101,7 @@ assert.ok(planningIndex < invariantsIndex, 'Invariantes precisam complementar o 
 assert.ok(invariantsIndex < r3bIndex, 'R3-B só pode recompor depois que o owner e suas invariantes existirem');
 assert.ok(r3bIndex < routingIndex, 'Identidade R3-B precisa estar pronta antes das rotas herdadas chamarem o cockpit');
 assert.ok(routingIndex < navigationIndex, 'Rotas herdadas precisam convergir antes da navegação operacional');
-assert.ok(orderedModules.indexOf('faro-onboarding.js?v=2') < orderedModules.indexOf('faro-tour.js?v=1'), 'Tour precisa ligar seu handoff depois que onboarding criar o CTA final');
-assert.ok(orderedModules.indexOf('faro-tour.js?v=1') < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
+assert.ok(onboardingIndex < commitIndex && commitIndex < tourIndex, 'Owner pós-commit precisa ligar entre onboarding e tour');
+assert.ok(tourIndex < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
 
 console.log('FARO UX-R3-B: módulos ativos, ownership real e ordem do identity pass protegidos — ok');
