@@ -56,6 +56,7 @@
   moneyShell?.appendChild(flow);
 
   let flowState = null;
+  let flowCommitPending = false;
   let savedScroll = 0;
   const flowOpen = () => flow && !flow.classList.contains('hidden');
   const setValue = (id,value) => { const node = $(id); if (node) node.value = value ?? ''; };
@@ -67,6 +68,7 @@
     flow.classList.add('hidden');
     flow.setAttribute('aria-hidden','true');
     flowState = null;
+    flowCommitPending = false;
     if (restore && moneyBody) requestAnimationFrame(() => { moneyBody.scrollTop = savedScroll; $('faroMoneyFlowBack')?.blur(); });
     $('faroOpenMoney')?.focus?.({preventScroll:true});
   };
@@ -113,22 +115,51 @@
   const openFlow = state => {
     if (!moneyDialog || !flow) return;
     savedScroll = moneyBody?.scrollTop || 0;
-    flowState = state;
-    $('faroMoneyFlowKicker').textContent = state.kind === 'bill' ? 'Contas' : 'Reservas';
-    if (state.kind === 'bill') renderBillFlow(state.cost || null);
-    if (state.kind === 'reserve-create') renderReserveCreateFlow();
-    if (state.kind === 'contribution') renderContributionFlow(state.reserve);
-    if (state.kind === 'goal') renderGoalFlow(state.reserve);
+    const needsDraftId = state.kind === 'reserve-create' || (state.kind === 'bill' && !state.cost?.id);
+    flowState = needsDraftId ? { ...state, draftId:app.uid('cost') } : state;
+    flowCommitPending = false;
+    $('faroMoneyFlowKicker').textContent = flowState.kind === 'bill' ? 'Contas' : 'Reservas';
+    if (flowState.kind === 'bill') renderBillFlow(flowState.cost || null);
+    if (flowState.kind === 'reserve-create') renderReserveCreateFlow();
+    if (flowState.kind === 'contribution') renderContributionFlow(flowState.reserve);
+    if (flowState.kind === 'goal') renderGoalFlow(flowState.reserve);
     flow.classList.remove('hidden'); flow.setAttribute('aria-hidden','false');
     requestAnimationFrame(() => flow.querySelector('input,select,button')?.focus({preventScroll:true}));
   };
 
   const saveCostThroughCanonicalWriter = ({category,id=''}) => {
+    if (flowCommitPending) return;
     const name = val('faroFlowName').trim(); const value = number('faroFlowValue'); const kind = val('faroFlowKind');
     if (!name || value <= 0) return app.toast('Informe um nome e um valor maior que zero.');
-    setValue('costId',id); setValue('costName',name); setValue('costCategory',category); setValue('costKind',kind); setValue('costValue',value);
+    const commitId = id || flowState?.draftId || app.uid('cost');
+    const saveButton = flow.querySelector('[data-r3b3-save-bill],[data-r3b3-save-reserve]');
+    flowCommitPending = true;
+    if (saveButton) { saveButton.disabled = true; saveButton.setAttribute('aria-busy','true'); }
+    setValue('costId',commitId); setValue('costName',name); setValue('costCategory',category); setValue('costKind',kind); setValue('costValue',value);
     setValue('costDueDay',kind === 'monthly' ? val('faroFlowDueDay') : ''); setValue('costDueWeekday',kind === 'weekly' ? val('faroFlowDueWeekday') : ''); setValue('costMonth',kind === 'one_time' ? val('faroFlowMonth') : '');
-    app.syncCostModal?.(); app.saveCost(); closeFlow({restore:false}); window.FaroPlanning?.refreshMoney?.(); window.FaroR3B?.renderMoneyWorkspace?.();
+    let writerError = null;
+    try {
+      app.syncCostModal?.();
+      app.saveCost();
+    } catch (error) {
+      writerError = error;
+    }
+    const persisted = (app.state.costs || []).some(item => item.id === commitId && item.category === category && item.name === name);
+    if (!persisted) {
+      flowCommitPending = false;
+      if (saveButton) { saveButton.disabled = false; saveButton.removeAttribute('aria-busy'); }
+      if (writerError) console.error('FARO Compromissos: falha antes de persistir', writerError);
+      app.toast('Não foi possível salvar agora. Tente novamente.');
+      return;
+    }
+    closeFlow({restore:false});
+    try {
+      window.FaroPlanning?.refreshMoney?.();
+      window.FaroR3B?.renderMoneyWorkspace?.();
+    } catch (error) {
+      console.error('FARO Compromissos: reserva persistida; falha apenas no refresh visual', error);
+    }
+    if (writerError) console.error('FARO Compromissos: writer persistiu antes de falha no pós-save', writerError);
   };
 
   const saveContributionThroughCanonicalWriter = reserveId => {
@@ -147,8 +178,8 @@
     if (flowOpen()) {
       if (event.target.closest('#faroMoneyFlowBack,[data-r3b3-back],.faro-dialog-close')) { event.preventDefault(); event.stopImmediatePropagation(); return closeFlow(); }
       const chip = event.target.closest('[data-r3b3-add]'); if (chip) { event.preventDefault(); const input = $('faroFlowContribution'); if (input) input.value = String(app.number(input.value)+Number(chip.dataset.r3b3Add)); return; }
-      if (event.target.closest('[data-r3b3-save-bill]')) { event.preventDefault(); event.stopImmediatePropagation(); return saveCostThroughCanonicalWriter({category:'obligation',id:flowState?.cost?.id || ''}); }
-      if (event.target.closest('[data-r3b3-save-reserve]')) { event.preventDefault(); event.stopImmediatePropagation(); return saveCostThroughCanonicalWriter({category:'reserve'}); }
+      if (event.target.closest('[data-r3b3-save-bill]')) { event.preventDefault(); event.stopImmediatePropagation(); return saveCostThroughCanonicalWriter({category:'obligation',id:flowState?.cost?.id || flowState?.draftId || ''}); }
+      if (event.target.closest('[data-r3b3-save-reserve]')) { event.preventDefault(); event.stopImmediatePropagation(); return saveCostThroughCanonicalWriter({category:'reserve',id:flowState?.draftId || ''}); }
       if (event.target.closest('[data-r3b3-save-contribution]')) { event.preventDefault(); event.stopImmediatePropagation(); return saveContributionThroughCanonicalWriter(flowState?.reserve?.id || ''); }
       if (event.target.closest('[data-r3b3-save-goal]')) { event.preventDefault(); event.stopImmediatePropagation(); return saveGoalThroughCanonicalWriter(flowState?.reserve?.id || ''); }
       return;
