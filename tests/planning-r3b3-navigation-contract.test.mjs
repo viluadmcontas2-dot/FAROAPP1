@@ -16,14 +16,17 @@ assert.match(routing, /data-r3-reserve-contribute/, 'Reserve contribution must b
 assert.match(routing, /data-r3-reserve-goal/, 'Reserve goal must be routed internally');
 assert.match(routing, /app\.saveCost\(\)/, 'Bill/reserve edits must reuse the canonical cost writer');
 assert.match(routing, /faroReserveSave/, 'Reserve contribution/goal must reuse the canonical reserve writer');
+assert.match(routing, /draftId\s*:\s*app\.uid\('cost'\)/, 'New costs/reserves need stable draft identity');
+assert.match(routing, /flowCommitPending/, 'Save must be idempotent while commit is pending');
+assert.match(routing, /state\.costs[\s\S]*commitId/, 'Save must confirm persistence by stable id before closing');
 assert.doesNotMatch(routing, /app\.openCostModal\(/, 'R3-B.3 must not navigate from Compromissos into the legacy cost modal');
 assert.doesNotMatch(routing, /reopenAfterLegacy|afterMoneyClose|afterWorkspaceClose/, 'R3-B.3 must not close and reopen the workspace around financial actions');
 assert.doesNotMatch(routing, /app\.state\.costs\s*=|reserveContributions\.push|reserveProfiles\s*=/, 'Routing must not become a competing financial state writer');
 assert.match(routing, /event\.key !== 'Escape'[\s\S]*closeFlow\(\)/, 'Escape inside depth must return one level, not dismiss the whole workspace');
 assert.match(routing, /faro-dialog-close[\s\S]*closeFlow\(\)/, 'The visible close affordance must behave as Back while inside depth');
 assert.match(planning, /faroMoneyDialog/, 'The coherent navigation must stay inside the existing Compromissos workspace');
-assert.match(shell, /faro-r3-routing\.js\?v=2/, 'The shell must request the R3-B.3 routing generation');
-assert.match(sw, /faro-v1-core-20/, 'Current onboarding hotfix generation must use the active PWA cache');
-assert.match(sw, /faro-r3-routing\.js\?v=2/, 'The service worker must cache the same R3-B.3 routing generation');
+assert.match(shell, /faro-r3-routing\.js\?v=3/, 'The shell must request the idempotent R3-B.3 routing generation');
+assert.match(sw, /faro-v1-core-21/, 'Current physical hotfix generation must use the active PWA cache');
+assert.match(sw, /faro-r3-routing\.js\?v=3/, 'The service worker must cache the same R3-B.3 routing generation');
 
 console.log('planning-r3b3-navigation-contract: ok');
