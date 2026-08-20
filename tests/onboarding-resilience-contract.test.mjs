@@ -24,8 +24,8 @@ for (const field of [
   "draft.revenueKm=n(e.target.value)"
 ]) contains(field, `Campo de onboarding precisa permanecer persistente: ${field}`);
 
-assert.match(onboarding, /draft\.stepId=seq\[index-1\];saveDraft\(\);renderStep\(\)/, 'Voltar etapa precisa salvar a posição');
-assert.match(onboarding, /draft\.stepId=seq\[index\+1\];saveDraft\(\);renderStep\(\)/, 'Avançar etapa precisa salvar a posição');
+assert.match(onboarding, /draft\.stepId=seq\[index-1\];\s*saveDraft\(\);\s*renderStep\(\)/, 'Voltar etapa precisa salvar a posição');
+assert.match(onboarding, /draft\.stepId=seq\[index\+1\];\s*saveDraft\(\);\s*renderStep\(\)/, 'Avançar etapa precisa salvar a posição');
 
 // 9.16 — processamento e conclusão precisam ser idempotentes: reconstruir, não anexar fatos/custos.
 assert.match(onboarding, /const showProcessing = \(\) => \{[\s\S]*draft\.stepId = 'processing';[\s\S]*saveDraft\(\);[\s\S]*app\.state\.costs = buildCosts\(\);[\s\S]*app\.state\.onboardingComplete = false;[\s\S]*app\.save\(\);/,
