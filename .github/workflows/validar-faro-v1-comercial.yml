@@ -2,12 +2,15 @@ name: Validar FARO v1 comercial
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - test/ux-r2-00-composition-contracts
 
 permissions:
   contents: read
 
 concurrency:
-  group: validar-faro-v1-comercial
+  group: validar-faro-v1-comercial-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -15,11 +18,20 @@ jobs:
     name: Conferir onboarding e PWA sem publicar
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      FARO_AUDIT_REF: ${{ startsWith(github.head_ref, 'audit/runtime-contracts-') && github.event.pull_request.base.sha || github.sha }}
     steps:
-      - name: Baixar a fotografia da branch
+      - name: Baixar a fotografia auditada
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          ref: ${{ env.FARO_AUDIT_REF }}
+
+      - name: Confirmar SHA auditado
+        run: |
+          echo "audit_sha=$(git rev-parse HEAD)"
+          echo "expected_sha=$FARO_AUDIT_REF"
+          test "$(git rev-parse HEAD)" = "$FARO_AUDIT_REF"
 
       - name: Preparar Node.js para os testes
         uses: actions/setup-node@v6
