@@ -3,6 +3,34 @@
   const planning = document.getElementById('view-planning');
   if (!app || !planning || window.FaroPlanningInvariants) return;
 
+  // app.js continua sendo o único motor financeiro. Esta camada só agrega
+  // os valores diários canônicos para responder à pergunta operacional da semana.
+  const baseWeekContext = app.weekContext;
+  app.weekContext = function(calculation = null) {
+    const c = calculation || this.calculations();
+    const base = baseWeekContext.call(this, c);
+    const today = this.todayKey();
+    const recordDates = new Set(base.records.map(record => record.date));
+    const remainingDays = base.dates.filter(date => date >= today && !recordDates.has(date)).length;
+    const actualGross = base.records.reduce((sum, record) => sum + record.gross, 0);
+    const actualNet = base.records.reduce((sum, record) => sum + record.net, 0);
+    const targetGross = actualGross + c.dailyGross * remainingDays;
+    const targetNet = actualNet + c.dailyNet * remainingDays;
+    const remainingGross = Math.max(0, targetGross - actualGross);
+
+    return {
+      ...base,
+      target: targetGross,
+      actual: actualGross,
+      targetGross,
+      actualGross,
+      targetNet,
+      actualNet,
+      remainingGross,
+      remainingDays
+    };
+  };
+
   // app.js é o motor canônico e ainda escreve neste ID em todo render().
   // A nova composição não exibe o badge no primeiro nível, mas preserva o nó
   // para que reorganização visual nunca quebre o contrato de render do motor.
@@ -51,8 +79,21 @@
     });
   }
 
+  const decorateOnboardingWeek = () => {
+    const value = document.getElementById('faroPlanWeek');
+    const label = value?.previousElementSibling;
+    if (label) label.textContent = 'Bruto necessário/semana';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', decorateOnboardingWeek, { once:true });
+  else decorateOnboardingWeek();
+
+  // A Home já carregou antes desta compatibilidade; re-renderiza somente sua leitura
+  // para que ela consuma imediatamente a semântica semanal única recém-instalada.
+  window.FaroHome?.refresh();
+
   window.FaroPlanningInvariants = Object.freeze({
     hasExtraDaysRenderTarget: () => Boolean(document.getElementById('extraDaysOffBadge')),
-    exactValueDelegatesToDraftOwner: () => Boolean(document.getElementById('faroTargetExact')?.dataset.faroTypingGuard)
+    exactValueDelegatesToDraftOwner: () => Boolean(document.getElementById('faroTargetExact')?.dataset.faroTypingGuard),
+    weeklyGrossUsesCanonicalDaily: true
   });
 })();
