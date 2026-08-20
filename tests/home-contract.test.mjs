@@ -78,7 +78,8 @@ assert.match(home, /aria-label', 'Ver ou ajustar meta do mês'/);
 assert.match(home, /event\.key !== 'Enter' && event\.key !== ' '/);
 assert.match(home, /openSecondary\('planning-costs'\)/, 'Listener legado permanece caracterizado para o roteador R3 capturar');
 assert.match(routing, /const openMoneyFrom = opener => \{[\s\S]*navigateToPrimary\('planning'\)[\s\S]*FaroPlanning\?\.openMoney/);
-assert.match(routing, /const homeAttention = document\.getElementById\('faroHomeAttention'\)[\s\S]*stopImmediatePropagation\(\)[\s\S]*openMoneyFrom\(homeAttention\)/);
+assert.match(routing, /\$\('faroHomeAttention'\)\?\.addEventListener\('click'[\s\S]*stopImmediatePropagation\(\)[\s\S]*openMoneyFrom\(\$\('faroHomeAttention'\)\)/,
+  'Atenção da Home precisa ser capturada e encaminhada ao mesmo Money cockpit');
 
 // Relógio/data e virada de mês não podem deixar a Home presa no período antigo.
 assert.match(home, /let calendarKey = app\.todayKey\(\)/);
