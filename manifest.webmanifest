@@ -29,6 +29,12 @@
       "purpose": "any"
     },
     {
+      "src": "./faro-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
       "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
