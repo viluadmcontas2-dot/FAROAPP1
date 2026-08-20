@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 const tour = await readFile('faro-tour.js', 'utf8');
 const planning = await readFile('faro-planning.js', 'utf8');
 const onboarding = await readFile('faro-onboarding.js', 'utf8');
+const commit = await readFile('faro-onboarding-commit.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
 
 assert.match(tour, /faro-ui-tour-v1/);
@@ -28,25 +29,25 @@ assert.match(onboarding, /id="faroFinish"/);
 assert.match(planning, /dataset\.faroTour = 'planning'/);
 assert.match(planning, /dataset\.faroTour = 'today'/);
 
-// Handoff pós-onboarding: onboarding é o único owner do gesto final.
 const onboardingIndex = shell.indexOf('faro-onboarding.js?v=3');
+const commitIndex = shell.indexOf('faro-onboarding-commit.js?v=1');
 const tourIndex = shell.indexOf('faro-tour.js?v=2');
-assert.ok(onboardingIndex >= 0 && tourIndex > onboardingIndex, 'Onboarding precisa carregar antes do tour');
-assert.match(onboarding, /window\.dispatchEvent\(new CustomEvent\('faro:onboarding-complete'\)\)/,
-  'Onboarding precisa emitir o handoff somente depois de concluir o próprio commit');
+assert.ok(onboardingIndex >= 0 && onboardingIndex < commitIndex && commitIndex < tourIndex,
+  'Owner final precisa carregar entre onboarding e tour');
+assert.match(commit, /window\.dispatchEvent\(new CustomEvent\('faro:onboarding-complete'\)\)/,
+  'Owner final precisa emitir o handoff somente depois do próprio commit');
+assert.match(commit, /cloneNode\(true\)[\s\S]*replaceWith\(/,
+  'Owner final precisa remover o listener anônimo anterior do CTA');
 assert.doesNotMatch(tour, /getElementById\('faroFinish'\)|querySelector\(['"]#faroFinish['"]\)/,
   'Tour não pode ser segundo owner do botão final do onboarding');
 assert.match(tour, /window\.addEventListener\('faro:onboarding-complete'/,
   'Tour deve consumir apenas o evento de domínio pós-persistência');
-
-const finishStart = onboarding.indexOf("$('faroFinish').addEventListener('click'");
-assert.ok(finishStart >= 0, 'Conclusão final do onboarding precisa existir');
-const finishEnd = onboarding.indexOf("$('faroRentalWeekly').value", finishStart);
-const finishBlock = onboarding.slice(finishStart, finishEnd);
-assert.match(finishBlock, /onboardingComplete = true;[\s\S]*app\.save\(\);[\s\S]*modal\.classList\.add\('hidden'\);[\s\S]*navigateToPrimary\('dashboard'\);[\s\S]*faro:onboarding-complete/,
-  'Persistir → fechar onboarding → Home → handoff deve ser uma única sequência canônica');
-assert.match(finishBlock, /finalizing|disabled = true/,
+assert.match(commit, /onboardingComplete\s*=\s*true;[\s\S]*app\.save\(\);[\s\S]*modal\.classList\.add\('hidden'\);[\s\S]*navigateToPrimary\('dashboard'\);[\s\S]*faro:onboarding-complete/,
+  'Persistir → fechar onboarding → Home → handoff deve ser a sequência canônica');
+assert.match(commit, /finalizing|aria-busy/,
   'Duplo toque não pode executar a conclusão duas vezes');
+assert.match(commit, /try\s*\{[\s\S]*app\.syncInputs\(\)[\s\S]*app\.render\(\)[\s\S]*\}\s*catch/,
+  'Falha de refresh depois do commit não pode prender o onboarding');
 
 const startAt = tour.indexOf('function start(');
 const nextAt = tour.indexOf('function next()', startAt);
@@ -63,4 +64,4 @@ assert.match(tour, /function complete\(\)[\s\S]*navigateToPrimary\('dashboard'\)
 assert.doesNotMatch(tour, /app\.state\.(targetProfit|workWeekdays|fuel|costs|records|paymentOccurrences|reserveContributions)\s*=/,
   'Tour é preferência de UI e não pode gravar estado financeiro');
 
-console.log('FARO HF1: onboarding possui o handoff e tour percorre telas reais sem concorrência — ok');
+console.log('FARO HF1: commit owner único e tour percorre telas reais sem concorrência — ok');
