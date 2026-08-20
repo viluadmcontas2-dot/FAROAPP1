@@ -21,6 +21,7 @@
 <style id="faroBootGuard">
   html{background:#FFFFFF}
   html:not([data-faro-platform-ready="true"]) body>*{visibility:hidden!important}
+  #onboardingModal:not(:has(#faroFinish)){visibility:hidden!important}
   html[data-faro-activation-stage="install"] body>[data-faro-install-locked="true"]{display:none!important}
   html[data-faro-activation-stage="install"] #faroInstallGate{display:grid!important;visibility:visible!important}
 </style>
