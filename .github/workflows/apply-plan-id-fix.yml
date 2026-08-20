@@ -1,0 +1,51 @@
+name: Apply FARO planning ID fix
+
+on:
+  push:
+    branches:
+      - maintenance/plan-id-fix-9f7996a0
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact active source
+        uses: actions/checkout@v7
+        with:
+          ref: 9f7996a00eaa4d377860f88c8297a910ad44fbab
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Rename only Planejar hero IDs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('faro-planning.js')
+          source = path.read_text()
+          expected = {
+              'faroPlanDays': ('faroPlanHeroDays', 2),
+              'faroPlanKm': ('faroPlanHeroKm', 2),
+          }
+          for old, (new, count) in expected.items():
+              actual = source.count(old)
+              if actual != count:
+                  raise SystemExit(f'{old}: expected {count} occurrences, found {actual}')
+              source = source.replace(old, new)
+          path.write_text(source)
+          PY
+          git diff --check
+          node --check faro-planning.js
+          node tests/runtime-composition-contract.test.mjs
+
+      - name: Commit exact product remediation
+        run: |
+          git config user.name "FARO governed maintainer"
+          git config user.email "actions@users.noreply.github.com"
+          git add faro-planning.js
+          test "$(git diff --cached --name-only)" = "faro-planning.js"
+          git commit -m "fix: isolate Planejar hero IDs from onboarding"
+          git push origin HEAD:test/ux-r2-00-composition-contracts
