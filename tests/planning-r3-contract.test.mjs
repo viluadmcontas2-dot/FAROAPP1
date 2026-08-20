@@ -19,7 +19,6 @@ assert.match(r3b, /root\.insertBefore\(hero, firstGrid\)/);
 assert.match(r3b, /Seu plano para/);
 assert.doesNotMatch(planning, /Ajuste o que muda sua rota\. O resto fica fora do caminho\./);
 
-// Cards são launchers: complexidade entra em dialog ou detalhe focado.
 assert.match(planning, /createDialog\('faroMetaDialog'/);
 assert.match(planning, /createDialog\('faroAgendaDialog'/);
 assert.match(planning, /createDialog\('faroOperationDialog'/);
@@ -30,7 +29,6 @@ assert.match(planning, /detailView\.id = 'view-planning-detail'/);
 assert.match(planning, /app\.openSecondary\('planning-detail'\)/);
 assert.doesNotMatch(planning, /createSubview\('planning-costs'|createSubview\('planning-days'|createSubview\('planning-operation'/);
 
-// Meta continua draft-only e salva uma única vez ao aplicar.
 assert.match(planning, /slider\.removeAttribute\('data-model'\)/);
 assert.match(planning, /let targetDraft = app\.state\.targetProfit/);
 assert.match(planning, /slider\.addEventListener\('input'[\s\S]*targetDraft = clampTarget/);
@@ -41,7 +39,6 @@ assert.match(planning, /finally \{[\s\S]*app\.state\.targetProfit = saved\.targe
 assert.doesNotMatch(planning, /function\s+calculations|const\s+calculations\s*=|contributionKm\s*=/);
 assert.doesNotMatch(r3b, /app\.state\.[A-Za-z0-9_]+\s*=/);
 
-// Compromissos continuam usando os owners financeiros existentes.
 assert.match(planning, /faroMoneyTabBills/);
 assert.match(planning, /faroMoneyTabReserves/);
 assert.match(planning, /FaroFinance\?\.occurrences/);
@@ -52,7 +49,6 @@ assert.match(planning, /paymentCenter\.classList\.add\('hidden'\)/);
 assert.match(planning, /reserveCenter\.classList\.add\('hidden'\)/);
 assert.doesNotMatch(planning, /\[paymentCenter, reserveCenter, costCard\][\s\S]*appendChild/);
 
-// Fundação modal: dialog nativo, foco devolvido, centralização R3-B e reduced-motion.
 assert.match(interactions, /dialog\.showModal/);
 assert.match(interactions, /event\.preventDefault\(\);[\s\S]*close\(dialog, 'cancel'\)/);
 assert.match(interactions, /restoreFocus/);
@@ -62,13 +58,10 @@ assert.match(interactions, /\.faro-action-card:active\{transform:scale\(\.982\)\
 assert.match(interactions, /faro-dialog--focus/);
 assert.match(interactions, /faro-dialog--workspace/);
 
-// Entradas antigas convergem para o cockpit.
 assert.match(routing, /navigateToPrimary\('planning'\)/);
 assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(routing, /faroHomeAttention/);
 
-// R3-B.3 mantém um único Money dialog e abre os formulários como fluxo interno,
-// delegando a gravação aos writers canônicos em vez de abrir modais legados atrás da top-layer.
 assert.match(routing, /const \$ = id => document\.getElementById\(id\)/);
 assert.match(routing, /const moneyDialog = \$\('faroMoneyDialog'\)/);
 assert.match(routing, /flow\.id = 'faroMoneyInlineFlow'/);
@@ -81,9 +74,8 @@ assert.match(routing, /#faroMoneyAddBill/);
 assert.match(routing, /#faroMoneyCreateReserve/);
 assert.match(routing, /event\.stopImmediatePropagation\(\)/);
 
-// PWA/build carregam a geração R3-B.3 atual.
 assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=2/);
-assert.match(sw, /faro-v1-core-19/);
+assert.match(sw, /faro-v1-core-20/);
 assert.match(sw, /faro-interactions\.js\?v=2/);
 assert.match(sw, /faro-planning\.js\?v=2/);
 assert.match(sw, /faro-r3b\.js\?v=1/);
@@ -92,8 +84,7 @@ assert.match(build, /'faro-interactions\.js'/);
 assert.match(build, /'faro-r3b\.js'/);
 assert.match(build, /'faro-r3-routing\.js'/);
 
-// Motor canônico continua externo à nova gramática visual.
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.doesNotMatch(planning, /STORAGE_KEY|localStorage\.setItem\([^)]*targetProfit/);
 
-console.log('FARO UX-R3-B.3: cockpit, fluxo Money interno, writers canônicos e cache 19 reconciliados — ok');
+console.log('FARO UX-R3-B.3: cockpit, fluxo Money interno, writers canônicos e cache 20 reconciliados — ok');
