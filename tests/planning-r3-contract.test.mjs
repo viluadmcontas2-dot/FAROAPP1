@@ -83,7 +83,7 @@ assert.match(routing, /event\.stopImmediatePropagation\(\)/);
 
 // PWA/build carregam a geração R3-B.3 atual.
 assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=2/);
-assert.match(sw, /faro-v1-core-18/);
+assert.match(sw, /faro-v1-core-19/);
 assert.match(sw, /faro-interactions\.js\?v=2/);
 assert.match(sw, /faro-planning\.js\?v=2/);
 assert.match(sw, /faro-r3b\.js\?v=1/);
@@ -96,4 +96,4 @@ assert.match(build, /'faro-r3-routing\.js'/);
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.doesNotMatch(planning, /STORAGE_KEY|localStorage\.setItem\([^)]*targetProfit/);
 
-console.log('FARO UX-R3-B.3: cockpit, fluxo Money interno, writers canônicos e cache 18 reconciliados — ok');
+console.log('FARO UX-R3-B.3: cockpit, fluxo Money interno, writers canônicos e cache 19 reconciliados — ok');
