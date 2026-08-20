@@ -107,11 +107,20 @@
   };
 
   function start({ replay = false, resetToHome = true } = {}) {
-    if (!replay && state.status !== 'idle') return;
-    state = { status:'active', step:0 };
-    writeState(state);
-    if (resetToHome && app.currentView !== 'dashboard') app.navigateToPrimary('dashboard');
+    if (!app.state.onboardingComplete) return false;
+    if (!replay && (state.status === 'done' || state.status === 'skipped')) return false;
+
+    const shouldReset = replay || state.status === 'idle';
+    if (shouldReset) {
+      state = { status:'active', step:0 };
+      writeState(state);
+    } else if (state.status !== 'active') {
+      return false;
+    }
+
+    if (resetToHome && shouldReset && app.currentView !== 'dashboard') app.navigateToPrimary('dashboard');
     setTimeout(render, 60);
+    return true;
   }
   function next() {
     if (state.step >= steps.length - 1) return complete();
@@ -149,13 +158,6 @@
     help.querySelector('#faroReplayTour').addEventListener('click', () => start({ replay:true }));
   }
 
-  const finish = document.getElementById('faroFinish');
-  finish?.addEventListener('click', () => {
-    queueMicrotask(() => {
-      if (!app.state.onboardingComplete || state.status !== 'idle') return;
-      window.dispatchEvent(new CustomEvent('faro:onboarding-complete'));
-    });
-  });
   window.addEventListener('faro:onboarding-complete', () => start({ resetToHome:false }));
 
   const schedulePlace = () => {
