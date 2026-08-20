@@ -4,11 +4,11 @@
 
   const STORAGE_KEY = 'faro-ui-tour-v1';
   const steps = [
-    { target:'[data-faro-tour="today"]', title:'Hoje', text:'Aqui você vê o que precisa fazer agora.', view:'dashboard' },
-    { target:'[data-faro-tour="register"]', title:'Registrar', text:'No fim do dia, registre faturamento e km. O FARO faz o resto.' },
-    { target:'[data-faro-tour="planning"]', title:'Planejar', text:'Aqui você muda meta, dias, combustível, contas e reservas.' },
-    { target:'[data-faro-tour="history"]', title:'Histórico', text:'Aqui fica o que realmente aconteceu, dia por dia.' },
-    { target:'[data-faro-tour="central"]', title:'Central', text:'Backup, relatório, instalação, ajuda e ferramentas ficam aqui.' }
+    { target:'[data-faro-tour="today"]', title:'Hoje', text:'Aqui você bate o olho e sabe o que a pista pede agora.', view:'dashboard' },
+    { target:'[data-faro-tour="register"]', title:'Registrar', text:'Terminou o dia? Registre faturamento e quilômetros; o FARO cuida do resto.', view:'day' },
+    { target:'[data-faro-tour="planning"]', title:'Planejar', text:'Aqui você ajusta a rota para chegar na sua meta sem fazer conta na cabeça.', view:'planning' },
+    { target:'[data-faro-tour="history"]', title:'Histórico', text:'Aqui fica o que aconteceu de verdade, dia por dia.', view:'history' },
+    { target:'[data-faro-tour="central"]', title:'Central', text:'Ajuda, dados e ferramentas ocasionais ficam aqui, sem poluir sua rotina.', view:'more' }
   ];
 
   const readState = () => {
@@ -101,16 +101,16 @@
     layer.querySelector('#faroTourTitle').textContent = step.title;
     layer.querySelector('#faroTourText').textContent = step.text;
     layer.querySelector('#faroTourBack').classList.toggle('invisible', state.step === 0);
-    layer.querySelector('#faroTourNext').textContent = state.step === steps.length - 1 ? 'PRONTO' : 'PRÓXIMO';
+    layer.querySelector('#faroTourNext').textContent = state.step === steps.length - 1 ? 'IR PARA O INÍCIO' : 'PRÓXIMO';
     layer.classList.remove('hidden');
     requestAnimationFrame(place);
   };
 
-  function start({ replay = false } = {}) {
-    if (!replay && (state.status === 'done' || state.status === 'skipped')) return;
-    state = { status:'active', step: replay ? 0 : (state.status === 'active' ? state.step : 0) };
+  function start({ replay = false, resetToHome = true } = {}) {
+    if (!replay && state.status !== 'idle') return;
+    state = { status:'active', step:0 };
     writeState(state);
-    app.navigateToPrimary('dashboard');
+    if (resetToHome && app.currentView !== 'dashboard') app.navigateToPrimary('dashboard');
     setTimeout(render, 60);
   }
   function next() {
@@ -135,6 +135,7 @@
     state = { status:'done', step:steps.length - 1 };
     writeState(state);
     layer?.classList.add('hidden');
+    app.navigateToPrimary('dashboard');
     app.toast('Pronto. Agora é só usar a pista.');
   }
 
@@ -150,13 +151,12 @@
 
   const finish = document.getElementById('faroFinish');
   finish?.addEventListener('click', () => {
-    setTimeout(() => {
-      if (!app.state.onboardingComplete) return;
-      state = { status:'active', step:0 };
-      writeState(state);
-      start();
-    }, 30);
+    queueMicrotask(() => {
+      if (!app.state.onboardingComplete || state.status !== 'idle') return;
+      window.dispatchEvent(new CustomEvent('faro:onboarding-complete'));
+    });
   });
+  window.addEventListener('faro:onboarding-complete', () => start({ resetToHome:false }));
 
   const schedulePlace = () => {
     if (resizeFrame !== null) cancelAnimationFrame(resizeFrame);
