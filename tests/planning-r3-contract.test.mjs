@@ -67,10 +67,14 @@ assert.match(routing, /navigateToPrimary\('planning'\)/);
 assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(routing, /faroHomeAttention/);
 
-// Formulários legados não podem abrir atrás do <dialog> da top-layer.
-assert.match(routing, /const moneyDialog = document\.getElementById\('faroMoneyDialog'\)/);
-assert.match(routing, /FaroInteractions\?\.close\?\.\(moneyDialog, 'handoff'\)/);
-assert.match(routing, /setTimeout\(callback, handoffDelay\(\)\)/);
+// R3-B.3 mantém um único Money dialog e abre os formulários como fluxo interno,
+// delegando a gravação aos writers canônicos em vez de abrir modais legados atrás da top-layer.
+assert.match(routing, /const \$ = id => document\.getElementById\(id\)/);
+assert.match(routing, /const moneyDialog = \$\('faroMoneyDialog'\)/);
+assert.match(routing, /flow\.id = 'faroMoneyInlineFlow'/);
+assert.match(routing, /moneyShell\?\.appendChild\(flow\)/);
+assert.match(routing, /saveCostThroughCanonicalWriter[\s\S]*app\.saveCost\(\)/);
+assert.match(routing, /saveContributionThroughCanonicalWriter[\s\S]*save\.dataset\.mode = 'contribution'[\s\S]*save\.click\(\)/);
 assert.match(routing, /data-r3-reserve-contribute/);
 assert.match(routing, /data-r3-reserve-goal/);
 assert.match(routing, /#faroMoneyAddBill/);
@@ -92,4 +96,4 @@ assert.match(build, /'faro-r3-routing\.js'/);
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.doesNotMatch(planning, /STORAGE_KEY|localStorage\.setItem\([^)]*targetProfit/);
 
-console.log('FARO UX-R3-B.3: cockpit atual, owners e cache 18 reconciliados — ok');
+console.log('FARO UX-R3-B.3: cockpit, fluxo Money interno, writers canônicos e cache 18 reconciliados — ok');
