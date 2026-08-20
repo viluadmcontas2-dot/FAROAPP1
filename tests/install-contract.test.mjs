@@ -44,13 +44,17 @@ contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit estrut
 contains(shell, 'faro-r3b.js?v=1', 'Shell precisa carregar a identidade/interação R3-B');
 contains(shell, 'faro-r3-routing.js?v=2', 'Shell precisa carregar a navegação R3-B.3 dentro do mesmo workspace');
 
+assert.equal(manifest.id, './', 'Refresh do splash não pode criar uma segunda identidade de app');
 assert.equal(manifest.background_color, '#FFFFFF');
 assert.equal(manifest.theme_color, '#FFFFFF');
 contains(index, '<meta name="theme-color" content="#FFFFFF">', 'Entrada inicial deve anunciar tema branco ao navegador');
 contains(shell, '<meta name="theme-color" content="#FFFFFF">', 'Shell externo deve nascer branco');
 contains(shell, 'background:#FFFFFF', 'Primeiro frame/boot guard deve usar fundo branco');
 contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<meta name=\"theme-color\" content=\"#FFFFFF\">')", 'Transformação do shell legado precisa neutralizar o theme-color escuro antes do primeiro paint');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-18'", 'Correções físicas precisam gerar novo core cache para instalações existentes');
+contains(index, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Entrada deve pedir a geração nova do manifest ao Android/Chrome');
+contains(shell, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Shell deve pedir a mesma geração nova do manifest');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-19'", 'Nova geração de metadata do splash precisa renovar o core cache');
+contains(sw, "'./manifest.webmanifest?v=2'", 'PWA deve armazenar a mesma geração versionada do manifest');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
@@ -61,8 +65,10 @@ contains(sw, 'faro-r3-routing.js?v=2', 'PWA precisa armazenar rotas R3-B.3');
 contains(sw, 'faro-tour.js?v=1', 'PWA precisa armazenar o tour');
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
+contains(sw, './faro-mark.svg', 'PWA precisa armazenar o símbolo FARO usado pelo splash adaptativo');
 contains(build, "'icon-192.png'", 'Build precisa copiar ícone 192');
 contains(build, "'icon-512.png'", 'Build precisa copiar ícone 512');
+contains(build, "'faro-mark.svg'", 'Build precisa copiar o símbolo FARO usado pelo splash adaptativo');
 contains(build, "'faro-interactions.js'", 'Build precisa copiar a fundação de interação R3-B');
 contains(build, "'faro-planning.js'", 'Build precisa copiar Planejar R3');
 contains(build, "'faro-r3b.js'", 'Build precisa copiar a camada R3-B');
@@ -85,8 +91,13 @@ assert.deepEqual(pngSize(icon192), [192, 192], 'icon-192.png precisa medir 192×
 assert.deepEqual(pngSize(icon512), [512, 512], 'icon-512.png precisa medir 512×512');
 const manifest192 = manifest.icons.find(icon => icon.src === './icon-192.png');
 const manifest512 = manifest.icons.find(icon => icon.src === './icon-512.png');
+const maskableMark = manifest.icons.find(icon => icon.src === './faro-mark.svg' && String(icon.purpose || '').split(/\s+/).includes('maskable'));
 assert.equal(manifest192?.sizes, '192x192');
 assert.equal(manifest512?.sizes, '512x512');
+assert.equal(manifest192?.purpose, 'any', 'Ícone opaco 192 não deve ser oferecido como maskable');
+assert.equal(maskableMark?.sizes, 'any', 'Símbolo adaptativo deve poder ser rasterizado na resolução exigida pelo Android');
+assert.equal(maskableMark?.type, 'image/svg+xml');
+assert.ok(maskableMark, 'Manifest precisa oferecer um símbolo FARO dedicado ao recorte maskable do Android');
 assert.equal(manifest.display, 'standalone');
 assert.equal(manifest.start_url, './app-shell.html');
 assert.equal(manifest.prefer_related_applications, false);
@@ -94,4 +105,4 @@ assert.equal(manifest.prefer_related_applications, false);
 assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode criar loop de reload');
 
-console.log('FARO físico: instalação segura, splash e owner único do onboarding — ok');
+console.log('FARO físico: instalação segura, splash adaptativo e owner único do onboarding — ok');
