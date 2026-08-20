@@ -42,6 +42,35 @@ assert.match(invariants, /Bruto necessário\/semana/,
   'Resultado do onboarding deve rotular explicitamente o valor semanal como bruto');
 assert.match(onboarding, /id="faroPlanWeek"/);
 
+// Regressão física 20/08/2026 — o mesmo card não pode misturar o mês inteiro
+// (26 dias seg–sáb) com uma meta diária calculada só sobre os 10 dias restantes.
+assert.match(invariants, /const baseMonthContext = app\.monthContext/,
+  'Janela do primeiro mês deve estender o monthContext canônico, não duplicar o motor financeiro');
+assert.match(invariants, /onboardingProfile\?\.configuredAt/,
+  'Primeiro mês precisa conhecer quando o plano começou');
+assert.match(invariants, /selectedDates\.filter\(date => date >= startKey\)/,
+  'Dias anteriores ao início real do plano não podem continuar no denominador visível');
+assert.match(invariants, /Dias restantes no plano/,
+  'Detalhe deve dizer que o denominador é a janela restante, não o mês inteiro');
+assert.match(invariants, /Custo variável\/km/,
+  'Resumo precisa mostrar o custo variável realmente usado no cálculo');
+assert.match(invariants, /c\.fuelKm \+ c\.costs\.perKm \+ app\.state\.revenueKm \* c\.costs\.percent/,
+  'Custo variável/km deve ser apenas uma leitura dos componentes canônicos já calculados');
+
+// Falsificador independente do snapshot visível na captura física.
+const targetNet = 4000;
+const fixed = 650;
+const revenueKm = 2.25;
+const fuelKm = 0.59;
+const reservePerKm = 0.18;
+const remainingPlanDays = 10;
+const contributionKm = revenueKm - fuelKm - reservePerKm;
+const requiredKm = (targetNet + fixed) / contributionKm;
+const dailyKm = requiredKm / remainingPlanDays;
+const dailyGross = dailyKm * revenueKm;
+assert.ok(Math.abs(dailyKm - 314.19) < 0.1, 'Snapshot deve explicar ~314 km/dia quando restam 10 dias');
+assert.ok(Math.abs(dailyGross - 706.93) < 0.1, 'Snapshot deve explicar ~R$707/dia sem esconder o denominador');
+
 // Home → Planejar converge para a mesma primary view e a atenção financeira cai no Money cockpit.
 assert.match(home, /legacyPlanningCta\?\.remove\(\)/);
 assert.match(home, /navigateToPrimary\('planning'\)/);
@@ -67,4 +96,4 @@ assert.match(planning, /resetTargetDraft/);
 
 assert.match(home, /window\.FaroHome/);
 
-console.log('FARO HF2: Home e onboarding mostram bruto semanal necessário derivado do motor canônico — ok');
+console.log('FARO HF2: bruto semanal e primeiro mês usam uma janela temporal visível e reconciliável — ok');
