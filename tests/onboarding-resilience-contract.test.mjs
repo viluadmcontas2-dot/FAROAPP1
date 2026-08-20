@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const onboarding = await readFile('faro-onboarding.js', 'utf8');
+const shell = await readFile('app-shell.html', 'utf8');
 
 const contains = (snippet, label) => assert.equal(onboarding.includes(snippet), true, label);
 
@@ -40,4 +41,12 @@ const finishBlock = onboarding.slice(finishStart, finishEnd);
 assert.match(finishBlock, /app\.state\.onboardingComplete = true;[\s\S]*app\.save\(\);[\s\S]*clearDraft\(\);/, 'Somente o gesto final pode concluir, salvar e então apagar o rascunho');
 assert.doesNotMatch(finishBlock, /buildCosts\(|\.push\(/, 'Duplo toque na conclusão não pode adicionar custos ou registros novamente');
 
-console.log('FARO: onboarding retomável e conclusão idempotente contra reload/toque repetido — ok');
+// HF1 físico — app.js ainda abre o onboarding legado antes de faro-onboarding assumir o modal.
+// O shell deve impedir qualquer frame visível do owner legado: o modal só pode aparecer
+// quando a árvore moderna já contém #faroFinish.
+assert.match(shell, /#onboardingModal:not\(:has\(#faroFinish\)\)\{visibility:hidden!important\}/,
+  'Onboarding legado não pode ficar visível enquanto o owner moderno ainda não substituiu o modal');
+assert.match(onboarding, /id="faroFinish"/,
+  'Owner moderno precisa fornecer o marcador que libera a superfície do onboarding');
+
+console.log('FARO: onboarding retomável, idempotente e sem frame visível do owner legado — ok');
