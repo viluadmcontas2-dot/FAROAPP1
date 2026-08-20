@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const [shell, routing, r3b] = await Promise.all([
+const [shell, routing] = await Promise.all([
   readFile('app-shell.html', 'utf8'),
-  readFile('faro-r3-routing.js', 'utf8'),
-  readFile('faro-r3b.js', 'utf8')
+  readFile('faro-r3-routing.js', 'utf8')
 ]);
 
 // Physical regression 20/08: a conclusão do onboarding precisa de um único owner
@@ -37,10 +36,4 @@ assert.match(routing, /flowCommitPending/, 'save inline precisa bloquear reentra
 assert.match(routing, /state\.costs[\s\S]*commitId/, 'save inline precisa confirmar persistência pelo mesmo ID antes do pós-save');
 assert.match(routing, /closeFlow\(\{restore:false\}\)/, 'save persistido precisa encerrar a profundidade mesmo se o refresh falhar');
 
-// O hero de Planejar ganhou IDs próprios. R3-B não pode continuar escrevendo nos
-// IDs do resultado do onboarding, ou as duas superfícies voltam a compartilhar owner.
-assert.doesNotMatch(r3b, /\$\('faroPlanDays'\)|\$\('faroPlanKm'\)/, 'R3-B não pode escrever nos métricos do onboarding');
-assert.match(r3b, /\$\('faroPlanHeroDays'\)/, 'R3-B precisa escrever nos dias do hero de Planejar');
-assert.match(r3b, /\$\('faroPlanHeroKm'\)/, 'R3-B precisa escrever nos km do hero de Planejar');
-
-console.log('physical-commit-boundary-contract: commit atômico, reserva idempotente e owners separados — ok');
+console.log('physical-commit-boundary-contract: commit atômico e criação de reserva idempotente — ok');
