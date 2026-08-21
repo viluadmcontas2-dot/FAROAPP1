@@ -52,10 +52,16 @@ assert.match(register, /Extras\/Outros/, 'Registrar precisa oferecer ganhos extr
 assert.match(register, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/, 'Origens precisam usar grade mobile 2x2');
 assert.match(register, /Total do dia/, 'Total automático precisa ser explícito');
 assert.match(register, /Detalhar por aplicativo/, 'Registro legado precisa permitir optar pelo detalhamento');
+assert.match(register, /faro-action-card/, 'Cada origem precisa consumir a anatomia premium de Action Card');
+assert.match(register, /faro-state-card/, 'Total precisa consumir a anatomia premium de State Card');
+assert.match(register, /data-faro-platform-state/, 'Cada plataforma precisa expor estado humano no card');
+assert.match(register, /Não usado/, 'Plataforma sem valor precisa dizer que não foi usada');
+assert.match(register, /activeSources\.has\(key\)\s*\?\s*activeSources\.delete\(key\)\s*:\s*activeSources\.add\(key\)/,
+  'Tocar novamente deve recolher o campo sem apagar o valor');
 assert.match(register, /const baseRecordDraft = app\.recordDraft/, 'Integração precisa estender o draft canônico existente');
 assert.match(register, /earningsBySource/, 'Draft detalhado precisa carregar breakdown de origem');
 assert.match(register, /FaroRegisterEarnings\.total|earningsApi\.total/, 'gross detalhado precisa vir da soma canônica das origens');
 assert.doesNotMatch(register, /state\.records\.(push|splice)/, 'Camada FARO não pode criar segundo writer de registros');
 assert.doesNotMatch(register, /dailyGross\s*=|dailyNet\s*=/, 'Feature não pode criar motor financeiro paralelo');
 
-console.log('platform-earnings-contract: helper, assets, build e integração de Registrar — ok');
+console.log('platform-earnings-contract: helper, assets, build, anatomia premium e integração canônica de Registrar — ok');
