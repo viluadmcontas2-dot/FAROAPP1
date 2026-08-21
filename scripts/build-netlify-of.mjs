@@ -23,6 +23,7 @@ const copyFiles = [
   'faro-state.js',
   'faro-energy.js',
   'faro-home-r2.js',
+  'faro-register-earnings.js',
   'faro-register.js',
   'faro-finance.js',
   'faro-reserves.js',
@@ -46,7 +47,10 @@ const copyFiles = [
   'icon.svg',
   'icon-192.png',
   'icon-512.png',
-  'faro-mark.svg'
+  'faro-mark.svg',
+  'assets/platforms/faro-platform-99.svg',
+  'assets/platforms/faro-platform-indrive.svg',
+  'assets/platforms/faro-platform-uber.svg'
 ];
 
 const hash = buffer => createHash('sha256').update(buffer).digest('hex');
