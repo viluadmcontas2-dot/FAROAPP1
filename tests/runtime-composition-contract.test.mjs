@@ -10,6 +10,7 @@ const files = [
   'faro-state.js',
   'faro-energy.js',
   'faro-home-r2.js',
+  'faro-register-earnings.js',
   'faro-register.js',
   'faro-finance.js',
   'faro-reserves.js',
@@ -51,7 +52,8 @@ const orderedModules = [
   'faro-state.js?v=1',
   'faro-energy.js?v=1',
   'faro-home-r2.js?v=1',
-  'faro-register.js?v=1',
+  'faro-register-earnings.js?v=1',
+  'faro-register.js?v=2',
   'faro-finance.js?v=1',
   'faro-reserves.js?v=1',
   'faro-interactions.js?v=2',
@@ -84,6 +86,8 @@ assert.doesNotMatch(r3b, /appendChild\(hero\.cloneNode|cloneNode\(true\)[\s\S]*f
 
 const updateIndex = orderedModules.indexOf('faro-update.js?v=1');
 const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
+const registerHelperIndex = orderedModules.indexOf('faro-register-earnings.js?v=1');
+const registerIndex = orderedModules.indexOf('faro-register.js?v=2');
 const planningIndex = orderedModules.indexOf('faro-planning.js?v=2');
 const invariantsIndex = orderedModules.indexOf('faro-planning-invariants.js?v=1');
 const r3bIndex = orderedModules.indexOf('faro-r3b.js?v=1');
@@ -93,7 +97,8 @@ const onboardingIndex = orderedModules.indexOf('faro-onboarding.js?v=3');
 const commitIndex = orderedModules.indexOf('faro-onboarding-commit.js?v=1');
 const tourIndex = orderedModules.indexOf('faro-tour.js?v=2');
 assert.ok(updateIndex < stateIndex, 'Política de atualização precisa estar pronta antes do estado');
-assert.ok(stateIndex < orderedModules.indexOf('faro-finance.js?v=1'), 'Estado precisa estar protegido antes do Financeiro');
+assert.ok(stateIndex < registerHelperIndex && registerHelperIndex < registerIndex, 'Helper de ganhos deve anteceder o owner de Registro');
+assert.ok(registerIndex < orderedModules.indexOf('faro-finance.js?v=1'), 'Registro precisa estar pronto antes dos consumidores financeiros');
 assert.ok(orderedModules.indexOf('faro-finance.js?v=1') < planningIndex, 'Financeiro precisa expor consumidores antes do cockpit');
 assert.ok(orderedModules.indexOf('faro-reserves.js?v=1') < planningIndex, 'Reservas precisam existir antes do cockpit');
 assert.ok(orderedModules.indexOf('faro-interactions.js?v=2') < planningIndex, 'Fundação de dialog/motion precisa existir antes do Planejar R3');
@@ -104,4 +109,4 @@ assert.ok(routingIndex < navigationIndex, 'Rotas herdadas precisam convergir ant
 assert.ok(onboardingIndex < commitIndex && commitIndex < tourIndex, 'Owner pós-commit precisa ligar entre onboarding e tour');
 assert.ok(tourIndex < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
 
-console.log('FARO UX-R3-B: módulos ativos, ownership real e ordem do identity pass protegidos — ok');
+console.log('FARO UX-R3-B: módulos ativos, ownership real e ordem da geração de Registro protegidos — ok');
