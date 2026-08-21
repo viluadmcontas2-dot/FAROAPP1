@@ -10,8 +10,8 @@ const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
 
-assert.match(shell, /faro-home-r2\.js\?v=1/);
-assert.match(sw, /faro-home-r2\.js\?v=1/);
+assert.match(shell, /faro-home-r2\.js\?v=2/);
+assert.match(sw, /faro-home-r2\.js\?v=2/);
 assert.match(build, /'faro-home-r2\.js'/);
 assert.doesNotMatch(shell, /faro-home\.js\?v=1/);
 assert.match(home, /insertBefore\(weekCard, monthCard\)/);
@@ -97,4 +97,4 @@ assert.match(planning, /resetTargetDraft/);
 
 assert.match(home, /window\.FaroHome/);
 
-console.log('FARO HF2: bruto semanal e primeiro mês usam uma janela temporal visível e reconciliável — ok');
+console.log('FARO HF2 + R2/HOME: bruto semanal, primeiro mês e geração premium reconciliados — ok');
