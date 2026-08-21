@@ -51,9 +51,9 @@ const orderedModules = [
   'faro-update.js?v=1',
   'faro-state.js?v=1',
   'faro-energy.js?v=1',
-  'faro-home-r2.js?v=1',
+  'faro-home-r2.js?v=2',
   'faro-register-earnings.js?v=1',
-  'faro-register.js?v=2',
+  'faro-register.js?v=3',
   'faro-finance.js?v=1',
   'faro-reserves.js?v=1',
   'faro-interactions.js?v=2',
@@ -68,7 +68,7 @@ const orderedModules = [
   'faro-onboarding.js?v=3',
   'faro-onboarding-commit.js?v=1',
   'faro-tour.js?v=2',
-  'faro-r2-polish.js?v=1'
+  'faro-r2-polish.js?v=2'
 ];
 
 let previous = -1;
@@ -87,7 +87,7 @@ assert.doesNotMatch(r3b, /appendChild\(hero\.cloneNode|cloneNode\(true\)[\s\S]*f
 const updateIndex = orderedModules.indexOf('faro-update.js?v=1');
 const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
 const registerHelperIndex = orderedModules.indexOf('faro-register-earnings.js?v=1');
-const registerIndex = orderedModules.indexOf('faro-register.js?v=2');
+const registerIndex = orderedModules.indexOf('faro-register.js?v=3');
 const planningIndex = orderedModules.indexOf('faro-planning.js?v=2');
 const invariantsIndex = orderedModules.indexOf('faro-planning-invariants.js?v=1');
 const r3bIndex = orderedModules.indexOf('faro-r3b.js?v=1');
@@ -107,6 +107,6 @@ assert.ok(invariantsIndex < r3bIndex, 'R3-B só pode recompor depois que o owner
 assert.ok(r3bIndex < routingIndex, 'Identidade R3-B precisa estar pronta antes das rotas herdadas chamarem o cockpit');
 assert.ok(routingIndex < navigationIndex, 'Rotas herdadas precisam convergir antes da navegação operacional');
 assert.ok(onboardingIndex < commitIndex && commitIndex < tourIndex, 'Owner pós-commit precisa ligar entre onboarding e tour');
-assert.ok(tourIndex < orderedModules.indexOf('faro-r2-polish.js?v=1'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
+assert.ok(tourIndex < orderedModules.indexOf('faro-r2-polish.js?v=2'), 'Central só pode finalizar hierarquia depois que Ajuda/tour existir');
 
-console.log('FARO UX-R3-B: módulos ativos, ownership real e ordem da geração de Registro protegidos — ok');
+console.log('FARO R2 premium: módulos ativos, ownership real e ordem da geração protegidos — ok');
