@@ -73,6 +73,8 @@ input[type=range]::-webkit-slider-thumb{height:30px;width:30px}
 #faroHistoryAnalytics{border:1px solid #EEF2F7;border-radius:var(--faro-radius-row);background:rgba(255,255,255,.72);overflow:hidden}
 #faroHistoryAnalytics>summary{min-height:var(--faro-touch);padding:12px 14px;font-size:11px;font-weight:800;color:var(--faro-muted);cursor:pointer}
 [data-faro-central-group]{margin-top:4px}
+[data-faro-central-item="true"]{border-radius:var(--faro-radius-card);box-shadow:var(--faro-shadow-card);border-color:#EEF2F7}
+[data-faro-central-item="true"]:focus-within{border-color:#BFDBFE}
 
 @media(prefers-reduced-motion:reduce){.faro-action-card{transition:none}.faro-action-card:active{transform:none}}
 @media(prefers-contrast:more){.faro-action-card,.faro-state-card,.faro-detail-row{border-color:#CBD5E1}}
