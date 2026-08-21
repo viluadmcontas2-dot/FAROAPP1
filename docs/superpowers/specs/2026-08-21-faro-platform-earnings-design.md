@@ -64,7 +64,7 @@ Regras:
 
 - valores ausentes equivalem a `0`;
 - valores negativos não são permitidos;
-- ao menos uma origem deve ser maior que `0` para um novo registro;
+- ao menos uma origem deve ser maior que `0` para um novo registro detalhado;
 - `gross` salvo deve ser exatamente a soma normalizada de `earningsBySource`;
 - o campo `earningsBySource` é opcional para compatibilidade com registros antigos.
 
@@ -72,14 +72,11 @@ Regras:
 
 Nenhum registro existente será migrado artificialmente para uma plataforma.
 
-Se um registro antigo possui apenas `gross`, ele continua válido e aparece como **“Faturamento sem origem detalhada”**.
+Se um registro antigo possui apenas `gross`, ele continua válido e aparece na edição como **“Faturamento sem origem detalhada”**.
 
-Ao editar um registro antigo, o motorista pode:
+Ao editar um registro antigo, o motorista vê o total existente e uma ação **“Detalhar por aplicativo”**. Se não acionar essa opção, o registro continua no modo legado e o `gross` original permanece canônico. Se acionar, a grade 2×2 é habilitada e o novo `gross` passa a ser derivado da soma das origens no salvamento.
 
-1. manter o total bruto legado sem detalhar origens; ou
-2. distribuir o valor entre Uber, 99, inDrive e Extras/Outros.
-
-Se optar por distribuir, o novo `gross` passa a ser derivado da soma das origens no salvamento.
+O FARO nunca atribui automaticamente um total legado a Uber, 99, inDrive ou Extras.
 
 ## Ownership e integração com o fluxo existente
 
@@ -87,13 +84,16 @@ Se optar por distribuir, o novo `gross` passa a ser derivado da soma das origens
 
 O core legado continua responsável por:
 
-- `recordDraft()`;
 - persistência do registro diário;
 - cálculo financeiro baseado em `gross`;
 - edição por data;
 - histórico e cálculos mensais já existentes.
 
-A integração deve ocorrer sem criar um segundo writer financeiro. O fluxo FARO calcula o total das origens, sincroniza o valor canônico de `recordGross` e persiste `earningsBySource` no mesmo registro diário.
+A integração deve ocorrer sem criar um segundo writer financeiro.
+
+`faro-register.js` pode estender o `recordDraft()` existente para acrescentar `earningsBySource` e garantir que `gross` corresponda ao total visível. O `saveDay()` canônico continua sendo o único caminho que grava `state.records`.
+
+O detalhamento e o total devem entrar no **mesmo objeto persistido pelo mesmo save**. Não é permitido salvar o dia e depois fazer uma segunda mutação apenas para anexar `earningsBySource`.
 
 ## UX e estados
 
@@ -132,11 +132,11 @@ A mensagem deve explicar o campo humano que falta, sem expor estrutura interna.
 
 ## Histórico e aprendizado
 
-Nesta entrega, Histórico deve continuar funcionando mesmo sem consumir `earningsBySource`.
+Nesta entrega, Histórico continua usando apenas os dados que já consome hoje, inclusive `record.gross`.
 
-Quando houver detalhamento disponível, o registro pode exibir um resumo simples das origens, desde que isso não altere cálculos existentes.
+`earningsBySource` será persistido para uso futuro, mas **não haverá nesta primeira entrega ranking, comparativo, gráfico ou resumo por plataforma no Histórico**.
 
-Comparativos como “qual plataforma rendeu mais na semana” ficam fora desta implementação inicial. Eles só entram em trabalho posterior usando os dados já armazenados.
+A única exigência de compatibilidade é que registros antigos e novos continuem abrindo normalmente e mostrem o mesmo total bruto salvo.
 
 ## Contrato dos assets de marca
 
@@ -145,6 +145,8 @@ Os assets aprovados para a feature são:
 - `faro-platform-99.svg` — SHA-256 `d10212afb5788d77f617dcea0efcb85145c42dfca4641c0d8cf04dbc44b5e51b`
 - `faro-platform-indrive.svg` — SHA-256 `9d045ddec23b41327e27e0d056469b3596279976bc3b0fb6b8e24198889c2794`
 - `faro-platform-uber.svg` — SHA-256 `e1b09c8e1a04c3acbd508dc27cf6e248e62895dde72f03332529720245df9329`
+
+Na implementação, os três arquivos devem entrar em `assets/platforms/` preservando nome e hash.
 
 Requisitos obrigatórios:
 
@@ -174,8 +176,8 @@ No salvamento:
 1. normalizar valores;
 2. calcular o total;
 3. validar o mesmo total que será persistido;
-4. salvar o registro pelo writer canônico;
-5. anexar/preservar `earningsBySource` no mesmo registro;
+4. produzir um único draft contendo `gross` e, quando aplicável, `earningsBySource`;
+5. persistir esse draft pelo `saveDay()` canônico;
 6. só então limpar o rascunho visual.
 
 Se o pós-save visual falhar, o registro não pode ser duplicado por um novo toque. A idempotência de `saveDay` já exigida pelo fluxo atual deve ser preservada.
@@ -188,6 +190,8 @@ Se o pós-save visual falhar, o registro não pode ser duplicado por um novo toq
 - ausência de `earningsBySource` preserva registros legados;
 - edição de registro legado sem detalhamento não altera o `gross` original;
 - edição com detalhamento novo substitui `gross` pela soma das origens;
+- `saveDay()` permanece o único writer de `state.records`;
+- `gross` e `earningsBySource` são persistidos atomicamente no mesmo registro;
 - valores negativos são rejeitados;
 - plataformas não utilizadas podem permanecer em zero.
 
@@ -199,12 +203,13 @@ Se o pós-save visual falhar, o registro não pode ser duplicado por um novo toq
 - Uber, 99 e inDrive usam os SVGs aprovados;
 - teste rejeita assets com `<image>`, `data:image` ou `base64`;
 - Extras/Outros usa ícone FARO neutro;
-- o total não vira um segundo campo manual no modo detalhado.
+- o total não vira um segundo campo manual no modo detalhado;
+- registro legado oferece “Detalhar por aplicativo” sem inventar uma origem.
 
 ### Regressão
 
 - `record.gross` continua alimentando os cálculos existentes;
-- histórico continua abrindo registros antigos;
+- histórico continua abrindo registros antigos e novos;
 - edição por data continua funcionando;
 - rascunho do registro preserva também os valores por origem;
 - duplo toque em salvar não cria registros duplicados;
@@ -227,9 +232,10 @@ Em aparelho real:
 - ranking automático de plataformas;
 - recomendação de qual app usar;
 - estatística avançada por plataforma;
+- breakdown por plataforma no Histórico nesta primeira entrega;
 - novas categorias dentro de Extras/Outros;
 - alteração do motor financeiro canônico.
 
 ## Critério de aceite
 
-A feature está funcionalmente pronta quando um motorista consegue registrar valores em uma ou mais origens, visualizar o total automaticamente, salvar o dia uma única vez e reencontrar o mesmo total no histórico, sem quebrar registros antigos e sem mudar a matemática financeira existente.
+A feature está funcionalmente pronta quando um motorista consegue registrar valores em uma ou mais origens, visualizar o total automaticamente, salvar o dia uma única vez e reencontrar o mesmo total bruto no Histórico, sem quebrar registros antigos, sem criar um segundo writer e sem mudar a matemática financeira existente.
