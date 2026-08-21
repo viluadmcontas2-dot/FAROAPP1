@@ -37,13 +37,15 @@ contains(register, 'if (saving) return', 'Salvar precisa rejeitar toque duplicad
 contains(register, 'aria-busy', 'Salvar precisa comunicar estado ocupado');
 contains(register, 'remainingWeek', 'Fechamento precisa calcular consequência semanal');
 contains(register, 'Na semana, faltam', 'Fechamento precisa falar da semana');
+contains(register, 'brutos para o ritmo planejado', 'Fechamento semanal precisa rotular o restante como bruto');
 contains(register, 'No mês, faltam', 'Fechamento precisa manter o mês como norte');
 contains(register, "setAttribute('inputmode', 'decimal')", 'Campos numéricos precisam abrir teclado decimal');
 contains(register, "$('clearDayButton')?.addEventListener('click'", 'Limpar formulário precisa ter integração FARO');
 contains(register, 'clearDraft();', 'Limpar formulário ou salvar precisa apagar o rascunho persistido');
 
 assert.ok(shell.indexOf('faro-register-earnings.js?v=1') < shell.indexOf('faro-register.js?v=2'), 'Helper deve carregar antes do owner Registro');
+assert.doesNotMatch(register, /líquidos para o ritmo planejado/, 'Week target já é bruto e não pode ser rotulado como líquido no fechamento');
 assert.doesNotMatch(register, /state\.records\.(push|splice)/, 'Camada de UX não pode criar segundo motor de registros');
 assert.doesNotMatch(register, /dailyGross\s*=|dailyNet\s*=/, 'Registro UX não cria motor financeiro paralelo');
 
-console.log('FARO: Registro por plataforma com soma canônica, rascunho e proteção de save — ok');
+console.log('FARO: Registro por plataforma com soma canônica, semântica semanal bruta e proteção de save — ok');
