@@ -40,6 +40,8 @@ contains(shell, 'window.__faroInstallPrompt = null', 'Bootstrap precisa preparar
 contains(shell, "window.addEventListener('beforeinstallprompt'", 'Bootstrap precisa capturar o instalador antes da UI');
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a porta de instalação');
 contains(shell, 'faro-update.js?v=1', 'Shell precisa carregar a política de atualização silenciosa');
+contains(shell, 'faro-register-earnings.js?v=1', 'Shell precisa carregar o helper de ganhos antes do Registro');
+contains(shell, 'faro-register.js?v=2', 'Shell precisa carregar a geração por plataforma do Registro');
 contains(shell, 'faro-interactions.js?v=2', 'Shell precisa carregar a fundação de interação R3-B');
 contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit estrutural R3');
 contains(shell, 'faro-r3b.js?v=1', 'Shell precisa carregar a identidade/interação R3-B');
@@ -60,11 +62,13 @@ contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<m
 contains(index, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Entrada deve pedir a geração nova do manifest ao Android/Chrome');
 contains(shell, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Shell deve pedir a mesma geração nova do manifest');
 contains(shell, ".replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">', '<link rel=\"manifest\" href=\"./manifest.webmanifest?v=2\">')", 'Shell final não pode reintroduzir a geração antiga do manifest ao escrever o legado');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-21'", 'Correções físicas precisam renovar o core cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-22'", 'Geração atual precisa renovar o core cache');
 contains(sw, "'./manifest.webmanifest?v=2'", 'PWA deve armazenar a mesma geração versionada do manifest');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
+contains(sw, 'faro-register-earnings.js?v=1', 'PWA precisa armazenar o helper de ganhos');
+contains(sw, 'faro-register.js?v=2', 'PWA precisa armazenar Registro por plataforma');
 contains(sw, 'faro-interactions.js?v=2', 'PWA precisa armazenar a fundação de interação R3-B');
 contains(sw, 'faro-planning.js?v=2', 'PWA precisa armazenar Planejar R3');
 contains(sw, 'faro-r3b.js?v=1', 'PWA precisa armazenar a camada R3-B');
@@ -72,12 +76,17 @@ contains(sw, 'faro-r3-routing.js?v=3', 'PWA precisa armazenar as rotas idempoten
 contains(sw, 'faro-onboarding.js?v=3', 'PWA precisa armazenar o onboarding');
 contains(sw, 'faro-onboarding-commit.js?v=1', 'PWA precisa armazenar o owner fail-safe do gesto final');
 contains(sw, 'faro-tour.js?v=2', 'PWA precisa armazenar o tour corrigido');
+for (const asset of ['./assets/platforms/faro-platform-99.svg','./assets/platforms/faro-platform-indrive.svg','./assets/platforms/faro-platform-uber.svg']) contains(sw, asset, `PWA precisa armazenar ${asset}`);
 contains(sw, './icon-192.png', 'PWA precisa armazenar ícone 192');
 contains(sw, './icon-512.png', 'PWA precisa armazenar ícone 512');
 contains(sw, './faro-mark.svg', 'PWA precisa armazenar o símbolo FARO usado pelo splash adaptativo');
 contains(build, "'icon-192.png'", 'Build precisa copiar ícone 192');
 contains(build, "'icon-512.png'", 'Build precisa copiar ícone 512');
 contains(build, "'faro-mark.svg'", 'Build precisa copiar o símbolo FARO usado pelo splash adaptativo');
+contains(build, "'faro-register-earnings.js'", 'Build precisa copiar o helper de ganhos');
+contains(build, "'assets/platforms/faro-platform-99.svg'", 'Build precisa copiar asset 99');
+contains(build, "'assets/platforms/faro-platform-indrive.svg'", 'Build precisa copiar asset inDrive');
+contains(build, "'assets/platforms/faro-platform-uber.svg'", 'Build precisa copiar asset Uber');
 contains(build, "'faro-interactions.js'", 'Build precisa copiar a fundação de interação R3-B');
 contains(build, "'faro-planning.js'", 'Build precisa copiar Planejar R3');
 contains(build, "'faro-r3b.js'", 'Build precisa copiar a camada R3-B');
@@ -115,4 +124,4 @@ assert.equal(manifest.prefer_related_applications, false);
 assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode criar loop de reload');
 
-console.log('FARO físico: instalação segura, splash adaptativo e commit final fail-safe — ok');
+console.log('FARO físico: instalação segura, splash adaptativo e geração de Registro por plataforma — ok');
