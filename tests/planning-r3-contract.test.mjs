@@ -75,7 +75,7 @@ assert.match(routing, /#faroMoneyCreateReserve/);
 assert.match(routing, /event\.stopImmediatePropagation\(\)/);
 
 assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=3/);
-assert.match(sw, /faro-v1-core-21/);
+assert.match(sw, /faro-v1-core-22/);
 assert.match(sw, /faro-interactions\.js\?v=2/);
 assert.match(sw, /faro-planning\.js\?v=2/);
 assert.match(sw, /faro-r3b\.js\?v=1/);
@@ -87,4 +87,4 @@ assert.match(build, /'faro-r3-routing\.js'/);
 assert.match(app, /this\.\$\('extraDaysOffBadge'\)\.textContent/);
 assert.doesNotMatch(planning, /STORAGE_KEY|localStorage\.setItem\([^)]*targetProfit/);
 
-console.log('FARO UX-R3-B.3: cockpit, fluxo Money idempotente, writers canônicos e cache 21 reconciliados — ok');
+console.log('FARO UX-R3-B.3: cockpit, fluxo Money idempotente, writers canônicos e cache 22 reconciliados — ok');
