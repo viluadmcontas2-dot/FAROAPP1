@@ -26,10 +26,10 @@ assert.match(appShell, /faro-interactions\.js\?v=2/);
 assert.match(appShell, /faro-planning\.js\?v=2/);
 assert.match(appShell, /faro-planning-invariants\.js\?v=1/);
 assert.match(appShell, /faro-r3b\.js\?v=1/);
-assert.match(appShell, /faro-r3-routing\.js\?v=2/);
+assert.match(appShell, /faro-r3-routing\.js\?v=3/);
 assert.doesNotMatch(appShell, /faro-brand\.js\?v=2/);
 assert.doesNotMatch(appShell, /faro-home\.js\?v=1/);
 assert.match(r3b, /root\.insertBefore\(hero, firstGrid\)/, 'R3-B precisa tornar o planejamento o primeiro protagonista sem criar outro owner');
 assert.doesNotMatch(r3b, /app\.state\.[A-Za-z0-9_]+\s*=/, 'Camada visual R3-B não pode virar writer');
 
-console.log('FARO UX-R3-B.3: Planejar mantém owner único e carrega a geração de routing atual — ok');
+console.log('FARO UX-R3-B.3: Planejar mantém owner único e carrega routing v3 — ok');
