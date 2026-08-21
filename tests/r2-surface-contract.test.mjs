@@ -16,6 +16,6 @@ assert.match(polish, /Ajuda/);
 assert.match(polish, /Segurança/);
 assert.match(tour, /id = 'faroTourHelp'/);
 assert.match(polish, /insertBefore\(help, safety\)/);
-assert.ok(shell.indexOf('faro-tour.js?v=2') < shell.indexOf('faro-r2-polish.js?v=1'), 'Tour deve criar Ajuda antes do polish ordenar a Central');
+assert.ok(shell.indexOf('faro-tour.js?v=2') < shell.indexOf('faro-r2-polish.js?v=2'), 'Tour deve criar Ajuda antes do polish ordenar a Central');
 
-console.log('FARO UX-R2: Histórico prioriza lista e Central mantém Ajuda antes da zona de segurança — ok');
+console.log('FARO UX-R2: Histórico prioriza lista e Central premium mantém Ajuda antes da zona de segurança — ok');
