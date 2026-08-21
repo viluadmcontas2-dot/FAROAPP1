@@ -11,6 +11,8 @@
   if (history && !document.getElementById('faroHistoryAnalytics')) {
     const chartCard = document.getElementById('historyChart')?.closest('.card-vetta');
     if (chartCard) {
+      chartCard.classList.add('faro-state-card');
+      chartCard.dataset.faroTone = 'neutral';
       const details = document.createElement('details');
       details.id = 'faroHistoryAnalytics';
       details.className = 'faro-plan-details';
@@ -37,12 +39,19 @@
       safety.parentElement.insertBefore(help, safety);
     }
 
+    const markCentralItem = node => {
+      if (!node) return;
+      const item = node.closest?.('.card-vetta') || node;
+      item.dataset.faroCentralItem = 'true';
+    };
+    [account, exportCard, compareCard, installCard, help, safety].forEach(markCentralItem);
+
     const addGroupLabel = (node, text) => {
       if (!node?.parentElement || node.previousElementSibling?.dataset?.faroCentralGroup === text) return;
       const label = document.createElement('div');
       label.dataset.faroCentralGroup = text;
-      label.className = 'px-1 pt-2';
-      label.innerHTML = `<span class="label-micro !text-slate-400">${text}</span>`;
+      label.className = 'px-1 pt-2 faro-card-eyebrow';
+      label.textContent = text;
       node.parentElement.insertBefore(label, node);
     };
     addGroupLabel(account || exportCard, 'Conta e dados');
