@@ -12,9 +12,9 @@ const contains = (source, snippet, label) => {
 };
 
 contains(shell, 'faro-register-earnings.js?v=1', 'Shell precisa carregar helper de ganhos por origem');
-contains(shell, 'faro-register.js?v=2', 'Shell precisa carregar Registro por plataforma');
+contains(shell, 'faro-register.js?v=3', 'Shell precisa carregar Registro premium por plataforma');
 contains(sw, 'faro-register-earnings.js?v=1', 'PWA precisa armazenar helper de ganhos por origem');
-contains(sw, 'faro-register.js?v=2', 'PWA precisa armazenar Registro por plataforma');
+contains(sw, 'faro-register.js?v=3', 'PWA precisa armazenar Registro premium por plataforma');
 contains(build, "'faro-register-earnings.js'", 'Build precisa copiar helper de ganhos por origem');
 contains(build, "'faro-register.js'", 'Build precisa copiar Registro');
 contains(register, "const DRAFT_KEY = 'faro-record-draft-v1'", 'Registro precisa ter rascunho próprio');
@@ -43,9 +43,9 @@ contains(register, "setAttribute('inputmode', 'decimal')", 'Campos numéricos pr
 contains(register, "$('clearDayButton')?.addEventListener('click'", 'Limpar formulário precisa ter integração FARO');
 contains(register, 'clearDraft();', 'Limpar formulário ou salvar precisa apagar o rascunho persistido');
 
-assert.ok(shell.indexOf('faro-register-earnings.js?v=1') < shell.indexOf('faro-register.js?v=2'), 'Helper deve carregar antes do owner Registro');
+assert.ok(shell.indexOf('faro-register-earnings.js?v=1') < shell.indexOf('faro-register.js?v=3'), 'Helper deve carregar antes do owner Registro');
 assert.doesNotMatch(register, /líquidos para o ritmo planejado/, 'Week target já é bruto e não pode ser rotulado como líquido no fechamento');
 assert.doesNotMatch(register, /state\.records\.(push|splice)/, 'Camada de UX não pode criar segundo motor de registros');
 assert.doesNotMatch(register, /dailyGross\s*=|dailyNet\s*=/, 'Registro UX não cria motor financeiro paralelo');
 
-console.log('FARO: Registro por plataforma com soma canônica, semântica semanal bruta e proteção de save — ok');
+console.log('FARO: Registro premium por plataforma com soma canônica, semântica semanal bruta e proteção de save — ok');
