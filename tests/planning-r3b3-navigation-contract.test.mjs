@@ -26,7 +26,7 @@ assert.match(routing, /event\.key !== 'Escape'[\s\S]*closeFlow\(\)/, 'Escape ins
 assert.match(routing, /faro-dialog-close[\s\S]*closeFlow\(\)/, 'The visible close affordance must behave as Back while inside depth');
 assert.match(planning, /faroMoneyDialog/, 'The coherent navigation must stay inside the existing Compromissos workspace');
 assert.match(shell, /faro-r3-routing\.js\?v=3/, 'The shell must request the idempotent R3-B.3 routing generation');
-assert.match(sw, /faro-v1-core-21/, 'Current physical hotfix generation must use the active PWA cache');
+assert.match(sw, /faro-v1-core-22/, 'Current feature generation must use the active PWA cache');
 assert.match(sw, /faro-r3-routing\.js\?v=3/, 'The service worker must cache the same R3-B.3 routing generation');
 
 console.log('planning-r3b3-navigation-contract: ok');
