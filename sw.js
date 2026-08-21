@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-21';
+const CORE_CACHE = 'faro-v1-core-22';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -13,7 +13,8 @@ const APP_SHELL = [
   './faro-state.js?v=1',
   './faro-energy.js?v=1',
   './faro-home-r2.js?v=1',
-  './faro-register.js?v=1',
+  './faro-register-earnings.js?v=1',
+  './faro-register.js?v=2',
   './faro-finance.js?v=1',
   './faro-reserves.js?v=1',
   './faro-interactions.js?v=2',
@@ -34,7 +35,10 @@ const APP_SHELL = [
   './faro-mark.svg',
   './icon.svg',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './assets/platforms/faro-platform-99.svg',
+  './assets/platforms/faro-platform-indrive.svg',
+  './assets/platforms/faro-platform-uber.svg'
 ];
 
 const EXTERNAL_SEEDS = [
