@@ -12,7 +12,7 @@ const sw = await readFile('sw.js', 'utf8');
 // R3: a barra nasce legada como settings, mas Planejar assume o nó antes da navegação operar.
 assert.match(planning, /dataset\.view = 'planning'/);
 assert.match(planning, /setAttribute\('aria-label', 'Planejar'\)/);
-assert.match(shell, /faro-planning\.js\?v=2[\s\S]*faro-r3-routing\.js\?v=2[\s\S]*faro-navigation\.js\?v=1/);
+assert.match(shell, /faro-planning\.js\?v=2[\s\S]*faro-r3-routing\.js\?v=3[\s\S]*faro-navigation\.js\?v=1/);
 assert.match(home, /navigateToPrimary\('planning'\)/);
 assert.match(planning, /const openMoney =/);
 assert.match(routing, /navigateToPrimary\('planning'\)[\s\S]*FaroPlanning\?\.openMoney/);
