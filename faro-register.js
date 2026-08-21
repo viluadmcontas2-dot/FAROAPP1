@@ -3,9 +3,23 @@
   const dayView = document.getElementById('view-day');
   if (!app || !dayView || document.getElementById('faroRegisterFoundation')) return;
 
+  const earningsApi = window.FaroRegisterEarnings;
+  if (!earningsApi) {
+    console.error('FARO: helper de ganhos por origem não carregou.');
+    return;
+  }
+
   const DRAFT_KEY = 'faro-record-draft-v1';
   const ids = ['recordDate', 'recordGross', 'recordKm', 'recordHours', 'recordFuel'];
   const $ = id => document.getElementById(id);
+  const earningsSources = [
+    { key:'uber', label:'Uber', asset:'./assets/platforms/faro-platform-uber.svg' },
+    { key:'ninetyNine', label:'99', asset:'./assets/platforms/faro-platform-99.svg' },
+    { key:'indrive', label:'inDrive', asset:'./assets/platforms/faro-platform-indrive.svg' },
+    { key:'extras', label:'Extras/Outros', icon:'fa-plus' }
+  ];
+  const emptyEarnings = () => Object.fromEntries(earningsApi.SOURCES.map(key => [key, 0]));
+
   const marker = document.createElement('span');
   marker.id = 'faroRegisterFoundation';
   marker.hidden = true;
@@ -16,17 +30,183 @@
     if (input) input.setAttribute('inputmode', 'decimal');
   });
 
-  const readForm = () => ({
-    date: $('recordDate')?.value || app.todayKey(),
-    gross: $('recordGross')?.value || '',
-    km: $('recordKm')?.value || '',
-    hours: $('recordHours')?.value || '',
-    fuel: $('recordFuel')?.value || '',
-    updatedAt: new Date().toISOString()
-  });
+  const grossInput = $('recordGross');
+  const grossWrapper = grossInput?.closest('.input-wrapper');
+  const grossField = grossWrapper?.parentElement || grossInput?.parentElement || null;
+  const grossGrid = grossInput?.closest('.grid') || null;
+  let earningsMode = 'detailed';
+  const activeSources = new Set();
+
+  const earningsSection = document.createElement('section');
+  earningsSection.id = 'faroEarningsBySource';
+  earningsSection.className = 'faro-earnings-section';
+  earningsSection.innerHTML = `
+    <div class="faro-earnings-head">
+      <div><span class="label-micro !text-blue-600">De onde veio seu faturamento?</span><p>Toque nos aplicativos que você usou hoje. O FARO soma tudo para você.</p></div>
+    </div>
+    <div id="faroEarningsGrid" class="faro-earnings-grid">
+      ${earningsSources.map(source => `
+        <article class="faro-earning-card" data-faro-earning-card="${source.key}">
+          <button type="button" class="faro-earning-toggle" data-faro-earning-toggle="${source.key}" aria-expanded="false">
+            <span class="faro-earning-brand">${source.asset ? `<img src="${source.asset}" alt="${source.label}">` : '<span class="faro-extra-icon" aria-hidden="true"><i class="fas fa-plus"></i></span>'}</span>
+            <span class="faro-earning-name">${source.label}</span>
+            <span class="faro-earning-add" aria-hidden="true"><i class="fas fa-plus"></i></span>
+          </button>
+          <div class="faro-earning-field hidden" data-faro-earning-field="${source.key}">
+            <label for="faroEarning-${source.key}">Quanto entrou?</label>
+            <div class="input-wrapper"><span>R$</span><input id="faroEarning-${source.key}" data-faro-earning-source="${source.key}" type="number" min="0" step=".01" inputmode="decimal" class="input-vetta" placeholder="0,00"></div>
+          </div>
+        </article>`).join('')}
+    </div>
+    <div id="faroEarningsTotalWrap" class="faro-earnings-total" aria-live="polite"><span>Total do dia</span><strong id="faroEarningsTotal">${app.money(0)}</strong></div>
+    <div id="faroLegacyEarnings" class="faro-earnings-legacy hidden">
+      <div><strong>Faturamento sem origem detalhada</strong><p>Este registro é antigo. Você pode manter o total como está ou distribuir por aplicativo.</p></div>
+      <button id="faroEnableEarningsBreakdown" type="button">Detalhar por aplicativo</button>
+    </div>`;
+  grossGrid?.insertAdjacentElement('afterend', earningsSection);
+
+  if (!document.getElementById('faroRegisterStyles')) {
+    const style = document.createElement('style');
+    style.id = 'faroRegisterStyles';
+    style.textContent = `
+      #view-day .faro-register-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
+      #view-day .faro-register-chip{min-height:42px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:900;border:1px solid #dbeafe;transition:transform .1s ease,background-color .12s ease}
+      #view-day .faro-register-chip:active{transform:scale(.97);background:#dbeafe}
+      #view-day .faro-register-gross-grid--detailed{grid-template-columns:1fr}
+      #view-day .faro-register-gross-grid--detailed .faro-register-gross-field{display:none}
+      #view-day .faro-earnings-section{display:grid;gap:12px;padding:16px;border-radius:22px;background:#f8fafc;border:1px solid #e2e8f0}
+      #view-day .faro-earnings-head p{margin-top:5px;color:#64748b;font-size:11px;line-height:1.5;font-weight:600}
+      #view-day .faro-earnings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      #view-day .faro-earning-card{min-width:0;border:1px solid #e2e8f0;border-radius:18px;background:#fff;overflow:hidden;transition:border-color .12s ease,box-shadow .12s ease}
+      #view-day .faro-earning-card[data-active="true"]{border-color:#93c5fd;box-shadow:0 8px 24px -20px rgba(37,99,235,.65)}
+      #view-day .faro-earning-toggle{width:100%;min-height:78px;padding:11px;display:grid;grid-template-columns:42px 1fr 22px;gap:9px;align-items:center;text-align:left}
+      #view-day .faro-earning-brand{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;overflow:hidden;background:#fff}
+      #view-day .faro-earning-brand img{width:100%;height:100%;object-fit:contain;display:block}
+      #view-day .faro-extra-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;color:#2563eb;font-size:16px}
+      #view-day .faro-earning-name{min-width:0;font-size:12px;font-weight:900;color:#0f172a;overflow-wrap:anywhere}
+      #view-day .faro-earning-add{color:#94a3b8;font-size:11px;text-align:right}
+      #view-day .faro-earning-card[data-active="true"] .faro-earning-add{color:#2563eb;transform:rotate(45deg)}
+      #view-day .faro-earning-field{padding:0 11px 11px}
+      #view-day .faro-earning-field label{display:block;margin-bottom:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
+      #view-day .faro-earnings-total{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:17px;background:#0b1121;color:#fff}
+      #view-day .faro-earnings-total span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#bfdbfe}
+      #view-day .faro-earnings-total strong{font-size:24px;line-height:1;font-weight:900;letter-spacing:-.04em}
+      #view-day .faro-earnings-legacy{display:grid;gap:12px;padding:14px;border-radius:17px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+      #view-day .faro-earnings-legacy strong{font-size:12px}.faro-earnings-legacy p{margin-top:4px;font-size:10px;line-height:1.45}
+      #view-day .faro-earnings-legacy button{min-height:42px;border-radius:13px;background:#fff;color:#c2410c;font-size:10px;font-weight:900;border:1px solid #fdba74}
+      #saveDayButton[data-saving="true"]{opacity:.68;pointer-events:none}
+      #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:#64748b;font-size:11px;font-weight:700}
+      @media(max-width:350px){#view-day .faro-earning-toggle{grid-template-columns:38px 1fr 18px;padding:9px}#view-day .faro-earning-brand,#view-day .faro-extra-icon{width:38px;height:38px}}
+      @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip,#view-day .faro-earning-card{transition:none}#view-day .faro-register-chip:active{transform:none}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  if (grossField) grossField.classList.add('faro-register-gross-field');
+
+  const readEarningsInputs = () => Object.fromEntries(earningsApi.SOURCES.map(key => [
+    key,
+    document.querySelector(`[data-faro-earning-source="${key}"]`)?.value ?? ''
+  ]));
+
+  const earningsSnapshot = () => {
+    try {
+      const normalized = earningsApi.normalize(readEarningsInputs());
+      return { valid:true, normalized, total:earningsApi.total(normalized), error:null };
+    } catch (error) {
+      return { valid:false, normalized:emptyEarnings(), total:0, error };
+    }
+  };
+
+  const renderSourceStates = () => {
+    for (const source of earningsSources) {
+      const card = document.querySelector(`[data-faro-earning-card="${source.key}"]`);
+      const field = document.querySelector(`[data-faro-earning-field="${source.key}"]`);
+      const toggle = document.querySelector(`[data-faro-earning-toggle="${source.key}"]`);
+      const active = activeSources.has(source.key);
+      if (card) card.dataset.active = active ? 'true' : 'false';
+      field?.classList.toggle('hidden', !active);
+      toggle?.setAttribute('aria-expanded', active ? 'true' : 'false');
+    }
+  };
+
+  const setEarningsValues = values => {
+    const normalized = earningsApi.normalize(values || {});
+    activeSources.clear();
+    for (const source of earningsSources) {
+      const input = document.querySelector(`[data-faro-earning-source="${source.key}"]`);
+      const value = normalized[source.key] || 0;
+      if (input) input.value = value > 0 ? String(value) : '';
+      if (value > 0) activeSources.add(source.key);
+    }
+    renderSourceStates();
+    return normalized;
+  };
+
+  const syncEarningsTotal = ({ render=true, persist=true } = {}) => {
+    const snapshot = earningsSnapshot();
+    if (grossInput) grossInput.value = snapshot.valid && snapshot.total > 0 ? String(snapshot.total) : '';
+    const totalNode = $('faroEarningsTotal');
+    if (totalNode) totalNode.textContent = app.money(snapshot.valid ? snapshot.total : 0);
+    document.querySelectorAll('[data-faro-earning-source]').forEach(input => {
+      input.setCustomValidity(snapshot.valid ? '' : 'Use somente valores iguais ou maiores que zero.');
+    });
+    if (render) app.renderRecordPreview();
+    if (persist) saveDraft();
+    return snapshot;
+  };
+
+  const setEarningsMode = (mode, { values=null, render=true, persist=false } = {}) => {
+    earningsMode = mode === 'legacy' ? 'legacy' : 'detailed';
+    const grid = $('faroEarningsGrid');
+    const total = $('faroEarningsTotalWrap');
+    const legacy = $('faroLegacyEarnings');
+    const grossChips = document.querySelector('[data-chip-row="recordGross"]');
+    const detailed = earningsMode === 'detailed';
+
+    grossGrid?.classList.toggle('faro-register-gross-grid--detailed', detailed);
+    if (grossInput) grossInput.readOnly = detailed;
+    grossChips?.classList.toggle('hidden', detailed);
+    grid?.classList.toggle('hidden', !detailed);
+    total?.classList.toggle('hidden', !detailed);
+    legacy?.classList.toggle('hidden', detailed);
+
+    if (detailed) {
+      if (values) setEarningsValues(values);
+      else { activeSources.clear(); setEarningsValues(emptyEarnings()); }
+      syncEarningsTotal({ render, persist });
+    } else {
+      activeSources.clear();
+      renderSourceStates();
+      if (render) app.renderRecordPreview();
+      if (persist) saveDraft();
+    }
+  };
+
+  const readForm = () => {
+    const base = {
+      date: $('recordDate')?.value || app.todayKey(),
+      gross: $('recordGross')?.value || '',
+      km: $('recordKm')?.value || '',
+      hours: $('recordHours')?.value || '',
+      fuel: $('recordFuel')?.value || '',
+      updatedAt: new Date().toISOString()
+    };
+    if (earningsMode !== 'detailed') return base;
+    const snapshot = earningsSnapshot();
+    return {
+      ...base,
+      gross: snapshot.valid && snapshot.total > 0 ? String(snapshot.total) : '',
+      earningsMode: 'detailed',
+      earningsBySource: snapshot.normalized
+    };
+  };
 
   const hasMeaningfulDraft = draft => Boolean(
-    draft && (String(draft.gross || '').trim() || String(draft.km || '').trim() || String(draft.hours || '').trim() || String(draft.fuel || '').trim())
+    draft && (
+      String(draft.gross || '').trim() || String(draft.km || '').trim() || String(draft.hours || '').trim() || String(draft.fuel || '').trim() ||
+      Object.values(draft.earningsBySource || {}).some(value => Number(value) > 0)
+    )
   );
 
   const saveDraft = () => {
@@ -55,6 +235,11 @@
     $('recordKm').value = draft.km ?? '';
     $('recordHours').value = draft.hours ?? '';
     $('recordFuel').value = draft.fuel ?? '';
+    if (draft.earningsMode === 'detailed' || draft.earningsBySource) {
+      setEarningsMode('detailed', { values:draft.earningsBySource || emptyEarnings(), render:false, persist:false });
+    } else {
+      setEarningsMode('legacy', { render:false, persist:false });
+    }
     app.renderRecordPreview();
     const optional = document.getElementById('faroOptionalDetails');
     if (optional) optional.open = Boolean(draft.hours || draft.fuel);
@@ -85,20 +270,20 @@
 
   insertChips('recordGross', [['+ R$50', 50], ['+ R$100', 100], ['+ R$200', 200]]);
   insertChips('recordKm', [['+ 5 km', 5], ['+ 10 km', 10], ['+ 50 km', 50]], 'km');
+  setEarningsMode('detailed', { render:false, persist:false });
 
-  if (!document.getElementById('faroRegisterStyles')) {
-    const style = document.createElement('style');
-    style.id = 'faroRegisterStyles';
-    style.textContent = `
-      #view-day .faro-register-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
-      #view-day .faro-register-chip{min-height:42px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:900;border:1px solid #dbeafe;transition:transform .1s ease,background-color .12s ease}
-      #view-day .faro-register-chip:active{transform:scale(.97);background:#dbeafe}
-      #saveDayButton[data-saving="true"]{opacity:.68;pointer-events:none}
-      #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:#64748b;font-size:11px;font-weight:700}
-      @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip{transition:none}#view-day .faro-register-chip:active{transform:none}}
-    `;
-    document.head.appendChild(style);
-  }
+  const baseRecordDraft = app.recordDraft;
+  app.recordDraft = function() {
+    if (earningsMode === 'detailed') syncEarningsTotal({ render:false, persist:false });
+    const draft = baseRecordDraft.call(this);
+    if (earningsMode !== 'detailed') return draft;
+    const snapshot = earningsSnapshot();
+    return {
+      ...draft,
+      gross: snapshot.valid ? snapshot.total : 0,
+      earningsBySource: snapshot.normalized
+    };
+  };
 
   const note = document.createElement('div');
   note.id = 'faroRegisterDraftNote';
@@ -108,8 +293,34 @@
   if (firstCard) firstCard.insertBefore(note, firstCard.firstChild);
 
   $('clearDayButton')?.addEventListener('click', () => {
+    setEarningsMode('detailed', { render:false, persist:false });
+    if (grossInput) grossInput.value = '';
     clearDraft();
     note.classList.add('hidden');
+  });
+
+  earningsSection.addEventListener('click', event => {
+    const detail = event.target.closest('#faroEnableEarningsBreakdown');
+    if (detail) {
+      event.preventDefault();
+      setEarningsMode('detailed', { render:true, persist:true });
+      return;
+    }
+
+    const toggle = event.target.closest('[data-faro-earning-toggle]');
+    if (!toggle) return;
+    event.preventDefault();
+    const key = toggle.dataset.faroEarningToggle;
+    activeSources.add(key);
+    renderSourceStates();
+    document.querySelector(`[data-faro-earning-source="${key}"]`)?.focus({ preventScroll:true });
+  });
+
+  earningsSection.addEventListener('input', event => {
+    if (!event.target.matches('[data-faro-earning-source]')) return;
+    activeSources.add(event.target.dataset.faroEarningSource);
+    renderSourceStates();
+    syncEarningsTotal({ render:true, persist:true });
   });
 
   dayView.addEventListener('click', event => {
@@ -136,12 +347,19 @@
       (String($('recordGross')?.value || '').trim() || String($('recordKm')?.value || '').trim()) &&
       this.state.records.some(record => record.date === $('recordDate').value)
     );
+    const editingDate = editingExisting ? $('recordDate')?.value : null;
     const result = baseShowView.call(this, view, primaryView);
     if (view === 'day') {
       note.classList.add('hidden');
-      if (!editingExisting) {
+      if (editingExisting) {
+        const record = this.state.records.find(item => item.date === editingDate);
+        if (record?.earningsBySource) setEarningsMode('detailed', { values:record.earningsBySource, render:false, persist:false });
+        else setEarningsMode('legacy', { render:false, persist:false });
+        app.renderRecordPreview();
+      } else {
         const restored = applyDraft(loadDraft());
         if (restored) note.classList.remove('hidden');
+        else setEarningsMode('detailed', { render:false, persist:false });
       }
     }
     return result;
@@ -151,6 +369,14 @@
   const baseSaveDay = app.saveDay;
   app.saveDay = function(...args) {
     if (saving) return;
+
+    if (earningsMode === 'detailed') {
+      const snapshot = earningsSnapshot();
+      if (!snapshot.valid) return this.toast('Use somente valores iguais ou maiores que zero nos ganhos.');
+      if (!earningsApi.hasAny(snapshot.normalized)) return this.toast('Informe pelo menos um ganho do dia.');
+      syncEarningsTotal({ render:false, persist:false });
+    }
+
     const before = this.recordDraft();
     if (!before.date || before.gross <= 0 || before.km <= 0) return baseSaveDay.apply(this, args);
     saving = true;
@@ -161,8 +387,12 @@
     }
     try {
       const result = baseSaveDay.apply(this, args);
-      const saved = this.state.records.some(record => record.date === before.date && Number(record.gross) === before.gross && Number(record.km) === before.km);
-      if (saved) clearDraft();
+      const saved = this.state.records.find(record => record.date === before.date && Number(record.gross) === before.gross && Number(record.km) === before.km);
+      if (saved) {
+        clearDraft();
+        setEarningsMode('detailed', { render:false, persist:false });
+        if (grossInput) grossInput.value = '';
+      }
       return result;
     } finally {
       setTimeout(() => {
@@ -197,5 +427,13 @@
     observer.observe(resultModal, { attributes:true, attributeFilter:['class'] });
   }
 
-  window.FaroRegister = { loadDraft, clearDraft, saveDraft };
+  window.FaroRegister = {
+    loadDraft,
+    clearDraft,
+    saveDraft,
+    readEarningsInputs,
+    syncEarningsTotal,
+    setEarningsMode,
+    mode:() => earningsMode
+  };
 })();
