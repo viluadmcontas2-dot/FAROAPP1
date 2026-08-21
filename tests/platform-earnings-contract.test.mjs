@@ -37,4 +37,10 @@ for (const [path, wanted] of expectedAssets) {
   assert.match(svg, /<svg\b[^>]*viewBox=/i, `${path} precisa ter viewBox vetorial`);
 }
 
-console.log('platform-earnings-contract: normalização, soma canônica e assets vetoriais aprovados — ok');
+const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+assert.match(build, /'faro-register-earnings\.js'/, 'build precisa copiar o helper de ganhos por origem');
+for (const path of expectedAssets.keys()) {
+  assert.equal(build.includes(`'${path}'`), true, `build precisa copiar ${path}`);
+}
+
+console.log('platform-earnings-contract: normalização, soma canônica, assets e build — ok');
