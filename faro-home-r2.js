@@ -15,6 +15,13 @@
   const legacyPlanningCta = dashboard.querySelector('[data-secondary-view="planning"]');
   legacyPlanningCta?.remove();
 
+  registerButton?.classList.add('faro-action-card');
+  if (registerButton) registerButton.dataset.faroTone = 'action';
+  weekCard?.classList.add('faro-state-card');
+  if (weekCard) weekCard.dataset.faroTone = 'action';
+  monthCard?.classList.add('faro-action-card');
+  if (monthCard) monthCard.dataset.faroTone = 'neutral';
+
   if (weekCard && monthCard && weekCard.parentElement === monthCard.parentElement) monthCard.parentElement.insertBefore(weekCard, monthCard);
 
   if (weekCard) {
@@ -38,7 +45,8 @@
   const attention = document.createElement('button');
   attention.id = 'faroHomeAttention';
   attention.type = 'button';
-  attention.className = 'hidden w-full card-vetta p-5 text-left faro-home-attention';
+  attention.className = 'hidden w-full card-vetta p-5 text-left faro-home-attention faro-state-card';
+  attention.dataset.faroTone = 'attention';
   attention.innerHTML = `
     <div class="flex items-center gap-3">
       <span id="faroAttentionIcon" class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 grid place-items-center shrink-0" aria-hidden="true"><i class="fas fa-calendar-day"></i></span>
@@ -59,7 +67,7 @@
     style.id = 'faroHomeStyles';
     style.textContent = `
       #view-dashboard [data-faro-role="week"]{border-color:#dbeafe;background:linear-gradient(180deg,#fff,#f8fbff)}
-      #view-dashboard [data-faro-role="month"]{box-shadow:0 12px 30px -18px rgba(15,23,42,.18);cursor:pointer;position:relative;padding-right:2.8rem}
+      #view-dashboard [data-faro-role="month"]{box-shadow:var(--faro-shadow-card,0 12px 30px -18px rgba(15,23,42,.18));cursor:pointer;position:relative;padding-right:2.8rem}
       #view-dashboard [data-faro-role="month"]::after{content:'›';position:absolute;right:1.15rem;top:50%;transform:translateY(-50%);font-size:28px;color:#94a3b8;font-weight:500}
       #view-dashboard [data-faro-role="month"]:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
       #faroHomeAttention{border-color:#fed7aa;background:linear-gradient(180deg,#fff,#fffaf5);transition:transform .12s ease,border-color .16s ease,background-color .16s ease}
@@ -106,6 +114,7 @@
     const when = overdue ? `venceu há ${Math.abs(item.days)} ${Math.abs(item.days)===1?'dia':'dias'}` : item.days===0?'vence hoje':item.days===1?'vence amanhã':`vence em ${item.days} dias`;
     const label = document.getElementById('faroAttentionLabel'); const icon = document.getElementById('faroAttentionIcon');
     attention.dataset.overdue = overdue ? 'true' : 'false';
+    attention.dataset.faroTone = overdue ? 'risk' : 'attention';
     label.textContent = overdue ? 'Atenção financeira' : 'Próximo compromisso';
     label.className = `label-micro !mb-1 ${overdue?'!text-red-700':'!text-amber-700'}`;
     icon.className = `w-11 h-11 rounded-2xl grid place-items-center shrink-0 ${overdue?'bg-red-50 text-red-700':'bg-amber-50 text-amber-700'}`;
