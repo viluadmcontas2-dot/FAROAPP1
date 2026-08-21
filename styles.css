@@ -30,5 +30,52 @@ input[type=range]::-webkit-slider-thumb{height:30px;width:30px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.nav-item:active{transform:none}}
 @media(prefers-contrast:more){.card-vetta,.history-row,.cost-row,.event-row,.input-vetta{border-color:#CBD5E1}.input-vetta:focus{border-color:#1D4ED8}.label-micro,.faro-support-text{color:#475569}}
 
+/* FARO R2 premium semantic composition — one visual language, existing functional owners. */
+:root{
+  --faro-bg:#F6F8FC;--faro-surface-soft:#F8FAFC;--faro-stroke:#E2E8F0;--faro-action:#2563EB;
+  --faro-radius-hero:28px;--faro-radius-card:22px;--faro-radius-row:17px;--faro-radius-pill:999px;
+  --faro-shadow-card:0 18px 44px -34px rgba(11,17,33,.48),0 1px 2px rgba(11,17,33,.04);
+  --faro-shadow-hero:0 26px 64px -34px rgba(11,17,33,.72);
+  --faro-space-1:6px;--faro-space-2:10px;--faro-space-3:14px;--faro-space-4:18px;--faro-space-5:24px;
+}
+.faro-hero{position:relative;isolation:isolate;overflow:hidden;border-radius:var(--faro-radius-hero);box-shadow:var(--faro-shadow-hero)}
+.faro-action-card,.faro-state-card{--faro-accent-rgb:37,99,235;position:relative;isolation:isolate;border:1px solid rgba(var(--faro-accent-rgb),.13);border-radius:var(--faro-radius-card);background:linear-gradient(150deg,#fff 0%,rgba(var(--faro-accent-rgb),.035) 100%);box-shadow:var(--faro-shadow-card)}
+.faro-action-card{cursor:pointer;transition:transform .12s cubic-bezier(.16,1,.3,1),border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+.faro-action-card:active{transform:scale(.985);border-color:rgba(var(--faro-accent-rgb),.24)}
+.faro-state-card{cursor:default}
+.faro-detail-row{display:flex;align-items:center;gap:var(--faro-space-3);min-height:56px;padding:13px 14px;border:1px solid #EEF2F7;border-radius:var(--faro-radius-row);background:rgba(255,255,255,.92)}
+.faro-card-eyebrow{display:block;margin:0 0 5px;font-size:9px;line-height:1.2;font-weight:800;letter-spacing:.075em;text-transform:uppercase;color:rgb(var(--faro-accent-rgb,37,99,235))}
+.faro-card-title{display:block;font-size:13px;line-height:1.3;font-weight:800;letter-spacing:-.01em;color:var(--faro-text)}
+.faro-card-value{display:block;margin-top:4px;font-size:22px;line-height:1.05;font-weight:800;letter-spacing:-.035em;color:var(--faro-text);font-variant-numeric:tabular-nums}
+.faro-card-support{display:block;margin-top:6px;font-size:11px;line-height:1.48;font-weight:600;color:var(--faro-muted)}
+.faro-card-action{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(var(--faro-accent-rgb,37,99,235),.1);font-size:10px;line-height:1.2;font-weight:800;color:rgb(var(--faro-accent-rgb,37,99,235))}
+[data-faro-tone="action"]{--faro-accent-rgb:37,99,235}
+[data-faro-tone="positive"]{--faro-accent-rgb:5,150,105}
+[data-faro-tone="attention"]{--faro-accent-rgb:194,65,12}
+[data-faro-tone="risk"]{--faro-accent-rgb:185,28,28}
+[data-faro-tone="neutral"]{--faro-accent-rgb:100,116,139}
+
+/* Existing owners mapped to the shared grammar without changing state/routers. */
+#view-planning .faro-r3-hero{border-radius:var(--faro-radius-hero);box-shadow:var(--faro-shadow-hero)}
+#view-planning .faro-r3-tile,#view-day .faro-earning-card{border-radius:var(--faro-radius-card);box-shadow:var(--faro-shadow-card)}
+#view-dashboard [data-faro-role="week"],#view-dashboard [data-faro-role="month"],#faroHomeAttention{border-radius:var(--faro-radius-card);box-shadow:var(--faro-shadow-card)}
+#view-dashboard [data-faro-role="week"]{--faro-accent-rgb:37,99,235}
+#view-dashboard [data-faro-role="month"]{--faro-accent-rgb:30,64,175}
+#faroHomeAttention{--faro-accent-rgb:194,65,12}
+#faroHomeAttention[data-overdue="true"]{--faro-accent-rgb:185,28,28}
+#view-day .faro-earning-card[data-active="true"]{border-color:rgba(37,99,235,.34);box-shadow:0 18px 38px -30px rgba(37,99,235,.72),0 1px 2px rgba(11,17,33,.04)}
+#view-day .faro-earning-brand{padding:4px;background:#fff;border:1px solid #EEF2F7;box-shadow:0 8px 18px -16px rgba(11,17,33,.35)}
+#view-day .faro-earning-brand img{object-fit:contain}
+#view-day .faro-earning-field .input-wrapper{margin-top:2px}
+#view-day .faro-earnings-total{border-radius:var(--faro-radius-card);box-shadow:var(--faro-shadow-hero);background:linear-gradient(138deg,#0B1121 0%,#132444 58%,#173B6D 100%)}
+#view-day .faro-earnings-legacy{border-radius:var(--faro-radius-row)}
+.history-row,.cost-row,.event-row{border-radius:var(--faro-radius-row);box-shadow:0 12px 26px -24px rgba(11,17,33,.34)}
+#faroHistoryAnalytics{border:1px solid #EEF2F7;border-radius:var(--faro-radius-row);background:rgba(255,255,255,.72);overflow:hidden}
+#faroHistoryAnalytics>summary{min-height:var(--faro-touch);padding:12px 14px;font-size:11px;font-weight:800;color:var(--faro-muted);cursor:pointer}
+[data-faro-central-group]{margin-top:4px}
+
+@media(prefers-reduced-motion:reduce){.faro-action-card{transition:none}.faro-action-card:active{transform:none}}
+@media(prefers-contrast:more){.faro-action-card,.faro-state-card,.faro-detail-row{border-color:#CBD5E1}}
+
 /* R3-B.2 uses only Plus Jakarta weights that are actually loaded. */
 .faro-r3b2-bill-name{font-weight:700!important}
