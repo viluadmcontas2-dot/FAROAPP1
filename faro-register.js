@@ -46,10 +46,13 @@
     </div>
     <div id="faroEarningsGrid" class="faro-earnings-grid">
       ${earningsSources.map(source => `
-        <article class="faro-earning-card" data-faro-earning-card="${source.key}">
+        <article class="faro-earning-card faro-action-card" data-faro-tone="action" data-faro-earning-card="${source.key}">
           <button type="button" class="faro-earning-toggle" data-faro-earning-toggle="${source.key}" aria-expanded="false">
             <span class="faro-earning-brand">${source.asset ? `<img src="${source.asset}" alt="${source.label}">` : '<span class="faro-extra-icon" aria-hidden="true"><i class="fas fa-plus"></i></span>'}</span>
-            <span class="faro-earning-name">${source.label}</span>
+            <span class="faro-earning-copy">
+              <span class="faro-earning-name">${source.label}</span>
+              <span class="faro-earning-state" data-faro-platform-state="${source.key}">Não usado</span>
+            </span>
             <span class="faro-earning-add" aria-hidden="true"><i class="fas fa-plus"></i></span>
           </button>
           <div class="faro-earning-field hidden" data-faro-earning-field="${source.key}">
@@ -58,8 +61,8 @@
           </div>
         </article>`).join('')}
     </div>
-    <div id="faroEarningsTotalWrap" class="faro-earnings-total" aria-live="polite"><span>Total do dia</span><strong id="faroEarningsTotal">${app.money(0)}</strong></div>
-    <div id="faroLegacyEarnings" class="faro-earnings-legacy hidden">
+    <div id="faroEarningsTotalWrap" class="faro-earnings-total faro-state-card" data-faro-tone="action" aria-live="polite"><span>Total do dia</span><strong id="faroEarningsTotal">${app.money(0)}</strong></div>
+    <div id="faroLegacyEarnings" class="faro-earnings-legacy faro-state-card hidden" data-faro-tone="attention">
       <div><strong>Faturamento sem origem detalhada</strong><p>Este registro é antigo. Você pode manter o total como está ou distribuir por aplicativo.</p></div>
       <button id="faroEnableEarningsBreakdown" type="button">Detalhar por aplicativo</button>
     </div>`;
@@ -70,34 +73,38 @@
     style.id = 'faroRegisterStyles';
     style.textContent = `
       #view-day .faro-register-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
-      #view-day .faro-register-chip{min-height:42px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:900;border:1px solid #dbeafe;transition:transform .1s ease,background-color .12s ease}
+      #view-day .faro-register-chip{min-height:42px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:800;border:1px solid #dbeafe;transition:transform .1s ease,background-color .12s ease}
       #view-day .faro-register-chip:active{transform:scale(.97);background:#dbeafe}
       #view-day .faro-register-gross-grid--detailed{grid-template-columns:1fr}
       #view-day .faro-register-gross-grid--detailed .faro-register-gross-field{display:none}
       #view-day .faro-earnings-section{display:grid;gap:12px;padding:16px;border-radius:22px;background:#f8fafc;border:1px solid #e2e8f0}
       #view-day .faro-earnings-head p{margin-top:5px;color:#64748b;font-size:11px;line-height:1.5;font-weight:600}
       #view-day .faro-earnings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-      #view-day .faro-earning-card{min-width:0;border:1px solid #e2e8f0;border-radius:18px;background:#fff;overflow:hidden;transition:border-color .12s ease,box-shadow .12s ease}
-      #view-day .faro-earning-card[data-active="true"]{border-color:#93c5fd;box-shadow:0 8px 24px -20px rgba(37,99,235,.65)}
-      #view-day .faro-earning-toggle{width:100%;min-height:78px;padding:11px;display:grid;grid-template-columns:42px 1fr 22px;gap:9px;align-items:center;text-align:left}
+      #view-day .faro-earning-card{min-width:0;border:1px solid #e2e8f0;border-radius:var(--faro-radius-card,22px);background:#fff;overflow:hidden;box-shadow:var(--faro-shadow-card,none);transition:border-color .12s ease,box-shadow .12s ease}
+      #view-day .faro-earning-card[data-active="true"]{border-color:#93c5fd;box-shadow:0 12px 26px -22px rgba(37,99,235,.55)}
+      #view-day .faro-earning-card[data-used="true"]{background:linear-gradient(150deg,#fff,#f7faff)}
+      #view-day .faro-earning-toggle{width:100%;min-height:82px;padding:11px;display:grid;grid-template-columns:42px 1fr 22px;gap:9px;align-items:center;text-align:left}
       #view-day .faro-earning-brand{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;overflow:hidden;background:#fff}
       #view-day .faro-earning-brand img{width:100%;height:100%;object-fit:contain;display:block}
       #view-day .faro-extra-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;color:#2563eb;font-size:16px}
-      #view-day .faro-earning-name{min-width:0;font-size:12px;font-weight:900;color:#0f172a;overflow-wrap:anywhere}
-      #view-day .faro-earning-add{color:#94a3b8;font-size:11px;text-align:right}
+      #view-day .faro-earning-copy{min-width:0;display:grid;gap:3px}
+      #view-day .faro-earning-name{min-width:0;font-size:12px;line-height:1.2;font-weight:800;color:#0f172a;overflow-wrap:anywhere}
+      #view-day .faro-earning-state{font-size:9.5px;line-height:1.25;font-weight:700;color:#94a3b8;font-variant-numeric:tabular-nums}
+      #view-day .faro-earning-card[data-used="true"] .faro-earning-state{color:#1d4ed8}
+      #view-day .faro-earning-add{color:#94a3b8;font-size:11px;text-align:right;transition:transform .12s ease,color .12s ease}
       #view-day .faro-earning-card[data-active="true"] .faro-earning-add{color:#2563eb;transform:rotate(45deg)}
       #view-day .faro-earning-field{padding:0 11px 11px}
       #view-day .faro-earning-field label{display:block;margin-bottom:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
-      #view-day .faro-earnings-total{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:17px;background:#0b1121;color:#fff}
+      #view-day .faro-earnings-total{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:var(--faro-radius-card,22px);background:#0b1121;color:#fff}
       #view-day .faro-earnings-total span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#bfdbfe}
-      #view-day .faro-earnings-total strong{font-size:24px;line-height:1;font-weight:900;letter-spacing:-.04em}
-      #view-day .faro-earnings-legacy{display:grid;gap:12px;padding:14px;border-radius:17px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+      #view-day .faro-earnings-total strong{font-size:24px;line-height:1;font-weight:800;letter-spacing:-.04em}
+      #view-day .faro-earnings-legacy{display:grid;gap:12px;padding:14px;border-radius:var(--faro-radius-row,17px);background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
       #view-day .faro-earnings-legacy strong{font-size:12px}.faro-earnings-legacy p{margin-top:4px;font-size:10px;line-height:1.45}
-      #view-day .faro-earnings-legacy button{min-height:42px;border-radius:13px;background:#fff;color:#c2410c;font-size:10px;font-weight:900;border:1px solid #fdba74}
+      #view-day .faro-earnings-legacy button{min-height:42px;border-radius:13px;background:#fff;color:#c2410c;font-size:10px;font-weight:800;border:1px solid #fdba74}
       #saveDayButton[data-saving="true"]{opacity:.68;pointer-events:none}
       #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:#64748b;font-size:11px;font-weight:700}
       @media(max-width:350px){#view-day .faro-earning-toggle{grid-template-columns:38px 1fr 18px;padding:9px}#view-day .faro-earning-brand,#view-day .faro-extra-icon{width:38px;height:38px}}
-      @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip,#view-day .faro-earning-card{transition:none}#view-day .faro-register-chip:active{transform:none}}
+      @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip,#view-day .faro-earning-card,#view-day .faro-earning-add{transition:none}#view-day .faro-register-chip:active{transform:none}}
     `;
     document.head.appendChild(style);
   }
@@ -123,10 +130,18 @@
       const card = document.querySelector(`[data-faro-earning-card="${source.key}"]`);
       const field = document.querySelector(`[data-faro-earning-field="${source.key}"]`);
       const toggle = document.querySelector(`[data-faro-earning-toggle="${source.key}"]`);
+      const input = document.querySelector(`[data-faro-earning-source="${source.key}"]`);
+      const status = document.querySelector(`[data-faro-platform-state="${source.key}"]`);
       const active = activeSources.has(source.key);
-      if (card) card.dataset.active = active ? 'true' : 'false';
+      const amount = Math.max(0, app.number(input?.value));
+      if (card) {
+        card.dataset.active = active ? 'true' : 'false';
+        card.dataset.used = amount > 0 ? 'true' : 'false';
+      }
+      if (status) status.textContent = amount > 0 ? app.money(amount) : 'Não usado';
       field?.classList.toggle('hidden', !active);
       toggle?.setAttribute('aria-expanded', active ? 'true' : 'false');
+      toggle?.setAttribute('aria-label', `${source.label}: ${amount > 0 ? app.money(amount) : 'não usado'}. ${active ? 'Recolher campo' : 'Informar ganho'}`);
     }
   };
 
@@ -148,6 +163,7 @@
     if (grossInput) grossInput.value = snapshot.valid && snapshot.total > 0 ? String(snapshot.total) : '';
     const totalNode = $('faroEarningsTotal');
     if (totalNode) totalNode.textContent = app.money(snapshot.valid ? snapshot.total : 0);
+    renderSourceStates();
     document.querySelectorAll('[data-faro-earning-source]').forEach(input => {
       input.setCustomValidity(snapshot.valid ? '' : 'Use somente valores iguais ou maiores que zero.');
     });
@@ -311,9 +327,9 @@
     if (!toggle) return;
     event.preventDefault();
     const key = toggle.dataset.faroEarningToggle;
-    activeSources.add(key);
+    activeSources.has(key) ? activeSources.delete(key) : activeSources.add(key);
     renderSourceStates();
-    document.querySelector(`[data-faro-earning-source="${key}"]`)?.focus({ preventScroll:true });
+    if (activeSources.has(key)) document.querySelector(`[data-faro-earning-source="${key}"]`)?.focus({ preventScroll:true });
   });
 
   earningsSection.addEventListener('input', event => {
@@ -416,7 +432,7 @@
       const remainingWeek = Math.max(0, week.target - week.actual);
       resultMessage.textContent = week.target > 0
         ? remainingWeek > 0
-          ? `Na semana, faltam ${app.money(remainingWeek, 0)} líquidos para o ritmo planejado.`
+          ? `Na semana, faltam ${app.money(remainingWeek, 0)} brutos para o ritmo planejado.`
           : `A semana já alcançou o ritmo planejado. O mês continua como seu norte.`
         : resultMessage.textContent;
       const remainingMonth = Math.max(0, app.state.targetProfit - c.actualNet);
