@@ -52,9 +52,6 @@ jobs:
       - name: Conferir contratos do FARO
         run: npm run check
 
-      - name: Preflight live N6 Stripe (temporário, sem cobrança e sem deploy)
-        run: node tests/live-stripe-preflight.mjs
-
       - name: Construir e auditar artefato FARO
         env:
           BRANCH: ${{ github.head_ref || github.ref_name }}
