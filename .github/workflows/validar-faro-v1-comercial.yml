@@ -60,5 +60,13 @@ jobs:
           npm run build
           node tests/finance-v1-built-artifact-contract.test.mjs
 
+      - name: Reter fotografia auditada para hosting
+        uses: actions/upload-artifact@v4
+        with:
+          name: faro-financeiro-site
+          path: _site
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Confirmar que esta validação não publica o app
         run: echo "Validação concluída sem deploy ou publicação."
