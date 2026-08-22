@@ -14,8 +14,8 @@
   let syncing = false;
   let suppressDirty = false;
   let syncTimer = null;
-  let pendingPhone = '';
   let pendingConflict = null;
+  let authMode = 'signin';
 
   const readMeta = () => {
     try {
@@ -94,16 +94,28 @@
     modal.className = 'modal-backdrop hidden';
     modal.innerHTML = `
       <div class="modal-sheet">
-        <div class="flex justify-between items-start gap-3"><div><span class="label-micro !text-blue-700">Salvar meu FARO</span><h3 class="text-xl font-extrabold">Entre com seu telefone</h3><p class="text-xs text-slate-500 mt-2">Sem senha e sem e-mail obrigatório.</p></div><button id="faroAccountClose" type="button" class="w-12 h-12 rounded-2xl bg-slate-100" aria-label="Fechar"><i class="fas fa-xmark"></i></button></div>
-        <div id="faroPhoneStep" class="space-y-4 mt-5">
-          <div><label class="label-micro">Seu número</label><div class="input-wrapper"><span>+55</span><input id="faroPhone" type="tel" inputmode="tel" autocomplete="tel" class="input-vetta" placeholder="DDD + número"></div><p class="text-[10px] text-slate-500 mt-2">O código será enviado pelo ${config.otpChannel === 'whatsapp' ? 'WhatsApp' : 'SMS'} quando o serviço estiver conectado.</p></div>
-          <button id="faroSendCode" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">ENVIAR CÓDIGO</button>
+        <div class="flex justify-between items-start gap-3">
+          <div><span class="label-micro !text-blue-700">Salvar meu FARO</span><h3 id="faroAuthTitle" class="text-xl font-extrabold">Entre no seu FARO</h3><p id="faroAuthText" class="text-xs text-slate-500 mt-2">Use seu e-mail e sua senha.</p></div>
+          <button id="faroAccountClose" type="button" class="w-12 h-12 rounded-2xl bg-slate-100" aria-label="Fechar"><i class="fas fa-xmark"></i></button>
         </div>
-        <div id="faroCodeStep" class="hidden space-y-4 mt-5">
-          <div><label class="label-micro">Código recebido</label><input id="faroOtpCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" class="input-vetta no-mask text-center text-xl tracking-[.25em]" placeholder="000000"></div>
-          <button id="faroVerifyCode" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">CONFIRMAR CÓDIGO</button>
-          <button id="faroChangePhone" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">CORRIGIR TELEFONE</button>
+        <div class="space-y-4 mt-5">
+          <div><label class="label-micro" for="faroEmail">E-mail</label><input id="faroEmail" type="email" inputmode="email" autocomplete="email" class="input-vetta no-mask" placeholder="voce@exemplo.com"></div>
+          <div><label class="label-micro" for="faroPassword">Senha</label><input id="faroPassword" type="password" autocomplete="current-password" class="input-vetta no-mask" placeholder="Sua senha"></div>
+          <div id="faroPasswordConfirmWrap" class="hidden"><label class="label-micro" for="faroPasswordConfirm">Confirme a senha</label><input id="faroPasswordConfirm" type="password" autocomplete="new-password" class="input-vetta no-mask" placeholder="Digite a senha novamente"><p class="text-[10px] text-slate-500 mt-2">Use pelo menos 8 caracteres.</p></div>
+          <div id="faroSignInActions" class="grid gap-2">
+            <button id="faroSignIn" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">ENTRAR</button>
+            <button id="faroShowSignup" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">CRIAR MINHA CONTA</button>
+            <button id="faroResetPassword" type="button" class="w-full text-blue-700 font-bold text-xs">ESQUECI MINHA SENHA</button>
+          </div>
+          <div id="faroSignupActions" class="hidden grid gap-2">
+            <button id="faroCreateAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">CRIAR CONTA</button>
+            <button id="faroBackToLogin" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">JÁ TENHO CONTA</button>
+          </div>
+          <div id="faroRecoveryActions" class="hidden grid gap-2">
+            <button id="faroUpdatePassword" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">SALVAR NOVA SENHA</button>
+          </div>
         </div>
+        <p id="faroAccountNotice" class="hidden mt-4 rounded-2xl bg-blue-50 text-blue-800 p-3 text-xs"></p>
         <p id="faroAccountError" class="hidden mt-4 rounded-2xl bg-red-50 text-red-700 p-3 text-xs"></p>
       </div>`;
     document.body.appendChild(modal);
@@ -126,15 +138,8 @@
   };
   injectUi();
 
-  const normalizePhone = raw => {
-    const value = String(raw || '').trim();
-    const digits = value.replace(/\D/g, '');
-    if (!digits) return '';
-    if (value.startsWith('+')) return `+${digits}`;
-    if ((digits.length === 12 || digits.length === 13) && digits.startsWith('55')) return `+${digits}`;
-    if (digits.length === 10 || digits.length === 11) return `+55${digits}`;
-    return `+${digits}`;
-  };
+  const normalizeEmail = raw => String(raw || '').trim().toLowerCase();
+  const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const showAccountError = message => {
     const error = $('faroAccountError');
@@ -142,6 +147,33 @@
     error.classList.remove('hidden');
   };
   const clearAccountError = () => $('faroAccountError')?.classList.add('hidden');
+  const showAccountNotice = message => {
+    const notice = $('faroAccountNotice');
+    notice.textContent = message;
+    notice.classList.remove('hidden');
+  };
+  const clearAccountNotice = () => $('faroAccountNotice')?.classList.add('hidden');
+
+  const setAuthMode = mode => {
+    authMode = mode;
+    clearAccountError();
+    clearAccountNotice();
+    const signup = mode === 'signup';
+    const recovery = mode === 'recovery';
+    $('faroSignInActions').classList.toggle('hidden', signup || recovery);
+    $('faroSignupActions').classList.toggle('hidden', !signup);
+    $('faroRecoveryActions').classList.toggle('hidden', !recovery);
+    $('faroPasswordConfirmWrap').classList.toggle('hidden', !(signup || recovery));
+    $('faroEmail').disabled = recovery;
+    $('faroPassword').autocomplete = signup || recovery ? 'new-password' : 'current-password';
+    $('faroAuthTitle').textContent = recovery ? 'Crie uma nova senha' : signup ? 'Crie sua conta FARO' : 'Entre no seu FARO';
+    $('faroAuthText').textContent = recovery
+      ? 'Confirme a nova senha para continuar.'
+      : signup
+        ? 'Use um e-mail que você consiga acessar. Vamos pedir confirmação antes de liberar a conta.'
+        : 'Use seu e-mail e sua senha.';
+    if (!signup && !recovery) $('faroPasswordConfirm').value = '';
+  };
 
   const loadClient = async () => {
     if (!configured) return null;
@@ -190,7 +222,7 @@
     }
     if (!session?.user) {
       $('faroAccountTitle').textContent = 'Proteja seu FARO';
-      $('faroAccountText').textContent = 'Use seu telefone para salvar e recuperar seus dados em outro aparelho.';
+      $('faroAccountText').textContent = 'Use seu e-mail e uma senha para salvar e recuperar seus dados em outro aparelho.';
       $('faroAccountBadge').textContent = 'LOCAL';
       $('faroSaveAccount').classList.remove('hidden');
       $('faroSignOut').classList.add('hidden');
@@ -199,7 +231,7 @@
       return;
     }
     $('faroAccountTitle').textContent = 'Seu FARO está vinculado';
-    $('faroAccountText').textContent = `Conta protegida pelo telefone ${session.user.phone || ''}.`;
+    $('faroAccountText').textContent = `Conta protegida pelo e-mail ${session.user.email || ''}.`;
     $('faroAccountBadge').textContent = 'CONTA';
     $('faroSaveAccount').classList.add('hidden');
     $('faroSignOut').classList.remove('hidden');
@@ -317,33 +349,97 @@
     if (error) throw error;
   };
 
-  const sendCode = async () => {
-    clearAccountError();
-    if (!configured) return showAccountError('A conta online ainda não está conectada nesta branch de validação. Seu FARO continua salvo neste aparelho.');
-    const phone = normalizePhone($('faroPhone').value);
-    if (!/^\+\d{10,15}$/.test(phone)) return showAccountError('Confira o DDD e o número do telefone.');
-    const supabase = await loadClient();
-    const credentials = { phone, ...(config.otpChannel === 'whatsapp' ? { options:{ channel:'whatsapp' } } : {}) };
-    const { error } = await supabase.auth.signInWithOtp(credentials);
-    if (error) return showAccountError('Não foi possível enviar o código agora. Tente novamente em instantes.');
-    pendingPhone = phone;
-    $('faroPhoneStep').classList.add('hidden');
-    $('faroCodeStep').classList.remove('hidden');
-    $('faroOtpCode').focus();
+  const readCredentials = ({ requireConfirmation = false } = {}) => {
+    const email = normalizeEmail($('faroEmail').value);
+    const password = $('faroPassword').value;
+    const confirmation = $('faroPasswordConfirm').value;
+    if (!validEmail(email)) {
+      showAccountError('Digite um e-mail válido.');
+      return null;
+    }
+    if (!password) {
+      showAccountError('Digite sua senha.');
+      return null;
+    }
+    if (requireConfirmation) {
+      if (password.length < 8) {
+        showAccountError('Sua senha precisa ter pelo menos 8 caracteres.');
+        return null;
+      }
+      if (password !== confirmation) {
+        showAccountError('As senhas não coincidem. Digite a mesma senha nos dois campos.');
+        return null;
+      }
+    }
+    return { email, password };
   };
 
-  const verifyCode = async () => {
+  const signIn = async () => {
     clearAccountError();
-    const token = $('faroOtpCode').value.replace(/\D/g,'');
-    if (token.length !== 6) return showAccountError('Digite os 6 números do código recebido.');
+    clearAccountNotice();
+    if (!configured) return showAccountError('A conta online ainda não está conectada nesta branch de validação. Seu FARO continua salvo neste aparelho.');
+    const credentials = readCredentials();
+    if (!credentials) return;
+    const { email, password } = credentials;
     const supabase = await loadClient();
-    const { data, error } = await supabase.auth.verifyOtp({ phone:pendingPhone, token, type:'sms' });
-    if (error || !data.session) return showAccountError('Esse código não foi aceito. Confira e tente novamente.');
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.session) {
+      const message = /confirm/i.test(String(error?.message || ''))
+        ? 'Confirme seu e-mail antes de entrar. Abra a mensagem enviada pelo FARO e tente novamente.'
+        : 'E-mail ou senha não conferem. Tente novamente.';
+      return showAccountError(message);
+    }
     session = data.session;
     await ensureProfile(session.user.id);
     $('faroAccountModal').classList.add('hidden');
     await setAccountState();
     await syncNow();
+  };
+
+  const createAccount = async () => {
+    clearAccountError();
+    clearAccountNotice();
+    if (!configured) return showAccountError('A conta online ainda não está conectada nesta branch de validação. Seu FARO continua salvo neste aparelho.');
+    const credentials = readCredentials({ requireConfirmation:true });
+    if (!credentials) return;
+    const { email, password } = credentials;
+    const supabase = await loadClient();
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return showAccountError('Não foi possível criar sua conta agora. Confira o e-mail e tente novamente.');
+    if (data.session) {
+      await supabase.auth.signOut();
+      session = null;
+      return showAccountError('A confirmação de e-mail não está ativa. O FARO não vai liberar esta conta até a verificação estar habilitada.');
+    }
+    $('faroPassword').value = '';
+    $('faroPasswordConfirm').value = '';
+    setAuthMode('signin');
+    showAccountNotice('Confirme seu e-mail para ativar a conta. Depois volte ao FARO e entre com sua senha.');
+  };
+
+  const resetPassword = async () => {
+    clearAccountError();
+    clearAccountNotice();
+    const email = normalizeEmail($('faroEmail').value);
+    if (!validEmail(email)) return showAccountError('Digite seu e-mail para recuperar a senha.');
+    const supabase = await loadClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}${location.pathname || '/'}` });
+    if (error) return showAccountError('Não foi possível enviar a recuperação agora. Tente novamente em instantes.');
+    showAccountNotice('Se esse e-mail estiver cadastrado, enviaremos um link para criar uma nova senha.');
+  };
+
+  const updateRecoveredPassword = async () => {
+    clearAccountError();
+    clearAccountNotice();
+    const password = $('faroPassword').value;
+    const confirmation = $('faroPasswordConfirm').value;
+    if (password.length < 8) return showAccountError('Sua senha precisa ter pelo menos 8 caracteres.');
+    if (password !== confirmation) return showAccountError('As senhas não coincidem. Digite a mesma senha nos dois campos.');
+    const supabase = await loadClient();
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return showAccountError('Não foi possível salvar a nova senha. Peça outro link de recuperação e tente novamente.');
+    showAccountNotice('Senha atualizada. Sua conta está pronta.');
+    setAuthMode('signin');
   };
 
   const safeSignOut = async () => {
@@ -382,15 +478,17 @@
   };
 
   $('faroSaveAccount').addEventListener('click', () => {
-    $('faroAccountError').classList.add('hidden');
-    $('faroPhoneStep').classList.remove('hidden');
-    $('faroCodeStep').classList.add('hidden');
+    setAuthMode('signin');
     $('faroAccountModal').classList.remove('hidden');
+    $('faroEmail').focus();
   });
   $('faroAccountClose').addEventListener('click', () => $('faroAccountModal').classList.add('hidden'));
-  $('faroSendCode').addEventListener('click', sendCode);
-  $('faroVerifyCode').addEventListener('click', verifyCode);
-  $('faroChangePhone').addEventListener('click', () => { $('faroCodeStep').classList.add('hidden'); $('faroPhoneStep').classList.remove('hidden'); });
+  $('faroSignIn').addEventListener('click', signIn);
+  $('faroShowSignup').addEventListener('click', () => setAuthMode('signup'));
+  $('faroCreateAccount').addEventListener('click', createAccount);
+  $('faroBackToLogin').addEventListener('click', () => setAuthMode('signin'));
+  $('faroResetPassword').addEventListener('click', resetPassword);
+  $('faroUpdatePassword').addEventListener('click', updateRecoveredPassword);
   $('faroSignOut').addEventListener('click', safeSignOut);
   $('faroSubscriptionAction').addEventListener('click', openBilling);
   $('faroKeepLocal').addEventListener('click', async () => {
@@ -418,10 +516,14 @@
       const supabase = await loadClient();
       const { data } = await supabase.auth.getSession();
       session = data.session;
-      supabase.auth.onAuthStateChange((_event, nextSession) => {
+      supabase.auth.onAuthStateChange((event, nextSession) => {
         session = nextSession;
+        if (event === 'PASSWORD_RECOVERY') {
+          $('faroAccountModal').classList.remove('hidden');
+          setAuthMode('recovery');
+        }
         setAccountState();
-        if (session?.user) syncNow();
+        if (session?.user && event !== 'PASSWORD_RECOVERY') syncNow();
       });
       await setAccountState();
       if (session?.user) {
@@ -435,5 +537,5 @@
   };
 
   initialize();
-  window.FaroAccount = { syncNow, normalizePhone, configured:() => configured };
+  window.FaroAccount = { syncNow, normalizeEmail, configured:() => configured };
 })();
