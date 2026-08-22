@@ -1,9 +1,9 @@
 import { withSupabase } from 'npm:@supabase/server@1.4.1';
 import Stripe from 'npm:stripe@22.5.0';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
-const priceId = Deno.env.get('STRIPE_FARO_MONTHLY_PRICE_ID')!;
-const appUrl = Deno.env.get('FARO_APP_URL')!;
+const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
+const priceId = Deno.env.get('STRIPE_FARO_MONTHLY_PRICE_ID') || '';
+const appUrl = Deno.env.get('FARO_APP_URL') || '';
 
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
@@ -11,8 +11,9 @@ export default {
   fetch: withSupabase({ auth: 'user' }, async (_req, ctx) => {
     const userId = String(ctx.userClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
-    if (!priceId || !appUrl) return json({ error: 'Cobrança ainda não configurada.' }, 503);
+    if (!stripeSecret || !priceId || !appUrl) return json({ error: 'Cobrança ainda não configurada.' }, 503);
 
+    const stripe = new Stripe(stripeSecret);
     const { data: existing, error: readError } = await ctx.supabaseAdmin
       .from('faro_subscriptions')
       .select('stripe_customer_id')
@@ -35,6 +36,7 @@ export default {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
+      integration_identifier: 'faro_finance_qmvktzra',
       client_reference_id: userId,
       metadata: { faro_user_id: userId },
       subscription_data: { metadata: { faro_user_id: userId } },
