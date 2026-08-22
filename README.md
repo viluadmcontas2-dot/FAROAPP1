@@ -1,5 +1,5 @@
-# FARO — APP DO MOTORISTA!
+# FARO — app do motorista
 
-Base funcional do ZIP aprovado, agora com identidade FARO. O GitHub Pages serve a branch `FAROAPP1CLEAN` diretamente; instalação e senha permanecem desativadas para o teste atual.
+PWA do FARO para rotina financeira de motoristas de app.
 
-A governança viva fica no Notion. `AGENTS.md` mantém apenas o contrato técnico estável.
+O núcleo operacional segue em `app.js` e a interface parte de `index.html`.
