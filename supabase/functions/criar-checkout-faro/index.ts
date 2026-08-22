@@ -1,5 +1,5 @@
-import { withSupabase } from 'npm:@supabase/server';
-import Stripe from 'npm:stripe';
+import { withSupabase } from 'npm:@supabase/server@1.4.1';
+import Stripe from 'npm:stripe@22.5.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
 const priceId = Deno.env.get('STRIPE_FARO_MONTHLY_PRICE_ID')!;
