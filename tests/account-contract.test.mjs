@@ -16,7 +16,8 @@ const functionConfig = await readFile('supabase/config.toml', 'utf8');
 
 // Frontend só contém configuração publicável.
 assert.match(config, /supabasePublishableKey/);
-assert.match(config, /otpChannel: 'whatsapp'/);
+assert.match(config, /authMode: 'email_password'/);
+assert.doesNotMatch(config, /otpChannel/);
 for (const source of [config, account, shell]) {
   assert.doesNotMatch(source, /sk_live_|sk_test_|sb_secret_|service_role|SUPABASE_SECRET_KEYS|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET/);
 }
@@ -37,10 +38,21 @@ assert.match(account, /A fundação de conta está pronta; o serviço online ain
 assert.match(account, /A conta online ainda não está conectada nesta branch de validação\. Seu FARO continua salvo neste aparelho\./,
   'Falha de configuração deve preservar dados locais');
 
-// Phone-first e conflito explícito quando o backend estiver configurado.
-assert.match(account, /signInWithOtp/);
-assert.match(account, /channel:'whatsapp'/);
-assert.match(account, /verifyOtp\(\{ phone:pendingPhone, token, type:'sms' \}\)/);
+// Email + senha: um único e-mail, senha confirmada no cadastro e verificação real do e-mail.
+assert.equal((account.match(/id="faroEmail"/g) || []).length, 1,
+  'Cadastro/login devem compartilhar um único campo de e-mail');
+assert.match(account, /id="faroPassword"/);
+assert.match(account, /id="faroPasswordConfirm"/);
+assert.match(account, /password\.length < 8/);
+assert.match(account, /password !== confirmation/);
+assert.match(account, /signUp\(\{ email, password/);
+assert.match(account, /signInWithPassword\(\{ email, password \}\)/);
+assert.match(account, /resetPasswordForEmail\(email/);
+assert.match(account, /Confirme seu e-mail/);
+assert.doesNotMatch(account, /signInWithOtp|verifyOtp|pendingPhone|faroPhone|faroOtpCode/,
+  'Fluxo ativo não pode depender de telefone ou OTP');
+
+// Conflito explícito quando o backend estiver configurado.
 assert.match(account, /USAR DADOS DESTE APARELHO/);
 assert.match(account, /USAR DADOS SALVOS NA CONTA/);
 assert.match(account, /O FARO não vai sobrescrever nada sozinho/);
@@ -112,4 +124,4 @@ assert.match(build, /'faro-account\.js'/);
 assert.match(sw, /faro-config\.js\?v=1/);
 assert.match(sw, /faro-account\.js\?v=1/);
 
-console.log('FARO N5: backend dedicado conectado, privilégios Data API explícitos e conta/sync local-first protegidos por RLS — ok');
+console.log('FARO N5: backend dedicado + email/senha confirmado + sync local-first protegido por RLS — ok');
