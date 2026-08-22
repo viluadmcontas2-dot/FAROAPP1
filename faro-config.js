@@ -4,7 +4,7 @@
     schemaVersion: 1,
     supabaseUrl: 'https://mjbyqhreptllilkggiri.supabase.co',
     supabasePublishableKey: 'sb_publishable_UBGdQk2oIJyuWgEcDpK59Q_RFvwWQzS',
-    otpChannel: 'whatsapp',
+    authMode: 'email_password',
     billingEnabled: true,
     pushEnabled: false,
     pushPublicKey: ''
