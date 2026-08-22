@@ -38,8 +38,8 @@ assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon
 // e delete atrasado de uma assinatura antiga não pode cancelar uma assinatura nova do mesmo usuário.
 assert.match(webhook, /customer\.subscription\.created'[\s\S]*customer\.subscription\.updated'[\s\S]*stripe\.subscriptions\.retrieve\(subscriptionId\)/,
   'Eventos created/updated devem buscar a assinatura atual na Stripe antes de escrever entitlement');
-assert.match(webhook, /customer\.subscription\.deleted'[\s\S]*select\('stripe_subscription_id'\)[\s\S]*current\.stripe_subscription_id !== subscriptionId[\s\S]*return/,
-  'Delete atrasado precisa ser ignorado quando o usuário já está ligado a outra assinatura');
+assert.match(webhook, /select\('stripe_subscription_id'\)[\s\S]*const staleDelete = Boolean\(current\?\.stripe_subscription_id && current\.stripe_subscription_id !== subscriptionId\)[\s\S]*if \(!staleDelete\) await applySubscription\(object, resolvedUserId\)/,
+  'Delete atrasado precisa pular somente a mutação quando o usuário já está ligado a outra assinatura');
 
 assert.match(schema, /grant select on public\.faro_subscriptions to authenticated/);
 assert.doesNotMatch(schema, /grant select, insert, update, delete on public\.faro_subscriptions to authenticated/,
