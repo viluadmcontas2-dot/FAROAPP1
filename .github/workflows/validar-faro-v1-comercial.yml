@@ -52,6 +52,9 @@ jobs:
       - name: Conferir contratos do FARO
         run: npm run check
 
+      - name: Smoke live N5 no Supabase (temporário, sem deploy)
+        run: node tests/live-supabase-auth-smoke.mjs
+
       - name: Construir e auditar artefato FARO
         env:
           BRANCH: ${{ github.head_ref || github.ref_name }}
