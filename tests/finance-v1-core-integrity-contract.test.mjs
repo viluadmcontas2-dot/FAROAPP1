@@ -6,15 +6,28 @@ const source = await readFile('app.js', 'utf8');
 const withoutBoot = source.replace(/\napp\.init\(\);\s*$/, '\n');
 
 const noop = () => {};
+const fakeElement = () => ({
+  style:{},
+  classList:{ add:noop, remove:noop, toggle:noop },
+  appendChild:noop,
+  setAttribute:noop,
+  insertAdjacentHTML:noop,
+  insertAdjacentElement:noop,
+  remove:noop,
+  querySelector:() => null,
+  closest:() => null
+});
 const sandbox = {
   window: { addEventListener: noop },
   console,
   localStorage: { getItem: () => null, setItem: noop, removeItem: noop },
   document: {
+    head: { appendChild:noop },
+    body: { appendChild:noop },
     getElementById: () => null,
     querySelectorAll: () => [],
     querySelector: () => null,
-    createElement: () => ({ style:{}, classList:{ add:noop, remove:noop, toggle:noop }, appendChild:noop, setAttribute:noop })
+    createElement: fakeElement
   },
   navigator: { onLine: true },
   history: { state:null, replaceState:noop, pushState:noop, back:noop },
