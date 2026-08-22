@@ -23,6 +23,8 @@ assert.match(checkout, /withSupabase\(\{ auth: 'user' \}/,
 assert.match(checkout, /checkout\.sessions\.create/);
 assert.match(checkout, /mode: 'subscription'/);
 assert.match(checkout, /line_items:/);
+assert.match(checkout, /allow_promotion_codes:\s*true/,
+  'Checkout precisa aceitar o código promocional de lançamento RATAO');
 assert.match(portal, /withSupabase\(\{ auth: 'user' \}/);
 assert.match(portal, /billingPortal\.sessions\.create/);
 
@@ -65,4 +67,4 @@ assert.match(account, /if \(!billingEnabled\) return app\.toast\('Assinatura ain
 assert.match(account, /faroSubscriptionAction'\)\.disabled = !billingEnabled/,
   'A UI deve refletir visualmente o bloqueio do provider');
 
-console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, entitlement server-side, webhook assinado, ordem segura e billing fail-closed — ok');
+console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, promotion code, entitlement server-side, webhook assinado, ordem segura e billing fail-closed — ok');
