@@ -1,8 +1,8 @@
 import { withSupabase } from 'npm:@supabase/server@1.4.1';
 import Stripe from 'npm:stripe@22.5.0';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
-const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
+const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
+const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
 const normalizedStatus = (value: string | null | undefined) => {
@@ -17,6 +17,9 @@ const normalizedStatus = (value: string | null | undefined) => {
 
 export default {
   fetch: withSupabase({ auth: 'none' }, async (req, ctx) => {
+    if (!stripeSecret || !webhookSecret) return json({ error: 'Webhook ainda não configurado.' }, 503);
+
+    const stripe = new Stripe(stripeSecret);
     const signature = req.headers.get('stripe-signature') || '';
     const rawBody = await req.text();
     let event: Stripe.Event;
