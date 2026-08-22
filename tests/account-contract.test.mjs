@@ -19,6 +19,8 @@ assert.match(config, /otpChannel: 'whatsapp'/);
 for (const source of [config, account, shell]) {
   assert.doesNotMatch(source, /sk_live_|sk_test_|sb_secret_|service_role|SUPABASE_SECRET_KEYS|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET/);
 }
+assert.match(account, /@supabase\/supabase-js@2\.112\.3\/\+esm/,
+  'SDK Supabase do navegador precisa ser pinado em versão exata; major flutuante não é reprodutível');
 
 // Estado vivo desta branch: fundação presente, serviço online ainda não conectado.
 assert.match(config, /supabaseUrl: ''/, 'Branch de validação não pode fingir Supabase conectado');
