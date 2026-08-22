@@ -70,8 +70,21 @@ export default {
       if (event.type === 'checkout.session.completed' && subscriptionId && userId) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         await applySubscription(subscription, userId);
-      } else if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
-        await applySubscription(object);
+      } else if ((event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') && subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        await applySubscription(subscription, userId);
+      } else if (event.type === 'customer.subscription.deleted' && subscriptionId) {
+        const resolvedUserId = String(object.metadata?.faro_user_id || userId || '');
+        if (resolvedUserId) {
+          const { data: current, error: currentError } = await ctx.supabaseAdmin
+            .from('faro_subscriptions')
+            .select('stripe_subscription_id')
+            .eq('user_id', resolvedUserId)
+            .maybeSingle();
+          if (currentError) throw currentError;
+          const staleDelete = Boolean(current?.stripe_subscription_id && current.stripe_subscription_id !== subscriptionId);
+          if (!staleDelete) await applySubscription(object, resolvedUserId);
+        }
       } else if ((event.type === 'invoice.paid' || event.type === 'invoice.payment_failed') && subscriptionId) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         await applySubscription(subscription, userId);
