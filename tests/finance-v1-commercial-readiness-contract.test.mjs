@@ -54,4 +54,15 @@ assert.doesNotMatch(account, /cardNumber|card-number|StripeElements|stripe\.elem
 assert.match(account, /client\.functions\.invoke\(name\)/,
   'Cliente só pede uma sessão server-side e segue a URL hospedada');
 
-console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, entitlement server-side, webhook assinado, ordem segura e dependências reprodutíveis — ok');
+// O provider Stripe ainda não está configurado no backend real. Até EXTERNAL_PROVIDER=PASS,
+// a superfície comercial deve permanecer fail-closed, sem botão acionável que desperdice chamadas.
+assert.match(config, /billingEnabled:\s*false/,
+  'Billing deve permanecer desativado até o provider Stripe real passar');
+assert.match(account, /const billingEnabled = config\.billingEnabled === true;/,
+  'A UI deve resolver uma flag comercial explícita e deny-by-default');
+assert.match(account, /if \(!billingEnabled\) return app\.toast\('Assinatura ainda não está disponível\.'\);/,
+  'A ação comercial deve bloquear antes de invocar qualquer Edge Function quando billing estiver desativado');
+assert.match(account, /faroSubscriptionAction'\)\.disabled = !billingEnabled/,
+  'A UI deve refletir visualmente o bloqueio do provider');
+
+console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, entitlement server-side, webhook assinado, ordem segura e billing fail-closed — ok');
