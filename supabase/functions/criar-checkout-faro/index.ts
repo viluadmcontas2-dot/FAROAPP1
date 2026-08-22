@@ -34,6 +34,7 @@ export default {
       mode: 'subscription',
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
+      allow_promotion_codes: true,
       client_reference_id: userId,
       metadata: { faro_user_id: userId },
       subscription_data: { metadata: { faro_user_id: userId } },
