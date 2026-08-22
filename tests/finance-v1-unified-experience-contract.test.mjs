@@ -39,8 +39,10 @@ assert.match(register,/Total do dia/,
 
 assert.match(planning,/Quero que sobre/,
   'Planejar precisa começar pela intenção líquida do motorista');
-assert.match(planning,/Bruto necessário/,
-  'Planejar precisa explicar a consequência operacional da meta');
+assert.match(planning,/id=\"faroPreviewDaily\"/,
+  'Planejar precisa expor a consequência operacional diária da meta');
+assert.match(planning,/(Precisa por dia|Faturamento\/dia)/,
+  'Planejar precisa nomear a consequência diária em linguagem operacional compreensível');
 
 assert.match(historyCentral,/Histórico|history/i,
   'Histórico precisa ter uma composição própria e legível');
