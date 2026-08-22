@@ -8,7 +8,7 @@
   document.body.appendChild(marker);
 
   const navLabels = {
-    dashboard: 'Início',
+    dashboard: 'Hoje',
     day: 'Registrar',
     history: 'Histórico',
     settings: 'Planejar',
