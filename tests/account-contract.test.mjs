@@ -8,6 +8,7 @@ const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 const schema = await readFile('supabase/migrations/20260814173000_faro_commercial_foundation.sql', 'utf8');
 const webhookIdempotency = await readFile('supabase/migrations/20260814174500_stripe_webhook_idempotency.sql', 'utf8');
+const apiPrivileges = await readFile('supabase/migrations/20260822102629_faro_explicit_api_privileges.sql', 'utf8');
 const checkout = await readFile('supabase/functions/criar-checkout-faro/index.ts', 'utf8');
 const portal = await readFile('supabase/functions/abrir-portal-faro/index.ts', 'utf8');
 const webhook = await readFile('supabase/functions/stripe-webhook-faro/index.ts', 'utf8');
@@ -74,6 +75,20 @@ assert.doesNotMatch(schema, /grant select, insert, update, delete on public\.far
 assert.match(webhookIdempotency, /event_id text primary key/);
 assert.match(webhookIdempotency, /revoke all on public\.faro_webhook_events from anon, authenticated/);
 
+// Data API: defaults do provedor não podem conceder privilégios além do contrato do FARO.
+assert.match(apiPrivileges, /revoke all on[\s\S]*public\.faro_profiles[\s\S]*public\.faro_state[\s\S]*public\.faro_subscriptions[\s\S]*public\.faro_push_devices[\s\S]*public\.faro_webhook_events[\s\S]*from anon/,
+  'anon deve ficar sem acesso direto às tabelas FARO');
+assert.match(apiPrivileges, /revoke all on[\s\S]*from authenticated/,
+  'authenticated deve começar de zero antes dos grants explícitos');
+assert.match(apiPrivileges, /grant select, insert, update, delete on public\.faro_profiles to authenticated/);
+assert.match(apiPrivileges, /grant select, insert, update, delete on public\.faro_state to authenticated/);
+assert.match(apiPrivileges, /grant select on public\.faro_subscriptions to authenticated/);
+assert.match(apiPrivileges, /grant select, insert, update, delete on public\.faro_push_devices to authenticated/);
+assert.doesNotMatch(apiPrivileges, /grant[^;]*(?:insert|update|delete)[^;]*public\.faro_subscriptions[^;]*authenticated/i,
+  'Cliente autenticado nunca pode escrever entitlement');
+assert.doesNotMatch(apiPrivileges, /grant[^;]*public\.faro_webhook_events[^;]*(?:anon|authenticated)/i,
+  'Ledger de webhook não pode receber grant de cliente');
+
 // Cobrança: Checkout/Portal server-side e assinatura real por webhook assinado.
 assert.match(checkout, /withSupabase\(\{ auth: 'user' \}/);
 assert.match(checkout, /mode: 'subscription'/);
@@ -97,4 +112,4 @@ assert.match(build, /'faro-account\.js'/);
 assert.match(sw, /faro-config\.js\?v=1/);
 assert.match(sw, /faro-account\.js\?v=1/);
 
-console.log('FARO N5: backend dedicado conectado por configuração publicável; conta/sync seguem local-first e protegidos por RLS — ok');
+console.log('FARO N5: backend dedicado conectado, privilégios Data API explícitos e conta/sync local-first protegidos por RLS — ok');
