@@ -22,13 +22,21 @@ for (const source of [config, account, shell]) {
 assert.match(account, /@supabase\/supabase-js@2\.112\.3\/\+esm/,
   'SDK Supabase do navegador precisa ser pinado em versão exata; major flutuante não é reprodutível');
 
-// Estado vivo desta branch: fundação presente, serviço online ainda não conectado.
-assert.match(config, /supabaseUrl: ''/, 'Branch de validação não pode fingir Supabase conectado');
-assert.match(config, /supabasePublishableKey: ''/, 'Branch de validação não pode fingir chave publicável configurada');
-assert.match(account, /A fundação de conta está pronta; o serviço online ainda não está conectado nesta validação\./, 'UI precisa informar estado local quando backend está ausente');
-assert.match(account, /A conta online ainda não está conectada nesta branch de validação\. Seu FARO continua salvo neste aparelho\./, 'Tentativa de login sem backend deve falhar de forma honesta e preservar dados locais');
+// N5: backend FARO Financeiro dedicado e publicável; nunca reutilizar FARO Corridas.
+assert.match(config, /supabaseUrl: 'https:\/\/mjbyqhreptllilkggiri\.supabase\.co'/,
+  'Frontend precisa apontar para o projeto dedicado do FARO Financeiro');
+assert.match(config, /supabasePublishableKey: 'sb_publishable_[A-Za-z0-9_-]+'/,
+  'Frontend precisa usar a chave publicável moderna, nunca segredo ou legacy anon JWT');
+assert.doesNotMatch(config, /gwssfwtbepaedxgzmjpe/,
+  'FARO Financeiro não pode apontar para o backend do FARO Corridas');
+assert.doesNotMatch(config, /supabasePublishableKey: 'eyJ/,
+  'Frontend novo não deve usar a legacy anon JWT quando há publishable key moderna');
+assert.match(account, /A fundação de conta está pronta; o serviço online ainda não está conectado nesta validação\./,
+  'Fallback local honesto deve continuar existindo se a configuração for removida');
+assert.match(account, /A conta online ainda não está conectada nesta branch de validação\. Seu FARO continua salvo neste aparelho\./,
+  'Falha de configuração deve preservar dados locais');
 
-// Phone-first e conflito explícito quando o backend vier a ser configurado.
+// Phone-first e conflito explícito quando o backend estiver configurado.
 assert.match(account, /signInWithOtp/);
 assert.match(account, /channel:'whatsapp'/);
 assert.match(account, /verifyOtp\(\{ phone:pendingPhone, token, type:'sms' \}\)/);
@@ -89,4 +97,4 @@ assert.match(build, /'faro-account\.js'/);
 assert.match(sw, /faro-config\.js\?v=1/);
 assert.match(sw, /faro-account\.js\?v=1/);
 
-console.log('FARO: dados locais ativos; fundação de conta/sync protegida e backend corretamente classificado como não conectado — ok');
+console.log('FARO N5: backend dedicado conectado por configuração publicável; conta/sync seguem local-first e protegidos por RLS — ok');
