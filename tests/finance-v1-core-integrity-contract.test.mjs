@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const source = await readFile('app.js', 'utf8');
-const withoutBoot = source.replace(/\napp\.init\(\);\s*$/, '\n');
+const [appSource, stateSource] = await Promise.all([
+  readFile('app.js', 'utf8'),
+  readFile('faro-state.js', 'utf8')
+]);
+const withoutBoot = appSource.replace(/\napp\.init\(\);\s*$/, '\n');
 
 const noop = () => {};
 const fakeElement = () => ({
@@ -33,6 +36,8 @@ const sandbox = {
   history: { state:null, replaceState:noop, pushState:noop, back:noop },
   location: { href:'https://faro.invalid/' },
   CustomEvent: class {},
+  Blob: class {},
+  URL: { createObjectURL:() => 'blob:test', revokeObjectURL:noop },
   setTimeout,
   clearTimeout,
   Intl,
@@ -46,9 +51,11 @@ const sandbox = {
 };
 sandbox.window.window = sandbox.window;
 vm.runInNewContext(withoutBoot, sandbox, { filename:'app.js' });
+vm.runInNewContext(stateSource, sandbox, { filename:'faro-state.js' });
 
 const app = sandbox.window.__vettaApp;
-assert.ok(app, 'app.js precisa expor o core FARO sem depender do bootstrap visual');
+assert.ok(app, 'runtime FARO precisa expor o core antes das extensões');
+assert.ok(sandbox.window.FaroState, 'faro-state precisa instalar a camada de integridade antes dos consumidores');
 
 app.state = app.normalizeState({
   targetProfit: 4000,
@@ -90,4 +97,4 @@ assert.equal(legacyWithoutSnapshots.fuel, 10,
 assert.equal(legacyWithoutSnapshots.fixedShare, 100,
   'registro realmente sem snapshot ainda pode usar o rateio fixo atual como fallback de compatibilidade');
 
-console.log('FARO_FINANCE_V1 N2: snapshots históricos explícitos zero permanecem fatos; ausência real ainda usa fallback — ok');
+console.log('FARO_FINANCE_V1 N2: composição real preserva snapshots zero e mantém fallback apenas para ausência — ok');
