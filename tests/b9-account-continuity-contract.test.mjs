@@ -31,8 +31,8 @@ assert.match(account, /USAR DADOS SALVOS NA CONTA/);
 for (const status of ['past_due','unpaid','paused','canceled']) {
   assert.match(account, new RegExp(`${status}: \\[.*dados.*(?:preservad|salv)`, 'i'), `${status} precisa comunicar preservação de dados`);
 }
-assert.match(account, /catch \(error\) \{[\s\S]*Não foi possível abrir a assinatura agora\.[\s\S]*faroSubscriptionAction'\)\.disabled = false/,
-  'Falha de cobrança precisa apenas devolver controle da ação');
+assert.match(account, /const openBilling = async \(\) => \{[\s\S]*if \(!billingEnabled\) return app\.toast\('Assinatura ainda não está disponível\.'\);[\s\S]*catch \(error\) \{[\s\S]*Não foi possível abrir a assinatura agora\.[\s\S]*faroSubscriptionAction'\)\.disabled = !billingEnabled/,
+  'Falha de cobrança devolve controle somente quando o provider está habilitado; sem provider, a ação continua fail-closed');
 
 // 9.51 — novo aparelho/estado local vazio deve restaurar o snapshot remoto após login.
 assert.match(account, /if \(!stateHasMeaningfulData\(app\.state\)\) \{[\s\S]*applyRemote\(remote\);[\s\S]*return;/);
