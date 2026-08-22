@@ -9,6 +9,7 @@
   const SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/+esm';
   const $ = id => document.getElementById(id);
   const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey);
+  const billingEnabled = config.billingEnabled === true;
   let client = null;
   let session = null;
   let syncing = false;
@@ -241,22 +242,26 @@
   const renderSubscription = async userId => {
     if (!configured || !userId || !client) {
       const [title, text] = subscriptionCopy('inactive');
-      $('faroSubscriptionTitle').textContent = title;
-      $('faroSubscriptionText').textContent = text;
-      $('faroSubscriptionAction').textContent = 'ASSINAR FARO';
-      $('faroSubscriptionAction').disabled = !configured;
+      $('faroSubscriptionTitle').textContent = billingEnabled ? title : 'Assinatura em breve';
+      $('faroSubscriptionText').textContent = billingEnabled ? text : 'A cobrança permanece desativada até o provedor comercial estar pronto.';
+      $('faroSubscriptionAction').textContent = billingEnabled ? 'ASSINAR FARO' : 'EM BREVE';
+      $('faroSubscriptionAction').disabled = !billingEnabled;
       return;
     }
     const { data } = await client.from('faro_subscriptions').select('status,stripe_customer_id,current_period_end,cancel_at_period_end').eq('user_id', userId).maybeSingle();
     const status = data?.status || 'inactive';
     const [title, text] = subscriptionCopy(status);
-    $('faroSubscriptionTitle').textContent = title;
-    $('faroSubscriptionText').textContent = data?.cancel_at_period_end && data?.current_period_end
-      ? `Acesso mantido até ${new Date(data.current_period_end).toLocaleDateString('pt-BR')}.`
-      : text;
-    $('faroSubscriptionAction').textContent = data?.stripe_customer_id ? 'GERENCIAR ASSINATURA' : 'ASSINAR FARO';
+    $('faroSubscriptionTitle').textContent = billingEnabled ? title : 'Assinatura em breve';
+    $('faroSubscriptionText').textContent = billingEnabled
+      ? (data?.cancel_at_period_end && data?.current_period_end
+          ? `Acesso mantido até ${new Date(data.current_period_end).toLocaleDateString('pt-BR')}.`
+          : text)
+      : 'A cobrança permanece desativada até o provedor comercial estar pronto.';
+    $('faroSubscriptionAction').textContent = billingEnabled
+      ? (data?.stripe_customer_id ? 'GERENCIAR ASSINATURA' : 'ASSINAR FARO')
+      : 'EM BREVE';
     $('faroSubscriptionAction').dataset.portal = data?.stripe_customer_id ? 'true' : 'false';
-    $('faroSubscriptionAction').disabled = false;
+    $('faroSubscriptionAction').disabled = !billingEnabled;
   };
 
   const uploadLocal = async userId => {
@@ -463,6 +468,7 @@
   };
 
   const openBilling = async () => {
+    if (!billingEnabled) return app.toast('Assinatura ainda não está disponível.');
     if (!configured || !client || !session?.user) return app.toast('Salve seu FARO na conta antes de gerenciar a assinatura.');
     const name = $('faroSubscriptionAction').dataset.portal === 'true' ? 'abrir-portal-faro' : 'criar-checkout-faro';
     $('faroSubscriptionAction').disabled = true;
@@ -473,7 +479,7 @@
     } catch (error) {
       console.warn('FARO cobrança', error);
       app.toast('Não foi possível abrir a assinatura agora.');
-      $('faroSubscriptionAction').disabled = false;
+      $('faroSubscriptionAction').disabled = !billingEnabled;
     }
   };
 
