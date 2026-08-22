@@ -4,9 +4,13 @@ import { readFile } from 'node:fs/promises';
 const account = await readFile('faro-account.js', 'utf8');
 const config = await readFile('faro-config.js', 'utf8');
 
-// A branch de validação não pode transformar fundação em falsa evidência de backend ativo.
-assert.match(config, /supabaseUrl: ''/);
-assert.match(config, /supabasePublishableKey: ''/);
+// N5: backend dedicado ativo sem confundir configuração publicável com privilégio server-side.
+assert.match(config, /supabaseUrl: 'https:\/\/mjbyqhreptllilkggiri\.supabase\.co'/);
+assert.match(config, /supabasePublishableKey: 'sb_publishable_[A-Za-z0-9_-]+'/);
+assert.doesNotMatch(config, /gwssfwtbepaedxgzmjpe/,
+  'FARO Financeiro não pode reutilizar o backend do FARO Corridas');
+assert.doesNotMatch(config, /sb_secret_|service_role|SUPABASE_SECRET_KEYS/,
+  'Configuração do navegador deve continuar estritamente publicável');
 
 // 9.49 — offline primeiro: toda alteração salva localmente; sync só agenda quando há conta + internet.
 assert.match(account, /const result = baseSave\.apply\(this, args\)/, 'Save remoto nunca pode substituir o save local');
@@ -42,4 +46,4 @@ assert.match(account, /await client\.auth\.signOut\(\);[\s\S]*localStorage\.remo
 assert.match(account, /if \(!navigator\.onLine\) return app\.toast\('Conecte-se à internet para sair sem arriscar dados não sincronizados\.'/,
   'Logout offline deve ser bloqueado quando poderia perder alterações ainda locais');
 
-console.log('FARO B9: continuidade offline, conflito explícito, assinatura sem perda e isolamento entre usuários 9.49–9.52 protegidos — backend real ainda pendente');
+console.log('FARO B9: continuidade offline, conflito explícito, assinatura sem perda e isolamento entre usuários 9.49–9.52 protegidos — backend dedicado ativo');
