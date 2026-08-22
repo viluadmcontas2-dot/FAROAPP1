@@ -16,20 +16,37 @@ for (const source of [checkout, portal, webhook]) {
     'Edge Functions comerciais precisam pin de @supabase/server');
   assert.match(source, /npm:stripe@22\.5\.0/,
     'Edge Functions comerciais precisam pin exato do SDK Stripe');
+  assert.match(source, /const stripeSecret = Deno\.env\.get\('STRIPE_SECRET_KEY'\) \|\| '';/,
+    'Edge Functions devem resolver o segredo Stripe explicitamente e falhar fechadas quando ausente');
+  assert.doesNotMatch(source, /new Stripe\(Deno\.env\.get\('STRIPE_SECRET_KEY'\)/,
+    'Edge Functions não devem inicializar Stripe diretamente de um env potencialmente ausente');
 }
 
 assert.match(checkout, /withSupabase\(\{ auth: 'user' \}/,
   'Checkout hospedado só pode ser criado para usuário autenticado');
+assert.match(checkout, /if \(!stripeSecret \|\| !priceId \|\| !appUrl\) return json\(\{ error: 'Cobrança ainda não configurada\.' \}, 503\);/,
+  'Checkout deve retornar 503 antes de tocar Stripe quando o provider estiver incompleto');
+assert.match(checkout, /const stripe = new Stripe\(stripeSecret\);/);
 assert.match(checkout, /checkout\.sessions\.create/);
 assert.match(checkout, /mode: 'subscription'/);
 assert.match(checkout, /line_items:/);
 assert.match(checkout, /allow_promotion_codes:\s*true/,
   'Checkout precisa aceitar o código promocional de lançamento RATAO');
+assert.match(checkout, /integration_identifier:\s*'faro_finance_[a-z]{8}'/,
+  'Checkout deve carregar identificador estável/rastreável da integração FARO');
+
 assert.match(portal, /withSupabase\(\{ auth: 'user' \}/);
+assert.match(portal, /if \(!stripeSecret \|\| !appUrl\) return json\(\{ error: 'Portal ainda não configurado\.' \}, 503\);/,
+  'Portal deve retornar 503 antes de tocar Stripe quando o provider estiver incompleto');
+assert.match(portal, /const stripe = new Stripe\(stripeSecret\);/);
 assert.match(portal, /billingPortal\.sessions\.create/);
 
 assert.match(webhook, /withSupabase\(\{ auth: 'none' \}/,
   'Webhook não usa JWT porque autenticação vem da assinatura Stripe');
+assert.match(webhook, /const webhookSecret = Deno\.env\.get\('STRIPE_WEBHOOK_SECRET'\) \|\| '';/);
+assert.match(webhook, /if \(!stripeSecret \|\| !webhookSecret\) return json\(\{ error: 'Webhook ainda não configurado\.' \}, 503\);/,
+  'Webhook deve retornar 503 antes de validar eventos se os segredos estiverem ausentes');
+assert.match(webhook, /const stripe = new Stripe\(stripeSecret\);/);
 assert.match(webhook, /stripe-signature/);
 assert.match(webhook, /webhooks\.constructEvent\(rawBody, signature, webhookSecret\)/);
 assert.match(webhook, /faro_webhook_events/);
@@ -67,4 +84,4 @@ assert.match(account, /if \(!billingEnabled\) return app\.toast\('Assinatura ain
 assert.match(account, /faroSubscriptionAction'\)\.disabled = !billingEnabled/,
   'A UI deve refletir visualmente o bloqueio do provider');
 
-console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, promotion code, entitlement server-side, webhook assinado, ordem segura e billing fail-closed — ok');
+console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, promotion code, fail-closed secrets, entitlement server-side, webhook assinado, ordem segura e billing fail-closed — ok');
