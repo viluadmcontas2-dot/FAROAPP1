@@ -34,6 +34,13 @@ assert.match(webhook, /faro_webhook_events/);
 assert.match(webhookSchema, /event_id text primary key/);
 assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon, authenticated/);
 
+// Stripe não garante ordem de entrega. Created/updated precisam reconsultar o estado atual,
+// e delete atrasado de uma assinatura antiga não pode cancelar uma assinatura nova do mesmo usuário.
+assert.match(webhook, /customer\.subscription\.created'[\s\S]*customer\.subscription\.updated'[\s\S]*stripe\.subscriptions\.retrieve\(subscriptionId\)/,
+  'Eventos created/updated devem buscar a assinatura atual na Stripe antes de escrever entitlement');
+assert.match(webhook, /customer\.subscription\.deleted'[\s\S]*select\('stripe_subscription_id'\)[\s\S]*current\.stripe_subscription_id !== subscriptionId[\s\S]*return/,
+  'Delete atrasado precisa ser ignorado quando o usuário já está ligado a outra assinatura');
+
 assert.match(schema, /grant select on public\.faro_subscriptions to authenticated/);
 assert.doesNotMatch(schema, /grant select, insert, update, delete on public\.faro_subscriptions to authenticated/,
   'Entitlement não pode ser escrito pelo cliente');
@@ -47,4 +54,4 @@ assert.doesNotMatch(account, /cardNumber|card-number|StripeElements|stripe\.elem
 assert.match(account, /client\.functions\.invoke\(name\)/,
   'Cliente só pede uma sessão server-side e segue a URL hospedada');
 
-console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, entitlement server-side, webhook assinado e dependências reprodutíveis — ok');
+console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, entitlement server-side, webhook assinado, ordem segura e dependências reprodutíveis — ok');
