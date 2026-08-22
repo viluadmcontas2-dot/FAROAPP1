@@ -22,6 +22,7 @@ O cutover muda primeiro a **autoridade e a forma de execução**. O código exis
 6. **Branch existe por workstream, não por conveniência.**
 7. **Código não recomeça antes de contexto, contrato, ownership e evidência estarem resolvidos.**
 8. **Owner-facing deve ser simples; complexidade fica nos contratos.**
+9. **A governança global não é duplicada.** Este documento especializa o FARO; EntryPoint, Kernel e contratos globais continuam canônicos.
 
 ## 3. Modelo de autoridades
 
@@ -89,20 +90,27 @@ Nenhuma outra página ou sistema pode escolher o next action.
 
 ## 4. Boot canônico do FARO Financeiro
 
-Antes de qualquer mutação material:
+Este projeto **estende**, mas não substitui, o boot global. Antes de qualquer mutação material:
 
 ```text
 GOVERNANCE ENTRYPOINT
 -> GOVERNANCE KERNEL
 -> PROJECT REGISTRY / FARO
--> FARO START HERE
+-> FARO CENTRAL + START HERE
 -> FARO_FINANCE_V1
--> CONTRACT BINDINGS
+-> CAPABILITY REGISTRY
+-> CONTRACT REGISTRY
+-> CONTRACT BINDING REGISTRY
+-> FARO CONTRACT NOTEBOOK
 -> LINEAR CURRENT
--> SOURCE TOPOLOGY
+-> GITHUB SOURCE TOPOLOGY
 -> WORKSTREAM RESOLUTION
 -> BRANCH RESOLUTION
+-> LEDGER / EVIDENCE ROUTE
 -> EXECUTION
+-> PROPORTIONAL RECHECK
+-> AUDIT / META-AUDIT WHEN REQUIRED
+-> VERDICT
 ```
 
 Fail-closed quando houver:
@@ -273,15 +281,19 @@ Regras:
 
 ### 8.1 Política
 
-Modelo alvo:
+O **orçamento alvo é de no máximo quatro branches remotas**, contando a linha estável. A forma desejada é:
 
 ```text
-main = linha integrada estável/release
-work/<current> = workstream atual
-+ no máximo dois workstreams temporários quando justificados
+STABLE_LINE = linha integrada estável/release
+CURRENT_WORKSTREAM = workstream atual
+TEMP_WORKSTREAM_2 = somente quando justificado
+TEMP_WORKSTREAM_3 = somente quando justificado
+MAX_REMOTE_BRANCHES=4
 ```
 
-Projeto deve operar com orçamento pequeno de branches e `REUSE_OR_PROVE`.
+O nome `main` **não é pressuposto** neste cutover. A `main` atual pertence a uma linhagem legada desconectada da linha moderna do produto e não pode virar trunk apenas por convenção de nome. N0 deve decidir, com evidence, se a linha estável futura será promovida/renomeada para `main` ou se outro ref será mantido durante a transição.
+
+Projeto opera com `REUSE_OR_PROVE`.
 
 Nova branch exige:
 - `OBJECTIVE`;
@@ -320,10 +332,11 @@ Estados excepcionais:
 Durante N0:
 - não criar nova branch por estética;
 - preservar release comercial como baseline histórica até decisão de release;
-- identificar linha que contém o source mais avançado;
+- identificar a linha que contém o source moderno mais avançado;
+- tratar `main` atual como lineage legada até reconciliação explícita;
 - drenar conhecimento único de branches antigas;
 - aposentar branches absorvidas/superseded apenas após retirement proof;
-- ao fim do N0, reduzir a topologia ao menor conjunto seguro.
+- ao fim do N0, reduzir a topologia ao menor conjunto seguro, idealmente `stable + current workstream`.
 
 ## 9. Ownership semântico
 
@@ -386,18 +399,18 @@ Não criar versões concorrentes de Central, Kernel, arquitetura ativa ou execut
 
 ## 12. Migração do produto atual
 
-Depois de N0, N1 produz uma matriz por domínio:
+Depois de N0, N1 produz uma matriz por domínio. Os estados `a auditar` e `definir` abaixo são **valores iniciais deliberados da matriz de cutover**, não requisitos incompletos desta spec.
 
-| Domínio | Estado atual | Classe | Evidência | Ação |
+| Domínio | Estado inicial | Classe | Evidência exigida | Ação de N1 |
 |---|---|---|---|---|
-| Core financeiro | a auditar | KEEP/REBUILD/RETIRE/OUTSIDE | source + tests | definir |
-| Registrar | a auditar | idem | source + runtime | definir |
-| Home | a auditar | idem | source + runtime + físico | definir |
-| Planejar | a auditar | idem | source + runtime + físico | definir |
-| Histórico/Central | a auditar | idem | source + runtime | definir |
-| Onboarding/nav | a auditar | idem | source + runtime + físico | definir |
-| PWA | a auditar | idem | build/runtime/físico | definir |
-| Backend/comercial | a auditar | idem | serviço real | definir |
+| Core financeiro | a auditar | KEEP/REBUILD/RETIRE/OUTSIDE | source + tests | classificar |
+| Registrar | a auditar | idem | source + runtime | classificar |
+| Home | a auditar | idem | source + runtime + físico | classificar |
+| Planejar | a auditar | idem | source + runtime + físico | classificar |
+| Histórico/Central | a auditar | idem | source + runtime | classificar |
+| Onboarding/nav | a auditar | idem | source + runtime + físico | classificar |
+| PWA | a auditar | idem | build/runtime/físico | classificar |
+| Backend/comercial | a auditar | idem | serviço real | classificar |
 
 A decisão de manter/reconstruir nunca é baseada apenas em quantidade de código já escrita.
 
