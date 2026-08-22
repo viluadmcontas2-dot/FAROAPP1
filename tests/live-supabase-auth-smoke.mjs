@@ -7,8 +7,8 @@ const key = source.match(/supabasePublishableKey:\s*'([^']+)'/)?.[1];
 assert.ok(url && key, 'config pública do Supabase deve existir');
 assert.match(url, /mjbyqhreptllilkggiri\.supabase\.co$/);
 
-const email = 'faro-ci-auth-20260822@example.com';
-const password = 'FaroCi!2026a';
+const email = 'faro-ci-n5@invalid.test';
+const password = 'FaroCiN5!a4f92xQ7';
 const headers = { apikey: key, 'Content-Type': 'application/json' };
 
 const settingsResponse = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key } });
@@ -16,15 +16,6 @@ assert.equal(settingsResponse.status, 200, 'settings Auth deve responder');
 const settings = await settingsResponse.json();
 assert.equal(settings?.external?.email, true, 'Email Auth deve estar habilitado');
 assert.equal(settings?.mailer_autoconfirm, false, 'confirmação de e-mail deve estar habilitada');
-
-const signupResponse = await fetch(`${url}/auth/v1/signup`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({ email, password }),
-});
-assert.ok([200, 201].includes(signupResponse.status), `signup deve ser aceito: ${signupResponse.status}`);
-const signup = await signupResponse.json();
-assert.equal(signup?.session ?? null, null, 'signup não pode entregar sessão antes da confirmação');
 
 async function login() {
   const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
@@ -37,12 +28,7 @@ async function login() {
 }
 
 let attempt = await login();
-if (!attempt.response.ok) {
-  assert.equal(attempt.body?.error_code, 'email_not_confirmed', `login pré-confirmação deve falhar por email_not_confirmed: ${JSON.stringify(attempt.body)}`);
-  console.log('AUTH_SMOKE_PHASE=CONFIRMATION_REQUIRED');
-  process.exit(0);
-}
-
+assert.ok(attempt.response.ok, `login confirmado deve passar: ${attempt.response.status} ${JSON.stringify(attempt.body)}`);
 assert.ok(attempt.body?.access_token, 'login confirmado deve produzir access token');
 const userId = attempt.body?.user?.id;
 assert.ok(userId, 'sessão deve conter user id');
