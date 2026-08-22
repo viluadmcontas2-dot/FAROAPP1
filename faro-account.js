@@ -6,7 +6,7 @@
 
   const SYNC_META_KEY = 'faro-sync-meta-v1';
   const DEVICE_KEY = 'faro-device-id-v1';
-  const SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  const SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/+esm';
   const $ = id => document.getElementById(id);
   const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey);
   let client = null;
