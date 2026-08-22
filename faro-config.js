@@ -5,7 +5,7 @@
     supabaseUrl: 'https://mjbyqhreptllilkggiri.supabase.co',
     supabasePublishableKey: 'sb_publishable_UBGdQk2oIJyuWgEcDpK59Q_RFvwWQzS',
     authMode: 'email_password',
-    billingEnabled: true,
+    billingEnabled: false,
     pushEnabled: false,
     pushPublicKey: ''
   });
