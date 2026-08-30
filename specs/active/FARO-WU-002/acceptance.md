@@ -1,6 +1,6 @@
 # FARO-WU-002 Acceptance
 
-- [ ] B1 — Issue #15 + branch + Spec Kit + PR draft partem da `main` `f1beb92b6811e15f57449f4be9e92910b6d73571`.
+- [x] B1 — Issue #15 + branch + Spec Kit + PR #16 partem da `main` `f1beb92b6811e15f57449f4be9e92910b6d73571`.
 - [ ] B2 — Vercel target identificado/configurado sem production deploy prematuro.
 - [ ] B3 — Build provider-neutral validado para o hosting/runtime alvo.
 - [ ] B4 — Secrets/runtime commercial config existem somente em store server-side autorizada.

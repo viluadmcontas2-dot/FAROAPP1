@@ -14,6 +14,8 @@
 - Canonical `main`: `f1beb92b6811e15f57449f4be9e92910b6d73571`.
 - Active Issue: #15.
 - Active branch: `wu/faro-wu-002-vercel-commercial`.
+- Active draft PR: #16 → `main`.
+- B1 repo-first boot: PROVEN.
 - Predecessor WU-001: COMPLETED / PR #14 MERGED.
 - Historical genealogy anchor: `archive/pre-repo-first-lineages-20260830` at `9b8c268a2d29423efc40ee3e2b5cd44bc62cf250`.
 - Branch model: `main` + archive + exactly one active `wu/*`.
@@ -35,12 +37,11 @@ These are preserved references, not substitutes for live provider readback.
 
 ## next_unproven_item
 
-1. Complete B1 by opening the WU-002 draft PR to `main` and recording it in the Spec Kit.
-2. B2: perform read-only Vercel preflight and identify the canonical project/runtime target without deploying.
-3. In parallel read-only preflight: verify live Stripe objects and Supabase commercial runtime state.
-4. Mutate only what is proven missing; keep secrets server-side and billing disabled.
-5. Prove Checkout → RATAO → webhook → entitlement → Portal.
-6. Only after full E2E + regression: enable billing and prepare FARO-WU-003.
+1. B2: perform read-only Vercel preflight and identify the canonical project/runtime target without deploying.
+2. Parallel read-only preflight: verify live Stripe objects and Supabase commercial runtime state.
+3. B3/B4: prove hosting build compatibility and identify/install only missing server-side config/secrets.
+4. B6–B9: prove Checkout → RATAO → webhook → entitlement → Portal.
+5. Only after full E2E + regression: enable billing and prepare FARO-WU-003.
 
 ## Não fazer agora
 

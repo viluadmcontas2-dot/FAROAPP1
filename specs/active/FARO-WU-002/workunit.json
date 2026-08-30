@@ -4,9 +4,10 @@
   "state": "IN_PROGRESS",
   "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/15",
   "branch": "wu/faro-wu-002-vercel-commercial",
-  "pr": null,
+  "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/16",
   "base_main_sha": "f1beb92b6811e15f57449f4be9e92910b6d73571",
-  "next_unproven_item": "B1 — open draft PR to main and prove repo-first boot; then B2 read-only Vercel preflight",
+  "bootstrap_sha": "3ce0a95adb69a1606852474ca073cb261daf0308",
+  "next_unproven_item": "B2 — read-only Vercel preflight; parallel read-only Stripe/Supabase commercial state verification",
   "risk": "HIGH",
   "guards": {
     "production_deploy": "DENIED_UNTIL_RELEASE_GATE",
@@ -14,7 +15,7 @@
     "secrets_in_repo": "DENIED"
   },
   "acceptance": [
-    {"id":"B1","state":"IN_PROGRESS","evidence_refs":["Issue #15","branch wu/faro-wu-002-vercel-commercial"]},
+    {"id":"B1","state":"PROVEN","evidence_refs":["Issue #15","PR #16","branch wu/faro-wu-002-vercel-commercial","3ce0a95adb69a1606852474ca073cb261daf0308"]},
     {"id":"B2","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B3","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B4","state":"UNPROVEN","evidence_refs":[]},
