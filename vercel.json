@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "node -e \"const s=process.env.VERCEL_GIT_COMMIT_SHA||'';const m=process.env.VERCEL_GIT_COMMIT_MESSAGE||'';process.exit(!s||/\\[(preview|deploy|release)\\]/i.test(m)?1:0)\""
+}
