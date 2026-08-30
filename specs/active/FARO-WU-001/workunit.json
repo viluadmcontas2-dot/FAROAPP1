@@ -1,23 +1,24 @@
 {
   "workunit_id": "FARO-WU-001",
   "objective": "Cut over FARO to repo-first/remote-first governance, consolidate one lineage, and remove redundant legacy branches without losing unique work.",
-  "state": "IN_PROGRESS",
+  "state": "IN_PROGRESS_BLOCKED_ON_EXECUTOR_FOR_VERIFICATION_AND_REF_DELETE",
   "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/13",
   "branch": "wu/faro-wu-001-repo-first-cutover",
-  "pr": null,
+  "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/14",
   "base_functional_sha": "3eb2b72283545a4a51aac5749ca102691ba294ec",
-  "next_unproven_item": "A1 — prove remote repo-first boot chain and active authority cutover",
+  "history_archive_sha": "9b8c268a2d29423efc40ee3e2b5cd44bc62cf250",
+  "next_unproven_item": "A8 — run exact-current-SHA contracts/build/artifact audit; then A7 delete archived legacy refs",
   "risk": "HIGH",
   "acceptance": [
-    {"id":"A1","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A2","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A3","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A4","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A5","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A6","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A7","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A8","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A9","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"A10","state":"UNPROVEN","evidence_refs":[]}
+    {"id":"A1","state":"PROVEN","evidence_refs":["c558c34927d95d6d177f1d5b0f69f41daad188cb","AGENTS.md","PROJECT.md","STATUS.md"]},
+    {"id":"A2","state":"PROVEN","evidence_refs":["specs/active/FARO-WU-001/spec.md","specs/active/FARO-WU-001/acceptance.md","specs/active/FARO-WU-001/workunit.json","Issue #13"]},
+    {"id":"A3","state":"PROVEN","evidence_refs":[".github/workflows/manual-faro-verify.yml",".github/workflows/manual-faro-release-verify.yml","c558c34927d95d6d177f1d5b0f69f41daad188cb"]},
+    {"id":"A4","state":"UNPROVEN_RUNTIME","evidence_refs":["653b9c81d2189ce13a420c444e5eddb486a9f3c5","d4678811ce7450b8abbd45ecdcad7696b792cccd","tests/hosting-governance-contract.test.mjs"]},
+    {"id":"A5","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-001-branch-inventory.md","9b8c268a2d29423efc40ee3e2b5cd44bc62cf250","cf99cc74386bd17a180827d543714503f130d77d"]},
+    {"id":"A6","state":"PROVEN","evidence_refs":["PR #12 CLOSED/SUPERSEDED","PR #14","3eb2b72283545a4a51aac5749ca102691ba294ec"]},
+    {"id":"A7","state":"BLOCKED_EXECUTOR_OFFLINE","evidence_refs":["docs/evidence/FARO-WU-001-branch-inventory.md"]},
+    {"id":"A8","state":"BLOCKED_EXECUTOR_OFFLINE","evidence_refs":["Remote Desktop MMMACHINE offline","ephemeral runtime GitHub DNS unavailable"]},
+    {"id":"A9","state":"PROVEN","evidence_refs":["PR #14 → main","mergeable=true"]},
+    {"id":"A10","state":"UNPROVEN","evidence_refs":["STATUS.md points to FARO-WU-002 after merge"]}
   ]
 }
