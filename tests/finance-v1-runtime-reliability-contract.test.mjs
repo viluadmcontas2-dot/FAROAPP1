@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const [shell, sw, build, workflow] = await Promise.all([
+const [shell, sw, build, verifyWorkflow, releaseWorkflow] = await Promise.all([
   readFile('app-shell.html', 'utf8'),
   readFile('sw.js', 'utf8'),
-  readFile('scripts/build-netlify-of.mjs', 'utf8'),
-  readFile('.github/workflows/validar-faro-v1-comercial.yml', 'utf8')
+  readFile('scripts/build-static-site.mjs', 'utf8'),
+  readFile('.github/workflows/manual-faro-verify.yml', 'utf8'),
+  readFile('.github/workflows/manual-faro-release-verify.yml', 'utf8')
 ]);
 
 const shellBlock = sw.match(/const APP_SHELL = \[([\s\S]*?)\];/);
@@ -30,9 +31,14 @@ for (const required of ['sw.js', 'manifest.webmanifest', 'app-shell.html', 'lega
   assert.equal(copiedPaths.has(required), true, `Build N4 precisa incluir ${required}`);
 }
 
-assert.match(workflow, /npm run check/, 'CI governado precisa executar a suíte completa');
-assert.match(workflow, /npm run build/, 'N4 exige construir o artefato real no CI, não apenas checar sintaxe/contratos');
-assert.match(workflow, /finance-v1-built-artifact-contract\.test\.mjs/,
-  'N4 exige auditar o conteúdo de _site depois da construção');
+for (const [name, workflow] of [['verify', verifyWorkflow], ['release', releaseWorkflow]]) {
+  assert.match(workflow, /workflow_dispatch/, `${name}: CI governado precisa ser manual/seletivo`);
+  assert.match(workflow, /npm run check/, `${name}: CI governado precisa executar a suíte completa`);
+  assert.match(workflow, /npm run build/, `${name}: N4 exige construir o artefato real no CI, não apenas checar sintaxe/contratos`);
+  assert.match(workflow, /finance-v1-built-artifact-contract\.test\.mjs/,
+    `${name}: N4 exige auditar o conteúdo de _site depois da construção`);
+  assert.doesNotMatch(workflow, /netlify\s+deploy|vercel\s+deploy|deploy_to_vercel/i,
+    `${name}: workflow de verificação não pode publicar`);
+}
 
-console.log('FARO_FINANCE_V1 N4: shell, SW, build e CI compartilham a mesma geração executável — ok');
+console.log('FARO_FINANCE_V1 N4: shell, SW, build provider-neutral e CI manual compartilham a mesma geração executável — ok');
