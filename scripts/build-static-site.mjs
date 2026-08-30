@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 
 const SITE = '_site';
 
-// Durante o refinamento, hashes rígidos ficam apenas no núcleo aprovado que não pode mudar por acidente.
-// Os módulos de experiência são validados por contrato/comportamento nos testes, não por ritual de hash a cada microajuste.
+// Hashes rígidos protegem somente o núcleo aprovado contra divergência acidental.
+// A saída é estática e independente do provedor de hosting.
 const immutable = new Map(Object.entries({
   'legacy-shell.html': '2562a71314dc3f4fe834985e1a39e022e1565c1268a732917ad267a3cf09ab7b',
   'app.js': '9a8511e85c8b08225aab1d08b3fd486690377f88fc6ebc58856389f30f1995bb',
@@ -66,11 +66,10 @@ async function readVerified(path) {
 }
 
 function transformAppJs(source) {
-  let value = source;
   const from = "const STORAGE_KEY = 'vetta-driver-intelligence-v3';";
   const to = "const STORAGE_KEY = 'faro-app-finance-v1';";
-  if (!value.includes(from)) throw new Error('Transformação ausente: armazenamento FARO');
-  return value.replace(from, to);
+  if (!source.includes(from)) throw new Error('Transformação ausente: armazenamento FARO');
+  return source.replace(from, to);
 }
 
 await rm(SITE, { recursive: true, force: true });
@@ -90,8 +89,8 @@ await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringi
   tagline: 'APP DO MOTORISTA!',
   sourceZipSha256: '22f83f11d25f4d452ae570e0153e9289d02060c423ad4bd5d7a7bcb96235f5c4',
   brandAssetSha256: '06d155f9f8bbdef8d18918d29c8f6bf75b7b55c38971d076587a97bb7d45f940',
-  branch: process.env.BRANCH || 'release/faro-v1-comercial-22-08',
+  branch: process.env.BRANCH || 'main',
   commit: process.env.COMMIT_REF || null
 }, null, 2)}\n`);
 
-console.log('FARO pronto para validação: núcleo protegido e UX-R3-B de identidade/interação copiado');
+console.log('FARO static site ready: protected core copied to _site');
