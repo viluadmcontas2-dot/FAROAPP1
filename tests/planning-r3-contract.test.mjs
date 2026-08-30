@@ -7,7 +7,7 @@ const r3b = await readFile('faro-r3b.js','utf8');
 const routing = await readFile('faro-r3-routing.js','utf8');
 const shell = await readFile('app-shell.html','utf8');
 const sw = await readFile('sw.js','utf8');
-const build = await readFile('scripts/build-netlify-of.mjs','utf8');
+const build = await readFile('scripts/build-static-site.mjs','utf8');
 const app = await readFile('app.js','utf8');
 
 for (const id of ['faroOpenMeta','faroOpenAgenda','faroOpenPlanDetail','faroOpenOperation','faroOpenMoney']) {

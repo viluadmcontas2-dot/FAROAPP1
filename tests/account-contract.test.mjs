@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const config = await readFile('faro-config.js', 'utf8');
 const account = await readFile('faro-account.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 const schema = await readFile('supabase/migrations/20260814173000_faro_commercial_foundation.sql', 'utf8');
 const webhookIdempotency = await readFile('supabase/migrations/20260814174500_stripe_webhook_idempotency.sql', 'utf8');

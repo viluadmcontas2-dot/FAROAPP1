@@ -8,7 +8,7 @@ const onboarding = await readFile('faro-onboarding.js', 'utf8');
 const routing = await readFile('faro-r3-routing.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 
 assert.match(shell, /faro-home-r2\.js\?v=2/);
 assert.match(sw, /faro-home-r2\.js\?v=2/);

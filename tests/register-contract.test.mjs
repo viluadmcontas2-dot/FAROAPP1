@@ -5,7 +5,7 @@ const register = await readFile('faro-register.js', 'utf8');
 const helper = await readFile('faro-register-earnings.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 
 const contains = (source, snippet, label) => {
   assert.equal(source.includes(snippet), true, label);

@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const update = await readFile('faro-update.js', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 
 assert.match(update, /app\.showUpdateBanner = function\(\) \{\s*hideLegacyUpdateUi\(\);\s*\}/s);
 assert.match(update, /app\.applyUpdate = function\(\) \{[\s\S]*return checkForUpdate\(\{ force: true \}\);[\s\S]*\}/);

@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const reserves = await readFile('faro-reserves.js','utf8');
 const shell = await readFile('app-shell.html','utf8');
 const sw = await readFile('sw.js','utf8');
-const build = await readFile('scripts/build-netlify-of.mjs','utf8');
+const build = await readFile('scripts/build-static-site.mjs','utf8');
 
 assert.match(shell,/faro-reserves\.js\?v=1/);
 assert.match(sw,/faro-reserves\.js\?v=1/);

@@ -5,7 +5,7 @@ const state = await readFile('faro-state.js', 'utf8');
 const app = await readFile('app.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 const account = await readFile('faro-account.js', 'utf8');
 const navigation = await readFile('faro-navigation.js', 'utf8');
 

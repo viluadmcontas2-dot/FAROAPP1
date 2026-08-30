@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 const copyBlock = build.match(/const copyFiles = \[([\s\S]*?)\];/);
 assert.ok(copyBlock, 'Build precisa declarar copyFiles para auditoria do artefato');
 const copiedPaths = [...copyBlock[1].matchAll(/'([^']+)'/g)].map(match => match[1]);

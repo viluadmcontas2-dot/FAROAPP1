@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { readFile, stat } from 'node:fs/promises';
 
-execFileSync(process.execPath, ['scripts/build-netlify-of.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/build-static-site.mjs'], { stdio: 'inherit' });
 
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const read = path => readFile(path, 'utf8');

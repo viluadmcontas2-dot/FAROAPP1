@@ -7,7 +7,7 @@ const home = await readFile('faro-home-r2.js', 'utf8');
 const planning = await readFile('faro-planning.js', 'utf8');
 const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 
 assert.match(shell, /faro-finance\.js\?v=1/);
 assert.match(sw, /faro-finance\.js\?v=1/);

@@ -37,7 +37,7 @@ for (const [path, wanted] of expectedAssets) {
   assert.match(svg, /<svg\b[^>]*viewBox=/i, `${path} precisa ter viewBox vetorial`);
 }
 
-const build = await readFile('scripts/build-netlify-of.mjs', 'utf8');
+const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 assert.match(build, /'faro-register-earnings\.js'/, 'build precisa copiar o helper de ganhos por origem');
 for (const path of expectedAssets.keys()) {
   assert.equal(build.includes(`'${path}'`), true, `build precisa copiar ${path}`);

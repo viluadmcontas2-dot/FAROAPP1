@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const [shell, sw, build] = await Promise.all([
   readFile('app-shell.html', 'utf8'),
   readFile('sw.js', 'utf8'),
-  readFile('scripts/build-netlify-of.mjs', 'utf8')
+  readFile('scripts/build-static-site.mjs', 'utf8')
 ]);
 
 const helper = 'faro-register-earnings.js?v=1';
