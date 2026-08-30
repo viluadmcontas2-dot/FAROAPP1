@@ -7,23 +7,36 @@
   "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/16",
   "base_main_sha": "f1beb92b6811e15f57449f4be9e92910b6d73571",
   "bootstrap_sha": "3ce0a95adb69a1606852474ca073cb261daf0308",
-  "next_unproven_item": "B2 — read-only Vercel preflight; parallel read-only Stripe/Supabase commercial state verification",
+  "next_unproven_item": "B2/B3 — configure and prove Vercel target/runtime without production deploy; then B4 server-side Stripe/Supabase config and B6-B8 authenticated E2E",
   "risk": "HIGH",
   "guards": {
     "production_deploy": "DENIED_UNTIL_RELEASE_GATE",
     "billing_enable": "DENIED_UNTIL_COMMERCIAL_E2E_PASS",
-    "secrets_in_repo": "DENIED"
+    "secrets_in_repo": "DENIED",
+    "stripe_live_mutation": "DENIED_UNTIL_SANDBOX_E2E_PASS"
+  },
+  "stripe_sandbox": {
+    "account_owner": "Brasko Agency",
+    "stripe_context": "acct_1UAESjLsq19Xe9NB",
+    "product": "prod_VAaBVl0x3tqg2l",
+    "monthly_price": "price_1UAF1HLsq19Xe9NBVCt4sSwN",
+    "coupon": "VPBhfe03",
+    "promotion_code": "promo_1UAF1tLsq19Xe9NBzv8mYQFP",
+    "customer_code": "RATAO",
+    "invoice_preview_total": 1499,
+    "persistent_customers_after_preview": 0,
+    "persistent_subscriptions_after_preview": 0
   },
   "acceptance": [
     {"id":"B1","state":"PROVEN","evidence_refs":["Issue #15","PR #16","branch wu/faro-wu-002-vercel-commercial","3ce0a95adb69a1606852474ca073cb261daf0308"]},
     {"id":"B2","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B3","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B4","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"B5","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B5","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md","prod_VAaBVl0x3tqg2l","price_1UAF1HLsq19Xe9NBVCt4sSwN","VPBhfe03","promo_1UAF1tLsq19Xe9NBzv8mYQFP"]},
     {"id":"B6","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B7","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B8","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"B9","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B9","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md","Stripe invoice preview: subtotal=2299 discount=800 total=1499"]},
     {"id":"B10","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B11","state":"UNPROVEN","evidence_refs":[]}
   ]
