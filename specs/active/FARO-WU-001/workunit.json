@@ -1,0 +1,26 @@
+{
+  "workunit_id": "FARO-WU-001",
+  "objective": "Cut over FARO to repo-first/remote-first governance, consolidate one lineage, and remove redundant legacy branches without losing unique work.",
+  "state": "READY_TO_MERGE",
+  "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/13",
+  "branch": "wu/faro-wu-001-repo-first-cutover",
+  "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/14",
+  "base_functional_sha": "3eb2b72283545a4a51aac5749ca102691ba294ec",
+  "verified_runtime_sha": "c9f43b48c3d3f3a2c09d02f718e7a30111951d8f",
+  "verification_run_id": 33329606755,
+  "history_archive_sha": "9b8c268a2d29423efc40ee3e2b5cd44bc62cf250",
+  "next_unproven_item": "Merge PR #14, then open FARO-WU-002 from merged main",
+  "risk": "MEDIUM",
+  "acceptance": [
+    {"id":"A1","state":"PROVEN","evidence_refs":["AGENTS.md","PROJECT.md","STATUS.md","c558c34927d95d6d177f1d5b0f69f41daad188cb"]},
+    {"id":"A2","state":"PROVEN","evidence_refs":["specs/active/FARO-WU-001/spec.md","specs/active/FARO-WU-001/acceptance.md","Issue #13"]},
+    {"id":"A3","state":"PROVEN","evidence_refs":[".github/workflows/manual-faro-verify.yml",".github/workflows/manual-faro-release-verify.yml"]},
+    {"id":"A4","state":"PROVEN","evidence_refs":["scripts/build-static-site.mjs","tests/hosting-governance-contract.test.mjs","run 33329606755"]},
+    {"id":"A5","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-001-branch-inventory.md","9b8c268a2d29423efc40ee3e2b5cd44bc62cf250"]},
+    {"id":"A6","state":"PROVEN","evidence_refs":["PR #12 CLOSED/SUPERSEDED","PR #14"]},
+    {"id":"A7","state":"PROVEN","evidence_refs":["run 33329606755 legacy cleanup PASS","remote branches readback"]},
+    {"id":"A8","state":"PROVEN","evidence_refs":["c9f43b48c3d3f3a2c09d02f718e7a30111951d8f","run 33329606755 SUCCESS"]},
+    {"id":"A9","state":"PROVEN","evidence_refs":["PR #14 → main","mergeable=true"]},
+    {"id":"A10","state":"PROVEN","evidence_refs":["STATUS.md → FARO-WU-002"]}
+  ]
+}

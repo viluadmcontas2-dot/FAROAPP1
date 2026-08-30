@@ -1,0 +1,87 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+const [account, config, checkout, portal, webhook, schema, webhookSchema] = await Promise.all([
+  readFile('faro-account.js','utf8'),
+  readFile('faro-config.js','utf8'),
+  readFile('supabase/functions/criar-checkout-faro/index.ts','utf8'),
+  readFile('supabase/functions/abrir-portal-faro/index.ts','utf8'),
+  readFile('supabase/functions/stripe-webhook-faro/index.ts','utf8'),
+  readFile('supabase/migrations/20260814173000_faro_commercial_foundation.sql','utf8'),
+  readFile('supabase/migrations/20260814174500_stripe_webhook_idempotency.sql','utf8')
+]);
+
+for (const source of [checkout, portal, webhook]) {
+  assert.match(source, /npm:@supabase\/server@1\.4\.1/,
+    'Edge Functions comerciais precisam pin de @supabase/server');
+  assert.match(source, /npm:stripe@22\.5\.0/,
+    'Edge Functions comerciais precisam pin exato do SDK Stripe');
+  assert.match(source, /const stripeSecret = Deno\.env\.get\('STRIPE_SECRET_KEY'\) \|\| '';/,
+    'Edge Functions devem resolver o segredo Stripe explicitamente e falhar fechadas quando ausente');
+  assert.doesNotMatch(source, /new Stripe\(Deno\.env\.get\('STRIPE_SECRET_KEY'\)/,
+    'Edge Functions não devem inicializar Stripe diretamente de um env potencialmente ausente');
+}
+
+assert.match(checkout, /withSupabase\(\{ auth: 'user' \}/,
+  'Checkout hospedado só pode ser criado para usuário autenticado');
+assert.match(checkout, /if \(!stripeSecret \|\| !priceId \|\| !appUrl\) return json\(\{ error: 'Cobrança ainda não configurada\.' \}, 503\);/,
+  'Checkout deve retornar 503 antes de tocar Stripe quando o provider estiver incompleto');
+assert.match(checkout, /const stripe = new Stripe\(stripeSecret\);/);
+assert.match(checkout, /checkout\.sessions\.create/);
+assert.match(checkout, /mode: 'subscription'/);
+assert.match(checkout, /line_items:/);
+assert.match(checkout, /allow_promotion_codes:\s*true/,
+  'Checkout precisa aceitar o código promocional de lançamento RATAO');
+assert.match(checkout, /integration_identifier:\s*'faro_finance_[a-z]{8}'/,
+  'Checkout deve carregar identificador estável/rastreável da integração FARO');
+
+assert.match(portal, /withSupabase\(\{ auth: 'user' \}/);
+assert.match(portal, /if \(!stripeSecret \|\| !appUrl\) return json\(\{ error: 'Portal ainda não configurado\.' \}, 503\);/,
+  'Portal deve retornar 503 antes de tocar Stripe quando o provider estiver incompleto');
+assert.match(portal, /const stripe = new Stripe\(stripeSecret\);/);
+assert.match(portal, /billingPortal\.sessions\.create/);
+
+assert.match(webhook, /withSupabase\(\{ auth: 'none' \}/,
+  'Webhook não usa JWT porque autenticação vem da assinatura Stripe');
+assert.match(webhook, /const webhookSecret = Deno\.env\.get\('STRIPE_WEBHOOK_SECRET'\) \|\| '';/);
+assert.match(webhook, /if \(!stripeSecret \|\| !webhookSecret\) return json\(\{ error: 'Webhook ainda não configurado\.' \}, 503\);/,
+  'Webhook deve retornar 503 antes de validar eventos se os segredos estiverem ausentes');
+assert.match(webhook, /const stripe = new Stripe\(stripeSecret\);/);
+assert.match(webhook, /stripe-signature/);
+assert.match(webhook, /webhooks\.constructEvent\(rawBody, signature, webhookSecret\)/);
+assert.match(webhook, /faro_webhook_events/);
+assert.match(webhookSchema, /event_id text primary key/);
+assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon, authenticated/);
+
+// Stripe não garante ordem de entrega. Created/updated precisam reconsultar o estado atual,
+// e delete atrasado de uma assinatura antiga não pode cancelar uma assinatura nova do mesmo usuário.
+assert.match(webhook, /customer\.subscription\.created'[\s\S]*customer\.subscription\.updated'[\s\S]*stripe\.subscriptions\.retrieve\(subscriptionId\)/,
+  'Eventos created/updated devem buscar a assinatura atual na Stripe antes de escrever entitlement');
+assert.match(webhook, /select\('stripe_subscription_id'\)[\s\S]*const staleDelete = Boolean\(current\?\.stripe_subscription_id && current\.stripe_subscription_id !== subscriptionId\)[\s\S]*if \(!staleDelete\) await applySubscription\(object, resolvedUserId\)/,
+  'Delete atrasado precisa pular somente a mutação quando o usuário já está ligado a outra assinatura');
+
+assert.match(schema, /grant select on public\.faro_subscriptions to authenticated/);
+assert.doesNotMatch(schema, /grant select, insert, update, delete on public\.faro_subscriptions to authenticated/,
+  'Entitlement não pode ser escrito pelo cliente');
+
+for (const source of [account, config]) {
+  assert.doesNotMatch(source, /sk_(?:test|live)_|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|service_role|sb_secret_/,
+    'Cliente FARO não pode carregar segredo privilegiado');
+}
+assert.doesNotMatch(account, /cardNumber|card-number|StripeElements|stripe\.elements/i,
+  'FARO não coleta cartão: pagamento deve permanecer no Checkout hospedado');
+assert.match(account, /client\.functions\.invoke\(name\)/,
+  'Cliente só pede uma sessão server-side e segue a URL hospedada');
+
+// O provider Stripe ainda não está configurado no backend real. Até EXTERNAL_PROVIDER=PASS,
+// a superfície comercial deve permanecer fail-closed, sem botão acionável que desperdice chamadas.
+assert.match(config, /billingEnabled:\s*false/,
+  'Billing deve permanecer desativado até o provider Stripe real passar');
+assert.match(account, /const billingEnabled = config\.billingEnabled === true;/,
+  'A UI deve resolver uma flag comercial explícita e deny-by-default');
+assert.match(account, /if \(!billingEnabled\) return app\.toast\('Assinatura ainda não está disponível\.'\);/,
+  'A ação comercial deve bloquear antes de invocar qualquer Edge Function quando billing estiver desativado');
+assert.match(account, /faroSubscriptionAction'\)\.disabled = !billingEnabled/,
+  'A UI deve refletir visualmente o bloqueio do provider');
+
+console.log('FARO_FINANCE_V1 N6 preflight: checkout hospedado, promotion code, fail-closed secrets, entitlement server-side, webhook assinado, ordem segura e billing fail-closed — ok');

@@ -1,0 +1,11 @@
+# FARO v1 — funções comerciais.
+# @supabase/server faz a autenticação explícita das funções chamadas pelo usuário.
+
+[functions.criar-checkout-faro]
+verify_jwt = false
+
+[functions.abrir-portal-faro]
+verify_jwt = false
+
+[functions.stripe-webhook-faro]
+verify_jwt = false

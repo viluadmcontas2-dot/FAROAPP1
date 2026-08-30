@@ -1,0 +1,22 @@
+name: WorkUnit
+description: One governed FARO unit of source-bearing work
+title: "[WU] "
+body:
+  - type: input
+    id: workunit
+    attributes: {label: WorkUnit ID}
+    validations: {required: true}
+  - type: textarea
+    id: objective
+    attributes: {label: Observable objective}
+    validations: {required: true}
+  - type: textarea
+    id: acceptance
+    attributes: {label: Acceptance criteria}
+    validations: {required: true}
+  - type: textarea
+    id: nong
+    attributes: {label: Non-goals}
+  - type: textarea
+    id: evidence
+    attributes: {label: Existing evidence / starting SHA}

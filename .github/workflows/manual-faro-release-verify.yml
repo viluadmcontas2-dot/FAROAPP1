@@ -1,0 +1,30 @@
+name: Manual FARO Release Verify
+on:
+  workflow_dispatch:
+    inputs:
+      release_gate:
+        description: Release candidate identifier
+        required: true
+concurrency:
+  group: faro-release-verify-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Full governed checks
+        run: npm run check
+      - name: Release build audit
+        run: |
+          npm run build
+          node tests/finance-v1-built-artifact-contract.test.mjs
+      - name: Confirm no publication
+        run: echo "Release verification completed without deployment."
