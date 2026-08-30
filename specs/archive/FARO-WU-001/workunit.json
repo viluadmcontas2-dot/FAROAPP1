@@ -1,0 +1,13 @@
+{
+  "workunit_id": "FARO-WU-001",
+  "state": "COMPLETED",
+  "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/13",
+  "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/14",
+  "merge_sha": "f1beb92b6811e15f57449f4be9e92910b6d73571",
+  "verified_runtime_sha": "c9f43b48c3d3f3a2c09d02f718e7a30111951d8f",
+  "verification_run_id": 33329606755,
+  "history_archive_sha": "9b8c268a2d29423efc40ee3e2b5cd44bc62cf250",
+  "result": "PASS",
+  "deploy": "NONE",
+  "handoff": "FARO-WU-002"
+}

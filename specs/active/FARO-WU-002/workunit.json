@@ -1,0 +1,29 @@
+{
+  "workunit_id": "FARO-WU-002",
+  "objective": "Vercel cutover + commercial completion with Stripe/Supabase E2E proof before billing enablement.",
+  "state": "IN_PROGRESS",
+  "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/15",
+  "branch": "wu/faro-wu-002-vercel-commercial",
+  "pr": null,
+  "base_main_sha": "f1beb92b6811e15f57449f4be9e92910b6d73571",
+  "next_unproven_item": "B1 — open draft PR to main and prove repo-first boot; then B2 read-only Vercel preflight",
+  "risk": "HIGH",
+  "guards": {
+    "production_deploy": "DENIED_UNTIL_RELEASE_GATE",
+    "billing_enable": "DENIED_UNTIL_COMMERCIAL_E2E_PASS",
+    "secrets_in_repo": "DENIED"
+  },
+  "acceptance": [
+    {"id":"B1","state":"IN_PROGRESS","evidence_refs":["Issue #15","branch wu/faro-wu-002-vercel-commercial"]},
+    {"id":"B2","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B3","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B4","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B5","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B6","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B7","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B8","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B9","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B10","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B11","state":"UNPROVEN","evidence_refs":[]}
+  ]
+}
