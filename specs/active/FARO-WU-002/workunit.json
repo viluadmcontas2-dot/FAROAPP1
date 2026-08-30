@@ -7,7 +7,7 @@
   "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/16",
   "base_main_sha": "f1beb92b6811e15f57449f4be9e92910b6d73571",
   "bootstrap_sha": "3ce0a95adb69a1606852474ca073cb261daf0308",
-  "next_unproven_item": "B2/B3 — configure and prove Vercel target/runtime without production deploy; then B4 server-side Stripe/Supabase config and B6-B8 authenticated E2E",
+  "next_unproven_item": "B2 — import viluadmcontas2-dot/FAROAPP1 as Vercel project faro-financeiro in non-production/Preview context and read back project identity; then B4 server-side config and B6-B8 authenticated E2E",
   "risk": "HIGH",
   "guards": {
     "production_deploy": "DENIED_UNTIL_RELEASE_GATE",
@@ -27,10 +27,19 @@
     "persistent_customers_after_preview": 0,
     "persistent_subscriptions_after_preview": 0
   },
+  "vercel": {
+    "team_id": "team_HECWodzpFDWJQCxmo9ZUwmv5",
+    "target_project_name": "faro-financeiro",
+    "project_created": false,
+    "build_command": "npm run build",
+    "output_directory": "_site",
+    "verified_source_sha": "34450b6db77b31211820ea9a365b55f38fa54d89",
+    "verification_run_id": 33333535649
+  },
   "acceptance": [
     {"id":"B1","state":"PROVEN","evidence_refs":["Issue #15","PR #16","branch wu/faro-wu-002-vercel-commercial","3ce0a95adb69a1606852474ca073cb261daf0308"]},
-    {"id":"B2","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"B3","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"B2","state":"IN_PROGRESS","evidence_refs":["Vercel team team_HECWodzpFDWJQCxmo9ZUwmv5","provider inventory: project brasko only","docs/evidence/FARO-WU-002-vercel-runtime-contract-receipt.md"]},
+    {"id":"B3","state":"PROVEN","evidence_refs":["vercel.json","tests/hosting-governance-contract.test.mjs","34450b6db77b31211820ea9a365b55f38fa54d89","run 33333535649","docs/evidence/FARO-WU-002-vercel-runtime-contract-receipt.md"]},
     {"id":"B4","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B5","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md","prod_VAaBVl0x3tqg2l","price_1UAF1HLsq19Xe9NBVCt4sSwN","VPBhfe03","promo_1UAF1tLsq19Xe9NBzv8mYQFP"]},
     {"id":"B6","state":"UNPROVEN","evidence_refs":[]},
