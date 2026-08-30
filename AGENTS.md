@@ -22,7 +22,7 @@
 - RED→GREEN loops run on the cheapest valid test surface; they do not require Vercel, Netlify or GitHub Actions evidence per commit.
 - WIP/intermediate commits must not intentionally trigger hosting builds. Consolidate external verification and deploy only for a material preview/integration/release gate or explicit owner request.
 - Docs/governance/status-only changes do not justify a deployment.
-- Vercel Git builds are opt-in: only commit messages containing `[preview]`, `[deploy]` or `[release]` may build. Non-Git/manual deployments remain allowed.
+- `AUTOMATIC_VERCEL_GIT_DEPLOYS = FALSE`. Repository config disables Git-triggered Vercel deployments; invoke Vercel manually only at a material preview/integration/release gate or explicit owner request.
 - A hosting quota/blocker never authorizes paid upgrade or paid fallback. Continue non-hosting verification and mark deployment unproven only when deployment itself is an acceptance gate.
 - Remote-first durability and TDD remain mandatory; reducing deploy frequency does not reduce testing or evidence quality.
 
