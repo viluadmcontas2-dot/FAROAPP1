@@ -16,4 +16,14 @@
 14. Branches só podem ser apagadas após prova remota de redundância/ancestralidade ou após conteúdo único ter sido absorvido.
 15. Um agente limpo deve conseguir retomar o FARO apenas pelo GitHub remoto. Se não conseguir, o handoff está incompleto.
 
+## Build/deploy discipline
+
+- `HOSTING_PROVIDER_IS_NOT_TDD_RUNNER = TRUE`.
+- RED→GREEN loops run on the cheapest valid test surface; they do not require Vercel, Netlify or GitHub Actions evidence per commit.
+- WIP/intermediate commits must not intentionally trigger hosting builds. Consolidate external verification and deploy only for a material preview/integration/release gate or explicit owner request.
+- Docs/governance/status-only changes do not justify a deployment.
+- Vercel Git builds are opt-in: only commit messages containing `[preview]`, `[deploy]` or `[release]` may build. Non-Git/manual deployments remain allowed.
+- A hosting quota/blocker never authorizes paid upgrade or paid fallback. Continue non-hosting verification and mark deployment unproven only when deployment itself is an acceptance gate.
+- Remote-first durability and TDD remain mandatory; reducing deploy frequency does not reduce testing or evidence quality.
+
 Detalhes: `governance/constitution.md`, `governance/authority-map.md`, `governance/branch-policy.md`, `governance/verification-policy.md`, `governance/hosting-policy.md`.
