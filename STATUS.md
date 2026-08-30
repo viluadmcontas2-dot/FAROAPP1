@@ -16,6 +16,8 @@
 - Active branch: `wu/faro-wu-002-vercel-commercial`.
 - Active draft PR: #16 → `main`.
 - B1 repo-first boot: PROVEN.
+- B5 Stripe sandbox catalog: PROVEN.
+- B9 `RATAO` commercial math: PROVEN.
 - Predecessor WU-001: COMPLETED / PR #14 MERGED.
 - Historical genealogy anchor: `archive/pre-repo-first-lineages-20260830` at `9b8c268a2d29423efc40ee3e2b5cd44bc62cf250`.
 - Branch model: `main` + archive + exactly one active `wu/*`.
@@ -25,22 +27,36 @@
 - Production deploy: DENIED until release gate.
 - `billingEnabled=false` remains fail-closed until commercial E2E passes.
 
-## Commercial state to revalidate live
+## Stripe — Brasko Agency sandbox (canonical for WU-002)
 
-- Stripe product candidate: `prod_V7X491xOMU0wYI`.
-- Monthly price candidate: `price_1U7I0FGsvVKn86yrJ6wbfTG3` = R$ 22,99.
-- Coupon candidate: `bYPTFkFb`.
-- Promotion candidate: `RATAO` / `promo_1U7IbeGsvVKn86yr6hSy2dHY`.
-- Supabase FARO Financeiro candidate: `mjbyqhreptllilkggiri`.
+- account context: `acct_1UAESjLsq19Xe9NB` (`livemode=false`).
+- product: `prod_VAaBVl0x3tqg2l` — FARO Financeiro.
+- monthly price: `price_1UAF1HLsq19Xe9NBVCt4sSwN` = BRL 2299/month.
+- coupon: `VPBhfe03` — Ratão, BRL 800 off, repeating 5 months.
+- promotion code: `RATAO` / `promo_1UAF1tLsq19Xe9NBzv8mYQFP`.
+- invoice-engine proof: subtotal 2299 − discount 800 = total 1499.
+- `automatic_tax=false` in the proof; no tax collection was enabled.
+- post-preview hygiene: 0 persistent customers, 0 persistent subscriptions.
+- evidence: `docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md`.
 
-These are preserved references, not substitutes for live provider readback.
+## Supabase preserved target
+
+- project: `faro-financeiro` / `mjbyqhreptllilkggiri` / `sa-east-1` / `ACTIVE_HEALTHY`.
+- commercial Edge Functions are deployed and remain subject to B4/B6-B8 E2E verification.
+- retired smoke functions are inert; temporary `n6-billing-return` remains cleanup debt until the Vercel return URL replaces it.
+
+## Vercel state
+
+- FARO project does not yet exist in the connected Vercel team.
+- only existing project observed in preflight: `brasko`.
+- no Vercel deployment was created during this preflight.
 
 ## next_unproven_item
 
-1. B2: perform read-only Vercel preflight and identify the canonical project/runtime target without deploying.
-2. Parallel read-only preflight: verify live Stripe objects and Supabase commercial runtime state.
-3. B3/B4: prove hosting build compatibility and identify/install only missing server-side config/secrets.
-4. B6–B9: prove Checkout → RATAO → webhook → entitlement → Portal.
+1. B2/B3: establish the FARO Vercel project/runtime target and prove the provider-neutral `_site` build there without production promotion.
+2. B4: install/verify only the missing server-side Stripe/Supabase configuration; never place secrets in Git/frontend/logs.
+3. B6–B8: prove authenticated Checkout → subscription → signed/idempotent webhook → entitlement → Billing Portal.
+4. Re-run B9 through the real Checkout path with `RATAO`.
 5. Only after full E2E + regression: enable billing and prepare FARO-WU-003.
 
 ## Não fazer agora
@@ -51,5 +67,6 @@ These are preserved references, not substitutes for live provider readback.
 - não reutilizar FARO Corridas;
 - não colocar secrets no repo/frontend/logs;
 - não habilitar billing antes do E2E;
+- não mutar Stripe live antes do sandbox E2E;
 - não fazer production deploy;
 - não alegar teste físico.
