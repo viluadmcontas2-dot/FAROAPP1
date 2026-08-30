@@ -6,14 +6,17 @@
   "branch": "wu/faro-wu-002-vercel-commercial",
   "pr": "https://github.com/viluadmcontas2-dot/FAROAPP1/pull/16",
   "base_main_sha": "f1beb92b6811e15f57449f4be9e92910b6d73571",
+  "reconciled_main_sha": "360fc66743bef4d1aff46ee4b13d82b8f2ed9fb3",
+  "reconciliation_merge_sha": "16168685ec7bc69721346db787695996382fcfb2",
   "bootstrap_sha": "3ce0a95adb69a1606852474ca073cb261daf0308",
-  "next_unproven_item": "B2 — resolve/read back the exact Vercel project slug or project ID created manually; then B4 install sandbox server-side secrets + configure Billing Portal before B6-B8 E2E",
+  "next_unproven_item": "B2 — obtain/read back the exact Vercel project ID (prj_...) or dashboard project identity for the manually-created FARO project; then B4 install sandbox server-side secrets + configure Billing Portal before B6-B8 E2E",
   "risk": "HIGH",
   "guards": {
     "production_deploy": "DENIED_UNTIL_RELEASE_GATE",
     "billing_enable": "DENIED_UNTIL_COMMERCIAL_E2E_PASS",
     "secrets_in_repo": "DENIED",
-    "stripe_live_mutation": "DENIED_UNTIL_SANDBOX_E2E_PASS"
+    "stripe_live_mutation": "DENIED_UNTIL_SANDBOX_E2E_PASS",
+    "automatic_vercel_git_deploys": false
   },
   "stripe_sandbox": {
     "account_owner": "Brasko Agency",
@@ -30,11 +33,13 @@
     "billing_portal_configurations": 0
   },
   "vercel": {
-    "team_id": "team_HECWodzpFDWJQCxmo9ZUwmv5",
+    "connected_team_id": "team_HECWodzpFDWJQCxmo9ZUwmv5",
     "target_project_name": "faro-financeiro",
     "user_reports_manual_creation": true,
-    "provider_readback": "NOT_VISIBLE",
+    "github_repository_homepage": "https://faroapp-1.vercel.app",
+    "provider_readback": "PROJECT_NOT_VISIBLE_IN_CONNECTED_SCOPE",
     "observed_projects": ["brasko"],
+    "direct_lookup_attempts": ["faro-financeiro", "faroapp1", "faro", "faroapp-1"],
     "build_command": "npm run build",
     "output_directory": "_site",
     "verified_source_sha": "34450b6db77b31211820ea9a365b55f38fa54d89",
@@ -42,8 +47,8 @@
   },
   "acceptance": [
     {"id":"B1","state":"PROVEN","evidence_refs":["Issue #15","PR #16","branch wu/faro-wu-002-vercel-commercial","3ce0a95adb69a1606852474ca073cb261daf0308"]},
-    {"id":"B2","state":"IN_PROGRESS","evidence_refs":["Vercel team team_HECWodzpFDWJQCxmo9ZUwmv5","user reports manual project creation","fresh list_projects: brasko only","direct lookups faro-financeiro/faroapp1/faro = 404","docs/evidence/FARO-WU-002-provider-config-checkpoint.md"]},
-    {"id":"B3","state":"PROVEN","evidence_refs":["vercel.json","tests/hosting-governance-contract.test.mjs","34450b6db77b31211820ea9a365b55f38fa54d89","run 33333535649","docs/evidence/FARO-WU-002-vercel-runtime-contract-receipt.md"]},
+    {"id":"B2","state":"IN_PROGRESS","evidence_refs":["Vercel connected team team_HECWodzpFDWJQCxmo9ZUwmv5","user reports manual project creation","GitHub repository homepage https://faroapp-1.vercel.app","connected provider list: brasko only","direct project lookups returned 404","docs/evidence/FARO-WU-002-provider-config-checkpoint.md"]},
+    {"id":"B3","state":"PROVEN","evidence_refs":["vercel.json","tests/hosting-governance-contract.test.mjs","34450b6db77b31211820ea9a365b55f38fa54d89","run 33333535649","docs/evidence/FARO-WU-002-vercel-runtime-contract-receipt.md","main manual-only policy reconciled at 16168685ec7bc69721346db787695996382fcfb2"]},
     {"id":"B4","state":"IN_PROGRESS","evidence_refs":["Supabase project ACTIVE_HEALTHY","commercial Edge Functions ACTIVE","Stripe webhook we_1UAFofLsq19Xe9NBk4gSh2tW","restricted API key creation unavailable through connected Stripe API","Billing Portal configurations=0","docs/evidence/FARO-WU-002-provider-config-checkpoint.md"]},
     {"id":"B5","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md","prod_VAaBVl0x3tqg2l","price_1UAF1HLsq19Xe9NBVCt4sSwN","VPBhfe03","promo_1UAF1tLsq19Xe9NBzv8mYQFP"]},
     {"id":"B6","state":"UNPROVEN","evidence_refs":[]},
