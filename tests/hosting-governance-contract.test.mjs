@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, readdir } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 
 const policy = await readFile('governance/hosting-policy.md', 'utf8');
 assert.match(policy, /HOSTING_TARGET=VERCEL/);
@@ -10,6 +10,9 @@ const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 assert.equal(pkg.scripts.build, 'node scripts/build-static-site.mjs');
 assert.doesNotMatch(pkg.scripts.check, /build-netlify/i);
 
+await assert.rejects(access('netlify.toml'), /ENOENT/);
+await assert.rejects(access('scripts/build-netlify-of.mjs'), /ENOENT/);
+
 const workflowNames = (await readdir('.github/workflows')).filter(name => /\.ya?ml$/i.test(name));
 assert.ok(workflowNames.length > 0);
 for (const name of workflowNames) {
@@ -19,4 +22,4 @@ for (const name of workflowNames) {
   assert.doesNotMatch(source, /netlify\s+deploy|NETLIFY_AUTH_TOKEN|vercel\s+deploy|deploy_to_vercel|deploy-site/i, `${name} é verify-only e não pode publicar`);
 }
 
-console.log('FARO hosting governance: Vercel target, Netlify retired, verify-only workflows — ok');
+console.log('FARO hosting governance: Vercel target, Netlify retired, provider-neutral build, verify-only workflows — ok');

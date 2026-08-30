@@ -1,3 +1,6 @@
+# HISTORICAL ONLY — retired 2026-08-30 by FARO-WU-001
+# Original file: /netlify.toml
+
 [build]
   command = "node scripts/build-netlify-of.mjs"
   publish = "_site"
