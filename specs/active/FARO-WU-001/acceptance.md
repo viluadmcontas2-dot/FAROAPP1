@@ -1,12 +1,15 @@
-# FARO-WU-001 Acceptance
+# FARO-WU-001 Acceptance — FINAL
 
-- A1 — Repo-first boot chain exists remotely and no active file assigns execution authority to Linear/Notion.
-- A2 — Spec Kit exists with WorkUnit state and `next_unproven_item`.
-- A3 — Actions are manual/selective; no heavy PR/push trigger remains.
-- A4 — Build/runtime naming is hosting-provider-neutral; active code no longer depends on Netlify naming.
-- A5 — Every pre-cutover branch is classified as KEEP_CANONICAL, REDUNDANT_DELETE, or QUARANTINED_UNIQUE with remote compare evidence.
-- A6 — Legacy PR #12 is closed/superseded only after the new lineage contains its source tree.
-- A7 — Redundant branches are deleted; unique branches are preserved or absorbed first.
-- A8 — Cutover branch passes local/remote verification proportional to available executors.
-- A9 — One clean PR targets `main` and contains the canonical product + governance lineage.
-- A10 — STATUS.md points to FARO-WU-002 as next work after merge.
+- [x] A1 — Repo-first boot chain exists remotely and no active file assigns execution authority to Linear/Notion.
+- [x] A2 — Spec Kit exists with WorkUnit state and `next_unproven_item`.
+- [x] A3 — Actions are manual/selective; no heavy PR/push trigger remains.
+- [x] A4 — Build/runtime naming is hosting-provider-neutral; active code no longer depends on Netlify naming.
+- [x] A5 — Every pre-cutover branch tip was classified and anchored before deletion.
+- [x] A6 — Legacy PR #12 was closed/superseded only after its functional source was preserved in the new lineage.
+- [x] A7 — Legacy branches were deleted only after ancestry proof; remote readback confirmed removal.
+- [x] A8 — Exact governed source passed `npm run check`, `npm run build`, and built-artifact audit in run `33329606755`.
+- [x] A9 — PR #14 is the single canonical PR to `main` and is mergeable.
+- [x] A10 — `STATUS.md` points to `FARO-WU-002` as the next WorkUnit.
+
+Verified runtime/source SHA: `c9f43b48c3d3f3a2c09d02f718e7a30111951d8f`.
+Deploy during WU-001: **NONE**.
