@@ -1,0 +1,23 @@
+{
+  "workunit_id": "FARO-WU-001",
+  "objective": "Cut over FARO to repo-first/remote-first governance, consolidate one lineage, and remove redundant legacy branches without losing unique work.",
+  "state": "IN_PROGRESS",
+  "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/13",
+  "branch": "wu/faro-wu-001-repo-first-cutover",
+  "pr": null,
+  "base_functional_sha": "3eb2b72283545a4a51aac5749ca102691ba294ec",
+  "next_unproven_item": "A1 — prove remote repo-first boot chain and active authority cutover",
+  "risk": "HIGH",
+  "acceptance": [
+    {"id":"A1","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A2","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A3","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A4","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A5","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A6","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A7","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A8","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A9","state":"UNPROVEN","evidence_refs":[]},
+    {"id":"A10","state":"UNPROVEN","evidence_refs":[]}
+  ]
+}

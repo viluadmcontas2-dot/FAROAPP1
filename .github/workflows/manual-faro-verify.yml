@@ -1,0 +1,30 @@
+name: Manual FARO Verify
+on:
+  workflow_dispatch:
+    inputs:
+      gate:
+        description: WorkUnit/gate identifier
+        required: true
+concurrency:
+  group: faro-verify-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Contracts
+        run: npm run check
+      - name: Build and artifact audit
+        run: |
+          npm run build
+          node tests/finance-v1-built-artifact-contract.test.mjs
+      - name: No deploy
+        run: echo "Verification only; no deploy."
