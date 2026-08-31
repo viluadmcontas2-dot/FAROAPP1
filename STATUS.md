@@ -11,45 +11,33 @@
 
 **FARO-WU-002 — Vercel cutover + commercial completion: ACTIVE**
 
-- Canonical `main`: `360fc66743bef4d1aff46ee4b13d82b8f2ed9fb3`.
+- Canonical `main`: `5baf4356d6d63561be94cca48a44525b10e04fa3`.
 - Active Issue: #15.
 - Active branch: `wu/faro-wu-002-vercel-commercial`.
 - Active draft PR: #16 → `main`.
 - B1 repo-first boot: PROVEN.
-- B2 Vercel project identity: IN_PROGRESS — manual project reported, exact provider scope/project ID not yet observable.
+- B2 Vercel project/import identity: PROVEN.
 - B3 Vercel static runtime contract: PROVEN.
 - B4 server-side commercial config: IN_PROGRESS.
 - B5 Stripe sandbox catalog: PROVEN.
 - B9 `RATAO` commercial math: PROVEN.
-- WU-002 reconciled with the four newer `main` governance commits at merge `16168685ec7bc69721346db787695996382fcfb2`.
-- PR conflict caused by main drift was resolved; branch became 0 behind `main` and mergeable again.
 - Automatic Vercel Git deployments: FALSE.
 - Production deploy: DENIED until release gate.
 - `billingEnabled=false` remains fail-closed until commercial E2E passes.
 
-## Vercel runtime contract
+## Vercel — estado atual
 
-- `vercel.json`: PRESENT and contract-tested.
-- `git.deploymentEnabled=false`: preserved from current `main` governance.
-- build command: `npm run build`.
-- output directory: `_site`.
-- SPA fallback: `/(.*) -> /index.html`.
-- PWA cache/service-worker headers: PRESERVED.
-- security headers: PRESERVED.
-- exact source SHA previously verified: `34450b6db77b31211820ea9a365b55f38fa54d89`.
-- full verification run: `33333535649` SUCCESS (`npm run check` + build + `_site` audit).
-- evidence: `docs/evidence/FARO-WU-002-vercel-runtime-contract-receipt.md`.
-
-## Vercel provider identity
-
-- connected team: `team_HECWodzpFDWJQCxmo9ZUwmv5` / `vitoohugo333s-projects` / Hobby.
-- user reports that the FARO project was created manually.
-- GitHub repository homepage now points to `https://faroapp-1.vercel.app`.
-- connected Vercel provider still lists only `brasko`.
-- direct lookups `faro-financeiro`, `faroapp1`, `faro`, `faroapp-1` return 404 in the connected scope.
-- likely condition: the project was created under a different Vercel scope/account than the connected MCP scope.
-- agent did NOT create a duplicate and did NOT trigger a deploy.
-- B2 closes only after exact Vercel Project ID (`prj_...`) or project identity is read back.
+- GitHub/Vercel status identified the imported project context as `faroapp-1-mddh`.
+- The real Vercel build cloned `viluadmcontas2-dot/FAROAPP1`, branch `main`, commit `360fc66743bef4d1aff46ee4b13d82b8f2ed9fb3`.
+- That build proved `npm run build` itself succeeds and produces `_site`.
+- Failure root cause: the old `main` Vercel config did not declare `outputDirectory`, so Vercel looked for default `public`.
+- Candidate fix: `d3f0c4303d61a18caf51adbacd212a07bb38e1df`.
+- Verification run `33346078602`: exact SHA + Vercel config + full contracts + build + artifact audit = PASS.
+- Verified fix promoted to `main` at `5baf4356d6d63561be94cca48a44525b10e04fa3`.
+- `vercel.json` now preserves `git.deploymentEnabled=false`, `buildCommand=npm run build`, `outputDirectory=_site`, SPA fallback, PWA headers and security headers.
+- No automatic Vercel deployment was triggered by the hotfix.
+- A successful Vercel runtime redeploy of the updated `main` remains UNPROVEN until explicitly invoked.
+- Evidence: `docs/evidence/FARO-WU-002-vercel-output-hotfix-receipt.md`.
 
 ## Stripe — Brasko Agency sandbox
 
@@ -78,11 +66,10 @@
 
 ## next_unproven_item
 
-1. B2: obtain/read back the exact Vercel Project ID (`prj_...`) or dashboard project identity for the manually-created FARO project.
-2. Use its Vercel URL as sandbox `FARO_APP_URL`.
-3. B4: install the Brasko sandbox restricted Stripe key + current price ID + webhook signing secret directly in Supabase Edge Function Secrets, and configure sandbox Billing Portal.
-4. B6–B8: prove authenticated Checkout → subscription → signed/idempotent webhook → entitlement → Billing Portal.
-5. Only after full E2E + regression: enable billing and prepare FARO-WU-003.
+1. B4: complete sandbox server-side commercial config: restricted Stripe backend key + current price ID + FARO_APP_URL + webhook signing secret in Supabase Edge Function Secrets, and configure Stripe Billing Portal.
+2. Explicitly redeploy updated `main` on Vercel when using the real Vercel URL as `FARO_APP_URL`.
+3. B6–B8: prove authenticated Checkout → subscription → signed/idempotent webhook → entitlement → Billing Portal.
+4. Only after full E2E + regression: enable billing and prepare FARO-WU-003.
 
 ## Não fazer agora
 
