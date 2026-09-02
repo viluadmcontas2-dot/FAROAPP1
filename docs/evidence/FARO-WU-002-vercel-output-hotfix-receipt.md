@@ -50,8 +50,25 @@ The temporary `ops/faro-vercel-output-hotfix` branch was deleted by the successf
 
 No automatic Vercel deployment was triggered by the hotfix. `git.deploymentEnabled=false` remains in `main`, so a material Vercel redeploy remains an explicit/manual action.
 
+## Authenticated Vercel UI readback — 2026-09-02
+
+A fresh authenticated Opera/Vercel readback established the stable project identity independent of the stale MCP project listing:
+
+- team: `vitoohugo333s-projects` / `team_HECWodzpFDWJQCxmo9ZUwmv5`;
+- project name: `faroapp-1-mddh`;
+- Project ID: `prj_iSR4C4eaSGiRs4B519tYYN8qxAsW`;
+- repository: `viluadmcontas2-dot/FAROAPP1`;
+- failed deployment hostname: `faroapp-1-mddh-pnkaqhn7p-vitoohugo333s-projects.vercel.app`;
+- failed deployment source: `main@360fc66743bef4d1aff46ee4b13d82b8f2ed9fb3`;
+- project overview reports `No Production Deployment` and states the Production Domain is not serving traffic;
+- the Deployments page contains only the historical failed deployment from the pre-hotfix `main`;
+- the native Vercel MCP still returns 404 for this newly imported project/Project ID, so it must not be used as evidence that the project does not exist and must not create a duplicate.
+
+A post-hotfix Preview deployment remains intentionally unproven because automatic Git deployments are disabled and no write-capable Vercel project surface is available in the connected tools.
+
 ## Verdict
 
-- Vercel project/import identity: PROVEN through GitHub/Vercel commit status and real build execution.
+- Vercel project/import identity: PROVEN through GitHub status, real build execution, and authenticated Vercel UI readback.
 - Repository-side Vercel output configuration: PROVEN.
-- Successful Vercel runtime deployment after the fix: UNPROVEN until an explicit redeploy of the updated `main` is performed.
+- Production serving traffic: NO, per authenticated Vercel UI readback.
+- Successful Vercel runtime deployment after the fix: UNPROVEN until an explicit Preview/material redeploy of updated `main` is performed.
