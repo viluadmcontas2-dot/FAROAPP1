@@ -23,22 +23,25 @@
 - B9 `RATAO` commercial math: PROVEN.
 - Automatic Vercel Git deployments: FALSE.
 - Production deploy: DENIED until release gate.
-- `billingEnabled=false` freshly revalidated and remains fail-closed until commercial E2E passes.
+- `billingEnabled=false` remains fail-closed until commercial E2E passes.
 
 ## Vercel — estado atual
 
-- GitHub/Vercel status identified the imported project context as `faroapp-1-mddh`.
-- GitHub repository homepage records the stable app URL as `https://faroapp-1.vercel.app`.
+- Authenticated Vercel UI readback on 2026-09-02 proves project `faroapp-1-mddh` in team `vitoohugo333s-projects`.
+- Project ID: `prj_iSR4C4eaSGiRs4B519tYYN8qxAsW`.
+- GitHub repository homepage records stable app URL `https://faroapp-1.vercel.app`.
+- The historical failed deployment hostname is `faroapp-1-mddh-pnkaqhn7p-vitoohugo333s-projects.vercel.app`.
 - The real Vercel build cloned `viluadmcontas2-dot/FAROAPP1`, branch `main`, commit `360fc66743bef4d1aff46ee4b13d82b8f2ed9fb3`.
-- That build proved `npm run build` itself succeeds and produces `_site`.
-- Failure root cause: the old `main` Vercel config did not declare `outputDirectory`, so Vercel looked for default `public`.
-- Candidate fix: `d3f0c4303d61a18caf51adbacd212a07bb38e1df`.
-- Verification run `33346078602`: exact SHA + Vercel config + full contracts + build + artifact audit = PASS.
-- Verified fix promoted to `main` at `5baf4356d6d63561be94cca48a44525b10e04fa3`.
-- `vercel.json` now preserves `git.deploymentEnabled=false`, `buildCommand=npm run build`, `outputDirectory=_site`, SPA fallback, PWA headers and security headers.
-- No automatic Vercel deployment was triggered by the hotfix, as intended.
-- A successful Vercel runtime redeploy of the updated `main` remains UNPROVEN until explicitly invoked as a preview/material gate.
-- Direct Vercel MCP readback of the newly imported project/deployment still returns 404 even though GitHub status proves the import context; do not duplicate the project.
+- That build proved `npm run build` succeeds and produces `_site`.
+- Failure root cause: old `main` did not declare `outputDirectory`, so Vercel looked for default `public`.
+- Candidate fix `d3f0c4303d61a18caf51adbacd212a07bb38e1df` passed verification run `33346078602`: exact SHA + Vercel config + full contracts + build + artifact audit.
+- Verified fix promoted to `main@5baf4356d6d63561be94cca48a44525b10e04fa3`.
+- `vercel.json` preserves `git.deploymentEnabled=false`, `buildCommand=npm run build`, `outputDirectory=_site`, SPA fallback, PWA headers and security headers.
+- Authenticated Vercel project overview reports **No Production Deployment** and that the Production Domain is not serving traffic.
+- The Deployments page shows only the historical failed pre-hotfix deployment.
+- No automatic deployment was triggered by the hotfix, as intended.
+- A successful post-hotfix Vercel Preview remains UNPROVEN and must be explicit/manual.
+- Native Vercel MCP project/deployment reads still return 404 despite authenticated UI proof; do not create a duplicate project.
 - Evidence: `docs/evidence/FARO-WU-002-vercel-output-hotfix-receipt.md`.
 
 ## Stripe — Brasko Agency sandbox
@@ -50,28 +53,29 @@
 - promotion code: `RATAO` / `promo_1UAF1tLsq19Xe9NBzv8mYQFP`.
 - invoice-engine proof: subtotal 2299 − discount 800 = total 1499.
 - webhook endpoint: `we_1UAFofLsq19Xe9NBk4gSh2tW` → Supabase `stripe-webhook-faro`.
-- fresh readback: webhook `enabled`, sandbox-only, with exactly six required webhook events.
+- webhook is enabled, sandbox-only, with exactly six required commercial events.
 - webhook signing secret intentionally absent from Git/evidence/chat.
-- Stripe API exposes no operation to create/export restricted API keys.
-- fresh Billing Portal readback: active configurations = 0; connected Stripe API exposes no create operation.
+- connected Stripe API exposes no operation to create/export restricted API keys.
+- active sandbox Billing Portal configurations = 0; connected Stripe API exposes no create operation for the portal configuration.
 - `automatic_tax=false`; no tax collection enabled.
 
 ## Supabase
 
 - project: `faro-financeiro` / `mjbyqhreptllilkggiri` / `sa-east-1` / `ACTIVE_HEALTHY`.
 - commercial Edge Functions ACTIVE: `criar-checkout-faro`, `abrir-portal-faro`, `stripe-webhook-faro`.
-- fresh runtime readback matches the WU-002 source in all material commercial behavior; no Git↔runtime drift found.
-- all three remain fail-closed when required runtime values are absent.
-- B4 canonical config:
+- deployed runtime matches the WU-002 source in material commercial behavior and remains fail-closed.
+- B4 canonical server config:
   - `STRIPE_SECRET_KEY` = private restricted Brasko sandbox backend key;
   - `STRIPE_WEBHOOK_SECRET` = private signing secret for `we_1UAFofLsq19Xe9NBk4gSh2tW`;
   - `STRIPE_FARO_MONTHLY_PRICE_ID=price_1UAF1HLsq19Xe9NBVCt4sSwN`;
   - `FARO_APP_URL=https://faroapp-1.vercel.app`.
-- Edge Function Secrets management is not exposed by the connected Supabase tool.
+- Edge Function Secrets mutation is not exposed by the connected Supabase tool.
+- A temporary boolean-only `n6-stripe-preflight` v5 was deployed on 2026-09-02, but no available HTTP executor could invoke it; no secret value was exposed or inferred.
+- The preflight was immediately restored to v6, `verify_jwt=true`, HTTP 410 retired.
+- Supabase SQL metadata readback remains unavailable due connection timeout; repeated retries were stopped per recovery policy.
 - `n5-auth-smoke` is inert HTTP 410.
 - `n6-stripe-preflight` is inert HTTP 410.
-- `n6-billing-return` was retired in this WU and is now inert HTTP 410 (version 2); the temporary HTML return surface is gone.
-- Supabase connector exposes no Edge Function delete operation, so retired tombstones remain listed but non-operational.
+- `n6-billing-return` is retired/inert HTTP 410; the temporary HTML return surface is gone.
 - Evidence: `docs/evidence/FARO-WU-002-b4-runtime-parity-and-bootstrap.md`.
 
 ## next_unproven_item
