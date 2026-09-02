@@ -49,6 +49,20 @@ Install directly in Supabase Edge Function Secrets. Never paste secret values in
 
 The connected Stripe API does not expose restricted API-key creation/export. The connected Supabase API does not expose Edge Function Secret mutation. This is therefore a legitimate owner/provider UI boundary, not an automation omission.
 
+## 2026-09-02 probe hygiene
+
+A temporary `n6-stripe-preflight` v5 was deployed with `verify_jwt=false` and a response limited to non-secret diagnostics: boolean secret presence plus non-secret price/app URL fields. No available HTTP executor in this session could invoke the function, so **no secret state was inferred** from that probe.
+
+The temporary surface was immediately retired again:
+
+- `n6-stripe-preflight` current version: `6`;
+- `verify_jwt=true`;
+- body restored to the inert HTTP 410 tombstone.
+
+A metadata-only Supabase SQL readback was also attempted without selecting decrypted secret material, but the connector terminated on connection timeout. Repeated SQL retries were stopped per recovery policy.
+
+No secret value was written to or read from GitHub, chat, logs, or evidence.
+
 ## Billing Portal gate
 
 Create one sandbox Billing Portal configuration with:
