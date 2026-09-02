@@ -11,7 +11,7 @@ Prove B4 server-side Stripe configuration state by behavior without reading, log
 
 The deployed webhook fails closed before signature verification when either `STRIPE_SECRET_KEY` or `STRIPE_WEBHOOK_SECRET` is missing. Therefore a real Stripe delivery returning HTTP 503 is direct evidence that the required secret configuration is not complete.
 
-## Probe
+## Stripe→Supabase delivery probe
 
 A disposable sandbox customer and a one-day trial subscription were created with probe-only metadata and **without `faro_user_id`**. This guarantees the webhook cannot grant FARO entitlement to any user.
 
@@ -23,16 +23,25 @@ A disposable sandbox customer and a one-day trial subscription were created with
 - real charge: none
 - `automatic_tax=false`
 
-## Result
-
 Fresh Supabase Edge Function logs recorded two real Stripe deliveries to `stripe-webhook-faro`, both HTTP **503** on 2026-09-02.
 
-This is consistent with the deployed fail-closed guard:
+This proves that `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are not both configured.
 
-- missing `STRIPE_SECRET_KEY` **or**
-- missing `STRIPE_WEBHOOK_SECRET`
+## One-shot boolean preflight
 
-No secret value was read or inferred individually. The result proves only that the pair is not fully configured.
+To identify the exact missing configuration without reading values, `n6-stripe-preflight` was temporarily deployed as version 7 with custom one-time token auth and `verify_jwt=false`. It returned booleans only and never returned any secret value.
+
+Observed result:
+
+- `stripe_secret_present=false`
+- `stripe_secret_can_read_expected_sandbox_price=false`
+- `webhook_secret_present=false`
+- `monthly_price_matches=false`
+- `app_url_matches=false`
+
+Therefore all four canonical B4 server-side values are currently absent or not equal to the expected FARO sandbox configuration.
+
+Immediately after the readback, `n6-stripe-preflight` was restored as version 8 with `verify_jwt=true` and retired HTTP 410 behavior. The browser tab containing the one-time token was navigated to `about:blank`; the token is no longer accepted by the deployed function.
 
 ## Hygiene
 
@@ -46,6 +55,12 @@ The connected Stripe API does not expose customer deletion. The synthetic custom
 - no payment method
 - no active subscription
 - no financial effect
+
+No Stripe live object was touched.
+
+## Billing Portal
+
+Fresh sandbox readback on 2026-09-02 returned zero active Billing Portal configurations. Current Stripe MCP API discovery exposes read operations but not the documented POST create operation, so configuration creation remains a private provider UI gate in this session.
 
 ## B4 verdict
 
