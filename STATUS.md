@@ -18,7 +18,7 @@
 - B1 repo-first boot: PROVEN.
 - B2 Vercel project/import identity: PROVEN.
 - B3 Vercel static runtime contract: PROVEN.
-- B4 server-side commercial config: IN_PROGRESS — code/runtime ready, private provider config blocked.
+- B4 server-side commercial config: **BLOCKED_PRIVATE_PROVIDER_CONFIG** — fresh probes prove all four required Supabase values are absent/not matching and Billing Portal config count remains 0.
 - B5 Stripe sandbox catalog: PROVEN.
 - B9 `RATAO` commercial math: PROVEN.
 - Automatic Vercel Git deployments: FALSE.
@@ -54,39 +54,47 @@
 - invoice-engine proof: subtotal 2299 − discount 800 = total 1499.
 - webhook endpoint: `we_1UAFofLsq19Xe9NBk4gSh2tW` → Supabase `stripe-webhook-faro`.
 - webhook is enabled, sandbox-only, with exactly six required commercial events.
-- webhook signing secret intentionally absent from Git/evidence/chat.
 - connected Stripe API exposes no operation to create/export restricted API keys.
-- active sandbox Billing Portal configurations = 0; connected Stripe API exposes no create operation for the portal configuration.
+- active sandbox Billing Portal configurations = 0; connected Stripe API discovery exposes reads but not the documented create operation.
+- fresh disposable B4 probe subscription `sub_1UBKrmLsq19Xe9NB6RxJWxJ4` was created in trial with no card/no `faro_user_id`, then canceled immediately with no proration/final invoice.
+- synthetic customer `cus_VBiIYq4C5BVzXH` has no payment method and no active subscription and is explicitly marked `probe_state=disposed`; customer deletion is not exposed by the connected Stripe API.
 - `automatic_tax=false`; no tax collection enabled.
+- No Stripe live object was touched.
 
 ## Supabase
 
 - project: `faro-financeiro` / `mjbyqhreptllilkggiri` / `sa-east-1` / `ACTIVE_HEALTHY`.
 - commercial Edge Functions ACTIVE: `criar-checkout-faro`, `abrir-portal-faro`, `stripe-webhook-faro`.
 - deployed runtime matches the WU-002 source in material commercial behavior and remains fail-closed.
-- B4 canonical server config:
+- Fresh real Stripe→Supabase probe produced **2 × HTTP 503** on `stripe-webhook-faro`; deployed code returns 503 before signature verification when the Stripe API key or webhook secret is absent.
+- One-shot boolean preflight v7 then proved, without returning values:
+  - `stripe_secret_present=false`;
+  - `stripe_secret_can_read_expected_sandbox_price=false`;
+  - `webhook_secret_present=false`;
+  - `monthly_price_matches=false`;
+  - `app_url_matches=false`.
+- The one-shot probe was immediately retired. `n6-stripe-preflight` is now v8, `verify_jwt=true`, HTTP 410 retired.
+- B4 canonical server config still required:
   - `STRIPE_SECRET_KEY` = private restricted Brasko sandbox backend key;
   - `STRIPE_WEBHOOK_SECRET` = private signing secret for `we_1UAFofLsq19Xe9NBk4gSh2tW`;
   - `STRIPE_FARO_MONTHLY_PRICE_ID=price_1UAF1HLsq19Xe9NBVCt4sSwN`;
   - `FARO_APP_URL=https://faroapp-1.vercel.app`.
 - Edge Function Secrets mutation is not exposed by the connected Supabase tool.
-- A temporary boolean-only `n6-stripe-preflight` v5 was deployed on 2026-09-02, but no available HTTP executor could invoke it; no secret value was exposed or inferred.
-- The preflight was immediately restored to v6, `verify_jwt=true`, HTTP 410 retired.
 - Supabase SQL metadata readback remains unavailable due connection timeout; repeated retries were stopped per recovery policy.
 - `n5-auth-smoke` is inert HTTP 410.
 - `n6-stripe-preflight` is inert HTTP 410.
 - `n6-billing-return` is retired/inert HTTP 410; the temporary HTML return surface is gone.
-- Evidence: `docs/evidence/FARO-WU-002-b4-runtime-parity-and-bootstrap.md`.
+- Evidence: `docs/evidence/FARO-WU-002-b4-runtime-parity-and-bootstrap.md` and `docs/evidence/FARO-WU-002-b4-webhook-secret-probe-20260902.md`.
 
 ## next_unproven_item
 
 **B4 owner/provider UI gate only:**
 
-1. Create/retrieve a restricted Stripe backend key in **Brasko Agency sandbox** and install it directly as `STRIPE_SECRET_KEY` in Supabase Edge Function Secrets.
+1. In **Brasko Agency sandbox**, create/retrieve a restricted backend key and install it directly as `STRIPE_SECRET_KEY` in Supabase Edge Function Secrets.
 2. Reveal the signing secret for webhook `we_1UAFofLsq19Xe9NBk4gSh2tW` and transfer it directly to Supabase as `STRIPE_WEBHOOK_SECRET`; never paste it into chat/Git.
-3. Set `STRIPE_FARO_MONTHLY_PRICE_ID=price_1UAF1HLsq19Xe9NBVCt4sSwN` and `FARO_APP_URL=https://faroapp-1.vercel.app` in the same Supabase secret/config surface.
+3. In the same Supabase secret surface, set `STRIPE_FARO_MONTHLY_PRICE_ID=price_1UAF1HLsq19Xe9NBVCt4sSwN` and `FARO_APP_URL=https://faroapp-1.vercel.app`.
 4. Create one Stripe sandbox Billing Portal configuration with payment-method update + cancellation enabled, cancellation at end of paid period.
-5. After this gate, agent resumes B6–B8 authenticated Checkout → signed/idempotent webhook → entitlement → Portal E2E without reading secret values.
+5. Reply only `feito`; agent then resumes B6–B8 authenticated Checkout → signed/idempotent webhook → entitlement → Portal E2E without reading secret values.
 
 ## Não fazer agora
 
