@@ -142,6 +142,16 @@
   targetActions.innerHTML = '<button id="faroTargetCancel" type="button" class="faro-r3-secondary">CANCELAR</button><button id="faroTargetApply" type="button" class="faro-r3-primary">APLICAR MUDANÇA</button>';
   targetCard.replaceChildren(targetHead, slider, exactWrap, preview, targetActions);
 
+  // The R3 planning editor intentionally retires the old goalBalancePanel DOM.
+  // The inherited legacy render chain still invokes its visual consumer on
+  // every daily save. Skip only that retired surface; financial calculations,
+  // persistence and the current FARO planning renderers remain authoritative.
+  const baseGoalBalance = app.renderGoalBalance;
+  app.renderGoalBalance = function(...args) {
+    if (!document.getElementById('goalBalancePanel')) return;
+    return baseGoalBalance.apply(this, args);
+  };
+
   const createDialog = (id, kicker, title, variant = 'sheet') => {
     const existing = $(id);
     if (existing) return existing;
