@@ -1,0 +1,7 @@
+# Preserve canonical source bytes protected by SHA-256 checks on every OS.
+# These four files are hashed before the static build, so Windows CRLF conversion
+# must not alter their checkout content.
+legacy-shell.html text eol=lf
+app.js text eol=lf
+faro-mark.svg text eol=lf
+icon.svg text eol=lf
