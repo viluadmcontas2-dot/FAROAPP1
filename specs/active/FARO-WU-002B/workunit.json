@@ -1,0 +1,12 @@
+{
+  "workunit_id": "FARO-WU-002B",
+  "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/17",
+  "branch": "wu/faro-wu-002b-product-hardening",
+  "base_main_sha": "5baf4356d6d63561be94cca48a44525b10e04fa3",
+  "objective": "Cross-platform integrity first; then evidence-gated product hardening without commercial changes.",
+  "state": "IN_PROGRESS",
+  "scope": ["git checkout policy", "baseline test", "non-destructive verification", "product diagnosis"],
+  "excluded": ["Stripe live", "billing enable", "production deployment", "protected core mutation", "WU-002 writes"],
+  "sibling_workunit": "FARO-WU-002 via Issue #15 and PR #16",
+  "next_unproven_item": "Add failing baseline EOL contract, then LF checkout policy and exact remote Windows verification"
+}
