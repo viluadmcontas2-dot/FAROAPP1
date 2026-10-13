@@ -392,8 +392,12 @@
     $('faroPlanHeroValue').textContent = `${app.money(actual,0)} de ${app.money(target,0)}`;
     $('faroPlanProgress').style.width = `${pct}%`;
     $('faroPlanDaily').textContent = `${app.money(c.dailyGross,0)}/dia`;
-    $('faroPlanHeroDays').textContent = `${c.ctx.plannedDays} dias`;
-    $('faroPlanHeroKm').textContent = `~${app.integer(c.dailyKm)} km/dia`;
+    // R3B replaces the hero markup and changes the two stat element IDs.
+    // Resolve either DOM generation without introducing a second renderer.
+    const daysNode = $('faroPlanHeroDays') || $('faroPlanDays');
+    const kmNode = $('faroPlanHeroKm') || $('faroPlanKm');
+    if (daysNode) daysNode.textContent = `${c.ctx.plannedDays} dias`;
+    if (kmNode) kmNode.textContent = `~${app.integer(c.dailyKm)} km/dia`;
     $('faroOperationCardValue').textContent = app.state.fuel.label || 'Energia';
     $('faroOperationCardMeta').textContent = `${app.money(c.fuelKm)}/km · ${app.money(app.state.revenueKm)}/km receita`;
     const next = window.FaroFinance?.nextPendingOccurrence?.();
