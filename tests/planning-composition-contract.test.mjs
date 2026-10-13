@@ -38,4 +38,11 @@ assert.match(planning,
   /const baseGoalBalance = app\.renderGoalBalance;[\s\S]*app\.renderGoalBalance = function\(\.\.\.args\)\s*\{[\s\S]*if \(!document\.getElementById\('goalBalancePanel'\)\) return;[\s\S]*return baseGoalBalance\.apply\(this, args\)/,
   'Planejar deve desativar somente o consumidor visual aposentado, sem impedir salvar dias ou recalcular finanças');
 
+// R3B visually replaces the original hero stat nodes. Base planning render
+// must resolve both original and restructured IDs after a persisted day save.
+assert.match(r3b, /id="faroPlanDays"/);
+assert.match(r3b, /id="faroPlanKm"/);
+assert.match(planning, /\$\('faroPlanHeroDays'\)\s*\|\|\s*\$\('faroPlanDays'\)/);
+assert.match(planning, /\$\('faroPlanHeroKm'\)\s*\|\|\s*\$\('faroPlanKm'\)/);
+
 console.log('FARO UX-R3-B.3: Planejar mantém owner único e carrega routing v3 — ok');
