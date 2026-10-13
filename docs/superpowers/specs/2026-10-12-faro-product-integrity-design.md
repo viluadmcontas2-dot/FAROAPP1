@@ -12,10 +12,10 @@ Corrigir problemas reproduzidos de integridade do pipeline e preparar o fechamen
 - WU-001 PR #14 merged; WU-002 Issue #15 / draft PR #16 remains active on its own branch, commercial config gate unresolved at last evidence.
 - Fresh clean clone at exact main SHA on Windows with `core.autocrlf=true`: `npm run check` failed while hashing `legacy-shell.html` (actual 26abd1..., canonical expected 2562a7...).
 - Fresh clean clone at same SHA with `core.autocrlf=false`: `git ls-files --eol legacy-shell.html` reported i/lf w/lf, original SHA-256 matched; `npm run check` PASS, `npm run build` PASS.
-- Root cause: checkout EOL transformation of protected byte-hashed source. This is a portability defect, **not** confirmed corruption or calculation error.
+- A second RED on the Windows default checkout also exposed all three platform SVG assets being converted to CRLF while `platform-earnings-contract.test.mjs` compares immutable SHA-256. The seven-file fix addresses both gates.\n- Root cause: checkout EOL transformation of protected byte-hashed source. This is a portability defect, **not** confirmed corruption or calculation error.
 
 ## Design
-1. Pin checkout line endings of the four SHA-protected text files via explicit `.gitattributes`: `legacy-shell.html`, `app.js`, `faro-mark.svg`, `icon.svg` as `text eol=lf`.
+1. Pin checkout line endings of the seven SHA-protected text files and platform vector assets via explicit `.gitattributes`: `legacy-shell.html`, `app.js`, `faro-mark.svg`, `icon.svg`, and the three SVG platform assets as `text eol=lf`.
 2. Preserve exact bytes/hashes and the existing strict byte verification; never normalize the hashes at verification time.
 3. Add an automated static contract in the existing baseline test, RED without attributes, GREEN once added.
 4. Verify on real Windows executor with default `core.autocrlf=true` using fresh checkout of remote branch SHA: protected files w/lf, full check and build green; also exercise the canonical LF checkout as a control.
