@@ -29,16 +29,16 @@
 ### Task 1: Baseline EOL RED
 **Files:** Modify `tests/baseline-contract.test.mjs`.
 **Interface:** baseline-integrity static test run by `npm run check`.
-- [ ] Insert four anchored assertions for `.gitattributes` protected-file `text eol=lf` entries.
+- [ ] Insert seven anchored assertions for `.gitattributes` protected-file `text eol=lf` entries.
 - [ ] Commit test-only change on WU-002B.
 - [ ] Run `node tests/baseline-contract.test.mjs` on this exact remote SHA in an LF checkout; ensure RED specifically because attributes are absent, not unrelated failure.
 
 ### Task 2: Checkout policy GREEN
 **Files:** Create `.gitattributes`.
-- [ ] Add four exact `text eol=lf` entries only for hash-protected files.
+- [ ] Add seven exact `text eol=lf` entries for the four baseline-protected files plus the three platform SVG assets verified by `platform-earnings-contract.test.mjs`.
 - [ ] Commit production policy change on WU-002B.
 - [ ] Fresh clone remote WU-002B on Windows with normal `core.autocrlf=true`.
-- [ ] Verify `git ls-files --eol` shows i/lf w/lf for both HTML and JS, and SHA-256 hash equals `ci/baseline-integrity.json`.
+- [ ] Verify `git ls-files --eol` shows i/lf w/lf for HTML, JS and all platform SVG assets, and SHA-256 hash equals `ci/baseline-integrity.json`.
 - [ ] Run `npm run check`, `npm run build`; record exit codes.
 
 ### Task 3: Independent review + draft PR
