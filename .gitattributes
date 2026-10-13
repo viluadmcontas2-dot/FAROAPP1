@@ -1,7 +1,9 @@
-# Preserve canonical source bytes protected by SHA-256 checks on every OS.
-# These four files are hashed before the static build, so Windows CRLF conversion
-# must not alter their checkout content.
+# Preserve canonical bytes for FARO text sources protected by SHA-256 checks.
+# Windows Git must not convert these seven files to CRLF.
 legacy-shell.html text eol=lf
 app.js text eol=lf
 faro-mark.svg text eol=lf
 icon.svg text eol=lf
+assets/platforms/faro-platform-99.svg text eol=lf
+assets/platforms/faro-platform-indrive.svg text eol=lf
+assets/platforms/faro-platform-uber.svg text eol=lf
