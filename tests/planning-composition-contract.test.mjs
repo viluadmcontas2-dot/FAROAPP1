@@ -32,4 +32,10 @@ assert.doesNotMatch(appShell, /faro-home\.js\?v=1/);
 assert.match(r3b, /root\.insertBefore\(hero, firstGrid\)/, 'R3-B precisa tornar o planejamento o primeiro protagonista sem criar outro owner');
 assert.doesNotMatch(r3b, /app\.state\.[A-Za-z0-9_]+\s*=/, 'Camada visual R3-B não pode virar writer');
 
+// Browser regression: Planning retires the legacy goal card while the inherited
+// render() chain still calls renderGoalBalance() after a successful daily save.
+assert.match(planning,
+  /const baseGoalBalance = app\.renderGoalBalance;[\s\S]*app\.renderGoalBalance = function\(\.\.\.args\)\s*\{[\s\S]*if \(!document\.getElementById\('goalBalancePanel'\)\) return;[\s\S]*return baseGoalBalance\.apply\(this, args\)/,
+  'Planejar deve desativar somente o consumidor visual aposentado, sem impedir salvar dias ou recalcular finanças');
+
 console.log('FARO UX-R3-B.3: Planejar mantém owner único e carrega routing v3 — ok');
