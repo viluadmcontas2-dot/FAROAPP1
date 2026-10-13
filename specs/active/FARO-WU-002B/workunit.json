@@ -1,0 +1,45 @@
+{
+  "workunit_id": "FARO-WU-002B",
+  "issue": "https://github.com/viluadmcontas2-dot/FAROAPP1/issues/17",
+  "branch": "wu/faro-wu-002b-product-hardening",
+  "base_main_sha": "5baf4356d6d63561be94cca48a44525b10e04fa3",
+  "objective": "Cross-platform integrity first; then evidence-gated product hardening without commercial changes.",
+  "state": "FIRST_FUNCTIONAL_BROWSER_FIX_PROVEN_REMAINING_JOURNEYS_UNPROVEN",
+  "scope": [
+    "git checkout policy",
+    "baseline test",
+    "non-destructive verification",
+    "product diagnosis"
+  ],
+  "excluded": [
+    "Stripe live",
+    "billing enable",
+    "production deployment",
+    "protected core mutation",
+    "WU-002 writes"
+  ],
+  "sibling_workunit": "FARO-WU-002 via Issue #15 and PR #16",
+  "next_unproven_item": "Review browser regressions and risk for backup/restore, offline reconciliation and UX on Android; integrate with commercial PR #16 without overlap. No release claims until commercial and physical gates.",
+  "verified_implementation_sha": "1b6c2eb31921075f45fb5eda062906fed347b8a7",
+  "evidence_path": "docs/evidence/FARO-WU-002B-windows-eol-regression.md",
+  "portability_acceptance": {
+    "windows_autocrlf_true": "PASS",
+    "protected_assets_w_lf": 7,
+    "focused_baseline": "PASS",
+    "full_check": "PASS",
+    "static_build": "PASS",
+    "headless_dom_smoke": "PARTIAL",
+    "physical_android": "UNPROVEN",
+    "commercial_billing": "BLOCKED_SEPARATE_WU002"
+  },
+  "daily_save_browser": {
+    "state": "PROVEN",
+    "implementation_sha": "4d734345e13b58ff1517fabf9b94c34288235ae2",
+    "harness_sha": "66ed2ce6ba61f62350162823ae3384c7f4695bc6",
+    "evidence": "docs/evidence/FARO-WU-002B-daily-save-browser-regression.md",
+    "checked": "npm run check PASS; npm run build PASS; real Chrome synthetic platform earnings daily save PASS",
+    "gross_brl": 410,
+    "km": 80,
+    "records": 1
+  }
+}

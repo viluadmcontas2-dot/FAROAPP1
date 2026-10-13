@@ -9,6 +9,20 @@ const sha256 = value => createHash('sha256').update(value).digest('hex');
 const read = path => readFile(path, 'utf8');
 const integrity = JSON.parse(await read('ci/baseline-integrity.json'));
 
+// Strict SHA-256 bytes must survive default Windows Git checkout as LF.
+const checkoutAttributes = await read('.gitattributes');
+for (const [protectedPath, entry] of [
+  ['legacy-shell.html', /^legacy-shell\.html\s+text\s+eol=lf$/m],
+  ['app.js', /^app\.js\s+text\s+eol=lf$/m],
+  ['faro-mark.svg', /^faro-mark\.svg\s+text\s+eol=lf$/m],
+  ['icon.svg', /^icon\.svg\s+text\s+eol=lf$/m],
+  ['assets/platforms/faro-platform-99.svg', /^assets\/platforms\/faro-platform-99\.svg\s+text\s+eol=lf$/m],
+  ['assets/platforms/faro-platform-indrive.svg', /^assets\/platforms\/faro-platform-indrive\.svg\s+text\s+eol=lf$/m],
+  ['assets/platforms/faro-platform-uber.svg', /^assets\/platforms\/faro-platform-uber\.svg\s+text\s+eol=lf$/m]
+]) {
+  assert.match(checkoutAttributes, entry, `Protected ${protectedPath} must remain LF on Windows`);
+}
+
 const rootAppBuffer = await readFile('app.js');
 const legacyBuffer = await readFile('legacy-shell.html');
 const markBuffer = await readFile('faro-mark.svg');
