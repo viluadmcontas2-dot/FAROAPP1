@@ -4,9 +4,32 @@
   "branch": "wu/faro-wu-002b-product-hardening",
   "base_main_sha": "5baf4356d6d63561be94cca48a44525b10e04fa3",
   "objective": "Cross-platform integrity first; then evidence-gated product hardening without commercial changes.",
-  "state": "IN_PROGRESS",
-  "scope": ["git checkout policy", "baseline test", "non-destructive verification", "product diagnosis"],
-  "excluded": ["Stripe live", "billing enable", "production deployment", "protected core mutation", "WU-002 writes"],
+  "state": "PORTABILITY_SLICE_PROVEN_PRODUCT_JOURNEYS_UNPROVEN",
+  "scope": [
+    "git checkout policy",
+    "baseline test",
+    "non-destructive verification",
+    "product diagnosis"
+  ],
+  "excluded": [
+    "Stripe live",
+    "billing enable",
+    "production deployment",
+    "protected core mutation",
+    "WU-002 writes"
+  ],
   "sibling_workunit": "FARO-WU-002 via Issue #15 and PR #16",
-  "next_unproven_item": "Add failing baseline EOL contract, then LF checkout policy and exact remote Windows verification"
+  "next_unproven_item": "Dynamic browser journey for registration, history, backup/restore, sync and mobile UX; no defect fix without reproduction. Keep draft PR and WU-002 separate.",
+  "verified_implementation_sha": "1b6c2eb31921075f45fb5eda062906fed347b8a7",
+  "evidence_path": "docs/evidence/FARO-WU-002B-windows-eol-regression.md",
+  "portability_acceptance": {
+    "windows_autocrlf_true": "PASS",
+    "protected_assets_w_lf": 7,
+    "focused_baseline": "PASS",
+    "full_check": "PASS",
+    "static_build": "PASS",
+    "headless_dom_smoke": "PARTIAL",
+    "physical_android": "UNPROVEN",
+    "commercial_billing": "BLOCKED_SEPARATE_WU002"
+  }
 }
