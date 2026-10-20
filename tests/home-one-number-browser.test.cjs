@@ -42,7 +42,8 @@ const pageHelpers = `
   const faro = await openFaro(root);
   try {
     const run = body => faro.evaluate(`(async () => { ${pageHelpers} ${body} })()`);
-    await run(`app.state.onboardingComplete = true; app.state.targetProfit = 4000; localStorage.removeItem('faro-record-draft-v1'); setRecords([]); return true;`);
+    // Fora do modo instalado o app fica atrás do portão de instalação; o teste mede o produto.
+    await run(`document.documentElement.dataset.faroActivationStage = 'product'; app.state.onboardingComplete = true; app.state.targetProfit = 4000; localStorage.removeItem('faro-record-draft-v1'); setRecords([]); return true;`);
 
     // 1. Sem nenhum registro: estado vazio que convida a agir.
     const empty = await run(`
