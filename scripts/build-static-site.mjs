@@ -118,6 +118,7 @@ await writeFile(join(SITE, '_headers'), buildHeadersFile());
 await writeFile(join(SITE, '_redirects'), buildRedirectsFile());
 
 await mkdir(join(SITE, '.well-known'), { recursive: true });
+await cp('.well-known/assetlinks.json', join(SITE, '.well-known', 'assetlinks.json'));
 await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringify({
   name: 'FARO',
   tagline: 'APP DO MOTORISTA!',

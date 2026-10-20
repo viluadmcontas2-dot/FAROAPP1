@@ -62,6 +62,7 @@ export function headerRules() {
   return [
     { vercel: '/sw.js', cf: '/sw.js', headers: { 'Cache-Control': NO_STORE, 'Service-Worker-Allowed': '/' } },
     { vercel: '/manifest.webmanifest', cf: '/manifest.webmanifest', headers: { 'Cache-Control': NO_STORE, 'Content-Type': 'application/manifest+json; charset=utf-8' } },
+    { vercel: '/.well-known/assetlinks.json', cf: '/.well-known/assetlinks.json', headers: { 'Cache-Control': 'public, max-age=3600', 'Content-Type': 'application/json; charset=utf-8' } },
     { vercel: '/index.html', cf: '/index.html', headers: { 'Cache-Control': NO_STORE } },
     { vercel: '/app-shell.html', cf: '/app-shell.html', headers: { 'Cache-Control': REVALIDATE } },
     { vercel: '/legacy-shell.html', cf: '/legacy-shell.html', headers: { 'Cache-Control': REVALIDATE } },
