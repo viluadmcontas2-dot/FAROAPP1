@@ -153,6 +153,43 @@
       : 'Digite o código que você recebeu. Ele é aplicado na tela de pagamento.';
   };
 
+  // Aviso do teste dentro do app (Início): faltando 2 dias ou menos (dia 6) e no fim. Pode ser dispensado por hoje.
+  const NOTICE_KEY = 'faro-trial-notice-v1';
+  const noticeFor = state => {
+    if (state.kind === 'trial-ending') return { text: state.daysLeft === 1 ? 'Seu teste acaba amanhã. Seus dados continuam salvos.' : `Seu teste acaba em ${state.daysLeft} dias. Seus dados continuam salvos.`, tone: 'ending' };
+    if (state.kind === 'expired') return { text: 'Seu teste acabou. Seus dados continuam aqui para ver e exportar.', tone: 'expired' };
+    return null;
+  };
+  const dayKey = () => new Date().toISOString().slice(0, 10);
+  const noticeDismissed = tone => { try { return root.localStorage?.getItem(NOTICE_KEY) === tone + '|' + dayKey(); } catch { return false; } };
+  const renderNotice = (doc, state) => {
+    const home = doc.getElementById('view-dashboard');
+    if (!home) return;
+    const info = noticeFor(state);
+    let box = doc.getElementById('faroTrialNotice');
+    if (!info || noticeDismissed(info.tone)) { if (box) box.hidden = true; return; }
+    if (!box) {
+      box = doc.createElement('div');
+      box.id = 'faroTrialNotice';
+      box.setAttribute('role', 'status');
+      box.innerHTML = '<span data-faro-trial-text></span><button type="button" data-faro-trial="plan">Ver plano</button><button type="button" data-faro-trial="dismiss" aria-label="Dispensar aviso">Agora não</button>';
+      home.insertBefore(box, home.firstChild);
+      box.addEventListener('click', event => {
+        const action = event.target.closest('[data-faro-trial]')?.dataset.faroTrial;
+        if (action === 'dismiss') {
+          try { root.localStorage?.setItem(NOTICE_KEY, box.dataset.tone + '|' + dayKey()); } catch {}
+          box.hidden = true;
+        } else if (action === 'plan') {
+          root.__vettaApp?.navigateToPrimary('more');
+          doc.getElementById('faroPlan')?.scrollIntoView?.({ block: 'start' });
+        }
+      });
+    }
+    box.dataset.tone = info.tone;
+    box.querySelector('[data-faro-trial-text]').textContent = info.text;
+    box.hidden = false;
+  };
+
   const update = (plan, state, { billingEnabled = false } = {}) => {
     const doc = plan.ownerDocument;
     const $ = id => doc.getElementById(id);
@@ -176,6 +213,7 @@
     if (readOnly) doc.documentElement.dataset.faroReadOnly = 'on';
     else delete doc.documentElement.dataset.faroReadOnly;
     renderPrice(plan);
+    renderNotice(doc, state);
     try { root.dispatchEvent?.(new root.CustomEvent('faro:plan-state', { detail: { kind: state.kind, readOnly } })); } catch {}
     return copy;
   };

@@ -72,24 +72,40 @@ const DAY = 86400000;
     assert.equal(s.kind, 'trial'); assert.equal(s.badge, 'Faltam 5 dias'); assert.equal(s.label, 'Em breve'); assert.equal(s.disabled, true);
     await noOverflow('trial');
     assert.equal(await run(`return window.testRpc;`), 'faro_my_trial_ends_at');
+    const notice = () => run(`const n=el('faroTrialNotice');return n&&!n.hidden&&n.closest('#view-dashboard')?n.querySelector('[data-faro-trial-text]').textContent:'';`);
+    assert.equal(await notice(), '', 'trial com 5 dias não avisa');
 
     // 3. Trial acabando.
     await scenario({ session: true, trialDays: 1.5 });
     s = await state();
     assert.equal(s.kind, 'trial-ending'); assert.equal(s.title, 'Seu teste acaba em 2 dias'); assert.equal(s.badge, 'Faltam 2 dias');
     await noOverflow('trial-ending');
+    // Aviso dentro do app (Início): dia 6 do teste, com ação de ver o plano e opção de dispensar por hoje.
+    assert.equal(await notice(), 'Seu teste acaba em 2 dias. Seus dados continuam salvos.');
+    assert.equal(await run(`app.state.onboardingComplete=true;app.showView('dashboard');await new Promise(r=>setTimeout(r,100));const n=el('faroTrialNotice');const r=[...n.querySelectorAll('button')].map(b=>b.getBoundingClientRect().height);return r.every(h=>h>=47.5)&&n.getBoundingClientRect().width<=document.documentElement.clientWidth;`), true, 'aviso do teste com alvos de 48 px e sem estourar a tela');
+    await run(`el('faroTrialNotice').querySelector('[data-faro-trial=plan]').click();`);
+    assert.equal(await run(`return app.currentView;`), 'more', '"Ver plano" abre a Central');
+    await run(`app.showView('dashboard');el('faroTrialNotice').querySelector('[data-faro-trial=dismiss]').click();`);
+    assert.equal(await notice(), '', '"Agora não" esconde o aviso por hoje');
 
     // 4. Trial acabou, cobrança desligada: nada trava, exportar visível.
     await scenario({ session: true, trialDays: -1 });
     s = await state();
     assert.equal(s.kind, 'expired'); assert.equal(s.exportShown, true); assert.equal(s.readOnly, false); assert.equal(s.ro, ''); assert.equal(s.label, 'Em breve');
     await noOverflow('expired');
+    assert.equal(await notice(), 'Seu teste acabou. Seus dados continuam aqui para ver e exportar.');
+    // Cobrança desligada: "Salvar dia" nunca é bloqueado.
+    assert.equal(await run(`return document.documentElement.hasAttribute('data-faro-read-only');`), false);
 
     // 5. Trial acabou com cobrança ligada (só neste teste): modo leitura, exportar e assinar.
     await scenario({ session: true, trialDays: -1 }, true);
     s = await state();
     assert.equal(s.readOnly, true); assert.equal(s.ro, 'on'); assert.equal(s.label, 'Assinar FARO'); assert.equal(s.disabled, false);
     await noOverflow('leitura');
+    // Modo leitura: "Salvar dia" é barrado (nada é gravado) e o motorista é orientado; o resto do app segue.
+    assert.equal(await run(`return document.documentElement.hasAttribute('data-faro-read-only');`), true);
+    const blocked = await run(`const before=app.state.records.length;app.state.onboardingComplete=true;app.showView('day');el('recordDate').value=app.todayKey();el('recordGross').value='300';el('recordKm').value='100';el('recordKm').dispatchEvent(new Event('input',{bubbles:true}));el('saveDayButton').click();await new Promise(r=>setTimeout(r,150));return {saved:app.state.records.length-before,toast:el('toast')?.textContent||''};`);
+    assert.equal(blocked.saved, 0, 'modo leitura não grava dia'); assert.match(blocked.toast, /Modo leitura/);
     assert.equal(await run(`let n=0;const o=app.exportData;app.exportData=function(){n++};el('faroPlanExport').click();app.exportData=o;return n;`), 1);
     await run(`el('faroSubscriptionAction').click();`); await browser.sleep(200);
     assert.equal(await run(`return window.testInvoke?.name+'|'+location.hash;`), 'criar-checkout-faro|#faro-teste-criar-checkout-faro');
@@ -109,6 +125,17 @@ const DAY = 86400000;
       ['R$ 14,90', false, true, 'Trocar cupom', true]);
     await noOverflow('codigo');
     assert.equal(await run(`return window.nativeConfirms;`), 0);
-    console.log('PASS Chrome plano: sem conta, trial, trial acabando, trial vencido (com e sem cobrança), assinante e código PRAGAS.');
+    // 8. Atualização do PWA: com uma versão nova esperando, aparece "Nova versão disponível" e "Atualizar" ativa a nova.
+    await browser.command('Page.enable', {});
+    await browser.command('Page.addScriptToEvaluateOnNewDocument', { source: `(() => { const sw = { controller: {}, register: async () => ({}), addEventListener() {}, getRegistration: async () => reg };
+      const reg = { waiting: { postMessage: m => { window.__swMsg = m && m.type; } }, installing: null, addEventListener() {}, update: async () => {} };
+      sw.ready = Promise.resolve(reg); Object.defineProperty(navigator, 'serviceWorker', { get: () => sw, configurable: true }); })();` });
+    await scenario({ session: true, trialDays: 5 });
+    for (let i = 0; i < 40 && !(await browser.evaluate(`Boolean(document.getElementById('faroUpdateBar'))`)); i += 1) await browser.sleep(100);
+    assert.equal(await browser.evaluate(`document.getElementById('faroUpdateBar')?.textContent||''`), 'Nova versão disponívelAtualizar');
+    await browser.evaluate(`document.getElementById('faroUpdateApply').click()`);
+    assert.equal(await browser.evaluate(`window.__swMsg`), 'FARO_ACTIVATE_WHEN_SAFE');
+    assert.equal(await browser.evaluate(`document.getElementById('faroUpdateApply').disabled`), true);
+    console.log('PASS Chrome plano: sem conta, trial, trial acabando, trial vencido (com e sem cobrança), aviso do teste, modo leitura, assinante, código PRAGAS e aviso de nova versão.');
   } finally { await browser?.close(); await fs.rm(root, { recursive: true, force: true }); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
