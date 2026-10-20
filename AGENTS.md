@@ -11,7 +11,7 @@
 9. **ACTIONS_LAST = TRUE.** Workflows pesados são manuais/seletivos; mudanças documentais e writes comuns não devem disparar CI pesado.
 10. Evidence before `PROVEN`. `BUILT`, `CONFIGURED`, `INFERRED`, `LOCAL_PASS` e `PROVEN` são estados diferentes.
 11. Não inventar comportamento de provider, evidência física, valores financeiros, sucesso de deploy ou equivalência visual.
-12. Hosting canônico alvo: **Vercel**. Netlify está aposentado como rota futura de release; recursos históricos ficam isolados e não são reutilizados.
+12. Hosting de produção alvo: **Cloudflare Pages** (`docs/deploy/cloudflare-pages.md`); Vercel é preview opcional (`vercel.json` mantido). Netlify está aposentado como rota futura de release; recursos históricos ficam isolados e não são reutilizados.
 13. Supabase dedicado do FARO Financeiro e Stripe são preservados; billing permanece fail-closed enquanto o E2E real não passar.
 14. Branches só podem ser apagadas após prova remota de redundância/ancestralidade ou após conteúdo único ter sido absorvido.
 15. Um agente limpo deve conseguir retomar o FARO apenas pelo GitHub remoto. Se não conseguir, o handoff está incompleto.

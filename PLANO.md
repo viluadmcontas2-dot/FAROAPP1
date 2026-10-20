@@ -36,7 +36,7 @@ Linha canônica: branch `claude/pwa-driver-production-fm0kk9` (contém WU-004 po
 - [ ] Playwright 320/390/768, axe, Lighthouse; orçamento de desempenho.
 - [ ] E2E Stripe sandbox (checkout, webhook, portal, PRAGAS) e regressão.
 - [ ] Dono: teste em iPhone e Android reais (2 dias de uso).
-- [ ] Preview Vercel manual; só então `billingEnabled=true` e deploy de produção (gate manual).
+- [ ] Preview (Cloudflare Pages por branch, ou Vercel opcional) manual; só então `billingEnabled=true` e deploy de produção (gate manual).
 
 ## Fora do escopo (decidido)
 APK/Play Billing, ranking público, comparativo da cidade (v2), Pix recorrente (exige outro gateway; avaliar depois), rastreio de km em segundo plano.
