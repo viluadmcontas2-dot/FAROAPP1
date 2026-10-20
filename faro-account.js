@@ -17,6 +17,8 @@
   let syncTimer = null;
   let pendingConflict = null;
   let authMode = 'signin';
+  let deletionInProgress = false;
+  const DELETED_BACKUP_KEY = 'faro-deleted-account-backup-v1';
 
   const readMeta = () => {
     try {
@@ -85,7 +87,17 @@
         <strong id="faroSubscriptionTitle" class="block text-sm">Sem assinatura ativa</strong>
         <p id="faroSubscriptionText" class="text-xs text-slate-500 mt-1">A cobrança comercial será vinculada à sua conta.</p>
         <button id="faroSubscriptionAction" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">ASSINAR FARO</button>
-      </div>`;
+      </div>
+      <nav class="mt-5 grid gap-2" aria-label="Privacidade e conta">
+        <a href="termos.html" class="text-sm">Termos de uso</a>
+        <a href="privacidade.html" class="text-sm">Política de privacidade</a>
+        <button id="faroExportData" type="button" class="text-sm">Exportar meus dados</button>
+        <button id="faroDeleteAccount" type="button" class="text-sm">Excluir minha conta</button>
+        <div id="faroDeletedBackup" class="hidden text-sm"><p>Cópia da conta guardada neste aparelho.</p>
+          <button id="faroExportDeleted" type="button">Exportar cópia guardada</button>
+          <button id="faroRemoveDeleted" type="button">Apagar cópia guardada</button>
+        </div>
+      </nav>`;
     const intro = $('faroCentralIntro');
     if (intro) intro.insertAdjacentElement('afterend', card);
     else central.prepend(card);
@@ -136,6 +148,28 @@
         </div>
       </div>`;
     document.body.appendChild(conflict);
+    const deletion = document.createElement('dialog');
+    deletion.id = 'faroDeleteDialog';
+    deletion.setAttribute('aria-labelledby', 'faroDeleteTitle');
+    deletion.innerHTML = `<h2 id="faroDeleteTitle">Excluir minha conta</h2>
+      <div id="faroDeleteStepOne"><p>Etapa 1 de 2. Isso cancela a assinatura e apaga sua conta e os dados sincronizados. Não dá para desfazer.</p>
+      <p>Vamos guardar uma cópia exportável neste aparelho. Você pode apagá-la depois. Outros aparelhos e arquivos exportados precisam ser limpos por você.</p>
+      <button id="faroDeleteExport" type="button">Exportar meus dados</button>
+      <button id="faroDeleteContinue" type="button">Continuar exclusão</button></div>
+      <div id="faroDeleteStepTwo" hidden><p>Etapa 2 de 2. Digite EXCLUIR para confirmar.</p>
+      <label for="faroDeleteWord">Confirmação</label><input id="faroDeleteWord" autocomplete="off" spellcheck="false">
+      <button id="faroDeleteConfirm" type="button" disabled>Excluir conta definitivamente</button></div>
+      <p id="faroDeleteNotice" role="status"></p><button id="faroDeleteCancel" type="button">Voltar sem excluir</button>`;
+    document.body.appendChild(deletion);
+    const style = document.createElement('style');
+    style.textContent = `#faroAccountCard nav a,#faroAccountCard nav button{min-height:48px;display:flex;align-items:center;text-align:left}
+      #faroDeleteDialog{background:#0C0D0F;color:#F5F1E6;border:1px solid #FFC21A;border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:460px;max-height:85dvh;overflow:auto;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+      #faroDeleteDialog::backdrop{background:#000b}#faroDeleteDialog h2{font-size:22px;color:#FFC21A}#faroDeleteDialog p{margin:16px 0}
+      #faroDeleteDialog button{min-height:48px;width:100%;touch-action:manipulation;color:#FFC21A}#faroDeleteDialog button:disabled{opacity:.5}
+      #faroDeleteDialog input{font-size:16px;background:#17191D;color:#F5F1E6;border:1px solid #CCC;padding:12px;width:100%}
+      #faroDeleteDialog :focus-visible{outline:2px solid #FFC21A;outline-offset:2px}`;
+    document.head.appendChild(style);
+    $('faroDeletedBackup').classList.toggle('hidden', !localStorage.getItem(DELETED_BACKUP_KEY));
   };
   injectUi();
 
@@ -191,6 +225,7 @@
   };
 
   const scheduleSync = () => {
+    if (deletionInProgress) return;
     if (!configured || !session || !navigator.onLine) return;
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => syncNow('debounced'), 2500);
@@ -336,6 +371,7 @@
   };
 
   async function syncNow() {
+    if (deletionInProgress) return;
     if (!configured || !session?.user || !navigator.onLine || syncing) return;
     syncing = true;
     setSyncText('Salvando sua conta…');
@@ -467,6 +503,96 @@
     app.toast('Conta desconectada deste aparelho.');
   };
 
+  const exportDeletedBackup = () => {
+    const saved = localStorage.getItem(DELETED_BACKUP_KEY);
+    if (!saved) return;
+    // Reutilizar o exportador sem recolocar a cópia no estado ativo/sincronizado.
+    app.exportData.call(Object.assign(Object.create(app), { state: JSON.parse(saved) }));
+  };
+
+  const clearDeletedAccountState = () => {
+    session = null;
+    pendingConflict = null;
+    $('faroSyncConflict').classList.add('hidden');
+    for (const key of [SYNC_META_KEY, DEVICE_KEY, 'faro-record-draft-v1', 'faro-onboarding-draft-v2',
+      'vetta-driver-intelligence-v3', 'vetta-driver-intelligence-v2', 'vetta-state', 'faro-app-finance-v1']) localStorage.removeItem(key);
+    app.state = app.cloneDefaults();
+    app.state.onboardingComplete = false;
+    saveWithoutDirty();
+    app.syncInputs();
+    app.render();
+    $('faroDeletedBackup').classList.remove('hidden');
+  };
+
+  const deleteAccount = async () => {
+    if (deletionInProgress || $('faroDeleteStepTwo').hidden || $('faroDeleteWord').value !== 'EXCLUIR') return;
+    if (!client || !session?.user || session.user.is_anonymous) return;
+    if (!navigator.onLine) { $('faroDeleteNotice').textContent = 'Conecte-se à internet para excluir.'; return; }
+    if (syncing) { $('faroDeleteNotice').textContent = 'Aguarde a sincronização terminar e tente novamente.'; return; }
+    deletionInProgress = true;
+    clearTimeout(syncTimer);
+    for (const id of ['faroDeleteConfirm', 'faroDeleteCancel']) $(id).disabled = true;
+    $('faroDeleteNotice').textContent = 'Excluindo conta…';
+    let deleted = false;
+    let backupCreated = false;
+    try {
+      // Sem espaço para preservar a cópia, não iniciar a operação destrutiva.
+      if (localStorage.getItem(DELETED_BACKUP_KEY)) throw new Error('backup existente');
+      localStorage.setItem(DELETED_BACKUP_KEY, JSON.stringify(app.state));
+      backupCreated = true;
+      const { data, error } = await client.functions.invoke('excluir-conta-faro', { body: { confirmation: 'EXCLUIR' } });
+      if (error || data?.deleted !== true) throw new Error('exclusão não confirmada');
+      deleted = true;
+      // O usuário já não existe; logout local não depende de refresh no servidor.
+      try { await client.auth.signOut({ scope: 'local' }); } catch { /* limpar sessão abaixo */ }
+      const authKey = `sb-${new URL(config.supabaseUrl).hostname.split('.')[0]}-auth-token`;
+      localStorage.removeItem(authKey);
+      clearDeletedAccountState();
+      await setAccountState();
+      $('faroDeleteDialog').close();
+      app.toast('Conta excluída. Sua cópia continua disponível para exportar.');
+      // O Registro salva o formulário em pagehide; remover esse rascunho após seus listeners.
+      window.addEventListener('pagehide', () => localStorage.removeItem('faro-record-draft-v1'), { once: true });
+      location.reload();
+    } catch {
+      $('faroDeleteNotice').textContent = deleted
+        ? 'Conta excluída no servidor. Não foi possível concluir a limpeza do aparelho. Exporte a cópia e limpe os dados deste site.'
+        : 'Exclusão não confirmada. Seus dados locais continuam aqui. Confira sua conexão e tente novamente.';
+      if (!deleted && backupCreated) localStorage.removeItem(DELETED_BACKUP_KEY);
+    } finally {
+      deletionInProgress = deleted;
+      $('faroDeleteConfirm').disabled = deleted;
+      $('faroDeleteCancel').disabled = false;
+    }
+  };
+
+  $('faroExportData').addEventListener('click', () => app.exportData());
+  $('faroDeleteExport').addEventListener('click', () => app.exportData());
+  $('faroExportDeleted').addEventListener('click', exportDeletedBackup);
+  $('faroRemoveDeleted').addEventListener('click', () => {
+    localStorage.removeItem(DELETED_BACKUP_KEY);
+    $('faroDeletedBackup').classList.add('hidden');
+  });
+  $('faroDeleteAccount').addEventListener('click', () => {
+    if (!session?.user || session.user.is_anonymous) return app.toast('Entre com sua conta para excluir.');
+    if (localStorage.getItem(DELETED_BACKUP_KEY)) return app.toast('Exporte e apague a cópia guardada antes de excluir outra conta.');
+    $('faroDeleteStepOne').hidden = false;
+    $('faroDeleteStepTwo').hidden = true;
+    $('faroDeleteWord').value = '';
+    $('faroDeleteConfirm').disabled = true;
+    $('faroDeleteNotice').textContent = '';
+    $('faroDeleteDialog').showModal();
+  });
+  $('faroDeleteContinue').addEventListener('click', () => {
+    $('faroDeleteStepOne').hidden = true;
+    $('faroDeleteStepTwo').hidden = false;
+    $('faroDeleteWord').focus();
+  });
+  $('faroDeleteWord').addEventListener('input', () => { $('faroDeleteConfirm').disabled = deletionInProgress || $('faroDeleteWord').value !== 'EXCLUIR'; });
+  $('faroDeleteConfirm').addEventListener('click', deleteAccount);
+  $('faroDeleteCancel').addEventListener('click', () => $('faroDeleteDialog').close());
+  $('faroDeleteDialog').addEventListener('cancel', event => { if (deletionInProgress) event.preventDefault(); });
+
   const openBilling = async () => {
     if (!billingEnabled) return app.toast('Assinatura ainda não está disponível.');
     if (!configured || !client || !session?.user) return app.toast('Salve seu FARO na conta antes de gerenciar a assinatura.');
@@ -523,6 +649,7 @@
       const { data } = await supabase.auth.getSession();
       session = data.session;
       supabase.auth.onAuthStateChange((event, nextSession) => {
+        if (deletionInProgress) return;
         session = nextSession;
         if (event === 'PASSWORD_RECOVERY') {
           $('faroAccountModal').classList.remove('hidden');
