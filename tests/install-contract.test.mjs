@@ -64,7 +64,7 @@ contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<m
 contains(index, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Entrada deve pedir a geração nova do manifest ao Android/Chrome');
 contains(shell, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Shell deve pedir a mesma geração nova do manifest');
 contains(shell, ".replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">', '<link rel=\"manifest\" href=\"./manifest.webmanifest?v=2\">')", 'Shell final não pode reintroduzir a geração antiga do manifest ao escrever o legado');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-31'", 'Geração premium precisa renovar o core cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-32'", 'Geração premium precisa renovar o core cache');
 contains(sw, "'./manifest.webmanifest?v=2'", 'PWA deve armazenar a mesma geração versionada do manifest');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');

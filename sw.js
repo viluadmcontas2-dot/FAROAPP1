@@ -1,4 +1,4 @@
-const CORE_CACHE = 'faro-v1-core-31';
+const CORE_CACHE = 'faro-v1-core-32';
 const EXTERNAL_CACHE = 'faro-v1-external-2';
 
 const APP_SHELL = [
@@ -147,6 +147,20 @@ self.addEventListener('fetch', event => {
   event.respondWith(staleWhileRevalidate(event.request, event));
 });
 
+// Estáticos: chave sem query string (evita crescer o cache com ?v=...) e nunca guarda o fallback HTML
+// da SPA devolvido sob URL de asset (js, css, imagem, fonte).
+const ASSET_PATH = /\.(?:js|mjs|css|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|json|webmanifest|map)$/i;
+const isAssetUrl = url => ASSET_PATH.test(new URL(url).pathname);
+const assetCacheKey = request => {
+  const url = new URL(request.url);
+  return isAssetUrl(request.url) ? new Request(url.origin + url.pathname) : request;
+};
+const isCacheableResponse = (request, response) => {
+  if (!response || !response.ok) return false;
+  if (!isAssetUrl(request.url)) return true;
+  return !/text\/html/i.test(response.headers.get('content-type') || '');
+};
+
 // HTML: rede primeiro (3s) para sempre pegar o shell novo; offline cai no cache e depois em offline.html.
 async function networkFirst(request) {
   const cache = await caches.open(CORE_CACHE);
@@ -155,7 +169,7 @@ async function networkFirst(request) {
       fetch(request, { cache: 'no-store' }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
     ]);
-    if (response.ok) await cache.put(request, response.clone());
+    if (isCacheableResponse(request, response)) await cache.put(request, response.clone());
     return response;
   } catch (error) {
     const cached = await caches.match(request, { ignoreSearch: true });
@@ -168,9 +182,10 @@ async function networkFirst(request) {
 // Estáticos (js, css, fontes, imagens): responde do cache na hora e atualiza em segundo plano.
 async function staleWhileRevalidate(request, event) {
   const cache = await caches.open(CORE_CACHE);
-  const cached = await cache.match(request);
+  const key = assetCacheKey(request);
+  const cached = await cache.match(key);
   const refresh = fetch(request).then(response => {
-    if (response.ok) cache.put(request, response.clone());
+    if (isCacheableResponse(request, response)) cache.put(key, response.clone());
     return response;
   }).catch(() => null);
   if (cached) {

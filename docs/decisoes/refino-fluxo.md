@@ -18,7 +18,7 @@ Objetivo: deixar a jornada do motorista novo "redonda" para publicar, sem refato
 | Início, marcador "ritmo" | rótulo cortado na borda esquerda quando o ritmo está perto de 0 | encosta na borda, sem sair da tela |
 | Atualização do PWA | existia, sem teste | testado: "Nova versão disponível" > Atualizar manda `FARO_ACTIVATE_WHEN_SAFE` e trava o botão |
 
-Cache do app: `faro-v1-core-31` (e `npm run headers:sync`).
+Cache do app: `faro-v1-core-32` (e `npm run headers:sync`).
 
 ## Provas (extensões dos testes de navegador existentes)
 - `tests/plans-browser.test.cjs`: aviso do teste (sem aviso com 5 dias, aviso com 2 dias, dispensar, fim), modo leitura barra "Salvar dia" (e cobrança desligada não barra), aviso de nova versão.
