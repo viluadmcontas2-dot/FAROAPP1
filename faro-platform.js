@@ -116,13 +116,13 @@
       #faroInstallGate .faro-install-mark{width:72px;height:72px;border-radius:23px;background:#eff6ff;display:grid;place-items:center;margin-bottom:18px}
       #faroInstallGate .faro-install-mark img{width:56px;height:56px;object-fit:contain}
       #faroInstallGate .faro-install-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:18px}
-      #faroInstallGate .faro-install-benefit{border-radius:15px;background:#f8fafc;padding:11px 9px;text-align:center;font-size:10px;line-height:1.35;font-weight:800;color:#475569}
+      #faroInstallGate .faro-install-benefit{border-radius:15px;background:#f8fafc;padding:11px 9px;text-align:center;font-size:12px;line-height:1.35;font-weight:800;color:#475569}
       #faroInstallGate .faro-install-tutorial{margin-top:18px;border:1px solid #dbeafe;border-radius:20px;background:#eff6ff;padding:16px}
       #faroInstallGate .faro-install-tutorial ol{margin:11px 0 0;padding-left:20px;display:grid;gap:9px;color:#334155;font-size:12px;line-height:1.45}
       #faroInstallGate .faro-install-button{width:100%;margin-top:18px;min-height:54px;border:0;border-radius:17px;background:#2563eb;color:#fff;font-size:13px;font-weight:900;letter-spacing:.02em;box-shadow:0 12px 28px rgba(37,99,235,.24)}
       #faroInstallGate .faro-install-button:disabled{opacity:.62;box-shadow:none}
-      #faroInstallGate .faro-install-help{margin-top:12px;text-align:center;color:#64748b;font-size:11px;line-height:1.5}
-      #faroInstallGate .faro-install-device{display:inline-flex;margin-top:12px;padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+      #faroInstallGate .faro-install-help{margin-top:12px;text-align:center;color:#64748b;font-size:12px;line-height:1.5}
+      #faroInstallGate .faro-install-device{display:inline-flex;margin-top:12px;padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
       #faroInstallGate[data-state="installed"] .faro-install-tutorial{background:#ecfdf5;border-color:#a7f3d0}
       #faroInstallGate[data-state="installed"] .faro-install-mark{background:#ecfdf5}
       @media(max-width:390px){#faroInstallGate{padding:10px}#faroInstallGate .faro-install-sheet{padding:20px;border-radius:24px}#faroInstallGate .faro-install-benefits{grid-template-columns:1fr}}
@@ -191,7 +191,7 @@
         </div>
         <button id="faroInstallGateButton" type="button" class="faro-install-button"></button>
         <p id="faroInstallGateHelp" class="faro-install-help hidden" aria-live="polite"></p>
-        <p class="text-[10px] text-slate-400 text-center mt-4">Já instalou? Abra o FARO pelo ícone.</p>
+        <p class="text-xs text-slate-400 text-center mt-4">Já instalou? Abra o FARO pelo ícone.</p>
       </div>`;
     document.body.appendChild(gate);
     lockProductBehindGate(gate);

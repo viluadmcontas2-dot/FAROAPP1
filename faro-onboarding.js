@@ -49,16 +49,16 @@
       #onboardingModal .faro-choice.active{border-color:#2563eb;background:#eff6ff;color:#1d4ed8;box-shadow:0 0 0 1px #2563eb inset}
       #onboardingModal .faro-choice:active,#onboardingModal .faro-chip:active{transform:scale(.97)}
       #onboardingModal .faro-helper{font-size:12px;line-height:1.5;color:#64748b}
-      #onboardingModal .faro-estimate{display:inline-flex;border-radius:999px;background:#fff7ed;color:#c2410c;padding:6px 9px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+      #onboardingModal .faro-estimate{display:inline-flex;border-radius:999px;background:#fff7ed;color:#c2410c;padding:6px 9px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
       #onboardingModal .faro-money{appearance:textfield;-moz-appearance:textfield}
       #onboardingModal .faro-money::-webkit-outer-spin-button,#onboardingModal .faro-money::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
       #onboardingModal .faro-target{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#0b1121;color:#fff;border-radius:20px;padding:16px}
       #onboardingModal .faro-target input{width:140px;background:transparent;color:#fff;font-size:26px;font-weight:900;text-align:right;border:0;outline:0}
       #onboardingModal .faro-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-      #onboardingModal .faro-chip{min-height:44px;border-radius:14px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;transition:.12s ease}
+      #onboardingModal .faro-chip{min-height:48px;border-radius:14px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;transition:.12s ease}
       #onboardingModal .faro-cost-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 13px;border-radius:15px;background:#f8fafc;animation:faroRise .18s ease-out}
       #onboardingModal .faro-cost-actions{display:flex;gap:6px}
-      #onboardingModal .faro-cost-action{min-width:42px;min-height:42px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:900}
+      #onboardingModal .faro-cost-action{min-width:48px;min-height:48px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:900}
       #onboardingModal .faro-processing-mark{width:90px;height:90px;border-radius:30px;background:#eff6ff;display:grid;place-items:center;margin:12px auto 20px;animation:faroSniff 1.15s ease-in-out infinite}
       #onboardingModal .faro-processing-mark img{width:66px;height:66px;object-fit:contain}
       #onboardingModal .faro-processing-dots{display:flex;justify-content:center;gap:7px;margin-top:18px}
@@ -161,7 +161,7 @@
 
         <section data-faro-step="target" class="hidden space-y-5">
           <p class="text-sm text-slate-500">Quanto você quer que <strong class="text-slate-700">sobre no seu bolso</strong> ao final do mês?</p>
-          <div class="faro-target"><div><span class="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">Objetivo líquido</span><strong class="block mt-1">R$ por mês</strong></div><input id="faroTargetNumber" class="faro-money" type="number" min="500" max="50000" step="100" inputmode="numeric"></div>
+          <div class="faro-target"><div><span class="text-xs uppercase tracking-widest text-slate-400 font-extrabold">Objetivo líquido</span><strong class="block mt-1">R$ por mês</strong></div><input id="faroTargetNumber" class="faro-money" type="number" min="500" max="50000" step="100" inputmode="numeric"></div>
           <input id="faroTargetSlider" type="range" min="500" max="20000" step="100" class="w-full" aria-label="Objetivo líquido mensal">
           <div class="faro-chips"><button type="button" data-target-add="50" class="faro-chip">+ R$50</button><button type="button" data-target-add="100" class="faro-chip">+ R$100</button><button type="button" data-target-add="500" class="faro-chip">+ R$500</button></div>
           <p class="faro-helper">Arraste para chegar rápido; use os atalhos ou digite o valor exato quando quiser precisão.</p>
@@ -221,7 +221,7 @@
 
         <section data-faro-step="result" class="hidden space-y-5">
           <div><span id="faroPlanStatus" class="faro-estimate">estimativa inicial</span><h3 class="text-2xl font-extrabold mt-3">Seu primeiro plano está pronto.</h3><p id="faroPlanExplanation" class="text-sm text-slate-500 mt-2 leading-relaxed"></p></div>
-          <div class="faro-plan-hero"><span class="text-[10px] uppercase tracking-widest text-blue-200 font-extrabold">Faturamento necessário por dia</span><strong id="faroPlanDailyGross" class="faro-plan-value block mt-2">R$ 0</strong><p id="faroPlanDailyHint" class="text-xs text-slate-300 mt-3"></p></div>
+          <div class="faro-plan-hero"><span class="text-xs uppercase tracking-widest text-blue-200 font-extrabold">Faturamento necessário por dia</span><strong id="faroPlanDailyGross" class="faro-plan-value block mt-2">R$ 0</strong><p id="faroPlanDailyHint" class="text-xs text-slate-300 mt-3"></p></div>
           <div class="faro-plan-grid"><div class="faro-plan-metric"><span class="label-micro">Dias planejados</span><strong id="faroPlanDays" class="text-lg"></strong></div><div class="faro-plan-metric"><span class="label-micro">Rodagem estimada/dia</span><strong id="faroPlanKm" class="text-lg"></strong></div><div class="faro-plan-metric"><span class="label-micro">Energia por km</span><strong id="faroPlanEnergyKm" class="text-lg"></strong></div><div class="faro-plan-metric"><span class="label-micro">Ritmo semanal</span><strong id="faroPlanWeek" class="text-lg"></strong></div></div>
           <div id="faroPlanNote" class="rounded-2xl bg-amber-50 text-amber-800 p-4 text-xs leading-relaxed"></div>
         </section>

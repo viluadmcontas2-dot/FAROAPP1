@@ -29,6 +29,12 @@
       "purpose": "any"
     },
     {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "./faro-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
@@ -47,5 +53,54 @@
       "url": "./manifest.webmanifest"
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "dir": "ltr",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "shortcuts": [
+    {
+      "name": "Registrar dia",
+      "short_name": "Registrar",
+      "description": "Lance os ganhos e gastos de hoje",
+      "url": "./app-shell.html?atalho=registrar",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Início",
+      "short_name": "Início",
+      "description": "Veja a meta e o resultado de hoje",
+      "url": "./app-shell.html?atalho=inicio",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshot-home.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Meta de hoje e resultado da semana"
+    },
+    {
+      "src": "./screenshot-register.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Registrar o dia em poucos toques"
+    }
+  ]
 }

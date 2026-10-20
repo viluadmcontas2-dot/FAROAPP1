@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { buildHeadersFile, buildRedirectsFile } from './csp.mjs';
 
 const SITE = '_site';
 
@@ -37,17 +38,39 @@ const copyFiles = [
   'faro-account.js',
   'faro-notifications.js',
   'faro-r2-polish.js',
+  'faro-pwa.js',
   'faro-onboarding.js',
   'faro-onboarding-commit.js',
   'faro-tour.js',
   'styles.css',
   'index.html',
+  'offline.html',
   'manifest.webmanifest',
   'sw.js',
   'icon.svg',
   'icon-192.png',
   'icon-512.png',
+  'icon-maskable-512.png',
+  'apple-touch-icon.png',
+  'favicon-32.png',
+  'screenshot-home.png',
+  'screenshot-register.png',
   'faro-mark.svg',
+  // Dependências de terceiros hospedadas localmente com versão fixa (sem CDN).
+  'vendor/chart-4.5.1.umd.min.js',
+  'vendor/fontawesome-6.4.0/css/all.min.css',
+  'vendor/fontawesome-6.4.0/webfonts/fa-brands-400.woff2',
+  'vendor/fontawesome-6.4.0/webfonts/fa-regular-400.woff2',
+  'vendor/fontawesome-6.4.0/webfonts/fa-solid-900.woff2',
+  'vendor/fontawesome-6.4.0/webfonts/fa-v4compatibility.woff2',
+  'vendor/fonts/plus-jakarta-sans-latin-400-normal.woff2',
+  'vendor/fonts/plus-jakarta-sans-latin-500-normal.woff2',
+  'vendor/fonts/plus-jakarta-sans-latin-600-normal.woff2',
+  'vendor/fonts/plus-jakarta-sans-latin-700-normal.woff2',
+  'vendor/fonts/plus-jakarta-sans-latin-800-normal.woff2',
+  'vendor/fonts/plus-jakarta-sans.css',
+  'vendor/supabase-js-2.112.3.mjs',
+  'vendor/tailwind.css',
   'assets/platforms/faro-platform-99.svg',
   'assets/platforms/faro-platform-indrive.svg',
   'assets/platforms/faro-platform-uber.svg'
@@ -82,6 +105,10 @@ for (const path of copyFiles) {
   if (path === 'app.js') await writeFile(target, transformAppJs(buffer.toString('utf8')));
   else await cp(path, target);
 }
+
+// Cloudflare Pages: cabeçalhos de segurança/cache e fallback de SPA (mesma política do vercel.json).
+await writeFile(join(SITE, '_headers'), buildHeadersFile());
+await writeFile(join(SITE, '_redirects'), buildRedirectsFile());
 
 await mkdir(join(SITE, '.well-known'), { recursive: true });
 await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringify({

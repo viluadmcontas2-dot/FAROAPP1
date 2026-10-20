@@ -6,7 +6,7 @@
 
   const SYNC_META_KEY = 'faro-sync-meta-v1';
   const DEVICE_KEY = 'faro-device-id-v1';
-  const SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/+esm';
+  const SDK_URL = './vendor/supabase-js-2.112.3.mjs';
   const $ = id => document.getElementById(id);
   const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey);
   const billingEnabled = config.billingEnabled === true;
@@ -73,7 +73,7 @@
     card.innerHTML = `
       <div class="flex justify-between items-start gap-3">
         <div><span class="label-micro !text-blue-700">Minha conta</span><h3 id="faroAccountTitle" class="text-lg font-extrabold">Seus dados estão neste aparelho</h3><p id="faroAccountText" class="text-xs text-slate-500 mt-2">O uso local continua funcionando mesmo sem internet.</p></div>
-        <span id="faroAccountBadge" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-extrabold">LOCAL</span>
+        <span id="faroAccountBadge" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-extrabold">LOCAL</span>
       </div>
       <div class="mt-4 rounded-2xl bg-slate-50 p-4"><span class="label-micro">Seus dados</span><strong id="faroSyncStatus" class="block text-sm">Salvos neste aparelho</strong></div>
       <div id="faroAccountActions" class="mt-4 grid gap-2">
@@ -102,7 +102,7 @@
         <div class="space-y-4 mt-5">
           <div><label class="label-micro" for="faroEmail">E-mail</label><input id="faroEmail" type="email" inputmode="email" autocomplete="email" class="input-vetta no-mask" placeholder="voce@exemplo.com"></div>
           <div><label class="label-micro" for="faroPassword">Senha</label><input id="faroPassword" type="password" autocomplete="current-password" class="input-vetta no-mask" placeholder="Sua senha"></div>
-          <div id="faroPasswordConfirmWrap" class="hidden"><label class="label-micro" for="faroPasswordConfirm">Confirme a senha</label><input id="faroPasswordConfirm" type="password" autocomplete="new-password" class="input-vetta no-mask" placeholder="Digite a senha novamente"><p class="text-[10px] text-slate-500 mt-2">Use pelo menos 8 caracteres.</p></div>
+          <div id="faroPasswordConfirmWrap" class="hidden"><label class="label-micro" for="faroPasswordConfirm">Confirme a senha</label><input id="faroPasswordConfirm" type="password" autocomplete="new-password" class="input-vetta no-mask" placeholder="Digite a senha novamente"><p class="text-xs text-slate-500 mt-2">Use pelo menos 8 caracteres.</p></div>
           <div id="faroSignInActions" class="grid gap-2">
             <button id="faroSignIn" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">ENTRAR</button>
             <button id="faroShowSignup" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">CRIAR MINHA CONTA</button>

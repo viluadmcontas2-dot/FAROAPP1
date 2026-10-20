@@ -73,12 +73,12 @@
     style.id = 'faroRegisterStyles';
     style.textContent = `
       #view-day .faro-register-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
-      #view-day .faro-register-chip{min-height:42px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:800;border:1px solid #dbeafe;transition:transform .1s ease,background-color .12s ease}
+      #view-day .faro-register-chip{min-height:48px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:800;border:1px solid #dbeafe;transition:transform .1s ease,background-color .12s ease}
       #view-day .faro-register-chip:active{transform:scale(.97);background:#dbeafe}
       #view-day .faro-register-gross-grid--detailed{grid-template-columns:1fr}
       #view-day .faro-register-gross-grid--detailed .faro-register-gross-field{display:none}
       #view-day .faro-earnings-section{display:grid;gap:12px;padding:16px;border-radius:22px;background:#f8fafc;border:1px solid #e2e8f0}
-      #view-day .faro-earnings-head p{margin-top:5px;color:#64748b;font-size:11px;line-height:1.5;font-weight:600}
+      #view-day .faro-earnings-head p{margin-top:5px;color:#64748b;font-size:12px;line-height:1.5;font-weight:600}
       #view-day .faro-earnings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
       #view-day .faro-earning-card{min-width:0;border:1px solid #e2e8f0;border-radius:var(--faro-radius-card,22px);background:#fff;overflow:hidden;box-shadow:var(--faro-shadow-card,none);transition:border-color .12s ease,box-shadow .12s ease}
       #view-day .faro-earning-card[data-active="true"]{border-color:#93c5fd;box-shadow:0 12px 26px -22px rgba(37,99,235,.55)}
@@ -89,20 +89,20 @@
       #view-day .faro-extra-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;color:#2563eb;font-size:16px}
       #view-day .faro-earning-copy{min-width:0;display:grid;gap:3px}
       #view-day .faro-earning-name{min-width:0;font-size:12px;line-height:1.2;font-weight:800;color:#0f172a;overflow-wrap:anywhere}
-      #view-day .faro-earning-state{font-size:9.5px;line-height:1.25;font-weight:700;color:#94a3b8;font-variant-numeric:tabular-nums}
+      #view-day .faro-earning-state{font-size:12px;line-height:1.25;font-weight:700;color:#64748b;font-variant-numeric:tabular-nums}
       #view-day .faro-earning-card[data-used="true"] .faro-earning-state{color:#1d4ed8}
-      #view-day .faro-earning-add{color:#94a3b8;font-size:11px;text-align:right;transition:transform .12s ease,color .12s ease}
+      #view-day .faro-earning-add{color:#94a3b8;font-size:12px;text-align:right;transition:transform .12s ease,color .12s ease}
       #view-day .faro-earning-card[data-active="true"] .faro-earning-add{color:#2563eb;transform:rotate(45deg)}
       #view-day .faro-earning-field{padding:0 11px 11px}
-      #view-day .faro-earning-field label{display:block;margin-bottom:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
+      #view-day .faro-earning-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
       #view-day .faro-earnings-total{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:var(--faro-radius-card,22px);background:#0b1121;color:#fff}
-      #view-day .faro-earnings-total span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#bfdbfe}
+      #view-day .faro-earnings-total span{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#bfdbfe}
       #view-day .faro-earnings-total strong{font-size:24px;line-height:1;font-weight:800;letter-spacing:-.04em}
       #view-day .faro-earnings-legacy{display:grid;gap:12px;padding:14px;border-radius:var(--faro-radius-row,17px);background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
-      #view-day .faro-earnings-legacy strong{font-size:12px}.faro-earnings-legacy p{margin-top:4px;font-size:10px;line-height:1.45}
-      #view-day .faro-earnings-legacy button{min-height:42px;border-radius:13px;background:#fff;color:#c2410c;font-size:10px;font-weight:800;border:1px solid #fdba74}
+      #view-day .faro-earnings-legacy strong{font-size:12px}.faro-earnings-legacy p{margin-top:4px;font-size:12px;line-height:1.45}
+      #view-day .faro-earnings-legacy button{min-height:48px;border-radius:13px;background:#fff;color:#c2410c;font-size:12px;font-weight:800;border:1px solid #fdba74}
       #saveDayButton[data-saving="true"]{opacity:.68;pointer-events:none}
-      #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:#64748b;font-size:11px;font-weight:700}
+      #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:#64748b;font-size:12px;font-weight:700}
       @media(max-width:350px){#view-day .faro-earning-toggle{grid-template-columns:38px 1fr 18px;padding:9px}#view-day .faro-earning-brand,#view-day .faro-extra-icon{width:38px;height:38px}}
       @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip,#view-day .faro-earning-card,#view-day .faro-earning-add{transition:none}#view-day .faro-register-chip:active{transform:none}}
     `;

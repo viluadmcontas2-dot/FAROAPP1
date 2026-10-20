@@ -29,7 +29,7 @@
       .faro-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 20px 12px;background:#fff;position:sticky;top:0;z-index:2}
       .faro-dialog--focus .faro-dialog-head,.faro-dialog--workspace .faro-dialog-head{padding:20px 20px 14px}
       .faro-dialog--focus .faro-dialog-head>div,.faro-dialog--workspace .faro-dialog-head>div{flex:1;min-width:0}
-      .faro-dialog-kicker{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.075em;color:#2563EB}
+      .faro-dialog-kicker{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.075em;color:#2563EB}
       .faro-dialog-title{margin-top:3px;font-size:21px;line-height:1.12;font-weight:800;letter-spacing:-.03em;color:#0B1121}
       .faro-dialog-close{width:44px;height:44px;border:1px solid #F1F5F9;border-radius:16px;background:#F8FAFC;color:#475569;display:grid;place-items:center;flex:0 0 auto;transition:transform .1s ease,background-color .16s ease}
       .faro-dialog-close:active{transform:scale(.95);background:#F1F5F9}

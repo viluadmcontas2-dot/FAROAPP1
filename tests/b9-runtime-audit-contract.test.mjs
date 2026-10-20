@@ -58,12 +58,13 @@ assert.match(interactions, /showModal/);
 assert.doesNotMatch(interactions, /requestAnimationFrame\([^)]*requestAnimationFrame|setInterval/);
 
 // Dependências externas existentes têm consumidores claros; UX-R3 não adiciona CDN nova.
+// (shell legado ainda declara as CDNs; app-shell.html as troca por ./vendor/ no boot — ver vendor-offline-contract)
 assert.match(shell, /https:\/\/cdn\.tailwindcss\.com/);
 assert.match(shell, /https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js/);
 assert.match(shell, /font-awesome\/6\.4\.0\/css\/all\.min\.css/);
 assert.match(shell, /Plus\+Jakarta\+Sans/);
 assert.match(app, /new Chart\(/);
-assert.match(sw, /'https:\/\/cdn\.tailwindcss\.com'/);
-assert.match(sw, /'https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js'/);
+assert.match(sw, /'\.\/vendor\/tailwind\.css'/);
+assert.match(sw, /'\.\/vendor\/chart-4\.5\.1\.umd\.min\.js'/);
 
 console.log('FARO UX-R3: interrupção, router, listeners, caches, draft e motion acessível protegidos — ok');
