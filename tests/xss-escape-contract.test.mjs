@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 
-const files = readdirSync('.').filter(file => /^faro-(account|finance|reserves|planning|r3b|interactions|notifications|onboarding.*|tour|platform|energy|state|update|register|register-earnings|home-r2|brand-r2)\.js$/.test(file));
+const files = readdirSync('.').filter(file => /^faro-(account|finance|reserves|planning|r3b|interactions|notifications|onboarding.*|tour|platform|energy|state|update|register|register-earnings|home-r2|brand-r2|achievements)\.js$/.test(file));
 // Leitor lexical pequeno: balanceia expressões, strings e templates aninhados.
 // Não interpreta JS nem confunde o primeiro `}` de um objeto com o fim de ${...}.
 export function templates(source) {
@@ -122,6 +122,7 @@ const allowedSinks = new Set([
   'rows.map(item => HTML).join(STATIC)', 'next ? HTML : STATIC',
   'draft.otherCosts.length ? draft.otherCosts.map((item,index) => HTML).join(STATIC) : STATIC',
   'WEEK.map(item => HTML).join(STATIC)',
+  'items.join(STATIC)', // faro-achievements: itens vêm de FaroSafe.html (escapa título, porquê e data)
   'rows.length ? rows.map(item => HTML).join(STATIC) : STATIC',
   'tutorial.steps.map(step => HTML).join(STATIC)',
   'model.reserveRules.length ? model.reserveRules.map(reserveMarkup).join(STATIC) : STATIC',
