@@ -158,10 +158,6 @@
       /* Classes .hidden dentro do Registro vencem as regras de layout acima (antes o aviso de data e o legado ficavam sempre visíveis). */
       #view-day .faro-date-conflict.hidden,#view-day .faro-earnings-legacy.hidden,#view-day .faro-quick.hidden,#view-day .faro-field-error.hidden,#view-day .faro-km-same.hidden,#view-day .faro-draft-note.hidden{display:none}
       #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:var(--faro-muted);font-size:12px;font-weight:700}
-      html[data-faro-car="on"] #view-day .faro-source-chip,html[data-faro-car="on"] #view-day .faro-key,html[data-faro-car="on"] #view-day .faro-earning-add-button{background:#1f1f1f;border-color:#475569;color:#f8fafc}
-      html[data-faro-car="on"] #view-day .faro-source-chip[aria-checked="true"]{background:var(--faro-amber-night);border-color:var(--faro-amber-night);color:var(--faro-black);box-shadow:none}
-      html[data-faro-car="on"] #view-day .faro-earning-display,html[data-faro-car="on"] #view-day .faro-earning-row,html[data-faro-car="on"] #view-day .faro-earnings-total,html[data-faro-car="on"] #view-day .faro-earning-empty strong,html[data-faro-car="on"] #view-day .faro-date-summary strong{color:#f8fafc}
-      html[data-faro-car="on"] #view-day .faro-earning-question,html[data-faro-car="on"] #view-day .faro-earning-empty,html[data-faro-car="on"] #view-day .faro-km-hint{color:#cbd5e1}
       @media(max-width:350px){#view-day .faro-source-chip{font-size:12px}#view-day .faro-earning-display{font-size:38px}}
       @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip,#view-day .faro-source-chip,#view-day .faro-key{transition:none}#view-day .faro-register-chip:active{transform:none}}
     `;

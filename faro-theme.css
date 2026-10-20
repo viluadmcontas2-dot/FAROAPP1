@@ -2,7 +2,7 @@
    Fonte ÚNICA das cores: preto #15130E, papel quente #F6F1E4, âmbar #F2B705, verde lucro (só dinheiro positivo),
    vermelho para erro/negativo. Carregado por último (depois do Tailwind) pelo app-shell.
    O núcleo (app.js/legacy-shell.html) e os módulos em edição paralela não são tocados: as cores antigas deles
-   são vestidas aqui por seletor. Tudo fica escopado fora do modo carro (que tem alto contraste próprio). */
+   são vestidas aqui por seletor. */
 :root{
   --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;
   --faro-black:#15130E;--faro-black-2:#2A251A;--faro-paper:#F6F1E4;--faro-amber:#F2B705;--faro-profit:#0A7A47;--faro-loss:#B3261E;
@@ -17,162 +17,161 @@
 }
 
 /* ---------- Superfícies globais ---------- */
-:root:not([data-faro-car="on"]) body{background:var(--faro-paper);color:var(--faro-ink)}
-:root:not([data-faro-car="on"]) .card-vetta{background:var(--faro-surface);border-color:rgba(var(--faro-black-rgb),.06);box-shadow:0 20px 40px -24px rgba(var(--faro-black-rgb),.18),0 0 0 1px rgba(var(--faro-black-rgb),.04)}
-:root:not([data-faro-car="on"]) .label-micro,:root:not([data-faro-car="on"]) .input-wrapper>span,:root:not([data-faro-car="on"]) .report-muted,:root:not([data-faro-car="on"]) .faro-support-text{color:var(--faro-muted)}
-:root:not([data-faro-car="on"]) .input-vetta{background:var(--faro-surface-soft);color:var(--faro-ink);border-color:var(--faro-line)}
-:root:not([data-faro-car="on"]) .input-vetta::placeholder{color:var(--faro-faint)}
-:root:not([data-faro-car="on"]) .input-vetta[aria-invalid="true"]{border-color:var(--faro-loss);background:var(--faro-loss-soft);box-shadow:0 0 0 3px rgba(var(--faro-loss-rgb),.12)}
-:root:not([data-faro-car="on"]) .faro-eyebrow{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-intro-card{background:linear-gradient(145deg,var(--faro-amber-soft),var(--faro-surface) 70%)}
-:root:not([data-faro-car="on"]) .faro-soft-tile{background:var(--faro-surface-2)}
-:root:not([data-faro-car="on"]) .faro-primary-button{background:var(--faro-amber);color:var(--faro-on-amber)}
-:root:not([data-faro-car="on"]) .modal-backdrop{background:rgba(var(--faro-black-rgb),.55)}
-:root:not([data-faro-car="on"]) .modal-sheet{background:var(--faro-surface);color:var(--faro-ink);box-shadow:0 24px 70px rgba(var(--faro-black-rgb),.35)}
-:root:not([data-faro-car="on"]) .toast{background:var(--faro-black);color:var(--faro-paper);box-shadow:0 16px 35px rgba(var(--faro-black-rgb),.35)}
-:root:not([data-faro-car="on"]) .faro-update-bar{background:var(--faro-black);color:var(--faro-paper)}
-:root:not([data-faro-car="on"]) .update-banner{background:var(--faro-black)!important;box-shadow:0 18px 45px rgba(var(--faro-black-rgb),.35)!important;color:var(--faro-paper)}
-:root:not([data-faro-car="on"]) .legacy-note{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .period-btn-active{background:var(--faro-black);color:var(--faro-paper)}
-:root:not([data-faro-car="on"]) .period-btn-inactive,:root:not([data-faro-car="on"]) .day-btn-inactive,:root:not([data-faro-car="on"]) .weekday-inactive,:root:not([data-faro-car="on"]) .cost-kind,:root:not([data-faro-car="on"]) .onboarding-day{color:var(--faro-muted)}
-:root:not([data-faro-car="on"]) .status-positive,:root:not([data-faro-car="on"]) .badge-opportunity{color:var(--faro-profit);background:var(--faro-profit-soft)}
-:root:not([data-faro-car="on"]) .status-negative,:root:not([data-faro-car="on"]) .badge-alert{color:var(--faro-loss);background:var(--faro-loss-soft)}
-:root:not([data-faro-car="on"]) #reportSheet{color:var(--faro-ink)}
+:root:root body{background:var(--faro-paper);color:var(--faro-ink)}
+:root:root .card-vetta{background:var(--faro-surface);border-color:rgba(var(--faro-black-rgb),.06);box-shadow:0 20px 40px -24px rgba(var(--faro-black-rgb),.18),0 0 0 1px rgba(var(--faro-black-rgb),.04)}
+:root:root .label-micro,:root:root .input-wrapper>span,:root:root .report-muted,:root:root .faro-support-text{color:var(--faro-muted)}
+:root:root .input-vetta{background:var(--faro-surface-soft);color:var(--faro-ink);border-color:var(--faro-line)}
+:root:root .input-vetta::placeholder{color:var(--faro-faint)}
+:root:root .input-vetta[aria-invalid="true"]{border-color:var(--faro-loss);background:var(--faro-loss-soft);box-shadow:0 0 0 3px rgba(var(--faro-loss-rgb),.12)}
+:root:root .faro-eyebrow{color:var(--faro-amber-text)!important}
+:root:root .faro-intro-card{background:linear-gradient(145deg,var(--faro-amber-soft),var(--faro-surface) 70%)}
+:root:root .faro-soft-tile{background:var(--faro-surface-2)}
+:root:root .faro-primary-button{background:var(--faro-amber);color:var(--faro-on-amber)}
+:root:root .modal-backdrop{background:rgba(var(--faro-black-rgb),.55)}
+:root:root .modal-sheet{background:var(--faro-surface);color:var(--faro-ink);box-shadow:0 24px 70px rgba(var(--faro-black-rgb),.35)}
+:root:root .toast{background:var(--faro-black);color:var(--faro-paper);box-shadow:0 16px 35px rgba(var(--faro-black-rgb),.35)}
+:root:root .faro-update-bar{background:var(--faro-black);color:var(--faro-paper)}
+:root:root .update-banner{background:var(--faro-black)!important;box-shadow:0 18px 45px rgba(var(--faro-black-rgb),.35)!important;color:var(--faro-paper)}
+:root:root .legacy-note{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
+:root:root .period-btn-active{background:var(--faro-black);color:var(--faro-paper)}
+:root:root .period-btn-inactive,:root:root .day-btn-inactive,:root:root .weekday-inactive,:root:root .cost-kind,:root:root .onboarding-day{color:var(--faro-muted)}
+:root:root .status-positive,:root:root .badge-opportunity{color:var(--faro-profit);background:var(--faro-profit-soft)}
+:root:root .status-negative,:root:root .badge-alert{color:var(--faro-loss);background:var(--faro-loss-soft)}
+:root:root #reportSheet{color:var(--faro-ink)}
 
 /* ---------- Topo ---------- */
-:root:not([data-faro-car="on"]) nav.sticky.top-0{background:rgba(246,241,228,.94);border-bottom:1px solid var(--faro-line);color:var(--faro-ink)}
-:root:not([data-faro-car="on"]) #installButton{min-height:48px;padding:0 16px;background:var(--faro-amber)!important;color:var(--faro-on-amber)!important;font-size:12px}
+:root:root nav.sticky.top-0{background:rgba(246,241,228,.94);border-bottom:1px solid var(--faro-line);color:var(--faro-ink)}
+:root:root #installButton{min-height:48px;padding:0 16px;background:var(--faro-amber)!important;color:var(--faro-on-amber)!important;font-size:12px}
 
 /* ---------- Barra inferior (mockup v3: superfície clara, ativo marcado em âmbar) ---------- */
-:root:not([data-faro-car="on"]) nav.fixed.bottom-0{padding:0 max(.5rem,env(safe-area-inset-left)) env(safe-area-inset-bottom) max(.5rem,env(safe-area-inset-right))!important;background:var(--faro-surface);border-top:1px solid var(--faro-line);box-shadow:0 -12px 28px -24px rgba(var(--faro-black-rgb),.5)}
-:root:not([data-faro-car="on"]) nav.fixed.bottom-0>div{background:transparent!important;box-shadow:none!important;border-radius:0!important;padding:6px 0!important}
-:root:not([data-faro-car="on"]) .nav-item{min-height:56px;border-radius:16px;color:var(--faro-muted)!important;background:transparent!important}
-:root:not([data-faro-car="on"]) .nav-item span{font-size:12px!important;font-weight:700}
-:root:not([data-faro-car="on"]) .nav-item:not(.active) span{color:var(--faro-muted)!important}
-:root:not([data-faro-car="on"]) .nav-item.active{color:var(--faro-ink)!important;background:var(--faro-amber-soft)!important}
-:root:not([data-faro-car="on"]) .nav-item.active span{color:var(--faro-ink)!important;font-weight:800}
-:root:not([data-faro-car="on"]) .nav-item.active::before{content:"";position:absolute;top:-6px;left:50%;width:36px;height:4px;margin-left:-18px;border-radius:0 0 4px 4px;background:var(--faro-amber)}
+:root:root nav.fixed.bottom-0{padding:0 max(.5rem,env(safe-area-inset-left)) env(safe-area-inset-bottom) max(.5rem,env(safe-area-inset-right))!important;background:var(--faro-surface);border-top:1px solid var(--faro-line);box-shadow:0 -12px 28px -24px rgba(var(--faro-black-rgb),.5)}
+:root:root nav.fixed.bottom-0>div{background:transparent!important;box-shadow:none!important;border-radius:0!important;padding:6px 0!important}
+:root:root .nav-item{min-height:56px;border-radius:16px;color:var(--faro-muted)!important;background:transparent!important}
+:root:root .nav-item span{font-size:12px!important;font-weight:700}
+:root:root .nav-item:not(.active) span{color:var(--faro-muted)!important}
+:root:root .nav-item.active{color:var(--faro-ink)!important;background:var(--faro-amber-soft)!important}
+:root:root .nav-item.active span{color:var(--faro-ink)!important;font-weight:800}
+:root:root .nav-item.active::before{content:"";position:absolute;top:-6px;left:50%;width:36px;height:4px;margin-left:-18px;border-radius:0 0 4px 4px;background:var(--faro-amber)}
 
 /* ---------- Classes do legado (Tailwind) no azul antigo → marca ---------- */
-:root:not([data-faro-car="on"]) .bg-blue-600,:root:not([data-faro-car="on"]) .bg-blue-500,:root:not([data-faro-car="on"]) .bg-blue-700{background-color:var(--faro-amber)!important;color:var(--faro-on-amber)!important;box-shadow:0 12px 26px -18px rgba(var(--faro-amber-rgb),.9)}
-:root:not([data-faro-car="on"]) .bg-blue-600 .text-white,:root:not([data-faro-car="on"]) .bg-blue-600.text-white,:root:not([data-faro-car="on"]) .bg-blue-600 i{color:var(--faro-on-amber)!important}
-:root:not([data-faro-car="on"]) .bg-blue-50,:root:not([data-faro-car="on"]) .bg-blue-100{background-color:var(--faro-amber-soft)!important}
-:root:not([data-faro-car="on"]) .bg-blue-50\/50{background-color:rgba(251,239,196,.5)!important}
-:root:not([data-faro-car="on"]) .text-blue-500,:root:not([data-faro-car="on"]) .text-blue-600,:root:not([data-faro-car="on"]) .text-blue-700,:root:not([data-faro-car="on"]) .text-blue-800,:root:not([data-faro-car="on"]) .text-blue-900,
-:root:not([data-faro-car="on"]) .\!text-blue-600,:root:not([data-faro-car="on"]) .\!text-blue-700{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .text-blue-100,:root:not([data-faro-car="on"]) .text-blue-200,:root:not([data-faro-car="on"]) .\!text-blue-200,:root:not([data-faro-car="on"]) .text-blue-300{color:var(--faro-amber)!important}
-:root:not([data-faro-car="on"]) .border-blue-50,:root:not([data-faro-car="on"]) .border-blue-100{border-color:var(--faro-line)!important}
-:root:not([data-faro-car="on"]) .from-blue-50{--tw-gradient-from:var(--faro-amber-soft) var(--tw-gradient-from-position)!important;--tw-gradient-to:rgba(251,239,196,0) var(--tw-gradient-to-position)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-:root:not([data-faro-car="on"]) .bg-vetta-900{background-color:var(--faro-black)!important}
-:root:not([data-faro-car="on"]) .text-vetta-900,:root:not([data-faro-car="on"]) .\!text-vetta-900{color:var(--faro-ink)!important}
+:root:root .bg-blue-600,:root:root .bg-blue-500,:root:root .bg-blue-700{background-color:var(--faro-amber)!important;color:var(--faro-on-amber)!important;box-shadow:0 12px 26px -18px rgba(var(--faro-amber-rgb),.9)}
+:root:root .bg-blue-600 .text-white,:root:root .bg-blue-600.text-white,:root:root .bg-blue-600 i{color:var(--faro-on-amber)!important}
+:root:root .bg-blue-50,:root:root .bg-blue-100{background-color:var(--faro-amber-soft)!important}
+:root:root .bg-blue-50\/50{background-color:rgba(251,239,196,.5)!important}
+:root:root .text-blue-500,:root:root .text-blue-600,:root:root .text-blue-700,:root:root .text-blue-800,:root:root .text-blue-900,
+:root:root .\!text-blue-600,:root:root .\!text-blue-700{color:var(--faro-amber-text)!important}
+:root:root .text-blue-100,:root:root .text-blue-200,:root:root .\!text-blue-200,:root:root .text-blue-300{color:var(--faro-amber)!important}
+:root:root .border-blue-50,:root:root .border-blue-100{border-color:var(--faro-line)!important}
+:root:root .from-blue-50{--tw-gradient-from:var(--faro-amber-soft) var(--tw-gradient-from-position)!important;--tw-gradient-to:rgba(251,239,196,0) var(--tw-gradient-to-position)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+:root:root .bg-vetta-900{background-color:var(--faro-black)!important}
+:root:root .text-vetta-900,:root:root .\!text-vetta-900{color:var(--faro-ink)!important}
 /* Tons neutros frios do legado → neutros quentes legíveis no papel (AA). */
-:root:not([data-faro-car="on"]) .text-slate-400,:root:not([data-faro-car="on"]) .text-slate-500,:root:not([data-faro-car="on"]) .text-slate-600{color:var(--faro-muted)!important}
-:root:not([data-faro-car="on"]) .text-slate-700,:root:not([data-faro-car="on"]) .text-slate-800,:root:not([data-faro-car="on"]) .text-slate-900{color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .bg-vetta-900 .text-slate-400,:root:not([data-faro-car="on"]) .bg-slate-900 .text-slate-400,:root:not([data-faro-car="on"]) .bg-vetta-900 .text-slate-300{color:#CFC8B6!important}
-:root:not([data-faro-car="on"]) .bg-slate-50{background-color:var(--faro-surface-soft)!important}
-:root:not([data-faro-car="on"]) .bg-slate-100{background-color:var(--faro-surface-2)!important}
+:root:root .text-slate-400,:root:root .text-slate-500,:root:root .text-slate-600{color:var(--faro-muted)!important}
+:root:root .text-slate-700,:root:root .text-slate-800,:root:root .text-slate-900{color:var(--faro-ink)!important}
+:root:root .bg-vetta-900 .text-slate-400,:root:root .bg-slate-900 .text-slate-400,:root:root .bg-vetta-900 .text-slate-300{color:#CFC8B6!important}
+:root:root .bg-slate-50{background-color:var(--faro-surface-soft)!important}
+:root:root .bg-slate-100{background-color:var(--faro-surface-2)!important}
 /* Verde só para dinheiro positivo; vermelho para erro/negativo. Botões verdes viram ação primária âmbar. */
-:root:not([data-faro-car="on"]) .text-emerald-600,:root:not([data-faro-car="on"]) .text-emerald-700,:root:not([data-faro-car="on"]) .\!text-emerald-700{color:var(--faro-profit)!important}
-:root:not([data-faro-car="on"]) .text-red-500,:root:not([data-faro-car="on"]) .text-red-600,:root:not([data-faro-car="on"]) .text-red-700,:root:not([data-faro-car="on"]) .\!text-red-600{color:var(--faro-loss)!important}
-:root:not([data-faro-car="on"]) button.bg-emerald-500,:root:not([data-faro-car="on"]) button.bg-emerald-600{background-color:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
+:root:root .text-emerald-600,:root:root .text-emerald-700,:root:root .\!text-emerald-700{color:var(--faro-profit)!important}
+:root:root .text-red-500,:root:root .text-red-600,:root:root .text-red-700,:root:root .\!text-red-600{color:var(--faro-loss)!important}
+:root:root button.bg-emerald-500,:root:root button.bg-emerald-600{background-color:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
 
 /* ---------- Portão de instalação (faro-platform.js) ---------- */
-:root:not([data-faro-car="on"]) #faroInstallGate{background:var(--faro-black)!important}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-sheet{background:var(--faro-paper)!important}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-mark{background:var(--faro-black)!important}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-tutorial{background:var(--faro-surface)!important;border-color:var(--faro-line)!important}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-button{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important;box-shadow:0 12px 28px rgba(var(--faro-amber-rgb),.35)!important}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-benefit,:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-device{background:var(--faro-surface-2)!important;color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-help{color:var(--faro-muted)!important}
+:root:root #faroInstallGate{background:var(--faro-black)!important}
+:root:root #faroInstallGate .faro-install-sheet{background:var(--faro-paper)!important}
+:root:root #faroInstallGate .faro-install-mark{background:var(--faro-black)!important}
+:root:root #faroInstallGate .faro-install-tutorial{background:var(--faro-surface)!important;border-color:var(--faro-line)!important}
+:root:root #faroInstallGate .faro-install-button{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important;box-shadow:0 12px 28px rgba(var(--faro-amber-rgb),.35)!important}
+:root:root #faroInstallGate .faro-install-benefit,:root:root #faroInstallGate .faro-install-device{background:var(--faro-surface-2)!important;color:var(--faro-ink)!important}
+:root:root #faroInstallGate .faro-install-help{color:var(--faro-muted)!important}
 
 /* ---------- Diálogos e interações (faro-interactions.js / faro-r3b.js) ---------- */
-:root:not([data-faro-car="on"]) .faro-action-card:focus-visible{outline:3px solid var(--faro-focus)!important}
-:root:not([data-faro-car="on"]) .faro-dialog--focus .faro-dialog-shell,:root:not([data-faro-car="on"]) .faro-dialog--workspace .faro-dialog-shell{border-color:var(--faro-line)!important;box-shadow:0 30px 90px -24px rgba(var(--faro-black-rgb),.55)!important}
-:root:not([data-faro-car="on"]) .faro-dialog-kicker,:root:not([data-faro-car="on"]) .faro-dialog--focus .faro-dialog-kicker,:root:not([data-faro-car="on"]) .faro-dialog--workspace .faro-dialog-kicker{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-dialog-title{color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-dialog{--faro-dialog-accent:var(--faro-amber-text-rgb)!important}
-:root:not([data-faro-car="on"]) .faro-r3b-dialog-lead{color:var(--faro-muted)!important;background:var(--faro-surface-soft)!important;border-left-color:var(--faro-amber)!important}
-:root:not([data-faro-car="on"]) .faro-r3b-dialog-symbol{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
+:root:root .faro-action-card:focus-visible{outline:3px solid var(--faro-focus)!important}
+:root:root .faro-dialog--focus .faro-dialog-shell,:root:root .faro-dialog--workspace .faro-dialog-shell{border-color:var(--faro-line)!important;box-shadow:0 30px 90px -24px rgba(var(--faro-black-rgb),.55)!important}
+:root:root .faro-dialog-kicker,:root:root .faro-dialog--focus .faro-dialog-kicker,:root:root .faro-dialog--workspace .faro-dialog-kicker{color:var(--faro-amber-text)!important}
+:root:root .faro-dialog-title{color:var(--faro-ink)!important}
+:root:root .faro-dialog{--faro-dialog-accent:var(--faro-amber-text-rgb)!important}
+:root:root .faro-r3b-dialog-lead{color:var(--faro-muted)!important;background:var(--faro-surface-soft)!important;border-left-color:var(--faro-amber)!important}
+:root:root .faro-r3b-dialog-symbol{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
 
 /* ---------- Planejar (faro-planning.js / faro-r3b.js / faro-r3-routing.js) ---------- */
-:root:not([data-faro-car="on"]) .faro-r3-month,:root:not([data-faro-car="on"]) #view-planning .faro-r3-month{background:var(--faro-amber-soft)!important;border-color:var(--faro-line)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) #view-planning .faro-r3-title,:root:not([data-faro-car="on"]) #view-planning .faro-r3-tile-value{color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-r3-tile[data-tone="blue"],:root:not([data-faro-car="on"]) #view-planning .faro-r3-tile,:root:not([data-faro-car="on"]) #view-planning .faro-r3-tile[data-r3b-kind="goal"],:root:not([data-faro-car="on"]) #view-planning .faro-r3-tile[data-r3b-kind="commitments"][data-r3b-state="upcoming"],:root:not([data-faro-car="on"]) #view-planning .faro-r3-tile[data-r3b-kind="days"]{--r3b-accent:var(--faro-amber-text-rgb)!important;background:var(--faro-surface)!important;border-color:var(--faro-line)!important}
-:root:not([data-faro-car="on"]) .faro-r3-icon{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-r3-hero,:root:not([data-faro-car="on"]) #view-planning .faro-r3-hero{background:linear-gradient(138deg,var(--faro-black) 0%,var(--faro-black-2) 100%)!important;border-color:rgba(var(--faro-amber-rgb),.18)!important;box-shadow:0 24px 54px -30px rgba(var(--faro-black-rgb),.88)!important}
-:root:not([data-faro-car="on"]) #view-planning .faro-r3-hero::before{background:rgba(var(--faro-amber-rgb),.35)!important}
-:root:not([data-faro-car="on"]) .faro-r3-hero-label,:root:not([data-faro-car="on"]) .faro-r3b-hero-brand>span:first-child{color:var(--faro-amber)!important}
-:root:not([data-faro-car="on"]) .faro-r3-hero-action,:root:not([data-faro-car="on"]) #view-planning .faro-r3-hero-action{color:var(--faro-paper)!important;border-color:rgba(246,241,228,.22)!important}
-:root:not([data-faro-car="on"]) .faro-r3-progress>span,:root:not([data-faro-car="on"]) #view-planning .faro-r3-progress>span{background:var(--faro-amber)!important}
-:root:not([data-faro-car="on"]) .faro-plan-slider{accent-color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-r3-primary,:root:not([data-faro-car="on"]) .faro-week-day.active,:root:not([data-faro-car="on"]) .faro-r3b3-save{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important;box-shadow:0 12px 24px -16px rgba(var(--faro-amber-rgb),.9)!important}
-:root:not([data-faro-car="on"]) .faro-context-note,:root:not([data-faro-car="on"]) .faro-r3b3-note{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-money-legacy>summary::after,:root:not([data-faro-car="on"]) .faro-plan-details>summary::after,:root:not([data-faro-car="on"]) #faroMoneyLegacyCosts>summary::after{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-detail-summary,:root:not([data-faro-car="on"]) #view-planning-detail .faro-detail-summary{background:var(--faro-surface)!important;border-color:var(--faro-line)!important}
-:root:not([data-faro-car="on"]) .faro-r3b-week-dot[data-active="true"]{background:var(--faro-black)!important;color:var(--faro-paper)!important;box-shadow:none!important}
-:root:not([data-faro-car="on"]) [data-r3b-state="upcoming"]{--r3b-accent:var(--faro-amber-text-rgb)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-status-value,:root:not([data-faro-car="on"]) .faro-r3b2-bill-name,:root:not([data-faro-car="on"]) .faro-r3b2-bill-amount,:root:not([data-faro-car="on"]) .faro-r3b2-empty strong,:root:not([data-faro-car="on"]) .faro-r3b2-reserve-name{color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) #faroMoneyDialog .faro-money-tab.active{color:var(--faro-ink)!important;box-shadow:inset 0 -3px 0 var(--faro-amber),0 8px 20px -16px rgba(var(--faro-black-rgb),.55)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-bill-date{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-edit,:root:not([data-faro-car="on"]) .faro-r3b2-empty button{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) #faroMoneyDialog #faroMoneyAddBill,:root:not([data-faro-car="on"]) #faroMoneyDialog #faroMoneyCreateReserve,:root:not([data-faro-car="on"]) #faroMoneyAddBill,:root:not([data-faro-car="on"]) #faroMoneyCreateReserve{border-color:var(--faro-line)!important;background:var(--faro-surface)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-undo-bar{background:var(--faro-black)!important;color:var(--faro-paper)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-undo-bar button{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
-:root:not([data-faro-car="on"]) .faro-r3b3-back{border-color:var(--faro-line)!important;color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-r3b3-kicker{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-r3b3-title{color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-r3b3-field input,:root:not([data-faro-car="on"]) .faro-r3b3-field select{border-color:var(--faro-line)!important;background:var(--faro-surface-soft)!important;color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-r3b3-field input:focus,:root:not([data-faro-car="on"]) .faro-r3b3-field select:focus{border-color:var(--faro-black)!important;box-shadow:0 0 0 4px rgba(var(--faro-amber-rgb),.35)!important}
+:root:root .faro-r3-month,:root:root #view-planning .faro-r3-month{background:var(--faro-amber-soft)!important;border-color:var(--faro-line)!important;color:var(--faro-amber-text)!important}
+:root:root #view-planning .faro-r3-title,:root:root #view-planning .faro-r3-tile-value{color:var(--faro-ink)!important}
+:root:root .faro-r3-tile[data-tone="blue"],:root:root #view-planning .faro-r3-tile,:root:root #view-planning .faro-r3-tile[data-r3b-kind="goal"],:root:root #view-planning .faro-r3-tile[data-r3b-kind="commitments"][data-r3b-state="upcoming"],:root:root #view-planning .faro-r3-tile[data-r3b-kind="days"]{--r3b-accent:var(--faro-amber-text-rgb)!important;background:var(--faro-surface)!important;border-color:var(--faro-line)!important}
+:root:root .faro-r3-icon{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
+:root:root .faro-r3-hero,:root:root #view-planning .faro-r3-hero{background:linear-gradient(138deg,var(--faro-black) 0%,var(--faro-black-2) 100%)!important;border-color:rgba(var(--faro-amber-rgb),.18)!important;box-shadow:0 24px 54px -30px rgba(var(--faro-black-rgb),.88)!important}
+:root:root #view-planning .faro-r3-hero::before{background:rgba(var(--faro-amber-rgb),.35)!important}
+:root:root .faro-r3-hero-label,:root:root .faro-r3b-hero-brand>span:first-child{color:var(--faro-amber)!important}
+:root:root .faro-r3-hero-action,:root:root #view-planning .faro-r3-hero-action{color:var(--faro-paper)!important;border-color:rgba(246,241,228,.22)!important}
+:root:root .faro-r3-progress>span,:root:root #view-planning .faro-r3-progress>span{background:var(--faro-amber)!important}
+:root:root .faro-plan-slider{accent-color:var(--faro-amber-text)!important}
+:root:root .faro-r3-primary,:root:root .faro-week-day.active,:root:root .faro-r3b3-save{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important;box-shadow:0 12px 24px -16px rgba(var(--faro-amber-rgb),.9)!important}
+:root:root .faro-context-note,:root:root .faro-r3b3-note{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
+:root:root .faro-money-legacy>summary::after,:root:root .faro-plan-details>summary::after,:root:root #faroMoneyLegacyCosts>summary::after{color:var(--faro-amber-text)!important}
+:root:root .faro-detail-summary,:root:root #view-planning-detail .faro-detail-summary{background:var(--faro-surface)!important;border-color:var(--faro-line)!important}
+:root:root .faro-r3b-week-dot[data-active="true"]{background:var(--faro-black)!important;color:var(--faro-paper)!important;box-shadow:none!important}
+:root:root [data-r3b-state="upcoming"]{--r3b-accent:var(--faro-amber-text-rgb)!important}
+:root:root .faro-r3b2-status-value,:root:root .faro-r3b2-bill-name,:root:root .faro-r3b2-bill-amount,:root:root .faro-r3b2-empty strong,:root:root .faro-r3b2-reserve-name{color:var(--faro-ink)!important}
+:root:root #faroMoneyDialog .faro-money-tab.active{color:var(--faro-ink)!important;box-shadow:inset 0 -3px 0 var(--faro-amber),0 8px 20px -16px rgba(var(--faro-black-rgb),.55)!important}
+:root:root .faro-r3b2-bill-date{color:var(--faro-amber-text)!important}
+:root:root .faro-r3b2-edit,:root:root .faro-r3b2-empty button{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
+:root:root #faroMoneyDialog #faroMoneyAddBill,:root:root #faroMoneyDialog #faroMoneyCreateReserve,:root:root #faroMoneyAddBill,:root:root #faroMoneyCreateReserve{border-color:var(--faro-line)!important;background:var(--faro-surface)!important;color:var(--faro-amber-text)!important}
+:root:root .faro-r3b2-undo-bar{background:var(--faro-black)!important;color:var(--faro-paper)!important}
+:root:root .faro-r3b2-undo-bar button{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
+:root:root .faro-r3b3-back{border-color:var(--faro-line)!important;color:var(--faro-ink)!important}
+:root:root .faro-r3b3-kicker{color:var(--faro-amber-text)!important}
+:root:root .faro-r3b3-title{color:var(--faro-ink)!important}
+:root:root .faro-r3b3-field input,:root:root .faro-r3b3-field select{border-color:var(--faro-line)!important;background:var(--faro-surface-soft)!important;color:var(--faro-ink)!important}
+:root:root .faro-r3b3-field input:focus,:root:root .faro-r3b3-field select:focus{border-color:var(--faro-black)!important;box-shadow:0 0 0 4px rgba(var(--faro-amber-rgb),.35)!important}
 
 /* ---------- Onboarding e tour ---------- */
-:root:not([data-faro-car="on"]) #onboardingModal .faro-choice.active{border-color:var(--faro-black)!important;background:var(--faro-amber-soft)!important;color:var(--faro-ink)!important;box-shadow:0 0 0 1px var(--faro-black) inset!important}
-:root:not([data-faro-car="on"]) #onboardingModal .faro-target,:root:not([data-faro-car="on"]) #onboardingModal .faro-plan-hero{background:var(--faro-black)!important;color:var(--faro-paper)!important}
-:root:not([data-faro-car="on"]) #onboardingModal .faro-chip{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) #onboardingModal .faro-processing-mark{background:var(--faro-black)!important}
-:root:not([data-faro-car="on"]) #onboardingModal .faro-processing-dots span{background:var(--faro-amber)!important}
-:root:not([data-faro-car="on"]) #faroTourSpotlight{border-color:var(--faro-amber)!important;box-shadow:0 0 0 9999px rgba(var(--faro-black-rgb),.7),0 0 0 5px rgba(var(--faro-amber-rgb),.3)!important}
-:root:not([data-faro-car="on"]) .faro-tour-head img{background:var(--faro-black)!important}
-:root:not([data-faro-car="on"]) .faro-tour-next{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
+:root:root #onboardingModal .faro-choice.active{border-color:var(--faro-black)!important;background:var(--faro-amber-soft)!important;color:var(--faro-ink)!important;box-shadow:0 0 0 1px var(--faro-black) inset!important}
+:root:root #onboardingModal .faro-target,:root:root #onboardingModal .faro-plan-hero{background:var(--faro-black)!important;color:var(--faro-paper)!important}
+:root:root #onboardingModal .faro-chip{background:var(--faro-amber-soft)!important;color:var(--faro-amber-text)!important}
+:root:root #onboardingModal .faro-processing-mark{background:var(--faro-black)!important}
+:root:root #onboardingModal .faro-processing-dots span{background:var(--faro-amber)!important}
+:root:root #faroTourSpotlight{border-color:var(--faro-amber)!important;box-shadow:0 0 0 9999px rgba(var(--faro-black-rgb),.7),0 0 0 5px rgba(var(--faro-amber-rgb),.3)!important}
+:root:root .faro-tour-head img{background:var(--faro-black)!important}
+:root:root .faro-tour-next{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
 
 /* ---------- Compromissos e Reservas (faro-r3b.js) ---------- */
-:root:not([data-faro-car="on"]) .faro-r3b-week-dot{background:rgba(var(--faro-black-rgb),.07)!important;color:var(--faro-muted)!important}
-:root:not([data-faro-car="on"]) .faro-r3-subtitle,:root:not([data-faro-car="on"]) #view-planning .faro-r3-subtitle,:root:not([data-faro-car="on"]) .faro-r3b2-status-caption,:root:not([data-faro-car="on"]) .faro-r3b2-status-protected,:root:not([data-faro-car="on"]) .faro-r3b2-tab-meta,:root:not([data-faro-car="on"]) .faro-money-tab,:root:not([data-faro-car="on"]) #faroMoneyDialog .faro-money-tab{color:var(--faro-muted)!important}
-:root:not([data-faro-car="on"]) .faro-money-tabs,:root:not([data-faro-car="on"]) #faroMoneyDialog .faro-money-tabs{background:var(--faro-surface-2)!important;border-color:var(--faro-line)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-status-hero{--radar-accent:var(--faro-black-rgb)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-status-hero[data-r3b2-state="upcoming"]{--radar-accent:var(--faro-amber-text-rgb)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-status-hero[data-r3b2-state="attention"]{--radar-accent:161,74,0!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-status-hero[data-r3b2-state="risk"]{--radar-accent:var(--faro-loss-rgb)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-contribute{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
-:root:not([data-faro-car="on"]) .text-amber-600,:root:not([data-faro-car="on"]) .text-amber-700,:root:not([data-faro-car="on"]) .\!text-amber-700{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .text-orange-500{color:var(--faro-attention)!important}
-:root:not([data-faro-car="on"]) .faro-r3-tile-label,:root:not([data-faro-car="on"]) #view-planning .faro-r3-tile-label,:root:not([data-faro-car="on"]) .faro-r3b2-reserve-rule,:root:not([data-faro-car="on"]) .faro-r3b2-reserve-caption{color:var(--faro-muted)!important}
-:root:not([data-faro-car="on"]) #view-planning .faro-r3-hero::after{background:rgba(var(--faro-amber-rgb),.16)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-reserve{border-color:var(--faro-line)!important;background:var(--faro-surface)!important;box-shadow:0 14px 30px -28px rgba(var(--faro-black-rgb),.4)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-reserve-balance{color:var(--faro-profit)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-goal{background:var(--faro-surface)!important;color:var(--faro-ink)!important;border-color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-reserve-details{border-top-color:var(--faro-line)!important}
-:root:not([data-faro-car="on"]) .faro-r3b2-reserve-details>summary{color:var(--faro-amber-text)!important}
-:root:not([data-faro-car="on"]) .faro-dialog-close{border-color:var(--faro-line)!important;background:var(--faro-surface-soft)!important;color:var(--faro-ink)!important}
-:root:not([data-faro-car="on"]) .faro-switch{background:#A39A86}
+:root:root .faro-r3b-week-dot{background:rgba(var(--faro-black-rgb),.07)!important;color:var(--faro-muted)!important}
+:root:root .faro-r3-subtitle,:root:root #view-planning .faro-r3-subtitle,:root:root .faro-r3b2-status-caption,:root:root .faro-r3b2-status-protected,:root:root .faro-r3b2-tab-meta,:root:root .faro-money-tab,:root:root #faroMoneyDialog .faro-money-tab{color:var(--faro-muted)!important}
+:root:root .faro-money-tabs,:root:root #faroMoneyDialog .faro-money-tabs{background:var(--faro-surface-2)!important;border-color:var(--faro-line)!important}
+:root:root .faro-r3b2-status-hero{--radar-accent:var(--faro-black-rgb)!important}
+:root:root .faro-r3b2-status-hero[data-r3b2-state="upcoming"]{--radar-accent:var(--faro-amber-text-rgb)!important}
+:root:root .faro-r3b2-status-hero[data-r3b2-state="attention"]{--radar-accent:161,74,0!important}
+:root:root .faro-r3b2-status-hero[data-r3b2-state="risk"]{--radar-accent:var(--faro-loss-rgb)!important}
+:root:root .faro-r3b2-contribute{background:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
+:root:root .text-amber-600,:root:root .text-amber-700,:root:root .\!text-amber-700{color:var(--faro-amber-text)!important}
+:root:root .text-orange-500{color:var(--faro-attention)!important}
+:root:root .faro-r3-tile-label,:root:root #view-planning .faro-r3-tile-label,:root:root .faro-r3b2-reserve-rule,:root:root .faro-r3b2-reserve-caption{color:var(--faro-muted)!important}
+:root:root #view-planning .faro-r3-hero::after{background:rgba(var(--faro-amber-rgb),.16)!important}
+:root:root .faro-r3b2-reserve{border-color:var(--faro-line)!important;background:var(--faro-surface)!important;box-shadow:0 14px 30px -28px rgba(var(--faro-black-rgb),.4)!important}
+:root:root .faro-r3b2-reserve-balance{color:var(--faro-profit)!important}
+:root:root .faro-r3b2-goal{background:var(--faro-surface)!important;color:var(--faro-ink)!important;border-color:var(--faro-ink)!important}
+:root:root .faro-r3b2-reserve-details{border-top-color:var(--faro-line)!important}
+:root:root .faro-r3b2-reserve-details>summary{color:var(--faro-amber-text)!important}
+:root:root .faro-dialog-close{border-color:var(--faro-line)!important;background:var(--faro-surface-soft)!important;color:var(--faro-ink)!important}
 
 /* F7 vocabulário: botões não gritam. Caixa alta fica só em rótulos de seção (label, .label-micro, h2/h4 de seção). */
-:root:not([data-faro-car="on"]) button,
-:root:not([data-faro-car="on"]) [role="button"],
-:root:not([data-faro-car="on"]) summary,
-:root:not([data-faro-car="on"]) input[type="button"],
-:root:not([data-faro-car="on"]) input[type="submit"] {
+:root:root button,
+:root:root [role="button"],
+:root:root summary,
+:root:root input[type="button"],
+:root:root input[type="submit"] {
   text-transform: none !important;
   letter-spacing: normal !important;
 }
 
 /* Refino de fluxo: avisos nunca seguram o toque; Registrar mostra o teclado mais cedo; modo leitura e aviso do teste. */
-:root:not([data-faro-car="on"]) .toast,:root:not([data-faro-car="on"]) .faro-ach-toast{pointer-events:none}
-:root:not([data-faro-car="on"]) #view-day > .bg-vetta-900:first-of-type{padding:16px 20px !important;border-radius:20px !important}
-:root:not([data-faro-car="on"]) #view-day > .bg-vetta-900:first-of-type p{display:none}
-:root:not([data-faro-car="on"]) #view-day > .bg-vetta-900:first-of-type h2{margin-top:4px !important;font-size:20px !important}
-:root:not([data-faro-car="on"])[data-faro-read-only] #saveDayButton{opacity:.55}
-:root:not([data-faro-car="on"]) #faroTrialNotice{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:12px 14px;border:1px solid var(--faro-line);border-radius:16px;background:var(--faro-amber-soft);color:var(--faro-ink);font-size:14px;font-weight:700}
-:root:not([data-faro-car="on"]) #faroTrialNotice[hidden]{display:none}
-:root:not([data-faro-car="on"]) #faroTrialNotice span{min-width:0;line-height:1.35}
-:root:not([data-faro-car="on"]) #faroTrialNotice button{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-size:14px;font-weight:800;background:var(--faro-amber);color:var(--faro-on-amber)}
-:root:not([data-faro-car="on"]) #faroTrialNotice button[data-faro-trial="dismiss"]{background:transparent;color:var(--faro-muted)}
+:root:root .toast,:root:root .faro-ach-toast{pointer-events:none}
+:root:root #view-day > .bg-vetta-900:first-of-type{padding:16px 20px !important;border-radius:20px !important}
+:root:root #view-day > .bg-vetta-900:first-of-type p{display:none}
+:root:root #view-day > .bg-vetta-900:first-of-type h2{margin-top:4px !important;font-size:20px !important}
+:root:root[data-faro-read-only] #saveDayButton{opacity:.55}
+:root:root #faroTrialNotice{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:12px 14px;border:1px solid var(--faro-line);border-radius:16px;background:var(--faro-amber-soft);color:var(--faro-ink);font-size:14px;font-weight:700}
+:root:root #faroTrialNotice[hidden]{display:none}
+:root:root #faroTrialNotice span{min-width:0;line-height:1.35}
+:root:root #faroTrialNotice button{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-size:14px;font-weight:800;background:var(--faro-amber);color:var(--faro-on-amber)}
+:root:root #faroTrialNotice button[data-faro-trial="dismiss"]{background:transparent;color:var(--faro-muted)}

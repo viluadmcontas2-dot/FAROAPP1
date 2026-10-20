@@ -3,18 +3,12 @@
   if (!app || window.FaroPwa) return;
 
   const root = document.documentElement;
-  const CAR_KEY = 'faro-car-mode-v1';
   const LIGHT_THEME = '#FFFFFF';
-  const CAR_THEME = '#000000';
-  const store = {
-    get: key => { try { return localStorage.getItem(key); } catch { return null; } },
-    set: (key, value) => { try { localStorage.setItem(key, value); } catch { /* armazenamento indisponível: segue sem lembrar */ } }
-  };
   const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Cor da barra de status (theme-color dinâmico) ---------- */
   const syncThemeColor = () => {
-    const color = root.dataset.faroCar === 'on' ? CAR_THEME : LIGHT_THEME;
+    const color = LIGHT_THEME;
     let meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) {
       meta = document.createElement('meta');
@@ -22,7 +16,7 @@
       document.head.appendChild(meta);
     }
     if (meta.content !== color) meta.content = color;
-    root.style.colorScheme = root.dataset.faroCar === 'on' ? 'dark' : 'light';
+    root.style.colorScheme = 'light';
   };
 
   /* ---------- Armazenamento persistente (o navegador não apaga os dados do motorista) ---------- */
@@ -32,52 +26,6 @@
       if (await navigator.storage.persisted()) return true;
       return await navigator.storage.persist();
     } catch { return false; }
-  };
-
-  /* ---------- Tela sempre acesa no modo carro (Wake Lock) ---------- */
-  let wakeLock = null;
-  const releaseWakeLock = async () => {
-    const lock = wakeLock;
-    wakeLock = null;
-    try { await lock?.release(); } catch { /* já liberado pelo sistema */ }
-  };
-  const acquireWakeLock = async () => {
-    if (!('wakeLock' in navigator) || wakeLock || document.visibilityState !== 'visible' || root.dataset.faroCar !== 'on') return;
-    try {
-      wakeLock = await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch { wakeLock = null; }
-  };
-
-  /* ---------- Modo carro ---------- */
-  const setCarMode = on => {
-    root.dataset.faroCar = on ? 'on' : 'off';
-    store.set(CAR_KEY, on ? 'on' : 'off');
-    const toggle = document.getElementById('faroCarToggle');
-    if (toggle) toggle.setAttribute('aria-checked', String(on));
-    syncThemeColor();
-    if (on) acquireWakeLock(); else releaseWakeLock();
-  };
-
-  const mountCarCard = () => {
-    const central = document.getElementById('view-more');
-    if (!central || document.getElementById('faroCarMode')) return;
-    const card = document.createElement('section');
-    card.id = 'faroCarMode';
-    card.className = 'card-vetta faro-car-card';
-    card.setAttribute('aria-labelledby', 'faroCarTitle');
-    card.innerHTML = `
-      <div class="faro-car-copy">
-        <strong id="faroCarTitle">Modo carro</strong>
-        <span id="faroCarHint">Tema escuro, botões grandes e tela sempre acesa.</span>
-      </div>
-      <button id="faroCarToggle" class="faro-switch" type="button" role="switch" aria-checked="false" aria-labelledby="faroCarTitle" aria-describedby="faroCarHint"><span class="faro-switch-knob" aria-hidden="true"></span></button>`;
-    // Fica depois do título da Central (o título abre a tela), não antes dele.
-    const heading = central.firstElementChild;
-    central.insertBefore(card, heading ? heading.nextSibling : central.firstChild);
-    const toggle = card.querySelector('#faroCarToggle');
-    toggle.setAttribute('aria-checked', String(root.dataset.faroCar === 'on'));
-    toggle.addEventListener('click', () => setCarMode(root.dataset.faroCar !== 'on'));
   };
 
   /* ---------- Selo no ícone: lembra de registrar o dia ---------- */
@@ -154,7 +102,6 @@
   /* ---------- Ciclo de vida ---------- */
   document.addEventListener('visibilitychange', () => {
     updateBadge();
-    if (document.visibilityState === 'visible') acquireWakeLock();
   });
   window.addEventListener('pageshow', updateBadge);
 
@@ -165,12 +112,10 @@
     return result;
   };
 
-  mountCarCard();
   syncThemeColor();
-  if (root.dataset.faroCar === 'on') acquireWakeLock();
   requestPersistence();
   handleShortcut();
   watchUpdates();
 
-  window.FaroPwa = Object.freeze({ setCarMode, requestPersistence, updateBadge, syncThemeColor, reducedMotion });
+  window.FaroPwa = Object.freeze({ requestPersistence, updateBadge, syncThemeColor, reducedMotion });
 })();

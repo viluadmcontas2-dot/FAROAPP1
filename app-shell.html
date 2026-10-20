@@ -35,7 +35,6 @@
   const root = document.documentElement;
   const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   root.dataset.faroActivationStage = standalone ? 'product' : 'install';
-  try { root.dataset.faroCar = localStorage.getItem('faro-car-mode-v1') === 'on' ? 'on' : 'off'; } catch { root.dataset.faroCar = 'off'; }
   window.__faroInstallPrompt = null;
   window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();

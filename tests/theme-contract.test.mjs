@@ -109,15 +109,11 @@ for (const selector of ['nav.fixed.bottom-0', '.nav-item.active', 'nav.sticky.to
 }
 assert.match(theme, /\.nav-item\.active[^{]*\{[^}]*var\(--faro-amber/, 'item ativo da barra inferior em âmbar');
 assert.match(theme, /\.nav-item span[^{]*\{[^}]*font-size:\s*12px/, 'rótulos da barra legíveis (>=12px)');
-// O tema não pode vazar para o modo carro (alto contraste próprio).
+// Toda regra do tema usa :root:root (especificidade 0,2,0); só os tokens (:root) ficam de fora.
 for (const rule of theme.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{[^{}]*\}/g)) {
   const selector = rule[1].trim();
-  if (/^(:root|@|\d|from|to)/.test(selector) && !/:root:not/.test(selector)) continue;
-  if (/^html\[data-faro-car="on"\]/.test(selector)) continue;
-  for (const part of selector.split(',')) assert.match(part.trim(), /^:root:not\(\[data-faro-car="on"\]\)|^html\[data-faro-car="on"\]/, `regra do tema fora do escopo do modo carro: ${part.trim()}`);
+  if (selector === ':root' || /^(@|\d|from|to)/.test(selector)) continue;
+  for (const part of selector.split(',')) assert.match(part.trim(), /^:root:root/, `regra do tema sem :root:root: ${part.trim()}`);
 }
-// Modo carro: preto/branco/âmbar (sem azul) e continua com alto contraste.
-assert.match(styles, /html\[data-faro-car="on"\] body\{[^}]*background:#000/i);
-assert.match(styles, /html\[data-faro-car="on"\] \.faro-switch\[aria-checked="true"\]\{[^}]*var\(--faro-amber/);
 
-console.log('FARO tema global: tokens únicos, carregado por último, azul antigo neutralizado, modo carro preservado — ok');
+console.log('FARO tema global: tokens únicos, carregado por último, azul antigo neutralizado — ok');

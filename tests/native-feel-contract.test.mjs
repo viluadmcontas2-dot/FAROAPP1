@@ -45,29 +45,22 @@ assert.match(css, /prefers-reduced-motion:\s*reduce[\s\S]*animation-duration:\.0
 assert.match(css, /\.text-slate-400\{color:#64748B!important\}/i);
 assert.match(css, /\.text-emerald-600\{color:#047857!important\}/i);
 
-// 4) Modo carro: alto contraste e botões grandes.
-assert.match(css, /html\[data-faro-car="on"\]/);
-assert.match(css, /html\[data-faro-car="on"\][^{]*button[^{]*\{[^}]*min-height:\s*64px/);
-assert.match(css, /html\[data-faro-car="on"\] body\{[^}]*background:#000/i);
-
-// 5) Módulo PWA: persistência, badge, wake lock, theme-color, transições, atalhos, update, modo carro.
+// 4) Módulo PWA: persistência, badge, theme-color, transições, atalhos, update.
 for (const needle of [
   'navigator.storage.persist',
   'setAppBadge', 'clearAppBadge',
-  "navigator.wakeLock", "request('screen')",
   'meta[name="theme-color"]',
   "prefers-reduced-motion: reduce",
   "params.get('atalho')", 'registrar: ', 'inicio: ',
-  'FARO_ACTIVATE_WHEN_SAFE', 'Nova versão', 'Atualizar', 'controllerchange',
-  'Modo carro', 'faro-car-mode-v1', 'dataset.faroCar', 'role="switch"'
+  'FARO_ACTIVATE_WHEN_SAFE', 'Nova versão', 'Atualizar', 'controllerchange'
 ]) assert.ok(pwa.includes(needle), `faro-pwa.js precisa conter ${needle}`);
 assert.doesNotMatch(pwa, /clients\.claim|skipWaiting\(\)/, 'troca de versão só por ação do motorista/saída segura');
 assert.match(pwa, /window\.FaroPwa = Object\.freeze/);
 
-// 6) Carregado pelo shell, pré-cacheado e copiado pelo build.
+// 5) Carregado pelo shell, pré-cacheado e copiado pelo build.
 assert.ok(shell.includes('./faro-pwa.js?v=1'));
 assert.ok(shell.indexOf('faro-pwa.js') > shell.indexOf('faro-r2-polish.js'), 'faro-pwa.js carrega depois de todos os módulos de tela');
 assert.ok(sw.includes("'./faro-pwa.js?v=1'"));
 assert.ok(build.includes("'faro-pwa.js'"));
 
-console.log('FARO sensação nativa: 12px+, toque, safe-area, contraste AA, modo carro e módulo PWA — ok');
+console.log('FARO sensação nativa: 12px+, toque, safe-area, contraste AA e módulo PWA — ok');

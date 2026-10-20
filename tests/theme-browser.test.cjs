@@ -1,4 +1,4 @@
-// Tema global FARO no Chrome real (390x844): 6 telas sem o azul antigo, contraste AA e modo carro intacto.
+// Tema global FARO no Chrome real (390x844): 6 telas sem o azul antigo, contraste AA.
 // Uso: node tests/theme-browser.test.cjs [raiz]  (capturas em docs/evidence/tema/ só com FARO_SAVE_EVIDENCE=1, para o check não sujar o repositório)
 const fs = require('node:fs');
 const path = require('node:path');
@@ -104,7 +104,7 @@ const audit = `
       const label = document.querySelector('#faroHomeGoal .faro-home-pace span').getBoundingClientRect();
       return { heroP, heroH, order, icon, labelLeft: label.left };`);
     check('registrar: faixa do topo compacta (menos de 130 px), sem texto repetido', flow.heroP === 'none' && flow.heroH > 0 && flow.heroH < 130, flow);
-    check('central: título primeiro, modo carro depois', flow.order[0] === 'Central' || /Central/.test(String(flow.order[0])), flow.order);
+    check('central: título primeiro', flow.order[0] === 'Central' || /Central/.test(String(flow.order[0])), flow.order);
     check('central: ícone existe no pacote de ícones (não é quadrado vazio)', flow.icon && !/fa-grid-2/.test(flow.icon), flow.icon);
     check('início: rótulo "ritmo" não sai da tela', flow.labelLeft >= 0, flow.labelLeft);
     const screens = [
@@ -167,20 +167,6 @@ const audit = `
     check('barra inferior: item ativo em âmbar', nav.activeAmber, nav);
     check('barra inferior: rótulos com contraste AA', nav.labelRatios.every(r => r >= 4.5), nav.labelRatios);
 
-    // Modo carro continua: preto, botões grandes, sem azul antigo; desligar volta ao tema claro.
-    const car = await run(`
-      window.FaroPwa.setCarMode(true); window.__vettaApp.navigateToPrimary('dashboard'); await new Promise(r => setTimeout(r, 250));
-      const els = scopeEls([document.querySelector('#view-dashboard'), document.querySelector('nav.fixed.bottom-0')]);
-      const btn = [...document.querySelectorAll('#view-dashboard button')].find(shown);
-      return { body: getComputedStyle(document.body).backgroundColor, btn: btn && btn.getBoundingClientRect().height, blue: blueHits(els), text: textFails(els) };`);
-    await shot('7-modo-carro');
-    // O legado põe bg-slate-50 no <body>; o modo carro o pinta de #141414 (quase preto) desde a base PWA.
-    check('modo carro: fundo preto', ['rgb(0, 0, 0)', 'rgb(20, 20, 20)'].includes(car.body), car.body);
-    check('modo carro: botões >= 64px', car.btn >= 64, car.btn);
-    check('modo carro: sem azul antigo', car.blue.length === 0, car.blue);
-    check('modo carro: texto AA', car.text.length === 0, car.text);
-    const off = await run(`window.FaroPwa.setCarMode(false); await new Promise(r => setTimeout(r, 100)); return getComputedStyle(document.body).backgroundColor;`);
-    check('modo carro desligado: volta ao papel quente', off === 'rgb(246, 241, 228)', off);
     // iPhone: o tutorial diz "Compartilhar > Tela de Início" e não há atalho para usar sem instalar.
     await faro.command('Page.enable', {});
     await faro.command('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1' });
@@ -195,5 +181,5 @@ const audit = `
     await faro.close();
   }
   if (failures.length) { console.error(`FARO tema global: ${failures.length} falha(s)`); process.exit(1); }
-  console.log('FARO tema global no Chrome: 6 telas + modo carro sem azul antigo e com contraste AA — ok');
+  console.log('FARO tema global no Chrome: 6 telas sem azul antigo e com contraste AA — ok');
 })().catch(error => { console.error(error); process.exit(1); });

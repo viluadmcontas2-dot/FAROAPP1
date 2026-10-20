@@ -87,7 +87,7 @@ html{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-te
 body{overscroll-behavior-y:none}
 .modal-sheet,.faro-dialog,[role="dialog"]{overscroll-behavior:contain}
 /* Controles não selecionam o rótulo com toque longo; o texto de conteúdo continua copiável. */
-button,[role="button"],.nav-item,summary,.faro-switch,.period-button{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+button,[role="button"],.nav-item,summary,.period-button{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 /* Feedback imediato no toque (pointer-down), sutil e curto. */
 button,[role="button"],summary{transition-property:transform,background-color,color,box-shadow,opacity,border-color;transition-duration:.14s;transition-timing-function:cubic-bezier(.16,1,.3,1)}
 button:not(:disabled):active,[role="button"]:not([aria-disabled="true"]):active,summary:active{transform:scale(.97)}
@@ -110,46 +110,9 @@ button.bg-emerald-500{background-color:#047857!important}
 .bg-vetta-900 .text-slate-400,.bg-slate-900 .text-slate-400,.bg-vetta-800 .text-slate-400,.bg-slate-800 .text-slate-400{color:#94A3B8!important}
 .bg-vetta-900 .text-emerald-600,.bg-slate-900 .text-emerald-600{color:#34D399!important}
 .bg-vetta-900 .text-red-500,.bg-slate-900 .text-red-500{color:#FCA5A5!important}
-/* Atualização do app e modo carro */
+/* Atualização do app */
 .faro-update-bar{position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:calc(104px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 10px 10px 16px;border-radius:18px;background:var(--faro-ink);color:#fff;font-size:14px;font-weight:700;box-shadow:0 12px 32px rgba(var(--faro-black-rgb),.28);animation:fadeInUp .28s cubic-bezier(.16,1,.3,1)}
 .faro-update-bar button{min-height:48px;padding:0 18px;border:0;border-radius:14px;background:var(--faro-amber);color:var(--faro-on-amber);font-weight:800}
-.faro-car-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px}
-.faro-car-copy{display:grid;gap:4px;min-width:0}.faro-car-copy strong{font-size:16px;color:var(--faro-ink)}.faro-car-copy span{font-size:13px;line-height:1.4;color:#475569}
-.faro-switch{position:relative;flex:none;width:64px;min-height:48px;height:48px;border:0;border-radius:999px;background:#CBD5E1;padding:0}
-.faro-switch-knob{position:absolute;top:6px;left:6px;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(var(--faro-black-rgb),.25);transition:transform .18s cubic-bezier(.16,1,.3,1)}
-.faro-switch[aria-checked="true"]{background:var(--faro-black)}.faro-switch[aria-checked="true"] .faro-switch-knob{transform:translateX(16px)}
-.faro-switch:active .faro-switch-knob{width:40px}
-html[data-faro-car="on"]{color-scheme:dark}
-/* Início (faro-home-r2.js) usa tokens próprios: no modo carro eles viram preto/branco/âmbar. */
-html[data-faro-car="on"]{--faro-home-bg:#000;--faro-home-surface:#0A0A0A;--faro-home-surface-2:#262626;--faro-home-ink:#fff;--faro-home-muted:#D4D4D4;--faro-home-line:#475569;--faro-home-amber:var(--faro-amber-night);--faro-home-on-amber:var(--faro-black);--faro-home-amber-soft:#2B2410;--faro-home-amber-text:var(--faro-amber-night);--faro-home-profit:var(--faro-profit-night);--faro-home-profit-soft:#103324;--faro-home-loss:#FF8A80;--faro-home-loss-soft:#3A1816;--faro-home-ring:#FDE047}
-html[data-faro-car="on"] body{background:#000;color:#fff}
-html[data-faro-car="on"] .card-vetta,html[data-faro-car="on"] .modal-sheet,html[data-faro-car="on"] nav.sticky.top-0,html[data-faro-car="on"] .history-row,html[data-faro-car="on"] .cost-row,html[data-faro-car="on"] .event-row,html[data-faro-car="on"] .report-metric,html[data-faro-car="on"] details,html[data-faro-car="on"] summary,html[data-faro-car="on"] .details-summary{background:#0A0A0A!important;color:#fff!important;border-color:#475569!important}
-html[data-faro-car="on"] [class*="bg-white"],html[data-faro-car="on"] [class*="bg-slate-50"],html[data-faro-car="on"] [class*="bg-slate-100"],html[data-faro-car="on"] [class*="bg-blue-50"],html[data-faro-car="on"] [class*="bg-blue-100"],html[data-faro-car="on"] [class*="bg-emerald-50"],html[data-faro-car="on"] [class*="bg-emerald-100"],html[data-faro-car="on"] [class*="bg-amber-50"],html[data-faro-car="on"] [class*="bg-red-50"],html[data-faro-car="on"] [class*="bg-orange-50"]{background-color:#141414!important}
-html[data-faro-car="on"] [class*="text-vetta-"],html[data-faro-car="on"] [class*="text-slate-"],html[data-faro-car="on"] [class*="text-gray-"],html[data-faro-car="on"] .label-micro,html[data-faro-car="on"] .faro-support-text,html[data-faro-car="on"] .faro-card-support,html[data-faro-car="on"] .faro-card-eyebrow,html[data-faro-car="on"] .faro-car-copy strong,html[data-faro-car="on"] .faro-car-copy span{color:#F8FAFC!important}
-html[data-faro-car="on"] [class*="text-blue-"],html[data-faro-car="on"] .faro-card-action{color:var(--faro-amber-night)!important}
-html[data-faro-car="on"] [class*="text-emerald-"],html[data-faro-car="on"] [class*="text-green-"]{color:#6EE7B7!important}
-html[data-faro-car="on"] [class*="text-red-"],html[data-faro-car="on"] [class*="text-rose-"]{color:#FCA5A5!important}
-html[data-faro-car="on"] [class*="text-amber-"],html[data-faro-car="on"] [class*="text-orange-"],html[data-faro-car="on"] [class*="text-yellow-"]{color:#FCD34D!important}
-html[data-faro-car="on"] [class*="border-slate-"],html[data-faro-car="on"] [class*="border-blue-"],html[data-faro-car="on"] [class*="border-white"]{border-color:#475569!important}
-html[data-faro-car="on"] .record-metric,html[data-faro-car="on"] .faro-earnings-section{background:#141414!important;border-color:#475569!important}
-html[data-faro-car="on"] .faro-earnings-head p,html[data-faro-car="on"] .faro-draft-note,html[data-faro-car="on"] .faro-draft-note span{color:#E2E8F0!important}
-html[data-faro-car="on"] button[class*="bg-emerald-"]{color:#fff!important}
-/* Modo carro preto/branco/âmbar: superfícies navy e ações azuis do legado. */
-html[data-faro-car="on"] .bg-vetta-900{background-color:#000!important}
-html[data-faro-car="on"] [class~="bg-blue-600"],html[data-faro-car="on"] [class~="bg-blue-500"]{background-color:var(--faro-amber-night)!important;color:var(--faro-black)!important}
-html[data-faro-car="on"] [class~="bg-blue-600"] *{color:var(--faro-black)!important}
-html[data-faro-car="on"] input,html[data-faro-car="on"] select,html[data-faro-car="on"] textarea,html[data-faro-car="on"] .input-vetta{background:#141414!important;color:#fff!important;border:2px solid #94A3B8!important;font-size:20px!important;min-height:64px!important}
-html[data-faro-car="on"] .input-wrapper>span{color:#CBD5E1}
-html[data-faro-car="on"] button:not(.toggle),html[data-faro-car="on"] [role="button"],html[data-faro-car="on"] .nav-item,html[data-faro-car="on"] summary{min-height:64px!important;font-size:18px}
-html[data-faro-car="on"] .nav-item span{font-size:14px!important}
-html[data-faro-car="on"] .nav-item.active,html[data-faro-car="on"] .nav-item.active span{color:var(--faro-amber-night)!important}
-html[data-faro-car="on"] .nav-item.active{box-shadow:inset 0 3px 0 var(--faro-amber-night)}
-html[data-faro-car="on"] nav.fixed .bg-vetta-900{background:#000!important;border:2px solid #475569}
-html[data-faro-car="on"] .faro-switch{min-height:48px!important;background:#64748B}
-html[data-faro-car="on"] .faro-switch[aria-checked="true"]{background:var(--faro-amber-night)}
-html[data-faro-car="on"] .faro-action-card{background:var(--faro-amber-night)!important}
-html[data-faro-car="on"] .faro-action-card,html[data-faro-car="on"] .faro-action-card *{color:var(--faro-black)!important}
-html[data-faro-car="on"] :focus-visible{outline:4px solid #FDE047!important}
 /* Cartão "Registrar meu dia": ação primária da marca, âmbar sólido com texto preto (AA 10:1). */
 #view-dashboard [data-view="day"].faro-action-card{background:var(--faro-amber)!important;border-color:var(--faro-amber)!important;color:var(--faro-on-amber)!important}
 #view-dashboard [data-view="day"].faro-action-card *{color:var(--faro-on-amber)!important}

@@ -1,4 +1,4 @@
-// Prova real (Chromium) do runtime PWA: atalhos, update flow, modo carro, theme-color, wake lock, badge e persistência.
+// Prova real (Chromium) do runtime PWA: atalhos, update flow e badge.
 // Uso: npm run build && NODE_PATH=$(npm root -g) node scripts/verify-pwa-runtime-browser.cjs
 const { chromium } = require('playwright');
 const http = require('node:http');
@@ -33,10 +33,9 @@ const check = (name, ok, detail = '') => { results.push(ok); console.log(`${ok ?
       localStorage.setItem('faro-app-finance-v1', JSON.stringify(state));
       localStorage.setItem('faro-ui-tour-v1', JSON.stringify({ done: true }));
     }
-    window.__badge = []; window.__lock = [];
+    window.__badge = [];
     navigator.setAppBadge = async n => { window.__badge.push(['set', n]); };
     navigator.clearAppBadge = async () => { window.__badge.push(['clear']); };
-    Object.defineProperty(navigator, 'wakeLock', { value: { request: async type => { window.__lock.push(type); const l = new EventTarget(); l.release = async () => { window.__lock.push('release'); }; return l; } } });
   }, { state });
   const page = await context.newPage();
   const ready = () => page.waitForFunction(() => document.documentElement.dataset.faroPlatformReady === 'true', null, { timeout: 20000 });
@@ -59,20 +58,6 @@ const check = (name, ok, detail = '') => { results.push(ok); console.log(`${ok ?
   await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
   await page.waitForTimeout(200);
   check('selo é limpo quando o app volta', await page.evaluate(() => JSON.stringify(window.__badge.at(-1)) === '["clear"]'));
-
-  // Modo carro: tema, theme-color, wake lock, persistência
-  await page.evaluate(() => window.__vettaApp.navigateToPrimary('more')); await page.waitForTimeout(500);
-  await page.click('#faroCarToggle'); await page.waitForTimeout(300);
-  const car = await page.evaluate(() => ({ attr: document.documentElement.dataset.faroCar, theme: document.querySelector('meta[name="theme-color"]').content, lock: window.__lock.slice(), checked: document.getElementById('faroCarToggle').getAttribute('aria-checked'), bodyBg: getComputedStyle(document.body).backgroundColor, btn: Math.round(document.querySelector('.nav-item').getBoundingClientRect().height) }));
-  check('modo carro liga (data-faro-car=on, aria-checked=true)', car.attr === 'on' && car.checked === 'true');
-  check('theme-color vira #000000', car.theme === '#000000', car.theme);
-  check('Wake Lock screen solicitado', car.lock.includes('screen'));
-  check('fundo escuro e alvos grandes (>=64px)', ['rgb(0, 0, 0)', 'rgb(20, 20, 20)'].includes(car.bodyBg) && car.btn >= 64, `${car.bodyBg} nav=${car.btn}px`);
-  await page.reload(); await ready();
-  check('modo carro persiste após recarregar', await page.evaluate(() => document.documentElement.dataset.faroCar === 'on'));
-  await page.evaluate(() => window.__vettaApp.navigateToPrimary('more')); await page.waitForTimeout(400);
-  await page.click('#faroCarToggle'); await page.waitForTimeout(300);
-  check('modo carro desliga e libera Wake Lock', await page.evaluate(() => document.documentElement.dataset.faroCar === 'off' && document.querySelector('meta[name="theme-color"]').content === '#FFFFFF' && window.__lock.includes('release')));
 
   // Update flow
   await page.goto(`${origin}/app-shell.html`); await ready();

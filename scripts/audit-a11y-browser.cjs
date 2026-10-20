@@ -1,5 +1,5 @@
 // Auditoria axe-core (contraste AA, alvos, nomes) por tela. Uso:
-// AXE_PATH=<caminho/axe.min.js> NODE_PATH=$(npm root -g) node scripts/audit-a11y-browser.cjs [--car] [--min-font]
+// AXE_PATH=<caminho/axe.min.js> NODE_PATH=$(npm root -g) node scripts/audit-a11y-browser.cjs [--min-font]
 const { chromium } = require('playwright');
 const http = require('node:http');
 const fs = require('node:fs');
@@ -13,7 +13,6 @@ const server = http.createServer((req, res) => {
   res.writeHead(200, { 'content-type': types[path.extname(file)] || 'application/octet-stream' });
   fs.createReadStream(file).pipe(res);
 });
-const car = process.argv.includes('--car');
 const day = offset => { const d = new Date(); d.setDate(d.getDate() - offset); return d.toISOString().slice(0, 10); };
 const state = { version: 3, onboardingComplete: true, targetProfit: 4000, workWeekdays: [1, 2, 3, 4, 5, 6], extraDaysOff: 0, revenueKm: 2.25, fuel: { type: 'gnv', label: 'GNV', unit: 'm³', price: 4.79, efficiency: 13.2 }, costs: [{ id: 'maintenance-default', name: 'Reserva de manutenção', kind: 'per_km', category: 'reserve', value: 0.18, active: true }], records: [1, 2, 3].map(i => ({ date: day(i), gross: 280 + i * 17, km: 150 + i * 6, hours: 9, fuelSpend: 60 })), events: [] };
 
@@ -22,12 +21,11 @@ const state = { version: 3, onboardingComplete: true, targetProfit: 4000, workWe
   const origin = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  await context.addInitScript(({ state, car }) => {
+  await context.addInitScript(({ state }) => {
     Object.defineProperty(navigator, 'standalone', { get: () => true });
     localStorage.setItem('faro-app-finance-v1', JSON.stringify(state));
     localStorage.setItem('faro-ui-tour-v1', JSON.stringify({ done: true, completed: true, seen: true }));
-    if (car) localStorage.setItem('faro-car-mode-v1', 'on');
-  }, { state, car });
+  }, { state });
   const page = await context.newPage();
   await page.goto(`${origin}/app-shell.html`);
   await page.waitForFunction(() => document.documentElement.dataset.faroPlatformReady === 'true', null, { timeout: 20000 });
