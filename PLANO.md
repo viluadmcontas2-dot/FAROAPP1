@@ -10,7 +10,9 @@ Linha canônica: branch `claude/pwa-driver-production-fm0kk9` (contém WU-004 po
 - Prova em aparelho real é do dono; fica UNKNOWN até existir.
 
 ## Dia 1 — Cobrança segura (o que bloqueia vender)
-- [ ] Dono: confirmar conta Stripe brasileira; decidir Supabase Pro (US$25) e Vercel Pro (Hobby proíbe cobrar).
+- [x] Decisão do dono (2026-10-20): custo zero de infraestrutura (planos grátis) e preço abaixo de R$19,90/mês.
+- [ ] Hospedagem: Cloudflare Pages grátis (Vercel Hobby proíbe uso comercial). Supabase Free + despertador semanal + backup periódico; migrar p/ Pro quando houver assinantes.
+- [ ] Dono: criar novo preço no Stripe (sandbox) para R$19,90 e revisar cupom RATAO (19,90−8,00=11,90).
 - [ ] Dono: instalar 4 segredos no Supabase + criar Portal de Cobrança (guia passo a passo será entregue).
 - [ ] Código: paywall no servidor (`faro_has_access()` nas policies de escrita).
 - [ ] Código: webhook lê `items.data[0].current_period_end`; guarda contra evento velho; 1 assinatura por usuário; idempotency key no customer.

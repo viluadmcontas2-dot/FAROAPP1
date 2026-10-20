@@ -12,7 +12,8 @@
 WorkUnits ativas: FARO-WU-002 (comercial) e FARO-WU-002B (endurecimento).
 
 ## Comercial (sandbox)
-- Preço R$ 22,99/mês; cupom `RATAO` = R$ 8 off por 5 meses (R$ 14,99).
+- Preço-alvo < R$ 19,90/mês (decisão 2026-10-20; o price antigo de R$ 22,99 será substituído); cupom `RATAO` a revisar.
+- Infra a custo zero: Cloudflare Pages + Supabase Free (com despertador e backup) + Stripe sem mensalidade.
 - Supabase `mjbyqhreptllilkggiri`. Segredos de servidor (B4) pendentes com o dono.
 
 ## next_unproven_item
