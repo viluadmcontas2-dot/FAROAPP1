@@ -30,7 +30,7 @@ export default {
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      event = await stripe.webhooks.constructEventAsync(rawBody, signature, webhookSecret);
     } catch {
       return new Response('Assinatura inválida', { status: 400 });
     }

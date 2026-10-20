@@ -48,7 +48,7 @@ assert.match(webhook, /if \(!stripeSecret \|\| !webhookSecret\) return json\(\{ 
   'Webhook deve retornar 503 antes de validar eventos se os segredos estiverem ausentes');
 assert.match(webhook, /const stripe = new Stripe\(stripeSecret\);/);
 assert.match(webhook, /stripe-signature/);
-assert.match(webhook, /webhooks\.constructEvent\(rawBody, signature, webhookSecret\)/);
+assert.match(webhook, /webhooks\.constructEventAsync\(rawBody, signature, webhookSecret\)/);
 assert.match(webhook, /faro_webhook_events/);
 assert.match(webhookSchema, /event_id text primary key/);
 assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon, authenticated/);

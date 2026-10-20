@@ -41,3 +41,9 @@ Branch: `claude/cobranca-servidor`. Cada item diz o que foi decidido, por quê e
 - Conferido: 7 tabelas, 5 funções, 13 policies, 2 gatilhos; `enforce_paywall=false` (liga no go-live).
 - Advisors de segurança: 3 INFO "RLS sem policy" são intencionais (tabelas só do servidor); WARN de SECURITY DEFINER tratado limitando `faro_has_access` ao próprio usuário.
 - Pendente: deploy das 3 Edge Functions novas, 4 segredos (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_FARO_MONTHLY_PRICE_ID, FARO_APP_URL), webhook com +2 eventos (customer.subscription.trial_will_end, charge.dispute.created).
+
+## 2026-10-20 — Edge Functions publicadas (versão 2) no Supabase
+- criar-checkout-faro, abrir-portal-faro, stripe-webhook-faro (verify_jwt=false; autenticação feita por `withSupabase`).
+- Webhook passa a usar `constructEventAsync` (Deno); teste de contrato exige a versão async.
+- A cópia publicada de `_shared/faro-billing.js` está SEM comentários (só texto); lógica idêntica ao repositório.
+- Fumaça sem credenciais: checkout/portal = 401; webhook = 503 "não configurado" (faltam os 4 segredos).
