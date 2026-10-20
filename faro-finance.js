@@ -260,9 +260,9 @@
       return;
     }
     list.innerHTML = rows.map(item => `
-      <article class="rounded-2xl border ${item.status === 'paid' ? 'border-emerald-100 bg-emerald-50/50' : item.days < 0 ? 'border-red-100 bg-red-50/50' : 'border-slate-100 bg-white'} p-4">
-        <div class="flex justify-between gap-3"><div class="min-w-0"><strong class="block text-sm truncate">${app.escape(item.name)}</strong><span class="text-xs ${item.status === 'paid' ? 'text-emerald-700' : item.days < 0 ? 'text-red-600' : 'text-slate-500'}">${occurrenceLabel(item)} · ${app.money(item.amount,0)}</span></div><span class="cost-kind">${item.cost.kind === 'weekly' ? 'semanal' : 'mensal'}</span></div>
-        <div class="mt-3 flex justify-end">${item.status === 'paid' ? `<button type="button" data-undo-occurrence="${item.id}" class="px-3 py-2 rounded-xl bg-white text-slate-600 text-xs font-extrabold">DESFAZER</button>` : `<button type="button" data-pay-occurrence="${item.id}" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">MARCAR PAGO</button>`}</div>
+      <article class="rounded-2xl border ${window.FaroSafe.esc(item.status === 'paid' ? 'border-emerald-100 bg-emerald-50/50' : item.days < 0 ? 'border-red-100 bg-red-50/50' : 'border-slate-100 bg-white')} p-4">
+        <div class="flex justify-between gap-3"><div class="min-w-0"><strong class="block text-sm truncate">${window.FaroSafe.esc(item.name)}</strong><span class="text-xs ${window.FaroSafe.esc(item.status === 'paid' ? 'text-emerald-700' : item.days < 0 ? 'text-red-600' : 'text-slate-500')}">${window.FaroSafe.esc(occurrenceLabel(item))} · ${window.FaroSafe.esc(app.money(item.amount,0))}</span></div><span class="cost-kind">${window.FaroSafe.esc(item.cost.kind === 'weekly' ? 'semanal' : 'mensal')}</span></div>
+        <div class="mt-3 flex justify-end">${window.FaroSafe.raw(item.status === 'paid' ? `<button type="button" data-undo-occurrence="${window.FaroSafe.esc(item.id)}" class="px-3 py-2 rounded-xl bg-white text-slate-600 text-xs font-extrabold">DESFAZER</button>` : `<button type="button" data-pay-occurrence="${window.FaroSafe.esc(item.id)}" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">MARCAR PAGO</button>`)}</div>
       </article>`).join('');
   };
 
@@ -289,7 +289,7 @@
     if (!container) return;
     const next = nextPendingOccurrence();
     container.innerHTML = next
-      ? `<div class="pt-4 border-t border-slate-100"><span class="label-micro !text-vetta-900">Próximo vencimento</span><div class="flex justify-between text-xs py-2"><span>${this.escape(next.name)}</span><strong>${occurrenceLabel(next)}</strong></div></div>`
+      ? `<div class="pt-4 border-t border-slate-100"><span class="label-micro !text-vetta-900">Próximo vencimento</span><div class="flex justify-between text-xs py-2"><span>${window.FaroSafe.esc(next.name)}</span><strong>${window.FaroSafe.esc(occurrenceLabel(next))}</strong></div></div>`
       : '<p class="text-xs text-slate-400">Adicione o vencimento de uma conta para o FARO acompanhar.</p>';
   };
 
