@@ -137,7 +137,7 @@ assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(tour, /faro-ui-tour-v1/);
 
 for (const source of [sw, await read('_site/sw.js')]) {
-  assert.match(source, /faro-v1-core-29/);
+  assert.match(source, /faro-v1-core-30/);
   assert.match(source, /faro-platform\.js\?v=3/);
   assert.match(source, /faro-update\.js\?v=1/);
   assert.match(source, /faro-brand-r2\.js\?v=3/);

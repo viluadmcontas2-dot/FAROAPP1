@@ -37,3 +37,9 @@ continuam intocadas). Edge Functions alteradas, **sem deploy**.
 
 Ao aplicar: rodar a migration 140000, publicar as 4 Edge Functions, conferir advisors. Revisável: janelas de 60 s
 (busy), 15 min (deleting) e 30 min (sessão).
+
+## 2026-10-20 — aplicado no Supabase real (`mjbyqhreptllilkggiri`)
+- O arquivo `20261020140000_faro_cobranca_atomica.sql` foi aplicado em partes (o conector estoura 60 s em `auth.users`): `_1_webhook` (colunas + `faro_apply_subscription_event`), `_2_checkout` (reserva/salva/libera/exclusão), `_3a_funcoes_trial` (funções) e o gatilho `faro_grant_trial_on_email_confirmed` por SQL direto (sem `drop trigger`, que pede bloqueio forte e travava).
+- Conferido: 6 funções, 5 colunas, gatilhos de cadastro e de confirmação de e-mail, `enforce_paywall=false`. Advisors de segurança: sem avisos novos (funções novas não são chamáveis por usuários).
+- Edge Functions v3/v2 publicadas: criar-checkout-faro, abrir-portal-faro, stripe-webhook-faro, excluir-conta-faro. Fumaça: 401 sem login; webhook 503 sem segredos.
+- NÃO provado: Deno/Stripe reais (E2E sandbox ainda depende dos segredos do dono) e `expires_at` + idempotência do Stripe.

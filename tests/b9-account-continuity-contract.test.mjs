@@ -18,7 +18,9 @@ assert.match(account, /meta\.localRevision \+= 1/);
 assert.match(account, /meta\.dirty = true/);
 assert.match(account, /if \(!configured \|\| !session \|\| !navigator\.onLine\) return;/, 'Sync agendado precisa respeitar offline');
 assert.match(account, /window\.addEventListener\('online'[\s\S]*syncNow\(\)/, 'Retorno da internet precisa retomar sync');
-assert.match(account, /upsert\(payload, \{ onConflict:'user_id' \}\)/, 'Snapshot remoto precisa ser único por usuário, evitando append duplicado');
+assert.match(account, /update\(payload\)\.eq\('user_id', userId\)\.eq\('revision', Number\(expectedRevision\)\)/, 'Gravação na nuvem precisa ser compare-and-set pela revisão esperada');
+assert.match(account, /insert\(payload\)/, 'Primeira cópia só por INSERT (único por usuário), nunca upsert cego');
+assert.doesNotMatch(account, /from\('faro_state'\)\.upsert/, 'Sem upsert cego do estado');
 assert.match(account, /if \(!configured \|\| !session\?\.user \|\| !navigator\.onLine \|\| syncing\) return;/, 'Sync concorrente precisa ser bloqueado');
 
 // Conflito nunca pode sobrescrever silenciosamente quando local e remoto divergem.

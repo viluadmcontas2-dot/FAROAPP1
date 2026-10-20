@@ -215,6 +215,15 @@
 
   const NOT_BACKUP = 'Esse arquivo não parece um backup do FARO.';
   const TOO_BIG = 'Esse arquivo é grande demais para ser um backup do FARO.';
+  const LIMIT_LABELS = { records: 'dias registrados', costs: 'custos', events: 'eventos', paymentOccurrences: 'pagamentos', reserveContributions: 'movimentos de reserva' };
+  // Rejeita o arquivo inteiro: cortar em silêncio deixaria pagamentos/reservas sem o custo correspondente.
+  const overLimit = data => {
+    for (const key of Object.keys(LIMITS)) {
+      const size = Array.isArray(data[key]) ? data[key].length : 0;
+      if (size > LIMITS[key]) return `Esse backup tem ${LIMIT_LABELS[key]} demais (${size}). O limite é ${LIMITS[key]}. Seus dados atuais não foram alterados.`;
+    }
+    return null;
+  };
   app.importData = async function(event) {
     const file = event?.target?.files?.[0];
     if (!file) return;
@@ -225,7 +234,10 @@
       let parsed;
       try { parsed = JSON.parse(raw); } catch (error) { this.toast(NOT_BACKUP); return; }
       if (!isObj(parsed) || (parsed.app !== undefined && parsed.app !== 'FARO')) { this.toast(NOT_BACKUP); return; }
-      const data = deepClean(isObj(parsed.data) ? parsed.data : parsed);
+      const rawData = isObj(parsed.data) ? parsed.data : parsed;
+      const limitMessage = isObj(rawData) ? overLimit(rawData) : null;
+      if (limitMessage) { this.toast(limitMessage); return; }
+      const data = deepClean(rawData);
       if (!isObj(data) || !Array.isArray(data.records)) { this.toast(NOT_BACKUP); return; }
       const next = data.version >= 3 ? this.normalizeState(data) : this.migrateLegacy(data);
       if (JSON.stringify(next).length > MAX_BACKUP_BYTES) { this.toast(TOO_BIG); return; }
