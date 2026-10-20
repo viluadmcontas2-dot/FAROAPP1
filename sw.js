@@ -25,6 +25,7 @@ const APP_SHELL = [
   './faro-r3-routing.js?v=3',
   './faro-navigation.js?v=1',
   './faro-config.js?v=1',
+  './faro-plans.js?v=1',
   './faro-account.js?v=1',
   './faro-notifications.js?v=1',
   './faro-r2-polish.js?v=2',
