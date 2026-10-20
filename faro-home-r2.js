@@ -110,7 +110,7 @@
   // ---- "Detalhes": tudo que saiu do Início continua a um toque ----
   const details = document.createElement('details');
   details.id = 'faroHomeDetails';
-  details.innerHTML = '<summary><span>Detalhes</span><small>Semana, mês e faturamento</small></summary><div class="faro-home-details-body"></div>';
+  details.innerHTML = '<summary><span>Detalhes</span><small>Ritmo, semana e mês</small></summary><div class="faro-home-details-body"></div>';
   const detailsBody = details.querySelector('.faro-home-details-body');
   [legacyHero, weekCard, monthCard, insightCard].filter(Boolean).forEach(node => detailsBody.appendChild(node));
   const historyLink = document.createElement('button');
@@ -145,24 +145,37 @@
       body:has(#view-dashboard:not(.hidden)){background:var(--faro-home-bg)}
       #view-dashboard{color:var(--faro-home-ink);background:var(--faro-home-bg)}
       #view-dashboard [hidden]{display:none!important}
+      #view-dashboard{display:flex;flex-direction:column;gap:var(--sp-3)}
+      #view-dashboard>*+*{margin-top:0}
+      #faroHomeHero{order:1}
+      #faroHomeGoal{order:2}
+      #view-dashboard [data-view="day"][data-faro-primary="true"].faro-action-card{order:3;margin-bottom:var(--sp-3)}
+      #faroHomeAttention{order:4}
+      #faroHomeStreak{order:5}
+      #faroAchievementsLine{order:6}
+      #faroHomeDetails{order:7;margin-top:var(--sp-3)}
+      #faroHomeFoundation{order:8}
+      #faroHomeDetails .card-vetta{padding:var(--sp-4)}
+      #faroHomeDetails .card-vetta>*+*{margin-top:var(--sp-3)}
+      #faroHomeDetails .overflow-hidden:not(.card-vetta){padding:var(--sp-5)}
       #view-dashboard :is(button,summary,a,[role="button"]):focus-visible{outline:3px solid var(--faro-home-ring);outline-offset:3px}
       #view-dashboard .faro-home-eyebrow{display:block;font:800 13px/1.2 var(--faro-home-display);letter-spacing:.08em;text-transform:uppercase;color:var(--faro-home-muted)}
       #faroHomeHero{position:relative;padding:4px 2px 0}
-      #faroHomeHero .faro-home-hello{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:22px}
+      #faroHomeHero .faro-home-hello{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:var(--sp-4)}
       #faroHomeHero .faro-home-hello h2{font:800 22px/1.1 var(--faro-home-display);letter-spacing:.03em;text-transform:uppercase;color:var(--faro-home-ink)}
       #faroHomeHero .faro-home-hello span{font-size:14px;font-weight:600;color:var(--faro-home-muted)}
       #faroHomeHero .faro-home-beam{position:absolute;right:-20px;left:30%;top:24px;height:170px;opacity:.55;pointer-events:none;clip-path:polygon(100% 40%,0 0,0 100%,100% 60%);background:linear-gradient(260deg,color-mix(in srgb,var(--faro-home-amber) 50%,transparent),transparent 80%)}
-      #faroHomeHero .faro-home-big{position:relative;display:block;margin-top:6px;font:800 76px/.95 var(--faro-home-display);letter-spacing:-.01em;color:var(--faro-home-profit);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+      #faroHomeHero .faro-home-big{position:relative;display:block;margin-top:var(--sp-1);font:800 76px/.95 var(--faro-home-display);letter-spacing:-.01em;color:var(--faro-home-profit);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
       #faroHomeHero .faro-home-big small{font-size:32px;font-weight:700;margin-right:6px}
       #faroHomeHero[data-state="loss"] .faro-home-big{color:var(--faro-home-loss)}
-      #faroHomeHero .faro-home-invite{position:relative;display:block;margin-top:8px;font:800 40px/1 var(--faro-home-display);letter-spacing:-.01em;color:var(--faro-home-ink)}
-      #faroHomeHero .faro-home-sub{position:relative;margin-top:12px;font-size:16px;line-height:1.4;color:var(--faro-home-muted)}
+      #faroHomeHero .faro-home-invite{position:relative;display:block;margin-top:var(--sp-2);font:800 40px/1 var(--faro-home-display);letter-spacing:-.01em;color:var(--faro-home-ink)}
+      #faroHomeHero .faro-home-sub{position:relative;margin-top:var(--sp-3);font-size:16px;line-height:1.4;color:var(--faro-home-muted)}
       #faroHomeHero .faro-home-sub b{color:var(--faro-home-ink);font-weight:800;font-variant-numeric:tabular-nums}
-      #faroHomeGoal{display:block;width:100%;text-align:left;margin-top:8px;padding:20px 2px 4px;border-top:2px solid var(--faro-home-line);border-radius:0;background:none;color:var(--faro-home-ink);min-height:48px;cursor:pointer}
+      #faroHomeGoal{display:block;width:100%;text-align:left;padding:var(--sp-4) 2px 0;border-top:2px solid var(--faro-home-line);border-radius:0;background:none;color:var(--faro-home-ink);min-height:48px;cursor:pointer}
       #faroHomeGoal .faro-home-goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
       #faroHomeGoal .faro-home-goal-num{font:800 30px/1 var(--faro-home-display);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
       #faroHomeGoal .faro-home-goal-of{color:var(--faro-home-muted);font-size:20px}
-      #faroHomeGoal .faro-home-track{position:relative;display:block;height:16px;border-radius:8px;background:var(--faro-home-surface-2);margin:34px 0 12px}
+      #faroHomeGoal .faro-home-track{position:relative;display:block;height:16px;border-radius:8px;background:var(--faro-home-surface-2);margin:calc(var(--sp-5) + var(--sp-2)) 0 var(--sp-3)}
       #faroHomeGoal .faro-home-fill{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--faro-home-profit);transition:width .4s cubic-bezier(.16,1,.3,1)}
       #faroHomeGoal .faro-home-pace{position:absolute;top:-8px;bottom:-8px;width:4px;margin-left:-2px;border-radius:2px;background:var(--faro-home-ink)}
       #faroHomeGoal .faro-home-pace span{position:absolute;top:-21px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--faro-home-muted)}
@@ -170,10 +183,10 @@
       #faroHomeGoal[data-pace="behind"] .faro-home-pill{background:var(--faro-home-loss-soft);color:var(--faro-home-loss)}
       #faroHomeGoal .faro-home-goal-text{display:block;margin-top:10px;font-size:16px;line-height:1.4;color:var(--faro-home-ink)}
       #faroHomeGoal .faro-home-goal-text b{font-weight:800;font-variant-numeric:tabular-nums}
-      #faroHomeStreak:not([hidden]){display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:var(--faro-home-amber-soft);color:var(--faro-home-ink)}
+      #faroHomeStreak:not([hidden]){display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-radius:18px;background:var(--faro-home-amber-soft);color:var(--faro-home-ink)}
       #faroHomeStreak .faro-home-flame{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--faro-home-amber);color:var(--faro-home-on-amber);font-size:22px}
       #faroHomeStreak b{display:block;font:800 24px/1 var(--faro-home-display);font-variant-numeric:tabular-nums}
-      #faroHomeStreak small{display:block;margin-top:3px;font-size:14px;color:var(--faro-home-muted)}
+      #faroHomeStreak small{display:block;margin-top:var(--sp-1);font-size:14px;color:var(--faro-home-muted)}
       #faroHomeStreak .faro-home-bars{margin-left:auto;display:flex;gap:4px}
       #faroHomeStreak .faro-home-bars i{width:10px;height:26px;border-radius:5px;background:var(--faro-home-surface-2)}
       #faroHomeStreak .faro-home-bars i[data-day="on"]{background:var(--faro-home-amber)}
@@ -181,7 +194,7 @@
       #view-dashboard [data-view="day"][data-faro-primary="true"].faro-action-card{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:0 20px;border:0!important;border-radius:16px;background:var(--faro-home-amber)!important;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)!important;font-size:18px;font-weight:800;transition:transform .12s ease}
       #view-dashboard [data-view="day"][data-faro-primary="true"].faro-action-card *{color:var(--faro-home-on-amber)!important}
       #view-dashboard [data-view="day"][data-faro-primary="true"].faro-action-card:active{transform:scale(.985)}
-      #faroHomeDetails{border-top:2px solid var(--faro-home-line);padding-top:2px}
+      #faroHomeDetails{border-top:2px solid var(--faro-home-line);padding-top:var(--sp-1)}
       #faroHomeDetails>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:8px 2px;cursor:pointer;color:var(--faro-home-ink)}
       #faroHomeDetails .overflow-hidden{overflow:clip;contain:paint}
       #faroHomeDetails>summary::-webkit-details-marker{display:none}
@@ -189,7 +202,7 @@
       #faroHomeDetails>summary small{font-size:13px;color:var(--faro-home-muted);text-align:right}
       #faroHomeDetails>summary::after{content:'+';flex:none;width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:var(--faro-home-surface-2);font-size:18px;font-weight:700}
       #faroHomeDetails[open]>summary::after{content:'−'}
-      #faroHomeDetails .faro-home-details-body{display:grid;gap:16px;padding:8px 0 4px}
+      #faroHomeDetails .faro-home-details-body{display:grid;gap:var(--sp-4);padding:var(--sp-2) 0 var(--sp-1)}
       #faroHomeDetails .faro-home-link{min-height:48px;padding:0 4px;font-size:15px;font-weight:800;color:var(--faro-home-ink);text-decoration:underline;text-underline-offset:3px;justify-self:start}
       #view-dashboard [data-faro-role="week"]{border-color:var(--faro-line);background:var(--faro-surface)}
       #view-dashboard [data-faro-role="month"]{box-shadow:var(--faro-shadow-card,0 12px 30px -18px rgba(15,23,42,.18));cursor:pointer;position:relative;padding-right:2.8rem}

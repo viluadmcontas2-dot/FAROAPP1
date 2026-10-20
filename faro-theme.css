@@ -4,6 +4,7 @@
    O núcleo (app.js/legacy-shell.html) e os módulos em edição paralela não são tocados: as cores antigas deles
    são vestidas aqui por seletor. Tudo fica escopado fora do modo carro (que tem alto contraste próprio). */
 :root{
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;
   --faro-black:#15130E;--faro-black-2:#2A251A;--faro-paper:#F6F1E4;--faro-amber:#F2B705;--faro-profit:#0A7A47;--faro-loss:#B3261E;
   --faro-ink:var(--faro-black);--faro-on-amber:var(--faro-black);--faro-surface:#FFFFFF;--faro-surface-soft:#FBF8F0;--faro-surface-2:#EDE6D2;
   --faro-muted:#5B5648;--faro-faint:#8A8371;--faro-line:#D9D0B8;--faro-amber-soft:#FBEFC4;--faro-amber-text:#7A5200;

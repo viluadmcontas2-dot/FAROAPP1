@@ -72,6 +72,14 @@
       #onboardingModal .faro-target{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:20px;padding:16px}
       #onboardingModal .faro-target input{width:140px;background:transparent;color:inherit;font-size:26px;font-weight:900;text-align:right;border:0;outline:0}
       #onboardingModal .faro-card{border:1px solid var(--faro-line);border-radius:18px;padding:14px}
+      #onboardingModal .faro-field + .faro-field{margin-top:18px}
+      #onboardingModal .faro-stepper{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px;align-items:center;margin-top:8px}
+      #onboardingModal .faro-stepper button{min-width:48px;min-height:48px;border-radius:14px;border:1px solid var(--faro-line);font-size:22px;font-weight:900;color:var(--faro-ink);background:var(--faro-surface)}
+      #onboardingModal .faro-stepper button:active{transform:scale(.96)}
+      #onboardingModal .faro-stepper input{min-height:48px;width:100%;border:1px solid var(--faro-line);border-radius:14px;background:var(--faro-surface);color:var(--faro-ink);font-size:20px;font-weight:900;text-align:center}
+      #onboardingModal .faro-stepper input[aria-invalid="true"]{border-color:var(--faro-amber-text)}
+      #onboardingModal .faro-error{min-height:18px;font-size:12px;line-height:1.5;font-weight:800;color:var(--faro-amber-text);margin-top:4px}
+      #onboardingModal .faro-story{border-radius:18px;padding:14px;font-size:14px;line-height:1.55;color:var(--faro-ink)}
       #onboardingModal .faro-plan-hero{border-radius:24px;padding:20px}
       #onboardingModal .faro-plan-value{font-size:42px;font-weight:900;letter-spacing:-.05em;line-height:1}
       #onboardingModal .faro-primary-cta{width:100%;min-height:56px;border-radius:16px;font-size:16px;font-weight:900;background:var(--faro-amber);color:var(--faro-on-amber)}
@@ -158,7 +166,7 @@
     <div class="modal-sheet onboarding-sheet">
       <div id="faroOnboardingHeader" class="faro-ob-head">
         <button id="faroBack" type="button" class="faro-ob-back invisible" aria-label="Voltar">‹</button>
-        <div class="faro-ob-steps" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="faro-ob-steps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <span id="faroOnboardingProgress" class="faro-ob-count"></span>
       </div>
 
@@ -202,8 +210,31 @@
         <p class="faro-helper mt-3">Usamos preço e consumo médios. Você ajusta depois.</p>
       </section>
 
+      <section data-faro-step="consumption" class="hidden">
+        <h3 class="faro-ob-q">Quanto seu carro faz?</h3>
+        <div class="faro-field">
+          <div class="flex justify-between items-center gap-3"><label id="faroConsumptionLabel" for="faroConsumption" class="label-micro !mb-0">Consumo</label><span id="faroConsumptionEstimate" class="faro-estimate">estimativa</span></div>
+          <div class="faro-stepper"><button id="faroConsumptionMinus" type="button" aria-label="Diminuir consumo">−</button><input id="faroConsumption" class="faro-money" type="number" inputmode="decimal" min="1" max="40" step="0.1" aria-describedby="faroConsumptionError"><button id="faroConsumptionPlus" type="button" aria-label="Aumentar consumo">+</button></div>
+          <p id="faroConsumptionError" class="faro-error" role="alert"></p>
+        </div>
+        <p class="faro-helper">Dica: veja no painel do carro ou no último abastecimento.</p>
+        <button id="faroConsumptionNext" type="button" class="faro-primary-cta mt-5">Continuar</button>
+      </section>
+
+      <section data-faro-step="price" class="hidden">
+        <h3 class="faro-ob-q">Quanto paga no combustível?</h3>
+        <div class="faro-field">
+          <div class="flex justify-between items-center gap-3"><label id="faroPriceLabel" for="faroEnergyPrice" class="label-micro !mb-0">Preço</label><span id="faroPriceEstimate" class="faro-estimate">estimativa</span></div>
+          <div class="faro-stepper"><button id="faroPriceMinus" type="button" aria-label="Diminuir preço">−</button><input id="faroEnergyPrice" class="faro-money" type="number" inputmode="decimal" min="0" max="20" step="0.01" aria-describedby="faroPriceError"><button id="faroPricePlus" type="button" aria-label="Aumentar preço">+</button></div>
+          <p id="faroPriceError" class="faro-error" role="alert"></p>
+        </div>
+        <p class="faro-helper">Dica: veja a bomba ou o último abastecimento.</p>
+        <button id="faroPriceNext" type="button" class="faro-primary-cta mt-5">Continuar</button>
+      </section>
+
       <section data-faro-step="result" class="hidden space-y-4">
         <div><span id="faroPlanStatus" class="faro-estimate">estimativa inicial</span><h3 class="text-2xl font-extrabold mt-3">Seu plano está pronto.</h3><p id="faroPlanExplanation" class="text-sm mt-2 leading-relaxed faro-helper"></p></div>
+        <p id="faroPlanStory" class="faro-story faro-card"></p>
         <div class="faro-plan-hero"><span class="text-xs uppercase tracking-widest font-extrabold">Faturamento necessário por dia</span><strong id="faroPlanDailyGross" class="faro-plan-value block mt-2">R$ 0</strong><p id="faroPlanDailyHint" class="text-xs mt-3"></p></div>
         <div class="grid grid-cols-2 gap-2"><div class="faro-card"><span class="label-micro block">Bruto necessário/semana</span><strong id="faroPlanWeek" class="text-lg"></strong></div><div class="faro-card"><span class="label-micro block">Custo variável/km</span><strong id="faroPlanEnergyKm" class="text-lg"></strong></div></div>
       </section>
@@ -214,7 +245,9 @@
     </div>`;
 
   const sections = [...modal.querySelectorAll('[data-faro-step]')];
-  const SEQUENCE = ['vehicle', 'target', 'energy'];
+  const SEQUENCE = ['vehicle', 'target', 'energy', 'consumption', 'price', 'result'];
+  const RANGE = Object.freeze({ efficiencyMin: 1, efficiencyMax: 40, priceMax: 20 });
+  const progressText = id => `Passo ${SEQUENCE.indexOf(id) + 1} de ${SEQUENCE.length}`;
   const hasVehicleCost = () => draft.vehicle === 'rented' || draft.vehicle === 'financed';
 
   const markChoice = (selector, key, value) => modal.querySelectorAll(selector).forEach(button => {
@@ -242,6 +275,7 @@
 
   const applyEnergy = choice => {
     draft.energyChoice = choice;
+    draft.consumptionTouched = false;
     draft.energy = energyKey(choice);
     if (draft.energy === 'electric') {
       draft.energyPrice = DEFAULTS.electricPrice;
@@ -258,12 +292,68 @@
     saveDraft();
   };
 
+  const energyName = () => draft.energy === 'gnv' ? 'GNV' : (ENERGY[draft.energy] || ENERGY.gnv).label.toLowerCase();
+  const energyUnit = () => (ENERGY[draft.energy] || ENERGY.gnv).unit;
+  const effUnit = () => draft.energy === 'electric' ? 'km/kWh' : `km/${energyUnit() === 'L' ? 'l' : energyUnit()}`;
+  const fmt = (value, digits = 1) => Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: digits });
+  const round = (value, digits) => Math.round(value * 10 ** digits) / 10 ** digits;
+
+  const renderConsumption = () => {
+    const unit = energyUnit();
+    $('faroConsumptionLabel').textContent = `Quanto o carro faz (${effUnit()})`;
+    $('faroPriceLabel').textContent = `Preço por ${unit} (${(ENERGY[draft.energy] || ENERGY.gnv).label})`;
+    $('faroConsumption').value = round(draft.energyEfficiency, 1) || '';
+    $('faroEnergyPrice').value = round(draft.energyPrice, 2);
+    $('faroConsumptionEstimate').classList.toggle('hidden', Boolean(draft.consumptionTouched));
+    $('faroPriceEstimate').classList.toggle('hidden', Boolean(draft.consumptionTouched));
+    ['faroConsumption', 'faroEnergyPrice'].forEach(id => $(id).removeAttribute('aria-invalid'));
+    $('faroConsumptionError').textContent = '';
+    $('faroPriceError').textContent = '';
+  };
+
+  const markConsumptionTouched = () => { draft.consumptionTouched = true; $('faroConsumptionEstimate').classList.add('hidden'); $('faroPriceEstimate').classList.add('hidden'); };
+  const setEfficiency = value => {
+    draft.energyEfficiency = value;
+    if (draft.energy === 'electric' && draft.batteryKwh > 0) draft.rangeKm = value * draft.batteryKwh;
+  };
+  const nudge = (id, delta, digits, min, max) => {
+    const current = n($(id).value) || 0;
+    const next = Math.max(min, Math.min(max, round(current + delta, digits)));
+    $(id).value = next;
+    markConsumptionTouched();
+    saveDraft();
+  };
+
+  // Valida cada resposta na sua tela; só grava no rascunho quando está dentro da faixa.
+  const confirmConsumption = () => {
+    const input = $('faroConsumption');
+    const efficiency = draft.consumptionTouched ? n(input.value) : draft.energyEfficiency;
+    const ok = efficiency >= RANGE.efficiencyMin && efficiency <= RANGE.efficiencyMax;
+    input.setAttribute('aria-invalid', String(!ok));
+    $('faroConsumptionError').textContent = ok ? '' : `Informe quanto o carro faz, entre ${RANGE.efficiencyMin} e ${RANGE.efficiencyMax} ${effUnit()}.`;
+    if (!ok) { input.focus({ preventScroll:true }); return false; }
+    setEfficiency(efficiency);
+    saveDraft();
+    return true;
+  };
+  const confirmPrice = () => {
+    const input = $('faroEnergyPrice');
+    const price = draft.consumptionTouched ? n(input.value) : draft.energyPrice;
+    const ok = price > 0 && price <= RANGE.priceMax;
+    input.setAttribute('aria-invalid', String(!ok));
+    $('faroPriceError').textContent = ok ? '' : `Informe o preço por ${energyUnit()}, maior que 0 e até ${RANGE.priceMax} reais.`;
+    if (!ok) { input.focus({ preventScroll:true }); return false; }
+    draft.energyPrice = price;
+    saveDraft();
+    return true;
+  };
+
   const renderStep = () => {
-    if (!SEQUENCE.includes(draft.stepId)) draft.stepId = SEQUENCE[0];
+    if (!SEQUENCE.includes(draft.stepId) || draft.stepId === 'result') draft.stepId = SEQUENCE[0];
     const index = SEQUENCE.indexOf(draft.stepId);
     sections.forEach(section => section.classList.toggle('hidden', section.dataset.faroStep !== draft.stepId));
     $('faroOnboardingHeader').classList.remove('hidden');
-    $('faroOnboardingProgress').textContent = `${index + 1} de 3`;
+    $('faroOnboardingProgress').textContent = progressText(draft.stepId);
     modal.querySelectorAll('.faro-ob-steps i').forEach((bar, i) => bar.classList.toggle('on', i <= index));
     $('faroBack').classList.toggle('invisible', index === 0);
     $('faroFinish').classList.add('hidden');
@@ -272,9 +362,11 @@
     markChoice('[data-target-choice]', 'targetChoice', draft.targetChosen ? (TARGET_CHOICES.some(([v]) => v === draft.target) && !draft.targetOther ? draft.target : 'other') : '');
     markChoice('[data-energy-choice]', 'energyChoice', draft.energyChoice);
     renderVehicleCost();
+    if (draft.stepId === 'consumption' || draft.stepId === 'price') renderConsumption();
     $('faroTargetOther').classList.toggle('hidden', !draft.targetOther);
     const needsNext = (draft.stepId === 'vehicle' && hasVehicleCost()) || (draft.stepId === 'target' && draft.targetOther);
     $('faroNext').classList.toggle('hidden', !needsNext);
+    $('faroOnboardingFoot').classList.toggle('hidden', draft.stepId === 'consumption' || draft.stepId === 'price');
     saveDraft();
   };
 
@@ -299,10 +391,10 @@
     app.state.costs = buildCosts();
     app.state.onboardingProfile = {
       version:3, vehicle:draft.vehicle, energyChoice:draft.energyChoice, configuredAt:new Date().toISOString(),
-      revenueKmEstimated:true, energyPriceEstimated:true, energyEfficiencyEstimated:true,
+      revenueKmEstimated:true, energyPriceEstimated:!draft.consumptionTouched, energyEfficiencyEstimated:!draft.consumptionTouched,
       electric:draft.energy === 'electric' ? { batteryCapacityKwh:draft.batteryKwh, rangePerChargeKm:draft.rangeKm } : null,
       reserveConfigured:false, maintenancePerKmDeferred:true, installGateVersion:1,
-      estimated:{ workDays:true, revenueKm:true, energyPrice:true, energyEfficiency:true, fixedCosts:true, reserve:true, maintenancePerKm:true, vehicleCost:hasVehicleCost() && draft.vehicleCostEstimated, vehicleDueDate:hasVehicleCost() }
+      estimated:{ workDays:true, revenueKm:true, energyPrice:!draft.consumptionTouched, energyEfficiency:!draft.consumptionTouched, fixedCosts:true, reserve:true, maintenancePerKm:true, vehicleCost:hasVehicleCost() && draft.vehicleCostEstimated, vehicleDueDate:hasVehicleCost() }
     };
     app.state.onboardingComplete = false;
     app.save();
@@ -316,7 +408,7 @@
     const c = app.calculations();
     sections.forEach(section => section.classList.toggle('hidden', section.dataset.faroStep !== 'result'));
     $('faroOnboardingHeader').classList.remove('hidden');
-    $('faroOnboardingProgress').textContent = 'Pronto';
+    $('faroOnboardingProgress').textContent = progressText('result');
     modal.querySelectorAll('.faro-ob-steps i').forEach(bar => bar.classList.add('on'));
     $('faroBack').classList.remove('invisible');
     $('faroNext').classList.add('hidden');
@@ -328,6 +420,9 @@
     $('faroPlanDailyHint').textContent = `${draft.days} dias por semana · ${app.integer(c.dailyKm)} km por dia`;
     $('faroPlanEnergyKm').textContent = `${app.money(c.fuelKm)}/km`;
     $('faroPlanWeek').textContent = app.money(week.target, 0);
+    const per100 = app.money(c.fuelKm * 100);
+    const weekKm = app.integer(c.dailyKm * draft.days);
+    $('faroPlanStory').textContent = `Com seu carro fazendo ${fmt(draft.energyEfficiency)} ${effUnit()} e ${energyName()} a ${app.money(draft.energyPrice)}/${energyUnit()}, cada 100 km custa ${per100} de combustível. Para sobrar ${app.money(draft.target, 0)} por mês você precisa faturar ~${app.money(week.target, 0)} por semana e rodar ~${weekKm} km por semana.`;
     $('faroFinish').classList.remove('hidden');
   };
 
@@ -363,8 +458,25 @@
   modal.querySelectorAll('[data-energy-choice]').forEach(button => button.addEventListener('click', () => {
     applyEnergy(button.dataset.energyChoice);
     markChoice('[data-energy-choice]', 'energyChoice', draft.energyChoice);
-    finishQuestions();
+    goTo('consumption');
+    requestAnimationFrame(() => $('faroConsumption')?.focus({ preventScroll:true }));
   }));
+
+  $('faroConsumptionMinus').addEventListener('click', () => nudge('faroConsumption', -0.5, 1, RANGE.efficiencyMin, RANGE.efficiencyMax));
+  $('faroConsumptionPlus').addEventListener('click', () => nudge('faroConsumption', 0.5, 1, RANGE.efficiencyMin, RANGE.efficiencyMax));
+  $('faroPriceMinus').addEventListener('click', () => nudge('faroEnergyPrice', -0.1, 2, 0.01, RANGE.priceMax));
+  $('faroPricePlus').addEventListener('click', () => nudge('faroEnergyPrice', 0.1, 2, 0.01, RANGE.priceMax));
+  ['faroConsumption', 'faroEnergyPrice'].forEach(id => $(id).addEventListener('input', e => {
+    markConsumptionTouched();
+    e.target.removeAttribute('aria-invalid');
+    $(id === 'faroConsumption' ? 'faroConsumptionError' : 'faroPriceError').textContent = '';
+    const value = n(e.target.value);
+    if (id === 'faroConsumption' && value >= RANGE.efficiencyMin && value <= RANGE.efficiencyMax) setEfficiency(value);
+    if (id === 'faroEnergyPrice' && value > 0 && value <= RANGE.priceMax) draft.energyPrice = value;
+    saveDraft();
+  }));
+  $('faroConsumptionNext').addEventListener('click', () => { if (confirmConsumption()) { goTo('price'); requestAnimationFrame(() => $('faroEnergyPrice')?.focus({ preventScroll:true })); } });
+  $('faroPriceNext').addEventListener('click', () => { if (confirmPrice()) finishQuestions(); });
 
   $('faroNext').addEventListener('click', () => {
     if (draft.stepId === 'vehicle') {
@@ -377,7 +489,7 @@
     }
   });
   $('faroBack').addEventListener('click', () => {
-    if (draft.stepId === 'result') { goTo('energy'); return; }
+    if (draft.stepId === 'result') { goTo('price'); return; }
     const index = SEQUENCE.indexOf(draft.stepId);
     if (index > 0) goTo(SEQUENCE[index - 1]);
   });

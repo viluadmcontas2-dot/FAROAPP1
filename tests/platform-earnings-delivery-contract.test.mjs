@@ -22,7 +22,7 @@ assert.ok(shell.indexOf(helper) < shell.indexOf(register), 'helper precisa carre
 assert.ok(shell.indexOf(register) < shell.indexOf(finance), 'Registrar precisa continuar antes do Financeiro');
 assert.ok(shell.indexOf(polish) > shell.indexOf(finance), 'Polish deve continuar depois dos owners operacionais');
 
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-33'/, 'batch premium precisa renovar o core cache instalado');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-34'/, 'batch premium precisa renovar o core cache instalado');
 assert.match(sw, /\.\/faro-home-r2\.js\?v=3/);
 assert.match(sw, /\.\/faro-register-earnings\.js\?v=1/);
 assert.match(sw, /\.\/faro-register\.js\?v=4/);

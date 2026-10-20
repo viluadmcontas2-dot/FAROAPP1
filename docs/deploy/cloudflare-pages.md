@@ -14,7 +14,7 @@ Custo: R$ 0. Tempo: uns 10 minutos. Faça uma vez só.
 ## 3. Preencher a tela de build
 | Campo | Valor |
 |---|---|
-| Project name | `faro` (vira `faro.pages.dev`) |
+| Project name | `faro-motorista` (vira `faro-motorista.pages.dev`). NÃO use `faro`: `faro.pages.dev` já pertence a outra pessoa |
 | Production branch | a branch de produção definida por você (ver passo 5) |
 | Framework preset | **None** |
 | Build command | `npm run build` |
@@ -24,7 +24,7 @@ Abra **Environment variables** e adicione: `NODE_VERSION` = `22`.
 Clique em **Save and Deploy**.
 
 ## 4. Pegar o endereço
-Ao terminar, aparece o endereço `https://faro.pages.dev` (o nome pode ter sufixo se estiver ocupado). Abra no celular: deve carregar o app.
+Ao terminar, aparece o endereço `https://faro-motorista.pages.dev` (o nome pode ter sufixo se estiver ocupado). Abra no celular: deve carregar o app.
 
 ## 5. Produção é manual (regra do projeto)
 A política do projeto (`governance/hosting-policy.md`) exige um gate manual antes de produção: código no remoto provado, teste comercial provado e autorização do dono. Por isso:
@@ -32,11 +32,11 @@ A política do projeto (`governance/hosting-policy.md`) exige um gate manual ant
 - Para publicar: junte (merge) a branch aprovada em `producao`. Só então a Cloudflare publica.
 
 ## 6. Preview sem custo
-Qualquer outra branch (ex.: `claude/ajuste-login`) ganha um endereço de teste próprio, como `https://abc123.faro.pages.dev`, sem custo e sem afetar a produção. Para não gerar previews de tudo: em **Settings → Builds → Branch control** escolha **Custom branches** e liste só as que quer. O plano grátis dá 500 builds por mês.
+Qualquer outra branch (ex.: `claude/ajuste-login`) ganha um endereço de teste próprio, como `https://abc123.faro-motorista.pages.dev`, sem custo e sem afetar a produção. Para não gerar previews de tudo: em **Settings → Builds → Branch control** escolha **Custom branches** e liste só as que quer. O plano grátis dá 500 builds por mês.
 
 ## 7. Avisar o Supabase do novo endereço
 1. No painel do Supabase: projeto **mjbyqhreptllilkggiri** → **Edge Functions** → **Secrets**.
-2. Crie/atualize `FARO_APP_URL` com o endereço de produção, sem barra no final (ex.: `https://faro.pages.dev`).
+2. Crie/atualize `FARO_APP_URL` com o endereço de produção, sem barra no final (ex.: `https://faro-motorista.pages.dev`).
 3. Em **Authentication → URL Configuration**, ponha o mesmo endereço em **Site URL** (e o `.pages.dev` de preview em **Redirect URLs**, se for testar login nele).
 
 Nunca cole chaves secretas em chats ou arquivos do repositório.

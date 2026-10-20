@@ -48,7 +48,7 @@ const waitFor = async (run, expr, label) => {
     // Pergunta 1: carro (1 toque: escolher já avança).
     const q1 = await run(`window.__taps = 0; return { step: step(), options: [...modal.querySelectorAll('[data-vehicle]')].filter(shown).map(b => b.dataset.vehicle), progress: document.getElementById('faroOnboardingProgress').textContent };`);
     check('pergunta 1 é "Seu carro é..." com próprio/financiado/alugado', q1.step === 'vehicle' && ['own', 'financed', 'rented'].every(v => q1.options.includes(v)), q1);
-    check('progresso mostra 1 de 3', /1 de 3/.test(q1.progress), q1.progress);
+    check('progresso mostra Passo 1 de 6', /^Passo 1 de 6$/.test(q1.progress), q1.progress);
     await run(`tap(modal.querySelector('[data-vehicle="own"]')); await wait(50); return true;`);
     const afterQ1 = await run(`return { step: step(), taps: window.__taps };`);
     check('próprio avança direto para a pergunta 2', afterQ1.step === 'target', afterQ1);
@@ -70,7 +70,7 @@ const waitFor = async (run, expr, label) => {
     const q3 = await run(`return [...modal.querySelectorAll('[data-energy-choice]')].filter(shown).map(b => b.dataset.energyChoice);`);
     check('pergunta 3 tem gasolina/etanol/flex/GNV/elétrico', ['gasoline', 'ethanol', 'flex', 'gnv', 'electric'].every(v => q3.includes(v)), q3);
     const t0 = Date.now();
-    await run(`tap(modal.querySelector('[data-energy-choice="flex"]')); return true;`);
+    await run(`tap(modal.querySelector('[data-energy-choice="flex"]')); await wait(60); tap(document.getElementById('faroConsumptionNext')); await wait(60); tap(document.getElementById('faroPriceNext')); return true;`);
     await waitFor(run, "(() => { const b = document.getElementById('faroFinish'); return b && !b.closest('.hidden') && !b.classList.contains('hidden'); })()", 'CTA final');
     check('sem espera longa: plano pronto em até 1 s', Date.now() - t0 <= 1000, Date.now() - t0);
     await run(`tap(document.getElementById('faroFinish')); await wait(300); return true;`);
@@ -82,7 +82,7 @@ const waitFor = async (run, expr, label) => {
     `);
     check('Início aberto com "Registrar dia"', home.modalHidden && home.dash && home.primary.some(t => /Registrar dia/i.test(t)), home);
     check('sem aviso duplicado: o plano pronto já foi dito na tela anterior', await run(`return !/Seu FARO está pronto/.test(document.getElementById('toast')?.textContent || '');`));
-    check('do primeiro acesso ao Início em no máximo 4 toques', home.taps <= 4, home.taps);
+    check('do primeiro acesso ao Início em no máximo 6 toques (3 respostas + confirmar consumo e preço + concluir)', home.taps <= 6, home.taps);
 
     const saved = await run(`
       const s = JSON.parse(localStorage.getItem('vetta-driver-intelligence-v3'));
@@ -130,14 +130,16 @@ const waitFor = async (run, expr, label) => {
       const prefilled = Number(input.value);
       tap(document.getElementById('faroNext')); await wait(50);
       tap(modal.querySelector('[data-target-choice="3000"]')); await wait(50);
-      tap(modal.querySelector('[data-energy-choice="gnv"]')); await wait(100);
+      tap(modal.querySelector('[data-energy-choice="gnv"]')); await wait(60);
+      tap(document.getElementById('faroConsumptionNext')); await wait(60);
+      tap(document.getElementById('faroPriceNext')); await wait(100);
       tap(document.getElementById('faroFinish')); await wait(300);
       const s = JSON.parse(localStorage.getItem('vetta-driver-intelligence-v3'));
       return { prefilled, taps: window.__taps, cost: s.costs.find(c => c.name === 'Parcela do carro'), complete: s.onboardingComplete };
     `);
     check('financiado mostra valor mensal pré-preenchido', fin.prefilled > 0, fin.prefilled);
     check('financiado gera a conta "Parcela do carro" mensal com vencimento', fin.complete && fin.cost && fin.cost.kind === 'monthly' && fin.cost.value === fin.prefilled && fin.cost.dueDay >= 1, fin);
-    check('financiado chega ao Início em 5 toques (1 a mais para confirmar o valor)', fin.taps <= 5, fin.taps);
+    check('financiado chega ao Início em 7 toques (1 a mais para confirmar o valor)', fin.taps <= 7, fin.taps);
   } catch (error) {
     failures.push(String(error && error.message || error));
     console.log('  FAIL ' + error);
@@ -145,5 +147,5 @@ const waitFor = async (run, expr, label) => {
     await faro.close();
   }
   if (failures.length) { console.log(`FARO onboarding 3 perguntas: ${failures.length} falha(s)`); process.exit(1); }
-  console.log('FARO onboarding 3 perguntas: primeiro acesso ao Início em <= 4 toques, estado completo e retomável — ok');
+  console.log('FARO onboarding 3 perguntas: primeiro acesso ao Início em <= 6 toques, estado completo e retomável — ok');
 })();
