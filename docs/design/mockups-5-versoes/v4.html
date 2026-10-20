@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FARO Conversa</title>
+<style>
+:root{--bg:#fff;--soft:#F3F7F7;--line:#E1E8E8;--ink:#17292A;--mute:#586968;--teal:#0E7C7B;--teal-d:#0A5E5D;--teal-s:#E2F3F2;--warn:#8A5A00;--warn-s:#FFF4DB;--err:#B3261E;--err-s:#FDECEA;--ok:#17703F}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-weight:500;color:var(--ink);background:#E9EFEF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid #0B5FFF;outline-offset:2px;border-radius:10px}
+#idx{font-size:13px;color:var(--mute);display:flex;gap:8px;align-items:center}
+#idx select{font:inherit;font-size:14px;min-height:40px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.phone{position:relative;width:390px;height:844px;background:var(--bg);border-radius:44px;box-shadow:0 0 0 10px #1c2b2b,0 30px 60px rgba(0,0,0,.25);overflow:hidden}
+#view{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:28px 16px 24px;scrollbar-width:none}
+#view.nav{bottom:76px;padding-bottom:40px}
+#view::-webkit-scrollbar{display:none}
+h1{font-size:26px;line-height:1.2;font-weight:600;margin:0 0 8px;letter-spacing:-.3px}
+h2{font-size:19px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 10px;line-height:1.45}
+.mute{color:var(--mute)}
+.small{font-size:14px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border-radius:28px;background:var(--teal);color:#fff;font-weight:600;font-size:17px;padding:0 20px}
+.btn:active{background:var(--teal-d)}
+.btn.sec{background:var(--teal-s);color:var(--teal-d)}
+.btn.ghost{background:none;color:var(--teal-d);min-height:48px;font-size:16px}
+.btn.danger{background:var(--err);color:#fff}
+.btn[disabled]{opacity:.45}
+.row{display:flex;gap:10px;align-items:center}
+.col{display:flex;flex-direction:column;gap:10px}
+.sp{flex:1}
+.bub{background:var(--soft);border-radius:20px 20px 20px 6px;padding:14px 16px;max-width:92%;margin:0 0 10px;line-height:1.4}
+.bub.me{background:var(--teal-s);border-radius:20px 20px 6px 20px;margin-left:auto;color:var(--teal-d);font-weight:600}
+.bub .lbl{font-size:13px;color:var(--mute);display:block;margin-bottom:2px}
+.bub .big{font-size:40px;font-weight:600;letter-spacing:-1px;line-height:1.1;color:var(--ink)}
+.bub.hero{width:92%;padding:18px}
+.time{font-size:12px;color:var(--mute);text-align:center;margin:6px 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chip{min-height:48px;padding:0 18px;border-radius:24px;border:1.5px solid var(--teal);color:var(--teal-d);font-weight:600;font-size:16px;background:#fff;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--teal);color:#fff}
+.bar{height:12px;border-radius:6px;background:#D9E6E5;overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:6px}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+.list{border:1.5px solid var(--line);border-radius:20px;overflow:hidden;margin-bottom:14px}
+.item{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:8px 16px;text-align:left;border-bottom:1.5px solid var(--line);font-size:17px}
+.item:last-child{border-bottom:0}
+.item .ic{width:40px;height:40px;border-radius:50%;background:var(--teal-s);display:grid;place-items:center;color:var(--teal-d);flex:none}
+.item small{display:block;color:var(--mute);font-size:14px;font-weight:500}
+.item .v{margin-left:auto;font-weight:600}
+svg{display:block}
+.hdr{display:flex;align-items:center;gap:6px;margin:-10px 0 14px;min-height:48px}
+.hdr .ib{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:var(--ink);margin-left:-10px}
+.hdr .t{font-size:19px;font-weight:600}
+.prog{display:flex;gap:6px;margin:0 0 6px}
+.prog i{flex:1;height:6px;border-radius:3px;background:#D9E6E5}.prog i.on{background:var(--teal)}
+.step{font-size:14px;color:var(--mute);margin-bottom:14px;font-weight:600}
+.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;border:1.5px solid var(--line);border-radius:18px;padding:10px 16px;margin-bottom:10px;text-align:left;font-size:17px;background:#fff}
+.opt.on{border-color:var(--teal);background:var(--teal-s);box-shadow:inset 0 0 0 1px var(--teal)}
+.opt small{display:block;color:var(--mute);font-size:14px;font-weight:500}
+.stp{display:flex;align-items:center;justify-content:center;gap:18px;margin:14px 0}
+.stp button{width:64px;height:64px;border-radius:50%;background:var(--teal-s);color:var(--teal-d);display:grid;place-items:center}
+.stp output{font-size:44px;font-weight:600;min-width:150px;text-align:center;letter-spacing:-1px}
+.stp output small{font-size:16px;color:var(--mute);font-weight:500;letter-spacing:0}
+.foot{position:sticky;bottom:-24px;background:linear-gradient(#fff0,#fff 24%);padding:18px 0 12px;margin-top:16px}
+/* nav */
+#nav{position:absolute;left:0;right:0;bottom:0;height:76px;background:#fff;border-top:1.5px solid var(--line);display:none;align-items:center;justify-content:space-around;padding:0 4px}
+#nav.show{display:flex}
+#nav button{width:64px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;color:var(--mute);border-radius:16px}
+#nav button.on{color:var(--teal-d);font-weight:700}
+#nav .gap{width:84px}
+#fab{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);width:84px;height:84px;border-radius:50%;background:var(--teal);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;gap:1px;box-shadow:0 8px 20px rgba(14,124,123,.4);border:5px solid #fff;z-index:5}
+#fab.show{display:flex}
+/* keypad */
+.val{font-size:46px;font-weight:600;text-align:right;letter-spacing:-1px;padding:4px 4px 2px;min-height:62px}
+.val small{font-size:18px;color:var(--mute);font-weight:500}
+.err{color:var(--err);font-size:14px;font-weight:600;min-height:20px;text-align:right;padding:0 4px}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 10px}
+.kp button{height:56px;border-radius:16px;background:var(--soft);font-size:26px;font-weight:600;display:grid;place-items:center}
+.kp button:active{background:var(--teal-s)}
+/* overlays */
+#toast{position:absolute;left:16px;right:16px;bottom:100px;background:#17292A;color:#fff;border-radius:18px;padding:12px 16px;display:none;align-items:center;gap:12px;z-index:30;min-height:52px}
+#toast.show{display:flex}
+#toast button{color:#9FE8E4;font-weight:700;min-height:44px;padding:0 6px}
+#banner{position:absolute;top:0;left:0;right:0;background:var(--warn-s);color:var(--warn);font-size:14px;font-weight:600;padding:8px 16px;z-index:20;display:none;align-items:center;gap:8px}
+#banner.show{display:flex}
+#ov{position:absolute;inset:0;background:rgba(10,30,30,.55);display:none;z-index:40}
+#ov.show{display:block}
+.sheet{position:absolute;left:12px;right:12px;bottom:12px;background:#fff;border-radius:28px;padding:22px 18px 18px}
+.tip{position:absolute;left:20px;right:20px;background:#fff;border-radius:20px;padding:16px}
+.tip::after{content:"";position:absolute;width:18px;height:18px;background:#fff;transform:rotate(45deg);left:50%;margin-left:-9px}
+.tip.up::after{top:-8px}.tip.down::after{bottom:-8px}
+.dots{display:flex;gap:6px}.dots i{width:8px;height:8px;border-radius:50%;background:#C7D6D5}.dots i.on{background:var(--teal)}
+.inp{width:100%;min-height:56px;border:1.5px solid var(--line);border-radius:16px;padding:0 16px;font:inherit;font-size:18px;background:#fff;color:var(--ink)}
+.badge{display:inline-block;background:var(--teal-s);color:var(--teal-d);border-radius:12px;padding:3px 10px;font-size:13px;font-weight:700}
+.days{display:flex;align-items:flex-end;gap:10px;height:120px;margin:6px 0}
+.days div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;font-size:12px;color:var(--mute)}
+.days b{display:block;width:100%;border-radius:8px 8px 4px 4px;background:#BFDCDA}.days .t b{background:var(--teal)}
+.seg{display:flex;background:var(--soft);border-radius:24px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;min-height:44px;border-radius:20px;font-weight:600;color:var(--mute)}
+.seg button.on{background:#fff;color:var(--teal-d);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.empty{text-align:center;padding:40px 10px 10px}
+.empty .ill{width:96px;height:96px;border-radius:50%;background:var(--teal-s);display:grid;place-items:center;margin:0 auto 18px;color:var(--teal-d)}
+.sw{width:56px;height:32px;border-radius:16px;background:#B8C6C5;position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on{background:var(--teal)}.sw.on::after{left:28px}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}
+.pill-warn{background:var(--warn-s);color:var(--warn)}
+@media(max-width:500px){body{display:block;background:#fff}#idx{display:none}.phone{width:100vw;height:100vh;height:100dvh;border-radius:0;box-shadow:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<label id="idx">Ir para tela…
+<select id="sel" aria-label="Ir para tela"></select></label>
+<div class="phone" id="phone">
+  <div id="banner" role="status"></div>
+  <main id="view"></main>
+  <nav id="nav" aria-label="Principal"></nav>
+  <button id="fab" aria-label="Registrar"></button>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="ov"></div>
+</div>
+<script>
+"use strict";
+var $=function(s){return document.querySelector(s)};
+var IC={
+ home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ hist:'<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>',
+ plan:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+ more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ del:'<path d="M21 5H9l-6 7 6 7h12z"/><path d="M13 9.5l5 5M18 9.5l-5 5"/>',
+ car:'<path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5"/>',
+ fuel:'<path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M3 20h13M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V9l-3-3"/>',
+ box:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+ trophy:'<path d="M8 4h8v6a4 4 0 0 1-8 0zM8 6H4v1a3 3 0 0 0 4 3M16 6h4v1a3 3 0 0 1-4 3M12 14v4M8 20h8"/>',
+ card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
+ lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+ chev:'<path d="M9 5l7 7-7 7"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ pig:'<path d="M5 11a7 6 0 0 1 14 0v1.5l2 .5v3l-2 .5V18h-3v-1.5H9V18H6v-3a5 5 0 0 1-1-4zM15 9h.01"/>',
+ phone:'<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/>',
+ wifi:'<path d="M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0M12 19.5h.01"/>',
+ share:'<path d="M12 15V3M8 7l4-4 4 4M5 12v8h14v-8"/>',
+ spark:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+ flame:'<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+};
+function ic(n,s,sw){s=s||24;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||2)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n]+'</svg>'}
+function fmt(n){return 'R$ '+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+function f0(n){return 'R$ '+Math.round(n)}
+function hm(m){var h=Math.floor(m/60),r=m%60;return h+'h'+(r?(r<10?'0':'')+r:'')}
+var S={ob:{veic:'Chevrolet Onix',meta:900,en:'Flex',kml:11.5,preco:6.29},
+ hoje:{b:214,c:58.4,km:118,min:430,n:9},week:612,
+ res:{'Manutenção':184,'Impostos':96,'Imprevistos':40},
+ reg:{step:0,buf:['','','','']},undo:null,cur:'welcome',tour:0,tab:'sem',cupom:true,selFlow:'x'};
+var NAVS={home:1,hist:1,plan:1,mais:1};
+var SCREENS=[
+ ['Entrada',[['welcome','1 Boas-vindas e oferta'],['install','2 Instalar o app'],['ob1','Passo 1 Veículo'],['ob2','Passo 2 Meta semanal'],['ob3','Passo 3 Tipo de energia'],['ob4','Passo 4 Consumo'],['ob5','Passo 5 Preço do combustível'],['ob6','Passo 6 Seu plano']]],
+ ['Início',[['home','Início'],['homedet','Início com detalhes'],['homevazio','Início vazio'],['homeoff','Início sem internet']]],
+ ['Registrar',[['reg0','Registrar: ganho bruto'],['reg1','Registrar: km'],['reg2','Registrar: horas'],['reg3','Registrar: combustível'],['regok','Registrar: confirmação'],['regerr','Registrar: erro']]],
+ ['Histórico',[['hist','Semana'],['histmes','Mês'],['histdia','Detalhe do dia'],['histvazio','Vazio']]],
+ ['Planejar',[['plan','Planejar']]],
+ ['Mais',[['mais','Mais'],['reservas','Reservas'],['conq','Conquistas'],['conta','Conta e assinatura'],['comb','Preço do combustível'],['ajuda','Ajuda e dicas'],['priv','Privacidade e dados']]],
+ ['Estados',[['toast','Aviso de sucesso'],['modal','Confirmar exclusão'],['tour','Tour de dicas'],['paywall','Fim do teste']]]
+];
+var sel=$('#sel');
+SCREENS.forEach(function(g){var o=document.createElement('optgroup');o.label=g[0];g[1].forEach(function(s){var p=document.createElement('option');p.value=s[0];p.textContent=s[1];o.appendChild(p)});sel.appendChild(o)});
+sel.onchange=function(){go(sel.value)};
+
+function hdr(title,back,x){return '<div class="hdr">'+(back?'<button class="ib" data-go="'+back+'" aria-label="Voltar">'+ic('back')+'</button>':'')+'<span class="t">'+title+'</span><span class="sp"></span>'+(x?'<button class="ib" data-go="'+x+'" aria-label="Fechar" style="margin-right:-10px">'+ic('x')+'</button>':'')+'</div>'}
+function steps(n){var s='';for(var i=1;i<=6;i++)s+='<i class="'+(i<=n?'on':'')+'"></i>';return '<div class="prog" aria-hidden="true">'+s+'</div><div class="step">Passo '+n+' de 6</div>'}
+function foot(label,go,extra){return '<div class="foot"><button class="btn" '+(go?'data-go="'+go+'"':'')+' '+(extra||'')+'>'+label+'</button></div>'}
+
+var R={};
+R.welcome=function(){return '<div style="padding-top:20px"><div class="row" style="margin-bottom:26px"><div style="width:44px;height:44px;border-radius:14px;background:var(--teal);color:#fff;display:grid;place-items:center">'+ic('spark',26)+'</div><b style="font-size:22px;letter-spacing:1px">FARO</b></div>'+
+ '<h1>Saiba quanto sobrou de verdade.</h1><p class="mute">Depois do combustível e das taxas. Sem planilha, só conversa.</p>'+
+ '<div class="bub" style="margin-top:22px"><span class="lbl">Oferta</span><b style="font-size:19px">7 dias grátis</b><br>Depois R$ 22,99 por mês. Cancele quando quiser.</div>'+
+ '<div class="bub"><span class="lbl">Cupom aplicado</span><span class="badge">PRAGAS</span></div></div>'+
+ foot('Começar teste grátis','install')+'<button class="btn ghost" data-go="home">Já tenho conta</button>'};
+R.install=function(){return hdr('Instalar o app','welcome')+
+ '<h1>Deixe o FARO na tela inicial</h1><p class="mute">Abre em um toque, igual a um app.</p>'+
+ '<div class="seg" role="tablist"><button class="'+(S.os!=='a'?'on':'')+'" data-act="os" data-v="i">iPhone</button><button class="'+(S.os==='a'?'on':'')+'" data-act="os" data-v="a">Android</button></div>'+
+ (S.os==='a'?
+ '<div class="bub">1. Toque nos <b>três pontos</b> do Chrome, no alto.</div><div class="bub">2. Toque em <b>Instalar app</b>.</div><div class="bub">3. Confirme em <b>Instalar</b>.</div>':
+ '<div class="bub">1. Toque no botão <b>Compartilhar</b> '+ic('share',18)+' do Safari, embaixo.</div><div class="bub">2. Toque em <b>Adicionar à Tela de Início</b>.</div><div class="bub">3. Toque em <b>Adicionar</b>.</div>')+
+ foot('Continuar','ob1')+'<button class="btn ghost" data-go="ob1">Instalar depois</button>'};
+R.ob1=function(){var l=[['Chevrolet Onix','Flex, 1.0'],['Hyundai HB20','Flex, 1.0'],['Outro carro','Digitar depois']];
+ return hdr('Seu carro','install')+steps(1)+'<h1>Qual carro você dirige?</h1>'+l.map(function(v){return '<button class="opt '+(S.ob.veic===v[0]?'on':'')+'" data-act="veic" data-v="'+v[0]+'"><span class="item" style="all:unset;display:contents"><span class="ic" style="width:40px;height:40px;border-radius:50%;background:var(--teal-s);display:grid;place-items:center;color:var(--teal-d)">'+ic('car')+'</span></span><span>'+v[0]+'<small>'+v[1]+'</small></span></button>'}).join('')+foot('Continuar','ob2')};
+R.ob2=function(){return hdr('Sua meta','ob1')+steps(2)+'<h1>Quanto quer ganhar líquido por semana?</h1><p class="mute">Líquido é o que sobra depois dos gastos.</p><div class="stp"><button data-act="meta" data-v="-50" aria-label="Menos 50">'+ic('minus',28)+'</button><output id="metav">'+f0(S.ob.meta)+'</output><button data-act="meta" data-v="50" aria-label="Mais 50">'+ic('plus',28)+'</button></div><div class="chips" style="justify-content:center">'+[600,900,1200].map(function(v){return '<button class="chip '+(S.ob.meta===v?'on':'')+'" data-act="metaset" data-v="'+v+'">'+f0(v)+'</button>'}).join('')+'</div>'+foot('Continuar','ob3')};
+R.ob3=function(){var l=[['Flex','Gasolina ou etanol'],['Gasolina','Só gasolina'],['Etanol','Só etanol'],['GNV','Gás natural']];
+ return hdr('Combustível','ob2')+steps(3)+'<h1>O que o carro usa?</h1>'+l.map(function(v){return '<button class="opt '+(S.ob.en===v[0]?'on':'')+'" data-act="en" data-v="'+v[0]+'"><span>'+v[0]+'<small>'+v[1]+'</small></span></button>'}).join('')+foot('Continuar','ob4')};
+R.ob4=function(){return hdr('Consumo','ob3')+steps(4)+'<h1>Quantos km faz com 1 litro?</h1><p class="mute">Não sabe? Deixe 11,5, é a média do Onix.</p><div class="stp"><button data-act="kml" data-v="-0.5" aria-label="Menos">'+ic('minus',28)+'</button><output id="kmlv">'+S.ob.kml.toFixed(1).replace('.',',')+'<small> km/l</small></output><button data-act="kml" data-v="0.5" aria-label="Mais">'+ic('plus',28)+'</button></div>'+foot('Continuar','ob5')};
+R.ob5=function(){return hdr('Preço','ob4')+steps(5)+'<h1>Quanto está o litro da gasolina?</h1><p class="mute">Você muda isso depois em Mais.</p><div class="stp"><button data-act="preco" data-v="-0.1" aria-label="Menos">'+ic('minus',28)+'</button><output id="precov">'+fmt(S.ob.preco)+'</output><button data-act="preco" data-v="0.1" aria-label="Mais">'+ic('plus',28)+'</button></div><div class="chips" style="justify-content:center"><button class="chip" data-act="precoset" data-v="6.29">Usar R$ 6,29</button></div>'+foot('Ver meu plano','ob6')};
+R.ob6=function(){var ck=S.ob.preco/S.ob.kml;return hdr('Seu plano','ob5')+steps(6)+'<h1>Pronto, Carlos. Este é seu plano.</h1>'+
+ '<div class="bub hero"><span class="lbl">Para chegar a '+f0(S.ob.meta)+' por semana</span><span class="big">'+f0(S.ob.meta/6)+'</span><br>líquidos por dia, rodando 6 dias</div>'+
+ '<div class="bub"><span class="lbl">Seu custo de combustível</span><b>'+fmt(ck)+' por km</b></div><div class="bub"><span class="lbl">Reserva sugerida</span><b>15% de cada dia</b> para manutenção e impostos</div>'+foot('Ir para o início','home')};
+
+R.home=function(det,empty,off){
+ var h=S.hoje,liq=h.b-h.c,pct=Math.min(100,Math.round(S.week/S.ob.meta*100));
+ if(empty)return '<div class="time">Hoje, '+'terça'+'</div><div class="bub">Oi, Carlos. Ainda não tem nada registrado hoje.</div><div class="empty"><div class="ill">'+ic('plus',44,1.8)+'</div><h2>Vamos começar o dia?</h2><p class="mute">Toque em Registrar quando terminar suas corridas.</p></div>';
+ return '<div class="time">Hoje, terça</div><div class="bub">Oi, Carlos. Resumo do seu dia:</div>'+
+ '<div class="bub hero"><span class="lbl">Hoje você já fez</span><span class="big">'+fmt(liq)+'</span><div style="margin-top:2px">líquidos</div>'+
+ (det?'<div style="margin-top:12px;border-top:1.5px solid #dbe5e4;padding-top:8px"><div class="kv"><span>Ganho bruto</span><b>'+fmt(h.b)+'</b></div><div class="kv"><span>Combustível</span><b>- '+fmt(h.c)+'</b></div><div class="kv"><span>Corridas</span><b>'+h.n+'</b></div><div class="kv"><span>Distância</span><b>'+h.km+' km</b></div><div class="kv"><span>Tempo</span><b>'+hm(h.min)+'</b></div></div>':'')+
+ '<button class="btn ghost" style="min-height:48px;width:auto;padding:0;margin-top:6px;justify-content:flex-start" data-go="'+(det?'home':'homedet')+'" aria-expanded="'+!!det+'">'+(det?'Esconder detalhes':'Ver detalhes')+'</button></div>'+
+ '<div class="bub"><span class="lbl">Meta da semana</span>Você está em <b>'+pct+'%</b>. Faltam <b>'+f0(S.ob.meta-S.week)+'</b>.<div class="bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pct+'%"></i></div></div>'+
+ '<div class="bub"><span class="lbl">Dica do dia</span>Separe <b>'+f0(liq*0.15)+'</b> hoje para manutenção e impostos.<div class="chips" style="margin:10px 0 0"><button class="chip" data-go="reservas">Guardar agora</button></div></div>'+
+ '<div class="bub"><span class="lbl">Conquista</span>3 dias seguidos acima de R$ 130. Continue assim.</div>'};
+
+R.reg=function(){return ''}; // montado por regView
+var Q=[
+ {q:'Quanto você ganhou hoje, no bruto?',s:'Some tudo que os apps pagaram.',chips:[100,150,200,250],mode:'money'},
+ {q:'Quantos km você rodou?',s:'Veja no painel do carro.',chips:[60,90,118,150],mode:'int'},
+ {q:'Quanto tempo você trabalhou?',s:'Use os botões para ajustar.',mode:'time'},
+ {q:'Quanto gastou de combustível?',s:'Não sabe? Toque em Estimar.',chips:[40,58.4,70],mode:'money'}];
+function regView(step,err){
+ var a='',i;for(i=0;i<step;i++)a+='<div class="bub me">'+regText(i)+'</div>';
+ var q=Q[step],body='';
+ var chips='';
+ if(q.mode==='time'){
+  chips='<div class="stp" style="margin:6px 0"><button data-act="tm" data-v="-15" aria-label="Menos 15 minutos">'+ic('minus',28)+'</button><output id="val">'+hm(S.reg.min)+'</output><button data-act="tm" data-v="15" aria-label="Mais 15 minutos">'+ic('plus',28)+'</button></div><div class="chips" style="justify-content:center">'+[300,360,430,480].map(function(m){return '<button class="chip" data-act="tmset" data-v="'+m+'">'+hm(m)+'</button>'}).join('')+'</div>';
+ }else{
+  var est=(Number(S.reg.buf[1])/S.ob.kml*S.ob.preco);
+  chips=(step===3&&est>0?'<button class="chip" data-act="chip" data-v="'+est.toFixed(2)+'">Estimar '+fmt(est)+'</button> ':'')+q.chips.map(function(v){return '<button class="chip" data-act="chip" data-v="'+v+'">'+(q.mode==='money'?f0(v):v+' km')+'</button>'}).join('');
+  chips='<div class="chips" style="margin-bottom:0">'+chips+(step===0?'<button class="chip" data-act="rapido" style="border-style:dashed">Repetir hoje</button>':'')+'</div>';
+ }
+ return '<div style="display:flex;flex-direction:column;min-height:100%">'+hdr('Registrar',step?'reg'+(step-1):'home','home')+
+ '<div class="prog" aria-hidden="true">'+[0,1,2,3].map(function(n){return '<i class="'+(n<=step?'on':'')+'"></i>'}).join('')+'</div>'+
+ '<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding-top:10px">'+a+'<div class="bub" style="margin-bottom:6px"><b style="font-size:18px">'+q.q+'</b><br><span class="mute small">'+q.s+'</span></div></div>'+
+ (q.mode==='time'?'':'<div class="val" id="val" aria-live="polite"></div>')+
+ '<div class="err" id="err" role="alert">'+(err||'')+'</div>'+chips+
+ (q.mode==='time'?'':'<div class="kp">'+[1,2,3,4,5,6,7,8,9,'00',0,'d'].map(function(k){return k==='d'?'<button data-act="k" data-v="d" aria-label="Apagar">'+ic('del',28)+'</button>':'<button data-act="k" data-v="'+k+'">'+k+'</button>'}).join('')+'</div>')+
+ '<button class="btn" data-act="next">'+(step===3?'Revisar registro':'Continuar')+'</button></div>'}
+function regText(i){var r=S.reg,b=r.buf;if(i===0)return fmt(b[0]/100)+' bruto';if(i===1)return b[1]+' km';if(i===2)return hm(r.min)+' trabalhadas';return fmt(b[3]/100)+' de combustível'}
+function updVal(){var st=S.reg.step,q=Q[st],v=$('#val');if(!v||q.mode==='time'){if(v)v.textContent=hm(S.reg.min);return}var b=S.reg.buf[st];v.innerHTML=q.mode==='money'?fmt(b/100):(b||0)+' <small>km</small>'}
+R.regok=function(){var r=S.reg,b=r.buf[0]/100,c=r.buf[3]/100,l=b-c;
+ return hdr('Revisar','reg3','home')+'<div class="bub">Confere? Este é o seu registro.</div><div class="bub me">'+regText(0)+'</div><div class="bub me">'+regText(1)+'</div><div class="bub me">'+regText(2)+'</div><div class="bub me">'+regText(3)+'</div>'+
+ '<div class="bub hero"><span class="lbl">Você vai ficar com</span><span class="big">'+fmt(l)+'</span> líquidos</div>'+
+ '<div class="foot"><button class="btn" data-act="save">Salvar registro</button><button class="btn ghost" data-go="reg0">Editar respostas</button></div>'};
+
+R.hist=function(mes){var d=[['Seg',142],['Ter',168],['Qua',131],['Qui',171],['Hoje',156]];
+ return '<h1>Histórico</h1><div class="seg"><button class="'+(mes?'':'on')+'" data-go="hist">Semana</button><button class="'+(mes?'on':'')+'" data-go="histmes">Mês</button></div>'+
+ (mes?'<div class="bub hero"><span class="lbl">Outubro até hoje</span><span class="big">R$ 2.384</span><br>líquidos em 17 dias</div><div class="bub">Melhor semana: <b>R$ 802</b>. Média por dia: <b>R$ 140</b>.</div><div class="chips"><button class="chip" data-go="histvazio">Ver setembro</button></div>':
+ '<div class="bub hero"><span class="lbl">Esta semana</span><span class="big">'+fmt(S.week+0)+'</span><br>líquidos até ontem</div><div class="card" style="padding:12px 14px"><div class="days" role="img" aria-label="Líquido por dia">'+d.map(function(x,i){return '<div class="'+(i===4?'t':'')+'"><span>'+x[1]+'</span><b style="height:'+Math.round(x[1]/180*90)+'px"></b><span>'+x[0]+'</span></div>'}).join('')+'</div></div>')+
+ '<div class="list">'+[['Hoje',156,'hoje'],['Qui',171],['Qua',131],['Ter',168],['Seg',142]].map(function(x){return '<button class="item" data-go="histdia"><span><b>'+x[0]+'</b><small>'+(x[2]?'9 corridas':'líquido')+'</small></span><span class="v">'+f0(x[1])+'</span>'+ic('chev',18)+'</button>'}).join('')+'</div>'};
+R.histdia=function(){return hdr('Quinta','hist')+'<div class="bub hero"><span class="lbl">Líquido do dia</span><span class="big">R$ 171,00</span></div><div class="card"><div class="kv"><span>Ganho bruto</span><b>R$ 228,00</b></div><div class="kv"><span>Combustível</span><b>- R$ 57,00</b></div><div class="kv"><span>Corridas</span><b>10</b></div><div class="kv"><span>Distância</span><b>121 km</b></div><div class="kv"><span>Tempo</span><b>7h30</b></div></div><button class="btn sec" data-act="toast" data-v="Registro aberto para editar">Editar dia</button>'};
+R.histvazio=function(){return hdr('Setembro','histmes')+'<div class="empty"><div class="ill">'+ic('hist',44,1.8)+'</div><h2>Nada por aqui ainda</h2><p class="mute">Você começou em outubro. Registre o dia para ver tudo aqui.</p></div><button class="btn" data-go="reg0">Registrar o dia</button>'};
+
+R.plan=function(){var h=S.hoje,lh=(h.b-h.c)/(h.min/60),add=S.sim||1;
+ return '<h1>Planejar</h1><div class="bub hero"><span class="lbl">Meta da semana</span><span class="big">'+f0(S.ob.meta)+'</span><div class="bar"><i style="width:'+Math.round(S.week/S.ob.meta*100)+'%"></i></div>'+f0(S.week)+' feitos. Faltam '+f0(S.ob.meta-S.week)+'.</div>'+
+ '<div class="bub"><b>E se eu rodar mais?</b></div><div class="chips">'+[1,2,3].map(function(n){return '<button class="chip '+(add===n?'on':'')+'" data-act="sim" data-v="'+n+'">+'+n+'h</button>'}).join('')+'</div>'+
+ '<div class="bub hero"><span class="lbl">Com +'+add+'h hoje você ganha mais</span><span class="big">'+fmt(lh*add)+'</span><div class="small mute" style="margin-top:4px">Hoje fica em '+fmt(h.b-h.c+lh*add)+'</div></div>'+
+ '<h2 style="margin-top:18px">Custo por km</h2><div class="card"><div class="kv"><span>Combustível</span><b>R$ 0,55</b></div><div class="kv"><span>Manutenção</span><b>R$ 0,16</b></div><div class="kv"><span>Líquido que sobra</span><b style="color:var(--ok)">R$ 1,32</b></div></div>'};
+
+R.mais=function(){var L=[['reservas','pig','Reservas','R$ 320'],['conq','trophy','Conquistas','4 de 12'],['conta','card','Conta e assinatura','Teste grátis'],['comb','fuel','Preço do combustível','R$ 6,29'],['ajuda','help','Ajuda e dicas',''],['priv','lock','Privacidade e dados','']];
+ return '<h1>Mais</h1><div class="list">'+L.map(function(x){return '<button class="item" data-go="'+x[0]+'"><span class="ic">'+ic(x[1],22)+'</span><span>'+x[2]+'</span><span class="v mute" style="font-weight:500;font-size:15px">'+x[3]+'</span>'+ic('chev',18)+'</button>'}).join('')+'</div><div class="chips"><button class="chip" data-go="homeoff">Ver sem internet</button><button class="chip" data-go="paywall">Ver fim do teste</button></div>'};
+R.reservas=function(){var t=0,k;for(k in S.res)t+=S.res[k];var cols={'Manutenção':'car','Impostos':'card','Imprevistos':'help'};
+ return hdr('Reservas','mais')+'<div class="bub hero"><span class="lbl">Você já separou</span><span class="big">'+fmt(t)+'</span></div>'+Object.keys(S.res).map(function(k){return '<div class="card"><div class="row"><span class="item" style="all:unset"><span class="ic" style="width:40px;height:40px;border-radius:50%;background:var(--teal-s);display:grid;place-items:center;color:var(--teal-d)">'+ic(cols[k],22)+'</span></span><div class="sp"><b>'+k+'</b></div><b style="font-size:20px">'+fmt(S.res[k])+'</b></div><div class="row" style="margin-top:12px"><button class="btn sec" data-act="dep" data-k="'+k+'" data-v="20">Guardar R$ 20</button><button class="btn sec" data-act="dep" data-k="'+k+'" data-v="-20">Retirar R$ 20</button></div></div>'}).join('')};
+R.conq=function(){var L=[['flame','3 dias seguidos',1],['trophy','Primeira meta',1],['pig','Primeira reserva',1],['spark','Semana de R$ 900',0],['clock','10 dias de registro',0]];
+ return hdr('Conquistas','mais')+'<div class="bub">Você tem 4 de 12. Falta pouco para a próxima.</div><div class="list">'+L.map(function(x){return '<div class="item" style="'+(x[2]?'':'opacity:.65')+'"><span class="ic">'+ic(x[0],22)+'</span><span>'+x[1]+'<small>'+(x[2]?'Conquistada':'Ainda não')+'</small></span></div>'}).join('')+'</div>'};
+R.conta=function(){return hdr('Conta e assinatura','mais')+'<div class="bub hero"><span class="lbl">Teste grátis</span><span class="big">Dia 3 de 7</span><div class="bar"><i style="width:43%"></i></div>Depois, R$ 22,99 por mês.</div>'+
+ '<div class="card"><div class="row"><div class="sp"><b>Cupom PRAGAS</b><div class="small mute">'+(S.cupom?'Aplicado':'Removido')+'</div></div><span class="badge">'+(S.cupom?'Ativo':'Inativo')+'</span></div></div>'+
+ '<div class="col"><button class="btn" data-act="toast" data-v="Abrindo o portal seguro do Stripe">Gerenciar assinatura</button><button class="btn sec" data-act="cupom">'+(S.cupom?'Remover cupom':'Aplicar cupom PRAGAS')+'</button></div><p class="small mute" style="margin-top:12px">Pagamento e cancelamento ficam no portal do Stripe.</p>'};
+R.comb=function(){return hdr('Preço do combustível','mais')+'<h1>Quanto está o litro?</h1><div class="stp"><button data-act="preco" data-v="-0.1" aria-label="Menos">'+ic('minus',28)+'</button><output id="precov">'+fmt(S.ob.preco)+'</output><button data-act="preco" data-v="0.1" aria-label="Mais">'+ic('plus',28)+'</button></div><div class="bub">Com este preço, cada km custa <b>R$ 0,55</b>.</div>'+foot('Salvar preço','mais','data-act="toast" data-v="Preço salvo"')};
+R.ajuda=function(){return hdr('Ajuda e dicas','mais')+'<div class="list"><button class="item" data-go="tour"><span class="ic">'+ic('spark',22)+'</span><span>Rever o tour<small>3 dicas rápidas</small></span>'+ic('chev',18)+'</button></div><div class="bub"><span class="lbl">Dica</span>Registre ao fim de cada dia. Leva menos de 1 minuto.</div><div class="bub"><span class="lbl">Dica</span>Guarde 15% do líquido. Manutenção não avisa.</div><div class="bub"><span class="lbl">Dúvida</span>Líquido é o que sobra depois do combustível.</div><button class="btn sec" data-act="toast" data-v="Mensagem enviada ao suporte">Falar com o suporte</button>'};
+R.priv=function(){return hdr('Privacidade e dados','mais')+'<div class="bub">Seus dados são só seus. Não vendemos nada.</div><div class="list"><button class="item" data-act="toast" data-v="Arquivo exportado"><span class="ic">'+ic('share',22)+'</span><span>Exportar meus dados<small>Planilha com tudo</small></span></button></div><button class="btn danger" data-go="modal">Excluir minha conta</button>'};
+R.paywall=function(){return '<div style="padding-top:34px"><div class="empty" style="padding-top:10px"><div class="ill">'+ic('clock',44,1.8)+'</div><h1>Seu teste terminou</h1><p class="mute">Seus registros estão guardados. Continue por R$ 22,99 por mês.</p></div><div class="bub">Cupom <span class="badge">PRAGAS</span> já aplicado.</div></div>'+foot('Assinar por R$ 22,99','home','data-act="toast" data-v="Assinatura ativada"')+'<button class="btn ghost" data-go="hist">Só ver meu histórico</button>'};
+
+var MAIN={home:'home',homedet:'home',homevazio:'home',homeoff:'home',hist:'hist',histmes:'hist',histdia:'hist',histvazio:'hist',plan:'plan',mais:'mais',reservas:'mais',conq:'mais',conta:'mais',comb:'mais',ajuda:'mais',priv:'mais',toast:'home',modal:'priv',tour:'home'};
+var NAVSHOW={home:1,homedet:1,homevazio:1,homeoff:1,hist:1,histmes:1,plan:1,mais:1,toast:1,tour:1};
+function draw(id){
+ var m=/^reg(\d)$/.exec(id);
+ if(m){S.reg.step=+m[1];return regView(S.reg.step)}
+ if(id==='regerr'){S.reg.step=0;S.reg.buf[0]='';return regView(0,'Digite quanto você ganhou. Toque nos números ou num atalho.')}
+ switch(id){
+  case'homedet':return R.home(1);case'homevazio':return R.home(0,1);case'homeoff':return R.home(0,0,1);
+  case'toast':return R.home();case'tour':return R.home();case'modal':return R.priv();
+  case'histmes':return R.hist(1);
+ }
+ return R[id]?R[id]():R.home();
+}
+var tmr;
+function go(id,opt){
+ if(id==='reg')id='reg0';
+ if(!opt||!opt.keep){S.tour=0}
+ closeOv();
+ S.cur=id;
+ var v=$('#view');v.innerHTML=draw(id);v.scrollTop=0;
+ var tab=MAIN[id]||null,show=!!NAVSHOW[id];
+ v.className=show?'nav':'';
+ $('#nav').className=show?'show':'';$('#fab').className=show?'show':'';
+ if(show)navDraw(tab);
+ var b=$('#banner');
+ if(id==='homeoff'){b.className='show';b.innerHTML=ic('wifi',18)+'Sem internet. Seus registros ficam salvos no celular.';v.style.paddingTop='56px'}else{b.className='';v.style.paddingTop=''}
+ if(/^reg\d$/.test(id)||id==='regerr')updVal();
+ sel.value=id;
+ if(id==='toast')toast('Registro salvo','Desfazer');
+ if(id==='modal')openModal();
+ if(id==='tour')openTour(0);
+}
+function navDraw(tab){
+ var L=[['home','home','Início'],['hist','hist','Histórico'],null,['plan','plan','Planejar'],['mais','more','Mais']];
+ $('#nav').innerHTML=L.map(function(x){return x?'<button data-go="'+x[0]+'" class="'+(tab===x[0]?'on':'')+'" '+(tab===x[0]?'aria-current="page"':'')+'>'+ic(x[1],28)+x[2]+'</button>':'<span class="gap"></span>'}).join('');
+ $('#fab').innerHTML=ic('plus',30,2.4)+'Registrar';
+}
+function toast(msg,act){var t=$('#toast');t.innerHTML='<span>'+msg+'</span><span class="sp"></span>'+(act?'<button data-act="undo">'+act+'</button>':'');t.className='show';clearTimeout(tmr);tmr=setTimeout(function(){t.className=''},6000)}
+function closeOv(){$('#ov').className='';$('#ov').innerHTML=''}
+function openModal(){var o=$('#ov');o.className='show';o.innerHTML='<div class="sheet" role="alertdialog" aria-labelledby="mt"><h2 id="mt">Excluir sua conta?</h2><p class="mute">Todos os seus registros e reservas serão apagados. Isso não pode ser desfeito.</p><div class="col" style="margin-top:14px"><button class="btn danger" data-act="del">Excluir conta</button><button class="btn sec" data-act="closeov" id="cx">Manter minha conta</button></div></div>';setTimeout(function(){var c=$('#cx');if(c)c.focus()},0)}
+function openTour(n){S.tour=n;var T=[{t:'Seu líquido do dia aparece aqui. É o que sobra de verdade.',p:'top:150px',a:'up'},{t:'Toque em Registrar quando terminar o dia.',p:'bottom:130px',a:'down'},{t:'Aqui você vê histórico, plano e reservas.',p:'bottom:130px',a:'down'}][n];
+ var o=$('#ov');o.className='show';
+ o.innerHTML='<div class="tip '+T.a+'" style="'+T.p+'" role="dialog" aria-label="Dica '+(n+1)+' de 3"><div class="row" style="margin-bottom:8px"><span class="dots">'+[0,1,2].map(function(i){return '<i class="'+(i===n?'on':'')+'"></i>'}).join('')+'</span><span class="sp"></span><button data-act="closeov" aria-label="Fechar dicas" style="width:48px;height:48px;margin:-8px -8px 0 0;display:grid;place-items:center">'+ic('x')+'</button></div><p style="font-weight:600;font-size:17px">'+T.t+'</p><button class="btn" data-act="tournext" id="tn">'+(n<2?'Próxima dica':'Entendi')+'</button></div>';
+ setTimeout(function(){var c=$('#tn');if(c)c.focus()},0)}
+
+document.addEventListener('click',function(e){
+ var el=e.target.closest('[data-go],[data-act]');if(!el)return;
+ if(el.dataset.go){go(el.dataset.go);return}
+ var a=el.dataset.act,v=el.dataset.v,s=S.reg,st=s.step;
+ switch(a){
+  case'os':S.os=v;go('install');break;
+  case'veic':S.ob.veic=v;go('ob1');break;
+  case'meta':S.ob.meta=Math.max(300,S.ob.meta+ +v);$('#metav').textContent=f0(S.ob.meta);break;
+  case'metaset':S.ob.meta=+v;go('ob2');break;
+  case'en':S.ob.en=v;go('ob3');break;
+  case'kml':S.ob.kml=Math.max(5,Math.round((S.ob.kml+ +v)*10)/10);$('#kmlv').innerHTML=S.ob.kml.toFixed(1).replace('.',',')+'<small> km/l</small>';break;
+  case'preco':S.ob.preco=Math.max(3,Math.round((S.ob.preco+ +v)*100)/100);$('#precov').textContent=fmt(S.ob.preco);break;
+  case'precoset':S.ob.preco=6.29;go('ob5');break;
+  case'k':if(v==='d')s.buf[st]=s.buf[st].slice(0,-1);else{var n=(s.buf[st]+v).replace(/^0+/,'');if(n.length<=(Q[st].mode==='int'?4:6))s.buf[st]=n}$('#err').textContent='';updVal();break;
+  case'chip':s.buf[st]=Q[st].mode==='money'?String(Math.round(+v*100)):String(Math.round(+v));$('#err').textContent='';updVal();break;
+  case'tm':s.min=Math.max(0,s.min+ +v);updVal();break;
+  case'tmset':s.min=+v;updVal();break;
+  case'rapido':s.buf=['21400','118','','5840'];s.min=430;go('regok');break;
+  case'next':
+   if(st===0&&!+s.buf[0]){$('#err').textContent='Digite quanto você ganhou. Toque nos números ou num atalho.';break}
+   if(st===1&&!+s.buf[1]){$('#err').textContent='Digite os km rodados. Use um atalho se preferir.';break}
+   if(st===2&&!s.min){$('#err').textContent='Escolha o tempo trabalhado.';break}
+   if(st===3&&!s.buf[3]){$('#err').textContent='Digite o combustível ou toque em Estimar.';break}
+   go(st===3?'regok':'reg'+(st+1));break;
+  case'save':var b=s.buf[0]/100,c=s.buf[3]/100;S.undo={h:JSON.parse(JSON.stringify(S.hoje)),w:S.week};S.hoje.b+=b;S.hoje.c+=c;S.hoje.km+=+s.buf[1];S.hoje.min+=s.min;S.hoje.n+=1;S.week+=b-c;s.buf=['','','',''];s.min=0;go('home');toast('Registro salvo','Desfazer');break;
+  case'undo':if(S.undo){S.hoje=S.undo.h;S.week=S.undo.w;S.undo=null}$('#toast').className='';toast('Registro desfeito');if(S.cur==='home'||S.cur==='toast')go('home',{keep:1});$('#toast').className='show';break;
+  case'toast':toast(v);break;
+  case'sim':S.sim=+v;go('plan');break;
+  case'dep':var k=el.dataset.k,d=+v;if(d<0&&S.res[k]<20){toast('Saldo insuficiente em '+k);break}S.res[k]+=d;go('reservas');toast(d>0?'R$ 20 guardados em '+k:'R$ 20 retirados de '+k);break;
+  case'cupom':S.cupom=!S.cupom;go('conta');break;
+  case'closeov':closeOv();if(S.cur==='modal')go('priv');else if(S.cur==='tour')go('home');break;
+  case'tournext':if(S.tour<2)openTour(S.tour+1);else{closeOv();go('home')}break;
+  case'del':closeOv();go('welcome');toast('Conta excluída');break;
+ }
+});
+document.addEventListener('keydown',function(e){
+ if(e.key==='Escape'&&$('#ov').className==='show'){closeOv();if(S.cur==='modal')go('priv');else if(S.cur==='tour')go('home')}
+ else if(/^reg\d$/.test(S.cur)&&Q[S.reg.step].mode!=='time'&&!e.target.closest('select')){
+  if(/^\d$/.test(e.key)){var b=document.querySelector('.kp [data-v="'+e.key+'"]');if(b)b.click()}
+  else if(e.key==='Backspace'){var d=document.querySelector('.kp [data-v="d"]');if(d)d.click()}
+ }
+});
+$('#fab').onclick=function(){go('reg0')};
+var q=location.hash.slice(1);go(q&&R[q]||q&&draw(q)?q:'welcome');
+</script>
+</body>
+</html>

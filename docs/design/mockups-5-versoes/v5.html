@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FARO caderno do motorista</title>
+<style>
+:root{
+  --paper:#F6F0E1; --paper2:#EFE7D2; --ink:#1B1A17; --ink2:#4A463C; --line:#BDB291;
+  --amber:#F2A516; --amber-d:#8F4505; --ok:#1F6B3A; --err:#A31D1D; --white:#FFFBF0;
+  --serif:Georgia,"Times New Roman",serif; --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:#D9D2BD;font-family:var(--sans);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:4px}
+.jump{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink2)}
+.jump select{min-height:36px;padding:0 8px;background:var(--white);border:1px solid var(--line);border-radius:6px}
+.phone{position:relative;width:390px;height:844px;background:var(--paper);overflow:hidden;border-radius:36px;border:8px solid #1B1A17;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+@media (max-width:480px){
+  body{display:block;background:var(--paper)}
+  .jump{display:none}
+  .phone{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none}
+}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--paper)}
+.screen.on{display:flex}
+.phone.ht .screen{bottom:58px}
+.body{flex:1;overflow-y:auto;padding:20px 20px 16px;overscroll-behavior:contain}
+.hdr{display:flex;align-items:center;gap:8px;padding:14px 12px 4px 12px;min-height:56px}
+.hdr h1{font-family:var(--serif);font-size:20px;margin:0;font-weight:700;flex:1}
+.back{min-width:48px;min-height:48px;background:none;border:0;display:flex;align-items:center;justify-content:center}
+.brand{font-family:var(--serif);font-weight:700;letter-spacing:.2em;font-size:15px}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums lining-nums}
+h2{font-family:var(--serif);font-size:26px;line-height:1.15;margin:0 0 8px}
+p{margin:0 0 12px;line-height:1.45}
+.mut{color:var(--ink2);font-size:14px}
+.cap{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+.dots{border:0;border-top:2px dotted var(--line);margin:14px 0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border-radius:10px;border:2px solid var(--ink);background:var(--amber);color:var(--ink);font-weight:700;font-size:18px;padding:0 16px}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:transparent;font-weight:600;font-size:16px}
+.btn.dng{background:var(--err);color:#fff;border-color:var(--err)}
+.link{background:none;border:0;min-height:48px;padding:0 4px;color:var(--amber-d);font-weight:600;text-decoration:underline;text-underline-offset:4px;font-size:15px}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;min-height:48px;padding:8px 0;border-bottom:2px dotted var(--line);width:100%;background:none;border-top:0;border-left:0;border-right:0;text-align:left}
+.row.b{align-items:center}
+.row .l{font-size:16px}
+.row .r{font-family:var(--serif);font-size:18px;font-weight:700;display:flex;align-items:center;gap:6px}
+.row .sub{display:block;font-size:13px;color:var(--ink2)}
+.tabs{position:absolute;left:0;right:0;bottom:0;z-index:10;display:flex;border-top:2px solid var(--ink);background:var(--paper2);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;min-height:56px;background:none;border:0;font-size:14px;font-weight:600;color:var(--ink2)}
+.tabs button span{display:inline-block;padding:6px 0 4px;border-bottom:3px solid transparent}
+.tabs button[aria-current=page]{color:var(--ink)}
+.tabs button[aria-current=page] span{border-bottom-color:var(--amber-d)}
+.receipt{background:var(--white);border:1px solid var(--line);padding:18px 16px;position:relative;box-shadow:0 1px 0 var(--line)}
+.receipt:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;background:linear-gradient(135deg,var(--white) 50%,transparent 50%) 0 0/10px 7px,linear-gradient(225deg,var(--white) 50%,transparent 50%) 0 0/10px 7px}
+.big{font-size:60px;line-height:1;font-weight:700;letter-spacing:-.02em}
+.bar{height:12px;border:2px solid var(--ink);border-radius:2px;background:var(--paper);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--amber)}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+.field{margin-bottom:14px}
+.inp{width:100%;min-height:56px;border:2px solid var(--ink);border-radius:8px;background:var(--white);padding:0 14px;font-family:var(--serif);font-size:24px;font-weight:700}
+.inp.pre{padding-left:48px}
+.wrap{position:relative}.wrap b{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:var(--serif);font-size:20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chip{min-height:48px;padding:0 16px;border:2px solid var(--ink);border-radius:24px;background:transparent;font-weight:600}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.step{display:flex;align-items:center;justify-content:center;gap:16px;margin:16px 0}
+.step button{width:64px;height:64px;border-radius:50%;border:2px solid var(--ink);background:var(--white);font-size:30px;font-weight:700}
+.step output{font-size:54px;font-weight:700;min-width:130px;text-align:center}
+.pstep{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-d);margin-bottom:6px}
+.prog{display:flex;gap:4px;margin-bottom:14px}.prog i{flex:1;height:4px;background:var(--line)}.prog i.f{background:var(--ink)}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;border:2px solid var(--ink);border-radius:10px;background:var(--white);padding:0 14px;font-weight:600;font-size:17px;margin-bottom:10px;text-align:left}
+.opt[aria-pressed=true]{background:var(--amber)}
+.foot{padding:12px 20px 18px;display:flex;flex-direction:column;gap:6px;border-top:2px dotted var(--line)}
+svg.ic{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.seg{display:flex;gap:20px;margin-bottom:12px}
+.seg button{background:none;border:0;min-height:48px;font-weight:600;font-size:16px;color:var(--ink2);padding:0;border-bottom:3px solid transparent}
+.seg button[aria-pressed=true]{color:var(--ink);border-bottom-color:var(--amber-d)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:90px;margin:8px 0}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--ink2);gap:3px}
+.bars i{width:100%;background:var(--ink);display:block}.bars div.hoje i{background:var(--amber)}
+details summary{min-height:48px;display:flex;align-items:center;font-weight:600;cursor:pointer;color:var(--amber-d);text-decoration:underline;text-underline-offset:4px}
+.banner{display:none;background:var(--ink);color:var(--paper);padding:10px 16px;font-size:14px;align-items:center;gap:8px}
+.banner.on{display:flex}
+.err{color:var(--err);font-size:14px;font-weight:600;margin-top:4px;display:none}.err.on{display:block}
+.toast{position:absolute;left:16px;right:16px;bottom:84px;background:var(--ink);color:var(--paper);padding:14px 16px;border-radius:8px;display:none;align-items:center;gap:10px;z-index:30;font-weight:600}
+.toast.on{display:flex}.toast button{margin-left:auto;background:none;border:0;color:var(--amber);font-weight:700;min-height:48px;padding:0 8px;text-decoration:underline}
+.ov{position:absolute;inset:0;background:rgba(27,26,23,.6);display:none;align-items:flex-end;z-index:40}
+.ov.on{display:flex}.ov.mid{align-items:center;padding:20px}
+.sheet{background:var(--paper);width:100%;padding:22px 20px 20px;border-top:2px solid var(--ink)}
+.mid .sheet{border:2px solid var(--ink);border-radius:10px}
+.tour{position:absolute;left:20px;right:20px;background:var(--white);border:2px solid var(--ink);padding:16px;z-index:50;display:none;border-radius:8px}
+.tour.on{display:block}
+.tour:after{content:"";position:absolute;left:30px;width:14px;height:14px;background:var(--white);border:2px solid var(--ink);border-width:0 0 2px 2px;bottom:-9px;transform:rotate(-45deg)}
+.pill{display:inline-block;padding:2px 8px;border:1.5px solid var(--ink);border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.empty{text-align:center;padding:40px 10px}
+@media (prefers-reduced-motion:no-preference){.screen.on{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}}}
+</style>
+</head>
+<body>
+<div class="jump"><label for="jump" style="margin:0">Ir para tela…</label>
+<select id="jump"></select></div>
+
+<div class="phone" id="phone">
+
+<!-- ENTRADA -->
+<section class="screen" id="welcome" data-label="Entrada: Boas-vindas e oferta">
+  <div class="body" style="display:flex;flex-direction:column">
+    <div class="brand" style="margin:8px 0 28px">FARO</div>
+    <h2 style="font-size:34px">Saiba quanto sobrou no bolso, hoje.</h2>
+    <p class="mut">O FARO desconta combustível e taxas e mostra seu ganho líquido do dia.</p>
+    <div class="receipt" style="margin:18px 0 8px">
+      <div class="cap">Oferta</div>
+      <div class="row b" style="border-bottom:2px dotted var(--line)"><span class="l">7 dias grátis</span><span class="r"><i data-i="check"></i></span></div>
+      <div class="row b"><span class="l">Depois, por mês</span><span class="r num">R$ 22,99</span></div>
+      <div class="row b" style="border:0"><span class="l">Cupom <b class="pill">PRAGAS</b></span><span class="r" style="color:var(--ok)">aplicado</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn" data-go="install">Começar teste grátis</button>
+    <button class="link" data-go="home" style="align-self:center">Já tenho conta</button>
+  </div>
+</section>
+
+<section class="screen" id="install" data-label="Entrada: Instalar o app">
+  <div class="hdr"><button class="back" data-go="welcome" aria-label="Voltar"><i data-i="back"></i></button><h1>Instalar o FARO</h1></div>
+  <div class="body">
+    <p class="mut">Coloque o FARO na tela inicial. Abre mais rápido, sem barra do navegador.</p>
+    <div class="seg" role="group" aria-label="Aparelho"><button data-os="ios" aria-pressed="false">iPhone</button><button data-os="and" aria-pressed="true">Android</button></div>
+    <ol id="osList" style="padding-left:22px;margin:0;line-height:1.7;font-size:17px"></ol>
+  </div>
+  <div class="foot"><button class="btn" data-go="ob1">Continuar</button><button class="link" data-go="ob1">Instalar depois</button></div>
+</section>
+
+<section class="screen ob" id="ob1" data-label="Onboarding 1: Veículo">
+  <div class="hdr"><button class="back" data-go="install" aria-label="Voltar"><i data-i="back"></i></button><span class="pstep" style="margin:0">Passo 1 de 6</span></div>
+  <div class="body"><div class="prog"><i class="f"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <h2>Qual é o seu carro?</h2>
+    <div class="field"><label for="car">Modelo</label><input class="inp" id="car" value="Onix" style="font-family:var(--sans);font-size:20px"></div>
+    <div class="field"><label for="plate">Placa (opcional)</label><input class="inp" id="plate" placeholder="ABC1D23" style="font-family:var(--sans);font-size:20px"></div></div>
+  <div class="foot"><button class="btn" data-go="ob2">Salvar veículo</button></div>
+</section>
+
+<section class="screen ob" id="ob2" data-label="Onboarding 2: Meta semanal">
+  <div class="hdr"><button class="back" data-go="ob1" aria-label="Voltar"><i data-i="back"></i></button><span class="pstep" style="margin:0">Passo 2 de 6</span></div>
+  <div class="body"><div class="prog"><i class="f"></i><i class="f"></i><i></i><i></i><i></i><i></i></div>
+    <h2>Quanto quer ganhar por semana, limpo?</h2><p class="mut">Líquido: já descontado combustível e taxas.</p>
+    <div class="wrap field"><b>R$</b><input class="inp pre" id="metaIn" inputmode="numeric" value="900" aria-label="Meta semanal"></div>
+    <div class="chips"><button class="chip" data-meta="700" aria-pressed="false">700</button><button class="chip" data-meta="900" aria-pressed="true">900</button><button class="chip" data-meta="1200" aria-pressed="false">1.200</button></div></div>
+  <div class="foot"><button class="btn" data-go="ob3">Salvar meta</button></div>
+</section>
+
+<section class="screen ob" id="ob3" data-label="Onboarding 3: Tipo de energia">
+  <div class="hdr"><button class="back" data-go="ob2" aria-label="Voltar"><i data-i="back"></i></button><span class="pstep" style="margin:0">Passo 3 de 6</span></div>
+  <div class="body"><div class="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i></div>
+    <h2>O que seu carro usa?</h2>
+    <div id="energy">
+      <button class="opt" aria-pressed="true"><i data-i="drop"></i>Flex (gasolina ou etanol)</button>
+      <button class="opt" aria-pressed="false"><i data-i="drop"></i>Gasolina</button>
+      <button class="opt" aria-pressed="false"><i data-i="drop"></i>GNV</button>
+      <button class="opt" aria-pressed="false"><i data-i="bolt"></i>Elétrico</button>
+    </div></div>
+  <div class="foot"><button class="btn" data-go="ob4">Salvar escolha</button></div>
+</section>
+
+<section class="screen ob" id="ob4" data-label="Onboarding 4: Consumo">
+  <div class="hdr"><button class="back" data-go="ob3" aria-label="Voltar"><i data-i="back"></i></button><span class="pstep" style="margin:0">Passo 4 de 6</span></div>
+  <div class="body"><div class="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></div>
+    <h2>Quantos km o carro faz com 1 litro?</h2><p class="mut">Média do Onix na cidade: 11,5. Ajuste se souber o seu.</p>
+    <div class="step"><button data-kml="-0.5" aria-label="Diminuir">−</button><output class="num" id="kml">11,5</output><button data-kml="0.5" aria-label="Aumentar">+</button></div>
+    <p class="mut" style="text-align:center">km por litro</p></div>
+  <div class="foot"><button class="btn" data-go="ob5">Salvar consumo</button></div>
+</section>
+
+<section class="screen ob" id="ob5" data-label="Onboarding 5: Preço do combustível">
+  <div class="hdr"><button class="back" data-go="ob4" aria-label="Voltar"><i data-i="back"></i></button><span class="pstep" style="margin:0">Passo 5 de 6</span></div>
+  <div class="body"><div class="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i></div>
+    <h2>Quanto está o litro da gasolina?</h2><p class="mut">Salvador, hoje. Você muda quando quiser.</p>
+    <div class="wrap field"><b>R$</b><input class="inp pre" id="preco" inputmode="decimal" value="6,29" aria-label="Preço por litro"></div>
+    <div class="err" id="precoErr" role="alert">Digite um preço, por exemplo 6,29.</div></div>
+  <div class="foot"><button class="btn" id="precoOk">Salvar preço</button></div>
+</section>
+
+<section class="screen ob" id="ob6" data-label="Onboarding 6: Seu plano">
+  <div class="hdr"><button class="back" data-go="ob5" aria-label="Voltar"><i data-i="back"></i></button><span class="pstep" style="margin:0">Passo 6 de 6</span></div>
+  <div class="body"><div class="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div>
+    <h2>Seu plano, Carlos</h2>
+    <div class="receipt">
+      <div class="row b"><span class="l">Meta da semana</span><span class="r num">R$ 900</span></div>
+      <div class="row b"><span class="l">Por dia (6 dias)</span><span class="r num">R$ 150</span></div>
+      <div class="row b"><span class="l">Custo por km</span><span class="r num">R$ 0,55</span></div>
+      <div class="row b" style="border:0"><span class="l">Reservar por dia</span><span class="r num">R$ 24</span></div>
+    </div>
+    <p class="mut" style="margin-top:22px">Você pode mudar tudo depois, em Planejar.</p></div>
+  <div class="foot"><button class="btn" data-go="home" data-tour="1">Abrir meu FARO</button></div>
+</section>
+
+<!-- ABAS -->
+<section class="screen" id="home" data-tab="home" data-label="Aba Início">
+  <div class="banner" id="offBanner"><i data-i="off"></i>Sem internet. Seus registros ficam salvos no aparelho.</div>
+  <div class="hdr"><span class="brand" style="flex:1;padding-left:8px">FARO</span><span class="mut">Qua, 20 out</span></div>
+  <div class="body">
+    <div class="receipt" id="tourA">
+      <div class="cap">Líquido de hoje</div>
+      <div class="big num" id="liq" style="margin:8px 0 4px">R$ 155,60</div>
+      <div class="mut">depois do combustível</div>
+      <hr class="dots">
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span>Meta da semana</span><b class="num">R$ 612 de R$ 900</b></div>
+      <div class="bar" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Meta da semana"><i style="width:68%"></i></div>
+      <div class="mut" style="margin-top:6px">68% · faltam R$ 288</div>
+    </div>
+    <div style="margin-top:26px" id="tourB"><button class="btn" data-go="reg" style="min-height:64px;font-size:20px"><i data-i="plus"></i>Registrar corrida</button></div>
+    <details style="margin-top:10px"><summary>Ver detalhes</summary>
+      <div class="row"><span class="l">Ganho bruto</span><span class="r num" id="dBruto">R$ 214,00</span></div>
+      <div class="row"><span class="l">Combustível</span><span class="r num" id="dComb">− R$ 58,40</span></div>
+      <div class="row"><span class="l">Corridas</span><span class="r num" id="dCorr">9</span></div>
+      <div class="row"><span class="l">Distância</span><span class="r num" id="dKm">118 km</span></div>
+      <div class="row"><span class="l">Tempo</span><span class="r num">7h10</span></div>
+      <div class="row"><span class="l">Reservar hoje</span><span class="r num">R$ 24,00</span></div>
+    </details>
+  </div>
+</section>
+
+<section class="screen" id="reg" data-tab="reg" data-label="Aba Registrar">
+  <div class="hdr"><h1 style="padding-left:8px">Registrar corrida</h1></div>
+  <div class="body">
+    <div class="field"><label for="rBruto">Quanto você ganhou (bruto)</label><div class="wrap"><b>R$</b><input class="inp pre" id="rBruto" inputmode="decimal" placeholder="0,00"></div><div class="err" id="rErr" role="alert">Digite o ganho da corrida para salvar.</div></div>
+    <div style="display:flex;gap:12px">
+      <div class="field" style="flex:1"><label for="rKm">Km rodados</label><input class="inp" id="rKm" inputmode="decimal" value="12"></div>
+      <div class="field" style="flex:1"><label for="rH">Horas</label><input class="inp" id="rH" inputmode="decimal" value="1"></div>
+    </div>
+    <div class="field"><label for="rComb">Combustível gasto (calculado)</label><div class="wrap"><b>R$</b><input class="inp pre" id="rComb" inputmode="decimal" value="6,56"></div>
+      <span class="mut">12 km ÷ 11,5 km/l × R$ 6,29</span></div>
+  </div>
+  <div class="foot"><button class="btn" id="rSave" style="min-height:64px;font-size:20px">Salvar corrida</button></div>
+</section>
+
+<section class="screen" id="regok" data-label="Registrar: Confirmação">
+  <div class="body" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+    <div style="color:var(--ok);margin:0 auto 10px"><i data-i="check" style="width:48px;height:48px"></i></div>
+    <h2>Corrida salva</h2>
+    <p class="mut">Líquido de hoje agora</p>
+    <div class="big num" id="okLiq" style="font-size:52px">R$ 155,60</div>
+    <hr class="dots" style="margin:24px 0">
+    <button class="btn" data-go="home">Voltar ao início</button>
+    <button class="btn sec" id="undo" style="margin-top:10px">Desfazer corrida</button>
+  </div>
+</section>
+
+<section class="screen" id="hist" data-tab="hist" data-label="Aba Histórico">
+  <div class="hdr"><h1 style="padding-left:8px">Histórico</h1></div>
+  <div class="body">
+    <div class="seg" role="group"><button data-per="sem" aria-pressed="true">Semana</button><button data-per="mes" aria-pressed="false">Mês</button></div>
+    <div id="histSem">
+      <div class="bars" aria-hidden="true"><div><i style="height:73%"></i>seg</div><div><i style="height:86%"></i>ter</div><div><i style="height:67%"></i>qua</div><div><i style="height:88%"></i>qui</div><div class="hoje"><i style="height:80%"></i>hoje</div></div>
+      <button class="row b" data-day="Hoje, qua" data-v="155,60"><span class="l">Hoje<span class="sub">9 corridas · 118 km</span></span><span class="r num">R$ 155,60 <i data-i="next"></i></span></button>
+      <button class="row b" data-day="Quinta" data-v="171,00"><span class="l">Quinta</span><span class="r num">R$ 171,00 <i data-i="next"></i></span></button>
+      <button class="row b" data-day="Quarta" data-v="131,00"><span class="l">Quarta</span><span class="r num">R$ 131,00 <i data-i="next"></i></span></button>
+      <button class="row b" data-day="Terça" data-v="168,00"><span class="l">Terça</span><span class="r num">R$ 168,00 <i data-i="next"></i></span></button>
+      <button class="row b" data-day="Segunda" data-v="142,00"><span class="l">Segunda</span><span class="r num">R$ 142,00 <i data-i="next"></i></span></button>
+      <div class="row b" style="border:0"><span class="l"><b>Fechado até ontem</b></span><span class="r num">R$ 612,00</span></div>
+    </div>
+    <div id="histMes" style="display:none">
+      <div class="row b"><span class="l">Esta semana</span><span class="r num">R$ 768</span></div>
+      <div class="row b"><span class="l">Semana 3</span><span class="r num">R$ 810</span></div>
+      <div class="row b"><span class="l">Semana 2</span><span class="r num">R$ 745</span></div>
+      <div class="row b"><span class="l">Semana 1</span><span class="r num">R$ 702</span></div>
+      <button class="link" data-go="histEmpty" style="margin-top:12px">Ver mês sem registros</button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="histDay" data-label="Histórico: Detalhe do dia">
+  <div class="hdr"><button class="back" data-go="hist" aria-label="Voltar"><i data-i="back"></i></button><h1 id="ddT">Hoje</h1></div>
+  <div class="body"><div class="receipt"><div class="cap">Líquido</div><div class="big num" id="ddV" style="font-size:48px;margin:6px 0">R$ 155,60</div>
+    <hr class="dots">
+    <div class="row"><span class="l">Bruto</span><span class="r num">R$ 214,00</span></div>
+    <div class="row"><span class="l">Combustível</span><span class="r num">− R$ 58,40</span></div>
+    <div class="row"><span class="l">Corridas</span><span class="r num">9</span></div>
+    <div class="row"><span class="l">Km · horas</span><span class="r num">118 · 7h10</span></div>
+    <div class="row" style="border:0"><span class="l">Por hora</span><span class="r num">R$ 21,70</span></div></div>
+    <button class="link" id="delRun" style="margin-top:20px;color:var(--err)">Excluir este dia</button></div>
+</section>
+
+<section class="screen" id="histEmpty" data-label="Histórico: Vazio">
+  <div class="hdr"><button class="back" data-go="hist" aria-label="Voltar"><i data-i="back"></i></button><h1>Setembro</h1></div>
+  <div class="body"><div class="empty"><i data-i="book" style="width:48px;height:48px;color:var(--ink2)"></i><h2 style="margin-top:12px">Nada por aqui ainda</h2><p class="mut">Registre sua primeira corrida e ela aparece neste caderno.</p><button class="btn" data-go="reg">Registrar corrida</button></div></div>
+</section>
+
+<section class="screen" id="plan" data-tab="plan" data-label="Aba Planejar">
+  <div class="hdr"><h1 style="padding-left:8px">Planejar</h1></div>
+  <div class="body">
+    <div class="cap">Meta da semana</div>
+    <div class="row b"><span class="big num" style="font-size:36px" id="metaV">R$ 900</span><button class="link" id="metaEdit">Mudar meta</button></div>
+    <div class="cap">E se eu rodar mais?</div>
+    <div class="step" style="margin:8px 0"><button data-h="-1" aria-label="Menos uma hora">−</button><output class="num" id="hOut" style="font-size:44px">+1h</output><button data-h="1" aria-label="Mais uma hora">+</button></div>
+    <div class="receipt"><div class="row b"><span class="l">Você ganha a mais</span><span class="r num" id="simV">+ R$ 21,70</span></div>
+      <div class="row b" style="border:0"><span class="l">Faltaria para a meta</span><span class="r num" id="simF">R$ 266</span></div></div>
+    <hr class="dots" style="margin-top:26px">
+    <div class="cap">Custo por km</div>
+    <div class="row b"><span class="l">Combustível<span class="sub">R$ 6,29 ÷ 11,5 km/l</span></span><span class="r num">R$ 0,55</span></div>
+    <div class="row b"><span class="l">Com reservas<span class="sub">manutenção e impostos</span></span><span class="r num">R$ 0,94</span></div>
+  </div>
+</section>
+
+<section class="screen" id="mais" data-tab="mais" data-label="Aba Mais">
+  <div class="hdr"><h1 style="padding-left:8px">Mais</h1></div>
+  <div class="body">
+    <button class="row b" data-go="reservas"><span class="l">Reservas</span><span class="r"><i data-i="next"></i></span></button>
+    <button class="row b" data-go="conq"><span class="l">Conquistas</span><span class="r"><i data-i="next"></i></span></button>
+    <button class="row b" data-go="conta"><span class="l">Conta e assinatura</span><span class="r"><i data-i="next"></i></span></button>
+    <button class="row b" data-go="comb"><span class="l">Preço do combustível</span><span class="r num">R$ 6,29 <i data-i="next"></i></span></button>
+    <button class="row b" data-go="ajuda"><span class="l">Ajuda e dicas</span><span class="r"><i data-i="next"></i></span></button>
+    <button class="row b" data-go="priv"><span class="l">Privacidade e dados</span><span class="r"><i data-i="next"></i></span></button>
+  </div>
+</section>
+
+<section class="screen" id="reservas" data-label="Mais: Reservas">
+  <div class="hdr"><button class="back" data-go="mais" aria-label="Voltar"><i data-i="back"></i></button><h1>Reservas</h1></div>
+  <div class="body"><p class="mut">Dinheiro separado para não faltar depois.</p>
+    <div id="caixas"></div>
+    <div class="row b" style="border:0"><span class="l"><b>Total reservado</b></span><span class="r num" id="resTot">R$ 320</span></div></div>
+</section>
+
+<section class="screen" id="conq" data-label="Mais: Conquistas">
+  <div class="hdr"><button class="back" data-go="mais" aria-label="Voltar"><i data-i="back"></i></button><h1>Conquistas</h1></div>
+  <div class="body">
+    <div class="row b"><span class="l">Primeira corrida<span class="sub">Feita</span></span><span class="r" style="color:var(--ok)"><i data-i="check"></i></span></div>
+    <div class="row b"><span class="l">5 dias seguidos<span class="sub">Feita</span></span><span class="r" style="color:var(--ok)"><i data-i="check"></i></span></div>
+    <div class="row b"><span class="l">Meta batida<span class="sub">Faltam R$ 288</span></span><span class="r num">68%</span></div>
+    <div class="row b"><span class="l">Reserva de R$ 500<span class="sub">Você tem R$ 320</span></span><span class="r num">64%</span></div>
+  </div>
+</section>
+
+<section class="screen" id="conta" data-label="Mais: Conta e assinatura">
+  <div class="hdr"><button class="back" data-go="mais" aria-label="Voltar"><i data-i="back"></i></button><h1>Conta e assinatura</h1></div>
+  <div class="body">
+    <div class="receipt"><div class="cap">Seu plano</div>
+      <div class="row b"><span class="l">Teste grátis</span><span class="r num">5 dias restantes</span></div>
+      <div class="row b"><span class="l">Depois</span><span class="r num">R$ 22,99/mês</span></div>
+      <div class="row b" style="border:0"><span class="l">Cupom</span><span class="r"><b class="pill">PRAGAS</b></span></div></div>
+    <div style="margin-top:22px"><button class="btn" data-go="paywall">Assinar o FARO</button>
+    <button class="btn sec" id="portal" style="margin-top:10px">Gerenciar no Stripe</button></div>
+    <p class="mut" style="margin-top:14px">Carlos · carlos@exemplo.com</p>
+  </div>
+</section>
+
+<section class="screen" id="comb" data-label="Mais: Preço do combustível">
+  <div class="hdr"><button class="back" data-go="mais" aria-label="Voltar"><i data-i="back"></i></button><h1>Preço do combustível</h1></div>
+  <div class="body"><div class="field"><label for="cPreco">Gasolina, por litro</label><div class="wrap"><b>R$</b><input class="inp pre" id="cPreco" inputmode="decimal" value="6,29"></div></div>
+    <p class="mut">Usado para calcular o combustível de cada corrida.</p></div>
+  <div class="foot"><button class="btn" id="cSave">Salvar preço</button></div>
+</section>
+
+<section class="screen" id="ajuda" data-label="Mais: Ajuda e dicas">
+  <div class="hdr"><button class="back" data-go="mais" aria-label="Voltar"><i data-i="back"></i></button><h1>Ajuda e dicas</h1></div>
+  <div class="body">
+    <details><summary>O que é o líquido?</summary><p class="mut">É o que sobra do bruto depois do combustível. É o seu dinheiro de verdade.</p></details>
+    <details><summary>Como registro uma corrida?</summary><p class="mut">Toque em Registrar, digite o ganho e salve. Km e combustível já vêm preenchidos.</p></details>
+    <details><summary>Esqueci de registrar um dia</summary><p class="mut">Registre hoje e ajuste os valores. O caderno soma tudo.</p></details>
+    <hr class="dots"><button class="btn sec" id="tourBtn">Ver o tour de novo</button>
+  </div>
+</section>
+
+<section class="screen" id="priv" data-label="Mais: Privacidade, exportar, excluir">
+  <div class="hdr"><button class="back" data-go="mais" aria-label="Voltar"><i data-i="back"></i></button><h1>Privacidade e dados</h1></div>
+  <div class="body"><p class="mut">Seus dados são só seus. Não vendemos nada a ninguém.</p>
+    <button class="btn sec" id="exp">Exportar meus dados</button>
+    <hr class="dots" style="margin:22px 0">
+    <button class="btn dng" id="delAcc">Excluir minha conta</button></div>
+</section>
+
+<section class="screen" id="paywall" data-label="Fim do teste / Paywall">
+  <div class="body" style="display:flex;flex-direction:column">
+    <div class="brand" style="margin:8px 0 22px">FARO</div>
+    <h2 style="font-size:30px">Seu teste grátis acabou.</h2>
+    <p class="mut">Seus registros estão guardados. Assine para continuar vendo seu líquido.</p>
+    <div class="receipt" style="margin:14px 0"><div class="row b"><span class="l">FARO mensal</span><span class="r num">R$ 22,99</span></div>
+      <div class="row b" style="border:0"><span class="l">Cancele quando quiser</span><span class="r"><i data-i="check"></i></span></div></div>
+    <div class="field" style="margin-top:6px"><label for="cup">Cupom</label><input class="inp" id="cup" value="PRAGAS" style="font-family:var(--sans);font-size:18px;min-height:52px"></div>
+    <div style="flex:1"></div>
+    <button class="btn" id="subs">Assinar por R$ 22,99</button>
+    <button class="link" data-go="priv" style="align-self:center">Exportar meus dados</button>
+  </div>
+</section>
+
+<!-- Navegação por abas -->
+<nav class="tabs" id="tabs" aria-label="Principal">
+  <button data-tabgo="home"><span>Início</span></button>
+  <button data-tabgo="reg"><span>Registrar</span></button>
+  <button data-tabgo="hist"><span>Histórico</span></button>
+  <button data-tabgo="plan"><span>Planejar</span></button>
+  <button data-tabgo="mais"><span>Mais</span></button>
+</nav>
+
+<div class="toast" id="toast" role="status"><i data-i="check"></i><span id="toastT">Salvo</span><button id="toastU" style="display:none">Desfazer</button></div>
+
+<div class="ov mid" id="modal" role="dialog" aria-modal="true" aria-labelledby="mT"><div class="sheet">
+  <h2 id="mT" style="font-size:22px">Excluir sua conta?</h2>
+  <p class="mut">Todos os registros somem e não voltam. Exporte antes, se quiser guardar.</p>
+  <button class="btn dng" id="mOk">Excluir conta</button>
+  <button class="btn sec" id="mNo" style="margin-top:10px">Manter conta</button></div></div>
+
+<div class="ov mid" id="metaModal" role="dialog" aria-modal="true" aria-labelledby="mmT"><div class="sheet">
+  <h2 id="mmT" style="font-size:22px">Nova meta semanal</h2>
+  <div class="wrap field"><b>R$</b><input class="inp pre" id="mmIn" inputmode="numeric" value="900" aria-label="Nova meta"></div>
+  <button class="btn" id="mmOk">Salvar meta</button><button class="btn sec" id="mmNo" style="margin-top:10px">Cancelar</button></div></div>
+
+<div class="ov mid" id="errModal" role="alertdialog" aria-modal="true" aria-labelledby="eT"><div class="sheet">
+  <h2 id="eT" style="font-size:22px">Não deu para salvar</h2>
+  <p class="mut">A conexão caiu. Seus dados estão no aparelho. Toque em tentar de novo quando tiver sinal.</p>
+  <button class="btn" id="eOk">Tentar de novo</button></div></div>
+
+<div class="ov mid" id="depModal" role="dialog" aria-modal="true" aria-labelledby="dT"><div class="sheet">
+  <h2 id="dT" style="font-size:22px">Caixinha</h2>
+  <div class="wrap field"><b>R$</b><input class="inp pre" id="dIn" inputmode="numeric" value="20" aria-label="Valor"></div>
+  <button class="btn" id="dDep">Depositar</button><button class="btn sec" id="dRet" style="margin-top:10px">Retirar</button><button class="link" id="dNo" style="width:100%">Cancelar</button></div></div>
+
+<div class="tour" id="tour" role="dialog" aria-label="Dica"><div class="cap" id="tourN">Dica 1 de 3</div><p id="tourT" style="margin:6px 0 10px;font-size:16px"></p>
+  <div style="display:flex;justify-content:space-between"><button class="link" id="tourX">Fechar</button><button class="link" id="tourNx">Próxima</button></div></div>
+</div>
+
+<script>
+(function(){
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
+var ICONS={
+check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',back:'<path d="M15 5l-7 7 7 7"/>',next:'<path d="M9 5l7 7-7 7"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/>',
+bolt:'<path d="M13 3L6 13h5l-1 8 7-10h-5z"/>',off:'<path d="M3 3l18 18M8.5 8.5A9 9 0 003 11M12 6a9 9 0 019 5M7 15a7 7 0 015-2M12 19h.01"/>',
+book:'<path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z M5 17a3 3 0 013-3h11"/>'};
+function icons(){$$('i[data-i]').forEach(function(e){var n=e.getAttribute('data-i');var s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('class','ic');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.innerHTML=ICONS[n]||'';if(e.getAttribute('style'))s.setAttribute('style',e.getAttribute('style'));e.replaceWith(s)})}
+icons();
+var S={bruto:214,comb:58.4,corr:9,km:118,meta:900,preco:6.29,kml:11.5,sim:1,last:null,caixas:[['Manutenção',184],['Impostos',96],['Imprevistos',40]],os:'and'};
+function br(n,d){return n.toLocaleString('pt-BR',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
+function R(n,d){return 'R$ '+br(n,d)}
+function num(v){var n=parseFloat(String(v).replace(/\./g,'').replace(',','.'));return isNaN(n)?0:n}
+var tabsEl=$('#tabs'),cur='welcome';
+var tabbed={home:1,reg:1,hist:1,plan:1,mais:1};
+var sub2tab={regok:'reg',histDay:'hist',histEmpty:'hist',reservas:'mais',conq:'mais',conta:'mais',comb:'mais',ajuda:'mais',priv:'mais'};
+function go(id){
+  if(!document.getElementById(id))return;
+  $$('.screen').forEach(function(s){s.classList.remove('on')});
+  var el=$('#'+id);el.classList.add('on');cur=id;
+  var showTabs=tabbed[id]||sub2tab[id];
+  tabsEl.style.display=showTabs?'flex':'none';$('#phone').classList.toggle('ht',!!showTabs);
+  var t=tabbed[id]?id:sub2tab[id];
+  $$('#tabs button').forEach(function(b){if(b.getAttribute('data-tabgo')===t)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  var b=$('.body',el);if(b)b.scrollTop=0;
+  $('#jump').value=id;
+  if(id==='home')refresh();
+  if(id==='install')osRender();
+  if(id==='reservas')caixas();
+  closeOv();
+}
+function closeOv(){$$('.ov').forEach(function(o){o.classList.remove('on')});$('#tour').classList.remove('on')}
+function refresh(){
+  var l=S.bruto-S.comb;
+  $('#liq').textContent=R(l);$('#okLiq').textContent=R(l);
+  $('#dBruto').textContent=R(S.bruto);$('#dComb').textContent='− '+R(S.comb);$('#dCorr').textContent=S.corr;$('#dKm').textContent=br(S.km,0)+' km';
+}
+document.addEventListener('click',function(e){
+  var g=e.target.closest('[data-go]');
+  if(g){go(g.getAttribute('data-go'));if(g.hasAttribute('data-tour'))setTimeout(function(){tour(0)},250);return}
+  var t=e.target.closest('[data-tabgo]');if(t){go(t.getAttribute('data-tabgo'))}
+});
+// índice
+var opts=[];$$('.screen').forEach(function(s){opts.push([s.id,s.getAttribute('data-label')])});
+var states=[['st:toast','Estado: Toast de sucesso'],['st:erro','Estado: Erro ao salvar'],['st:offline','Estado: Offline'],['st:modal','Estado: Modal excluir conta'],['st:tour','Estado: Tour de dicas'],['st:vazio','Estado: Histórico vazio']];
+var jsel=$('#jump');
+opts.concat(states).forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];jsel.appendChild(op)});
+jsel.addEventListener('change',function(){
+  var v=jsel.value;
+  if(v.indexOf('st:')!==0){go(v);return}
+  if(v==='st:toast'){go('home');toast('Corrida salva')}
+  if(v==='st:erro'){go('reg');$('#errModal').classList.add('on')}
+  if(v==='st:offline'){go('home');$('#offBanner').classList.add('on')}
+  if(v==='st:modal'){go('priv');$('#modal').classList.add('on')}
+  if(v==='st:tour'){go('home');tour(0)}
+  if(v==='st:vazio'){go('histEmpty')}
+});
+// toast
+var tt;function toast(m,undo){$('#toastT').textContent=m;$('#toastU').style.display=undo?'':'none';var t=$('#toast');t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},4000)}
+// instalar
+function osRender(){var ios=['Toque em Compartilhar, no Safari.','Escolha “Adicionar à Tela de Início”.','Toque em Adicionar.'];var and=['Toque nos três pontos, no Chrome.','Escolha “Instalar app”.','Toque em Instalar.'];
+  $('#osList').innerHTML=(S.os==='ios'?ios:and).map(function(x){return '<li>'+x+'</li>'}).join('');
+  $$('[data-os]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-os')===S.os)})}
+$$('[data-os]').forEach(function(b){b.addEventListener('click',function(){S.os=b.getAttribute('data-os');osRender()})});
+// onboarding
+$$('#energy .opt').forEach(function(b){b.addEventListener('click',function(){$$('#energy .opt').forEach(function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true')})});
+$$('[data-meta]').forEach(function(b){b.addEventListener('click',function(){$('#metaIn').value=b.getAttribute('data-meta');$$('[data-meta]').forEach(function(x){x.setAttribute('aria-pressed',x===b)})})});
+$$('[data-kml]').forEach(function(b){b.addEventListener('click',function(){S.kml=Math.max(4,Math.min(30,S.kml+parseFloat(b.getAttribute('data-kml'))));$('#kml').textContent=br(S.kml,1)})});
+$('#precoOk').addEventListener('click',function(){var n=num($('#preco').value);if(n<=0){$('#precoErr').classList.add('on');$('#preco').focus();return}$('#precoErr').classList.remove('on');S.preco=n;go('ob6')});
+// registrar
+function calcComb(){$('#rComb').value=br(num($('#rKm').value)/S.kml*S.preco)}
+$('#rKm').addEventListener('input',calcComb);
+$('#rSave').addEventListener('click',function(){
+  var b=num($('#rBruto').value);
+  if(b<=0){$('#rErr').classList.add('on');$('#rBruto').focus();return}
+  $('#rErr').classList.remove('on');
+  S.last={b:b,c:num($('#rComb').value),k:num($('#rKm').value)};
+  S.bruto+=S.last.b;S.comb+=S.last.c;S.km+=S.last.k;S.corr+=1;
+  $('#rBruto').value='';go('regok');toast('Corrida salva',true);
+});
+function undo(){if(!S.last)return;S.bruto-=S.last.b;S.comb-=S.last.c;S.km-=S.last.k;S.corr-=1;S.last=null;refresh();toast('Corrida desfeita');go('home')}
+$('#undo').addEventListener('click',undo);$('#toastU').addEventListener('click',undo);
+$('#eOk').addEventListener('click',function(){$('#errModal').classList.remove('on');toast('Corrida salva')});
+// histórico
+$$('[data-per]').forEach(function(b){b.addEventListener('click',function(){var m=b.getAttribute('data-per')==='mes';$('#histSem').style.display=m?'none':'';$('#histMes').style.display=m?'':'none';$$('[data-per]').forEach(function(x){x.setAttribute('aria-pressed',x===b)})})});
+$$('[data-day]').forEach(function(b){b.addEventListener('click',function(){$('#ddT').textContent=b.getAttribute('data-day');$('#ddV').textContent='R$ '+b.getAttribute('data-v');go('histDay')})});
+$('#delRun').addEventListener('click',function(){$('#mT').textContent='Excluir este dia?';$('#modal .mut').textContent='Os registros do dia somem do caderno.';$('#mOk').textContent='Excluir dia';$('#modal').classList.add('on');$('#mOk').focus()});
+// planejar
+function sim(){var h=S.sim;$('#hOut').textContent=(h>=0?'+':'−')+Math.abs(h)+'h';var g=h*21.7;$('#simV').textContent=(g>=0?'+ ':'− ')+R(Math.abs(g));var f=Math.max(0,S.meta-612-g);$('#simF').textContent=R(f,0)}
+$$('[data-h]').forEach(function(b){b.addEventListener('click',function(){S.sim=Math.max(-3,Math.min(8,S.sim+parseInt(b.getAttribute('data-h'),10)));sim()})});
+$('#metaEdit').addEventListener('click',function(){$('#mmIn').value=S.meta;$('#metaModal').classList.add('on');$('#mmIn').focus()});
+$('#mmNo').addEventListener('click',closeOv);
+$('#mmOk').addEventListener('click',function(){var n=num($('#mmIn').value);if(n>0){S.meta=n;$('#metaV').textContent=R(n,0);sim()}closeOv();toast('Meta salva')});
+// reservas
+var curCx=0;
+function caixas(){var t=0;$('#caixas').innerHTML=S.caixas.map(function(c,i){t+=c[1];return '<div class="row b"><span class="l">'+c[0]+'<span class="sub num">'+R(c[1],0)+'</span></span><button class="link" data-cx="'+i+'">Depositar ou retirar</button></div>'}).join('');$('#resTot').textContent=R(t,0);
+  $$('[data-cx]').forEach(function(b){b.addEventListener('click',function(){curCx=+b.getAttribute('data-cx');$('#dT').textContent=S.caixas[curCx][0];$('#depModal').classList.add('on');$('#dIn').focus()})})}
+function mov(sg){var v=num($('#dIn').value);if(v<=0)return;S.caixas[curCx][1]=Math.max(0,S.caixas[curCx][1]+sg*v);closeOv();caixas();toast(sg>0?'Valor guardado':'Valor retirado')}
+$('#dDep').addEventListener('click',function(){mov(1)});$('#dRet').addEventListener('click',function(){mov(-1)});$('#dNo').addEventListener('click',closeOv);
+// conta
+$('#portal').addEventListener('click',function(){toast('Abrindo o portal do Stripe…')});
+$('#subs').addEventListener('click',function(){toast('Assinatura ativa. Obrigado!');go('home')});
+$('#cSave').addEventListener('click',function(){var n=num($('#cPreco').value);if(n>0){S.preco=n;toast('Preço salvo');go('mais')}});
+$('#exp').addEventListener('click',function(){toast('Arquivo pronto para baixar')});
+$('#delAcc').addEventListener('click',function(){$('#mT').textContent='Excluir sua conta?';$('#modal .mut').textContent='Todos os registros somem e não voltam. Exporte antes, se quiser guardar.';$('#mOk').textContent='Excluir conta';$('#modal').classList.add('on');$('#mNo').focus()});
+$('#mNo').addEventListener('click',closeOv);
+$('#mOk').addEventListener('click',function(){var c=$('#mOk').textContent==='Excluir conta';closeOv();if(c)go('welcome');else{toast('Dia excluído');go('hist')}});
+// tour
+var tours=[['#tourA','Aqui está o que sobrou no seu bolso hoje.',240],['#tourB','Toque aqui a cada corrida. Leva poucos segundos.',340],['#tabs','Planeje a semana e veja o histórico nas abas.',640]];
+var ti=0;
+function tour(i){ti=i;go('home');var t=$('#tour');t.classList.add('on');$('#tourN').textContent='Dica '+(i+1)+' de 3';$('#tourT').textContent=tours[i][1];t.style.top=tours[i][2]+'px';$('#tourNx').textContent=i===2?'Entendi':'Próxima';$('#tourNx').focus()}
+$('#tourNx').addEventListener('click',function(){if(ti<2)tour(ti+1);else $('#tour').classList.remove('on')});
+$('#tourX').addEventListener('click',function(){$('#tour').classList.remove('on')});
+$('#tourBtn').addEventListener('click',function(){tour(0)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeOv()});
+window.addEventListener('offline',function(){$('#offBanner').classList.add('on')});window.addEventListener('online',function(){$('#offBanner').classList.remove('on')});
+sim();refresh();go((location.hash&&document.getElementById(location.hash.slice(1)))?location.hash.slice(1):'welcome');
+})();
+</script>
+</body>
+</html>

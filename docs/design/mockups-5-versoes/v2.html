@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05080F">
+<title>FARO Painel Escuro</title>
+<style>
+:root{
+  --bg:#05080F;--card:#0C1220;--card2:#111A2E;--line:#27344F;
+  --tx:#F6F9FF;--mu:#B3C0D6;--lime:#C6FF3D;--lime-d:#0A1300;--amb:#FFB52E;--red:#FF7A7A;
+  --font:"Barlow Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue Condensed","Liberation Sans Narrow",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:#020409;color:var(--tx);font-family:var(--body);font-size:16px;line-height:1.35}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.stage{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+.jump{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mu)}
+.jump select{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px;max-width:260px}
+.phone{position:relative;width:390px;height:844px;background:var(--bg);border-radius:44px;border:10px solid #151C2B;box-shadow:0 0 0 1px #2a3550,0 30px 80px #000;overflow:hidden;display:flex;flex-direction:column}
+.view{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;display:none;scrollbar-width:none}
+.view::-webkit-scrollbar{display:none}
+.view.on{display:block}
+.tabbar{display:none;border-top:1px solid var(--line);background:#070C16;padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+.tabbar.on{display:grid;grid-template-columns:repeat(5,1fr)}
+.tab{background:none;border:0;border-radius:12px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mu);font-size:12px;font-weight:600}
+.tab svg{width:24px;height:24px}
+.tab[aria-current=page]{color:var(--lime)}
+.tab[aria-current=page] svg{filter:drop-shadow(0 0 6px rgba(198,255,61,.45))}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+h1,h2,h3{font-family:var(--font);font-stretch:condensed;text-transform:uppercase;margin:0;letter-spacing:.02em;line-height:1}
+h1{font-size:40px;font-weight:800}
+h2{font-size:30px;font-weight:800}
+h3{font-size:18px;font-weight:700;color:var(--mu)}
+p{margin:0}
+.mu{color:var(--mu)}
+.big{white-space:nowrap;font-family:var(--font);font-stretch:condensed;font-weight:800;line-height:.9;letter-spacing:-.01em}
+.row{display:flex;align-items:center;gap:12px}
+.sb{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:12px}
+.mt{margin-top:16px}.mt2{margin-top:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.lbl{font-family:var(--font);font-stretch:condensed;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border-radius:14px;border:2px solid var(--lime);background:var(--lime);color:var(--lime-d);font-family:var(--font);font-stretch:condensed;font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:0 16px}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--lime)}
+.btn.sec{background:var(--card2);border-color:var(--line);color:var(--tx)}
+.btn.danger{background:transparent;border-color:var(--red);color:var(--red)}
+.btn.sm{min-height:48px;font-size:19px;width:auto;padding:0 18px}
+.link{background:none;border:0;color:var(--lime);min-height:48px;padding:0 8px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--mu);min-height:48px;padding:0;font-weight:600;margin:-8px 0 4px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;color:var(--mu);background:var(--card2)}
+.chip.lime{color:var(--lime);border-color:rgba(198,255,61,.5)}
+.chip.amb{color:var(--amb);border-color:rgba(255,181,46,.5)}
+.bar{height:12px;border-radius:99px;background:#1a243a;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lime);border-radius:99px}
+.bar.amb i{background:var(--amb)}
+.stepper{display:grid;grid-template-columns:64px 1fr 64px;gap:8px;align-items:center}
+.stepper button{height:64px;border-radius:14px;border:1px solid var(--line);background:var(--card2);font-size:30px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.stepper output{text-align:center;white-space:nowrap;font-family:var(--font);font-stretch:condensed;font-weight:800;font-size:44px;line-height:1}
+.stepper output small{font-size:20px;color:var(--mu);font-weight:700}
+.field{display:block}
+.field span{display:block;margin-bottom:6px}
+.inp{display:flex;align-items:center;gap:8px;background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:0 14px;min-height:60px}
+.inp:focus-within{border-color:var(--lime)}
+.inp b{color:var(--mu);font-weight:700}
+.inp input{flex:1;min-width:0;background:none;border:0;outline:0;font-family:var(--font);font-stretch:condensed;font-weight:800;font-size:32px;padding:6px 0;width:100%}
+.inp em{font-style:normal;color:var(--mu);font-weight:700}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;text-align:left;font-weight:700;font-size:17px}
+.opt[aria-checked=true]{border-color:var(--lime);background:rgba(198,255,61,.08)}
+.opt .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--mu);flex:none}
+.opt[aria-checked=true] .dot{border-color:var(--lime);background:radial-gradient(var(--lime) 45%,transparent 50%)}
+.opt small{display:block;color:var(--mu);font-weight:500;font-size:13px}
+.prog{display:flex;gap:6px;margin:6px 0 14px}
+.prog i{flex:1;height:5px;border-radius:9px;background:#1d2840}
+.prog i.d{background:var(--lime)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;text-align:left;font-weight:700;font-size:17px}
+.item .ic{width:40px;height:40px;border-radius:10px;background:var(--card2);display:grid;place-items:center;color:var(--lime);flex:none}
+.item small{display:block;color:var(--mu);font-weight:500;font-size:13px}
+.item .gr{flex:1;min-width:0}
+.item .r{font-family:var(--font);font-stretch:condensed;font-size:26px;font-weight:800;white-space:nowrap}
+.ring{position:relative;width:200px;height:200px;margin:0 auto}
+.ring svg{width:200px;height:200px;transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero{font-size:60px;color:var(--lime);text-shadow:0 0 24px rgba(198,255,61,.25)}
+.kv{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1b2640;font-weight:600}
+.kv:last-child{border-bottom:0}
+.kv b{font-family:var(--font);font-stretch:condensed;font-size:22px}
+details.card{padding:0}
+details summary{min-height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-weight:700;cursor:pointer;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details .in{padding:0 16px 16px}
+.banner{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px 14px;font-weight:600;font-size:14px;margin-bottom:12px}
+.banner.err{background:rgba(255,122,122,.12);border:1px solid var(--red);color:#FFD3D3}
+.banner.off{background:rgba(255,181,46,.12);border:1px solid var(--amb);color:#FFE2AE}
+.ov{position:absolute;inset:0;z-index:20;display:none;background:rgba(2,4,9,.78)}
+.ov.on{display:flex}
+.sheet{align-self:flex-end;width:100%;background:#0E1626;border-top:1px solid var(--line);border-radius:24px 24px 0 0;padding:22px 16px 28px}
+.modal{margin:auto 16px;background:#0E1626;border:1px solid var(--line);border-radius:20px;padding:22px}
+#toast{position:absolute;left:16px;right:16px;bottom:84px;z-index:30;background:var(--lime);color:var(--lime-d);border-radius:14px;padding:14px 16px;font-weight:800;display:none;align-items:center;gap:10px;box-shadow:0 8px 30px #000}
+#toast.on{display:flex}
+#toast.bad{background:var(--red)}
+#toast button{margin-left:auto;background:none;border:0;color:inherit;font-weight:800;text-decoration:underline;min-height:44px}
+#offb{display:none;background:var(--amb);color:#201400;font-weight:800;font-size:13px;text-align:center;padding:6px}
+#offb.on{display:block}
+.tour{position:absolute;left:16px;right:16px;z-index:25;background:var(--lime);color:var(--lime-d);border-radius:16px;padding:16px;box-shadow:0 10px 40px #000}
+.tour p{font-weight:700;font-size:17px}
+.tour .row{margin-top:12px}
+.tour button{min-height:48px;border-radius:12px;border:2px solid var(--lime-d);background:transparent;color:var(--lime-d);font-weight:800;padding:0 16px}
+.tour button.p{background:var(--lime-d);color:var(--lime)}
+.tour::after{content:"";position:absolute;left:50%;width:18px;height:18px;background:var(--lime);transform:translateX(-50%) rotate(45deg)}
+.tour.up::after{top:-8px}.tour.dn::after{bottom:-8px}
+.hl{position:relative;z-index:21;box-shadow:0 0 0 3px var(--lime),0 0 0 9999px rgba(2,4,9,.7)!important}
+.badge{width:100%;aspect-ratio:1;border-radius:16px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:8px;font-weight:700;font-size:13px}
+.badge.on{border-color:var(--lime);color:var(--lime)}
+.badge.off{opacity:.6}
+.badge svg{width:36px;height:36px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;height:48px;accent-color:var(--lime)}
+.center{text-align:center}
+.ok{width:96px;height:96px;border-radius:50%;border:3px solid var(--lime);display:grid;place-items:center;margin:0 auto;color:var(--lime);box-shadow:0 0 40px rgba(198,255,61,.25)}
+.ok svg{width:52px;height:52px;stroke-width:3}
+.sr{position:absolute;left:-9999px}
+@media (max-width:520px){
+  .stage{padding:0;display:block}
+  .jump{display:none}
+  .phone{width:100%;height:100dvh;border:0;border-radius:0;box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7h16a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2zM3 7l12-3v3M16 14h2"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 01-8 0zM8 6H4v1a3 3 0 003 3M16 6h4v1a3 3 0 01-3 3M12 14v4M8 21h8"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></symbol>
+<symbol id="i-fuel" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M3 21h12M14 9h2a2 2 0 012 2v5a1.5 1.5 0 003 0V8l-3-3M6 8h6"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .7-1.5 1-1.5 2.5M12 17h.01"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7 13h.01M17 13h.01"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M5 12v8h14v-8"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></symbol>
+<symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 9a15 15 0 0120 0M5 13a10 10 0 0114 0M8.5 16.5a5 5 0 017 0M12 20h.01"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 17l-5.6 3 1.3-6.2L3 9.5l6.3-.7z"/></symbol>
+<symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-10-3 2-4 5-4 7-1-1-2-2-2-4-3 3-4 5-4 7 0 4 3 7 7 7z"/></symbol>
+</defs>
+</svg>
+
+<div class="stage">
+  <label class="jump">Ir para tela…
+    <select id="jump" aria-label="Ir para tela"></select>
+  </label>
+
+  <div class="phone" id="phone">
+    <div id="offb" role="status">Sem internet. Seus dados ficam salvos no celular.</div>
+
+    <!-- ENTRADA -->
+    <section class="view" data-s="welcome" aria-label="Boas-vindas">
+      <div class="row sb"><h2 style="color:var(--lime);font-size:38px">FARO</h2><span class="chip lime">7 dias grátis</span></div>
+      <div class="mt2">
+        <h1 style="font-size:40px">Saiba quanto você <span style="color:var(--lime)">ganhou de verdade</span> hoje.</h1>
+        <p class="mu mt" style="font-size:18px">Líquido, depois de combustível e taxas.</p>
+      </div>
+      <div class="card mt2 row sb">
+        <div><div class="lbl">Teste grátis</div><div class="big" style="font-size:34px">7 dias</div></div>
+        <div class="center"><div class="lbl">Depois</div><div class="big" style="font-size:34px;color:var(--lime)">R$ 22,99<small style="font-size:16px;color:var(--mu)">/mês</small></div></div>
+      </div>
+      <div class="card mt row sb" style="border-style:dashed;border-color:var(--lime)">
+        <div><div class="lbl">Cupom aplicado</div><div class="big" style="font-size:34px;color:var(--lime)">PRAGAS</div></div>
+        <svg class="i" style="color:var(--lime)"><use href="#i-check"/></svg>
+      </div>
+      <button class="btn mt2" data-go="install">Começar teste grátis</button>
+      <p class="mu center mt" style="font-size:13px">Cancele quando quiser. Sem cobrança nos 7 dias.</p>
+    </section>
+
+    <section class="view" data-s="install" aria-label="Instalar o app">
+      <button class="back" data-go="welcome"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <h1>Instale o FARO</h1>
+      <p class="mu mt">Abre mais rápido e funciona sem internet.</p>
+      <div class="card mt2">
+        <div class="lbl">iPhone (Safari)</div>
+        <div class="row mt"><svg class="i" style="color:var(--lime)"><use href="#i-share"/></svg><p>Toque em <b>Compartilhar</b></p></div>
+        <div class="row mt"><svg class="i" style="color:var(--lime)"><use href="#i-plus"/></svg><p>Escolha <b>Adicionar à Tela de Início</b></p></div>
+      </div>
+      <div class="card mt">
+        <div class="lbl">Android (Chrome)</div>
+        <div class="row mt"><svg class="i" style="color:var(--lime)"><use href="#i-more"/></svg><p>Toque nos <b>3 pontinhos</b></p></div>
+        <div class="row mt"><svg class="i" style="color:var(--lime)"><use href="#i-down"/></svg><p>Escolha <b>Instalar app</b></p></div>
+      </div>
+      <button class="btn mt2" data-go="ob1">Continuar</button>
+      <div class="center"><button class="link" data-go="ob1">Instalar depois</button></div>
+    </section>
+
+    <section class="view" data-s="ob1" aria-label="Passo 1 de 6">
+      <button class="back" data-go="install"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <div class="lbl">Passo 1 de 6</div><div class="prog"><i class="d"></i><i></i><i></i><i></i><i></i><i></i></div>
+      <h1>Qual é o seu carro?</h1>
+      <div class="list mt2" role="radiogroup" aria-label="Veículo" data-radio="car">
+        <button class="opt" role="radio" aria-checked="true"><span class="dot"></span><span>Chevrolet Onix<small>Flex, 1.0</small></span></button>
+        <button class="opt" role="radio" aria-checked="false"><span class="dot"></span><span>Hyundai HB20<small>Flex, 1.0</small></span></button>
+        <button class="opt" role="radio" aria-checked="false"><span class="dot"></span><span>Outro carro<small>Você informa o consumo</small></span></button>
+      </div>
+      <button class="btn mt2" data-go="ob2">Continuar</button>
+    </section>
+
+    <section class="view" data-s="ob2" aria-label="Passo 2 de 6">
+      <button class="back" data-go="ob1"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <div class="lbl">Passo 2 de 6</div><div class="prog"><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i></div>
+      <h1>Quanto quer ganhar por semana?</h1>
+      <p class="mu mt">Valor líquido, já descontado combustível.</p>
+      <div class="card mt2"><div class="stepper">
+        <button data-step="goal:-50" aria-label="Diminuir R$ 50">−</button>
+        <output id="o-goal" aria-live="polite">R$ 900</output>
+        <button data-step="goal:50" aria-label="Aumentar R$ 50">+</button>
+      </div></div>
+      <p class="mu center mt" style="font-size:14px">Equivale a uns R$ 150 por dia, em 6 dias.</p>
+      <button class="btn mt2" data-go="ob3">Continuar</button>
+    </section>
+
+    <section class="view" data-s="ob3" aria-label="Passo 3 de 6">
+      <button class="back" data-go="ob2"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <div class="lbl">Passo 3 de 6</div><div class="prog"><i class="d"></i><i class="d"></i><i class="d"></i><i></i><i></i><i></i></div>
+      <h1>O que seu carro usa?</h1>
+      <div class="list mt2" role="radiogroup" aria-label="Energia" data-radio="fuel">
+        <button class="opt" role="radio" aria-checked="true"><span class="dot"></span><span>Gasolina</span></button>
+        <button class="opt" role="radio" aria-checked="false"><span class="dot"></span><span>Etanol</span></button>
+        <button class="opt" role="radio" aria-checked="false"><span class="dot"></span><span>GNV</span></button>
+        <button class="opt" role="radio" aria-checked="false"><span class="dot"></span><span>Elétrico</span></button>
+      </div>
+      <button class="btn mt2" data-go="ob4">Continuar</button>
+    </section>
+
+    <section class="view" data-s="ob4" aria-label="Passo 4 de 6">
+      <button class="back" data-go="ob3"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <div class="lbl">Passo 4 de 6</div><div class="prog"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i></i><i></i></div>
+      <h1>Quantos km por litro?</h1>
+      <p class="mu mt">Média do Onix flex na cidade.</p>
+      <div class="card mt2"><div class="stepper">
+        <button data-step="kml:-0.1" aria-label="Diminuir 0,1">−</button>
+        <output id="o-kml" aria-live="polite">11,5 <small>km/l</small></output>
+        <button data-step="kml:0.1" aria-label="Aumentar 0,1">+</button>
+      </div></div>
+      <button class="btn mt2" data-go="ob5">Continuar</button>
+    </section>
+
+    <section class="view" data-s="ob5" aria-label="Passo 5 de 6">
+      <button class="back" data-go="ob4"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <div class="lbl">Passo 5 de 6</div><div class="prog"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i></i></div>
+      <h1>Quanto custa o litro?</h1>
+      <p class="mu mt">Preço da gasolina onde você abastece.</p>
+      <div class="card mt2"><div class="stepper">
+        <button data-step="price:-0.05" aria-label="Diminuir 5 centavos">−</button>
+        <output id="o-price" aria-live="polite">R$ 6,29</output>
+        <button data-step="price:0.05" aria-label="Aumentar 5 centavos">+</button>
+      </div></div>
+      <button class="btn mt2" data-go="ob6">Ver meu plano</button>
+    </section>
+
+    <section class="view" data-s="ob6" aria-label="Passo 6 de 6">
+      <button class="back" data-go="ob5"><svg class="i"><use href="#i-back"/></svg>Voltar</button>
+      <div class="lbl">Passo 6 de 6</div><div class="prog"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i></div>
+      <h1>Seu plano, Carlos</h1>
+      <div class="card mt2 center">
+        <div class="lbl">Meta por semana</div>
+        <div class="big hero" id="p-goal">R$ 900</div>
+        <div class="lbl mt">Por dia, em 6 dias</div>
+        <div class="big" style="font-size:44px" id="p-day">R$ 150</div>
+      </div>
+      <div class="card mt"><div class="kv"><span>Custo de combustível</span><b id="p-km">R$ 0,55/km</b></div><div class="kv"><span>Reserva sugerida</span><b>20% do líquido</b></div></div>
+      <button class="btn mt2" data-go="home">Abrir meu painel</button>
+    </section>
+
+    <!-- ABAS -->
+    <section class="view" data-s="home" aria-label="Início">
+      <div class="row sb"><div><div class="lbl">Salvador · Hoje</div><h2>Olá, Carlos</h2></div><span class="chip amb">Teste: 4 dias</span></div>
+      <div class="card mt" style="padding:20px 16px" id="t-hero">
+        <div class="lbl center">Você ficou com</div>
+        <div class="ring mt">
+          <svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="88" fill="none" stroke="#1a243a" stroke-width="16"/><circle cx="100" cy="100" r="88" fill="none" stroke="#C6FF3D" stroke-width="16" stroke-linecap="round" stroke-dasharray="376.2 552.9"/></svg>
+          <div class="c"><div class="big hero" style="font-size:32px" id="hn">R$ 155,60</div><div class="lbl" style="margin-top:6px">líquido hoje</div></div>
+        </div>
+        <div class="row sb mt"><span class="lbl">Meta da semana</span><b style="font-family:var(--font);font-stretch:condensed;font-size:24px;color:var(--lime)">68%</b></div>
+        <div class="bar mt" style="margin-top:6px"><i style="width:68%"></i></div>
+        <p class="mu mt" style="font-size:14px;margin-top:8px">R$ 612 de R$ 900. Faltam R$ 288.</p>
+      </div>
+      <button class="btn mt" data-go="registrar" id="t-reg"><svg class="i" style="width:28px;height:28px"><use href="#i-plus"/></svg>Registrar corrida</button>
+      <details class="card mt">
+        <summary>Ver detalhes <svg class="i"><use href="#i-next"/></svg></summary>
+        <div class="in">
+          <div class="kv"><span>Ganho bruto</span><b>R$ 214,00</b></div>
+          <div class="kv"><span>Combustível</span><b style="color:var(--amb)">− R$ 58,40</b></div>
+          <div class="kv"><span>9 corridas · 118 km</span><b>7h10</b></div>
+          <svg id="home-chart" viewBox="0 0 330 130" width="100%" role="img" aria-label="Líquido por dia"></svg>
+        </div>
+      </details>
+      <div class="card mt row" style="gap:12px"><svg class="i" style="color:var(--amb)"><use href="#i-wallet"/></svg><p style="font-size:15px">Reserve <b style="color:var(--amb)">R$ 31</b> hoje para manutenção e impostos.</p></div>
+    </section>
+
+    <section class="view" data-s="registrar" aria-label="Registrar corrida">
+      <div id="reg-err"></div>
+      <h1>Registrar corrida</h1>
+      <p class="mu mt">Só o ganho é obrigatório.</p>
+      <div class="stack mt2">
+        <label class="field"><span class="lbl">Ganho bruto</span><div class="inp"><b>R$</b><input id="f-bruto" inputmode="decimal" placeholder="0,00" autocomplete="off"></div></label>
+        <div class="g2">
+          <label class="field"><span class="lbl">Km rodados</span><div class="inp"><input id="f-km" inputmode="decimal" placeholder="0"><em>km</em></div></label>
+          <label class="field"><span class="lbl">Horas</span><div class="inp"><input id="f-h" inputmode="decimal" placeholder="0"><em>h</em></div></label>
+        </div>
+        <label class="field"><span class="lbl">Combustível gasto <span class="chip" id="f-auto" style="margin-left:6px">Calculado</span></span><div class="inp"><b>R$</b><input id="f-comb" inputmode="decimal" placeholder="0,00"></div></label>
+      </div>
+      <div class="card mt row sb"><span class="lbl">Líquido desta corrida</span><span class="big" style="font-size:32px;color:var(--lime)" id="f-liq">R$ 0,00</span></div>
+      <button class="btn mt" id="f-save"><svg class="i"><use href="#i-check"/></svg>Salvar corrida</button>
+    </section>
+
+    <section class="view" data-s="confirma" aria-label="Corrida salva">
+      <div class="center" style="padding-top:36px">
+        <div class="ok"><svg class="i"><use href="#i-check"/></svg></div>
+        <h1 class="mt2">Corrida salva</h1>
+        <div class="big hero mt" id="c-liq" style="font-size:64px">+ R$ 0,00</div>
+        <p class="mu mt">Líquido somado ao seu dia.</p>
+      </div>
+      <div class="card mt2"><div class="row sb"><span class="lbl">Hoje agora</span><b class="big" style="font-size:34px" id="c-day">R$ 155,60</b></div><div class="bar mt"><i id="c-bar" style="width:68%"></i></div></div>
+      <button class="btn mt2" data-go="home">Voltar ao início</button>
+      <button class="btn sec mt" id="c-undo"><svg class="i"><use href="#i-undo"/></svg>Desfazer corrida</button>
+    </section>
+
+    <section class="view" data-s="historico" aria-label="Histórico">
+      <h1>Histórico</h1>
+      <div class="g2 mt" role="tablist" aria-label="Período">
+        <button class="btn sm" id="hp-w" role="tab" aria-selected="true" style="width:100%">Semana</button>
+        <button class="btn sm sec" id="hp-m" role="tab" aria-selected="false" style="width:100%">Mês</button>
+      </div>
+      <div id="hist-body"></div>
+    </section>
+
+    <section class="view" data-s="dia" aria-label="Detalhe do dia">
+      <button class="back" data-go="historico"><svg class="i"><use href="#i-back"/></svg>Histórico</button>
+      <div class="lbl" id="d-name">Quinta</div>
+      <div class="big hero" id="d-liq" style="font-size:72px;margin-top:6px">R$ 171</div>
+      <div class="lbl" style="margin-top:6px">líquido do dia</div>
+      <div class="card mt2" id="d-kv"></div>
+      <button class="btn danger mt" data-modal="delday"><svg class="i"><use href="#i-trash"/></svg>Excluir este dia</button>
+    </section>
+
+    <section class="view" data-s="planejar" aria-label="Planejar">
+      <h1>Planejar</h1>
+      <div class="card mt">
+        <div class="row sb"><span class="lbl">Meta semanal</span><span class="chip lime">68%</span></div>
+        <div class="stepper mt"><button data-step="pgoal:-50" aria-label="Diminuir meta">−</button><output id="o-pgoal">R$ 900</output><button data-step="pgoal:50" aria-label="Aumentar meta">+</button></div>
+        <div class="bar mt"><i id="pg-bar" style="width:68%"></i></div>
+        <p class="mu mt" style="font-size:14px;margin-top:8px" id="pg-txt">Faltam R$ 288 em 2 dias.</p>
+      </div>
+      <div class="card mt" id="t-sim">
+        <div class="lbl">E se eu rodar mais?</div>
+        <div class="row sb mt"><span style="font-weight:700">+ <span id="s-h">1</span> hora</span><span class="mu" style="font-size:13px">R$ 21,70 por hora</span></div>
+        <input type="range" id="s-r" min="0" max="4" step="1" value="1" aria-label="Horas extras">
+        <div class="row sb"><span class="mu">Você ganha</span><span class="big" style="font-size:44px;color:var(--lime)" id="s-v">+ R$ 22</span></div>
+        <div class="bar mt amb"><i id="s-bar" style="width:70%"></i></div>
+        <p class="mu" style="font-size:14px;margin-top:8px" id="s-t">Chega a R$ 634 da meta.</p>
+      </div>
+      <div class="card mt">
+        <div class="lbl">Custo por km</div>
+        <div class="row sb mt"><span class="big" style="font-size:44px;color:var(--amb)">R$ 0,55</span><span class="mu" style="text-align:right;font-size:14px">gasolina R$ 6,29<br>11,5 km/l</span></div>
+        <p class="mu" style="font-size:14px;margin-top:8px">Abaixo disso, a corrida dá prejuízo.</p>
+      </div>
+    </section>
+
+    <section class="view" data-s="mais" aria-label="Mais">
+      <h1>Mais</h1>
+      <div class="list mt">
+        <button class="item" data-go="reservas"><span class="ic"><svg class="i"><use href="#i-wallet"/></svg></span><span class="gr">Reservas<small>R$ 320 guardados</small></span><svg class="i"><use href="#i-next"/></svg></button>
+        <button class="item" data-go="conquistas"><span class="ic"><svg class="i"><use href="#i-trophy"/></svg></span><span class="gr">Conquistas<small>3 de 6</small></span><svg class="i"><use href="#i-next"/></svg></button>
+        <button class="item" data-go="conta"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><span class="gr">Conta e assinatura<small>Teste grátis: 4 dias</small></span><svg class="i"><use href="#i-next"/></svg></button>
+        <button class="item" data-go="combustivel"><span class="ic"><svg class="i"><use href="#i-fuel"/></svg></span><span class="gr">Preço do combustível<small>Gasolina R$ 6,29</small></span><svg class="i"><use href="#i-next"/></svg></button>
+        <button class="item" data-go="ajuda"><span class="ic"><svg class="i"><use href="#i-help"/></svg></span><span class="gr">Ajuda e dicas</span><svg class="i"><use href="#i-next"/></svg></button>
+        <button class="item" data-go="privacidade"><span class="ic"><svg class="i"><use href="#i-lock"/></svg></span><span class="gr">Privacidade e dados</span><svg class="i"><use href="#i-next"/></svg></button>
+      </div>
+    </section>
+
+    <section class="view" data-s="reservas" aria-label="Reservas">
+      <button class="back" data-go="mais"><svg class="i"><use href="#i-back"/></svg>Mais</button>
+      <h1>Reservas</h1>
+      <div class="lbl mt">Total guardado</div>
+      <div class="big hero" id="r-tot" style="font-size:64px;margin-top:4px">R$ 320</div>
+      <div class="list mt2" id="r-list"></div>
+    </section>
+
+    <section class="view" data-s="conquistas" aria-label="Conquistas">
+      <button class="back" data-go="mais"><svg class="i"><use href="#i-back"/></svg>Mais</button>
+      <h1>Conquistas</h1>
+      <div class="g3 mt2">
+        <div class="badge on"><svg class="i"><use href="#i-flame"/></svg>5 dias seguidos</div>
+        <div class="badge on"><svg class="i"><use href="#i-check"/></svg>Primeira corrida</div>
+        <div class="badge on"><svg class="i"><use href="#i-wallet"/></svg>Primeira reserva</div>
+        <div class="badge off"><svg class="i"><use href="#i-target"/></svg>Meta batida</div>
+        <div class="badge off"><svg class="i"><use href="#i-star"/></svg>R$ 1.000 na semana</div>
+        <div class="badge off"><svg class="i"><use href="#i-trophy"/></svg>30 dias seguidos</div>
+      </div>
+      <p class="mu center mt2">Falta R$ 288 para bater a meta da semana.</p>
+    </section>
+
+    <section class="view" data-s="conta" aria-label="Conta e assinatura">
+      <button class="back" data-go="mais"><svg class="i"><use href="#i-back"/></svg>Mais</button>
+      <h1>Conta</h1>
+      <div class="card mt2">
+        <div class="row sb"><span class="lbl">Teste grátis</span><span class="chip amb">Dia 3 de 7</span></div>
+        <div class="bar amb mt"><i style="width:43%"></i></div>
+        <p class="mu mt" style="font-size:14px;margin-top:8px">Depois: R$ 22,99 por mês.</p>
+      </div>
+      <div class="card mt">
+        <div class="lbl">Cupom</div>
+        <div class="row mt"><div class="inp" style="flex:1"><input id="cup" value="PRAGAS" aria-label="Cupom" style="font-size:26px;text-transform:uppercase"></div><button class="btn sm" id="cup-b">Aplicar</button></div>
+        <p class="mu" id="cup-t" style="font-size:14px;margin-top:8px">PRAGAS ativo: 7 dias grátis.</p>
+      </div>
+      <button class="btn sec mt" id="stripe">Gerenciar assinatura</button>
+      <p class="mu center mt" style="font-size:13px">Abre o portal seguro do Stripe.</p>
+    </section>
+
+    <section class="view" data-s="combustivel" aria-label="Preço do combustível">
+      <button class="back" data-go="mais"><svg class="i"><use href="#i-back"/></svg>Mais</button>
+      <h1>Preço do litro</h1>
+      <p class="mu mt">Gasolina onde você abastece.</p>
+      <div class="card mt2"><div class="stepper"><button data-step="fprice:-0.05" aria-label="Diminuir">−</button><output id="o-fprice">R$ 6,29</output><button data-step="fprice:0.05" aria-label="Aumentar">+</button></div></div>
+      <div class="card mt row sb"><span class="lbl">Custo por km</span><b class="big" style="font-size:36px;color:var(--amb)" id="f-ckm">R$ 0,55</b></div>
+      <button class="btn mt2" id="f-sv">Salvar preço</button>
+    </section>
+
+    <section class="view" data-s="ajuda" aria-label="Ajuda e dicas">
+      <button class="back" data-go="mais"><svg class="i"><use href="#i-back"/></svg>Mais</button>
+      <h1>Ajuda e dicas</h1>
+      <button class="btn mt2" id="tour-b"><svg class="i"><use href="#i-help"/></svg>Rever tour de dicas</button>
+      <div class="list mt2">
+        <details class="card"><summary>O que é líquido? <svg class="i"><use href="#i-next"/></svg></summary><div class="in mu">É o que sobra depois de tirar combustível e taxas do ganho bruto.</div></details>
+        <details class="card"><summary>Quando registrar? <svg class="i"><use href="#i-next"/></svg></summary><div class="in mu">Ao parar o carro, depois de cada turno ou no fim do dia. Leva 10 segundos.</div></details>
+        <details class="card"><summary>Quanto reservar? <svg class="i"><use href="#i-next"/></svg></summary><div class="in mu">Comece com 20% do líquido: manutenção, impostos e imprevistos.</div></details>
+      </div>
+    </section>
+
+    <section class="view" data-s="privacidade" aria-label="Privacidade e dados">
+      <button class="back" data-go="mais"><svg class="i"><use href="#i-back"/></svg>Mais</button>
+      <h1>Seus dados</h1>
+      <p class="mu mt">Ficam no seu celular. Nunca vendemos nada.</p>
+      <button class="btn sec mt2" id="exp"><svg class="i"><use href="#i-down"/></svg>Exportar meus dados</button>
+      <div class="card mt2" style="border-color:var(--red)"><p class="mu">Excluir a conta apaga corridas, metas e reservas. Não dá para desfazer.</p>
+        <button class="btn danger mt" data-modal="delacc"><svg class="i"><use href="#i-trash"/></svg>Excluir conta</button></div>
+    </section>
+
+    <!-- PAYWALL -->
+    <section class="view" data-s="paywall" aria-label="Fim do teste">
+      <div class="center" style="padding-top:20px">
+        <span class="chip amb">Teste encerrado</span>
+        <h1 class="mt" style="font-size:50px">Seu teste acabou</h1>
+        <p class="mu mt">Em 7 dias você registrou:</p>
+      </div>
+      <div class="g2 mt2">
+        <div class="card center"><div class="big hero" style="font-size:44px">R$ 1.082</div><div class="lbl mt">líquido</div></div>
+        <div class="card center"><div class="big" style="font-size:44px">41</div><div class="lbl mt">corridas</div></div>
+      </div>
+      <div class="card mt center"><div class="big" style="font-size:52px;color:var(--lime)">R$ 22,99<small style="font-size:20px;color:var(--mu)">/mês</small></div><p class="mu mt" style="font-size:14px">Cancele quando quiser.</p></div>
+      <button class="btn mt2" id="pay">Assinar o FARO</button>
+      <div class="center"><button class="link" data-go="privacidade">Exportar meus dados</button></div>
+    </section>
+
+    <nav class="tabbar" id="tabs" aria-label="Abas">
+      <button class="tab" data-tab="home"><svg class="i"><use href="#i-home"/></svg>Início</button>
+      <button class="tab" data-tab="registrar"><svg class="i"><use href="#i-plus"/></svg>Registrar</button>
+      <button class="tab" data-tab="historico"><svg class="i"><use href="#i-list"/></svg>Histórico</button>
+      <button class="tab" data-tab="planejar"><svg class="i"><use href="#i-target"/></svg>Planejar</button>
+      <button class="tab" data-tab="mais"><svg class="i"><use href="#i-more"/></svg>Mais</button>
+    </nav>
+
+    <div id="toast" role="status" aria-live="polite"><svg class="i"><use href="#i-check"/></svg><span id="toast-t"></span><button id="toast-a" hidden></button></div>
+
+    <div class="ov" id="ov-del" role="dialog" aria-modal="true" aria-labelledby="md-t">
+      <div class="modal">
+        <h2 id="md-t">Excluir conta?</h2>
+        <p class="mu mt" id="md-p">Isso apaga tudo e não dá para desfazer.</p>
+        <button class="btn danger mt2" id="md-ok">Excluir conta</button>
+        <button class="btn sec mt" id="md-no">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="ov" id="ov-res" role="dialog" aria-modal="true" aria-labelledby="rs-t">
+      <div class="sheet">
+        <div class="lbl" id="rs-n">Manutenção</div>
+        <h2 id="rs-t" class="big" style="font-size:48px;margin-top:4px">R$ 184</h2>
+        <div class="stepper mt"><button data-step="ramt:-10" aria-label="Menos R$ 10">−</button><output id="o-ramt">R$ 20</output><button data-step="ramt:10" aria-label="Mais R$ 10">+</button></div>
+        <div class="g2 mt"><button class="btn" id="rs-dep">Depositar</button><button class="btn sec" id="rs-ret">Retirar</button></div>
+        <button class="link" id="rs-x" style="width:100%">Fechar</button>
+      </div>
+    </div>
+
+    <div class="tour" id="tour" style="display:none" role="dialog" aria-label="Dicas">
+      <p id="tour-t"></p>
+      <div class="row"><span style="font-weight:800" id="tour-n">1 de 3</span><span style="flex:1"></span><button id="tour-x">Fechar</button><button class="p" id="tour-nx">Próxima</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var S={goal:900,kml:11.5,price:6.29,pgoal:900,fprice:6.29,ramt:20,day:155.6,lastAdd:0,hp:"w",cur:"welcome",cup:true};
+var res=[{n:"Manutenção",v:184},{n:"Impostos",v:96},{n:"Imprevistos",v:40}];
+var week=[{d:"Segunda",s:"Seg",v:142,b:196,km:104,h:"6h20",c:54},{d:"Terça",s:"Ter",v:168,b:226,km:112,h:"7h00",c:58},{d:"Quarta",s:"Qua",v:131,b:182,km:98,h:"6h05",c:51},{d:"Quinta",s:"Qui",v:171,b:231,km:121,h:"7h30",c:60},{d:"Hoje",s:"Hoje",v:155.6,b:214,km:118,h:"7h10",c:58.4}];
+var months=[{d:"Semana 1",v:802},{d:"Semana 2",v:861},{d:"Semana 3",v:774},{d:"Esta semana",v:612}];
+var TABS=["home","registrar","historico","planejar","mais"];
+var MAIN=TABS.concat(["confirma","dia","reservas","conquistas","conta","combustivel","ajuda","privacidade"]);
+var TAB_OF={confirma:"registrar",dia:"historico",reservas:"mais",conquistas:"mais",conta:"mais",combustivel:"mais",ajuda:"mais",privacidade:"mais"};
+var INDEX=[["welcome","Entrada: Boas-vindas e oferta"],["install","Entrada: Instalar o app"],["ob1","Passo 1: Veículo"],["ob2","Passo 2: Meta semanal"],["ob3","Passo 3: Energia"],["ob4","Passo 4: Consumo"],["ob5","Passo 5: Preço do combustível"],["ob6","Passo 6: Seu plano"],["home","Aba Início"],["registrar","Aba Registrar"],["confirma","Registrar: Corrida salva"],["historico","Aba Histórico"],["dia","Histórico: Detalhe do dia"],["historico:vazio","Histórico: Vazio"],["planejar","Aba Planejar"],["mais","Aba Mais"],["reservas","Mais: Reservas"],["conquistas","Mais: Conquistas"],["conta","Mais: Conta e assinatura"],["combustivel","Mais: Preço do combustível"],["ajuda","Mais: Ajuda e dicas"],["privacidade","Mais: Privacidade e dados"],["x:toast","Estado: Toast de sucesso"],["x:erro","Estado: Erro"],["x:offline","Estado: Offline"],["x:modal","Estado: Confirmar exclusão"],["x:tour","Estado: Tour de dicas"],["paywall","Estado: Fim do teste (paywall)"]];
+var sel=$("#jump");
+INDEX.forEach(function(x){var o=document.createElement("option");o.value=x[0];o.textContent=x[1];sel.appendChild(o)});
+
+function money(n,d){d=d==null?2:d;return "R$ "+n.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".")}
+function money0(n){return "R$ "+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,".")}
+function num(s){var v=parseFloat(String(s).replace(",","."));return isNaN(v)?0:v}
+
+function go(name){
+  var r=name;
+  $$(".view").forEach(function(v){v.classList.toggle("on",v.dataset.s===name)});
+  var v=$('.view[data-s="'+name+'"]');if(v)v.scrollTop=0;
+  S.cur=name;
+  var tabs=$("#tabs"),show=MAIN.indexOf(name)>-1;
+  tabs.classList.toggle("on",show);
+  var cur=TAB_OF[name]||name;
+  $$(".tab").forEach(function(t){if(t.dataset.tab===cur)t.setAttribute("aria-current","page");else t.removeAttribute("aria-current")});
+  if(name==="historico")renderHist();
+  if(name==="reservas")renderRes();
+  if(name==="planejar")sim();
+  if(name==="ob6")plan();
+  if(name==="registrar")calc();
+  if(INDEX.some(function(x){return x[0]===name}))sel.value=name;
+}
+function closeAll(){$$(".ov").forEach(function(o){o.classList.remove("on")});endTour();$("#toast").classList.remove("on");$("#reg-err").innerHTML="";$("#offb").classList.remove("on")}
+var tt;
+function toast(msg,bad,act,fn){
+  var t=$("#toast"),a=$("#toast-a");
+  $("#toast-t").textContent=msg;t.classList.toggle("bad",!!bad);t.classList.add("on");
+  if(act){a.hidden=false;a.textContent=act;a.onclick=function(){t.classList.remove("on");fn&&fn()}}else{a.hidden=true}
+  clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on")},5000);
+}
+function jump(v){
+  closeAll();
+  if(v.indexOf("x:")===0){
+    var k=v.slice(2);
+    if(k==="toast"){go("home");toast("Corrida salva. Líquido + R$ 43,20")}
+    if(k==="erro"){go("registrar");showErr()}
+    if(k==="offline"){go("home");$("#offb").classList.add("on")}
+    if(k==="modal"){go("privacidade");openModal("delacc")}
+    if(k==="tour"){go("home");startTour()}
+    return;
+  }
+  if(v==="historico:vazio"){S.hp="empty";go("historico");return}
+  if(v==="historico")S.hp="w";
+  if(v==="dia")openDay(3);else go(v);
+}
+
+/* steppers */
+var FMT={goal:function(){return money0(S.goal)},kml:function(){return S.kml.toFixed(1).replace(".",",")+" <small>km/l</small>"},price:function(){return money(S.price)},pgoal:function(){return money0(S.pgoal)},fprice:function(){return money(S.fprice)},ramt:function(){return money0(S.ramt)}};
+var OUT={goal:"o-goal",kml:"o-kml",price:"o-price",pgoal:"o-pgoal",fprice:"o-fprice",ramt:"o-ramt"};
+var LIM={goal:[100,5000],kml:[3,30],price:[1,15],pgoal:[100,5000],fprice:[1,15],ramt:[10,1000]};
+function paint(k){$("#"+OUT[k]).innerHTML=FMT[k]()}
+function step(k,d){
+  var nv=Math.round((S[k]+d)*100)/100;
+  if(nv<LIM[k][0]||nv>LIM[k][1])return;
+  S[k]=nv;paint(k);
+  if(k==="price"||k==="fprice"){S.price=S.fprice=nv;paint("price");paint("fprice")}
+  if(k==="goal"||k==="pgoal"){S.goal=S.pgoal=nv;paint("goal");paint("pgoal");pgoalUp()}
+  if(k==="kml")S.kml=nv;
+  ckm();
+}
+function ckm(){var c=S.price/S.kml;$("#f-ckm").textContent=money(c);$("#p-km").textContent=money(c)+"/km"}
+function plan(){$("#p-goal").textContent=money0(S.goal);$("#p-day").textContent=money0(S.goal/6);ckm()}
+function pgoalUp(){
+  var p=Math.min(100,612/S.pgoal*100),f=Math.max(0,S.pgoal-612);
+  $("#pg-bar").style.width=p+"%";
+  $("#pg-txt").textContent=f>0?"Faltam "+money0(f)+" em 2 dias.":"Meta batida. Parabéns!";
+  sim();
+}
+function sim(){
+  var h=+$("#s-r").value,g=h*21.7,t=612+g;
+  $("#s-h").textContent=h;$("#s-v").textContent="+ "+money0(g);
+  $("#s-bar").style.width=Math.min(100,t/S.pgoal*100)+"%";
+  $("#s-t").textContent=t>=S.pgoal?"Você bate a meta!":"Chega a "+money0(t)+" da meta.";
+}
+
+/* radio */
+$$("[data-radio]").forEach(function(g){g.addEventListener("click",function(e){
+  var b=e.target.closest(".opt");if(!b)return;
+  $$(".opt",g).forEach(function(o){o.setAttribute("aria-checked",o===b?"true":"false")});
+})});
+
+/* registrar */
+function calc(){
+  var b=num($("#f-bruto").value),km=num($("#f-km").value),cEl=$("#f-comb");
+  if(!cEl.dataset.manual){var c=km/S.kml*S.price;cEl.value=km?c.toFixed(2).replace(".",","):"";$("#f-auto").style.display=km?"inline-flex":"none"}
+  else $("#f-auto").style.display="none";
+  var liq=b-num(cEl.value);
+  $("#f-liq").textContent=money(Math.max(liq,0));
+  return liq;
+}
+["f-bruto","f-km","f-h"].forEach(function(id){$("#"+id).addEventListener("input",calc)});
+$("#f-comb").addEventListener("input",function(){this.dataset.manual="1";calc()});
+function showErr(){
+  $("#reg-err").innerHTML='<div class="banner err" role="alert"><svg class="i"><use href="#i-x"/></svg><span>Informe o ganho bruto para salvar. Exemplo: 42,50.</span></div>';
+  $("#f-bruto").focus();
+}
+$("#f-save").addEventListener("click",function(){
+  $("#reg-err").innerHTML="";
+  var b=num($("#f-bruto").value);
+  if(!b){showErr();return}
+  var liq=Math.max(calc(),0);
+  S.lastAdd=liq;S.day=Math.round((S.day+liq)*100)/100;applyDay();
+  $("#c-liq").textContent="+ "+money(liq);
+  go("confirma");
+  ["f-bruto","f-km","f-h","f-comb"].forEach(function(id){var e=$("#"+id);e.value="";delete e.dataset.manual});
+});
+function applyDay(){
+  $("#hn").textContent=money(S.day);$("#c-day").textContent=money(S.day);
+  $("#c-bar").style.width=Math.min(100,(612-155.6+S.day)/900*100)+"%";
+}
+$("#c-undo").addEventListener("click",function(){
+  S.day=Math.round((S.day-S.lastAdd)*100)/100;S.lastAdd=0;applyDay();
+  go("registrar");toast("Corrida desfeita");
+});
+
+/* gráficos */
+function barChart(el,data,hi,w,h){
+  var max=Math.max.apply(null,data.map(function(x){return x.v})),n=data.length,bw=(w-20)/n,s="";
+  data.forEach(function(x,i){
+    var bh=Math.max(6,(x.v/max)*(h-44)),xx=10+i*bw+bw*.14,ww=bw*.72,y=h-26-bh,last=i===hi;
+    s+='<rect x="'+xx+'" y="'+y+'" width="'+ww+'" height="'+bh+'" rx="5" fill="'+(last?"#C6FF3D":"#2B3A5C")+'"/>';
+    s+='<text x="'+(xx+ww/2)+'" y="'+(y-6)+'" fill="'+(last?"#C6FF3D":"#F6F9FF")+'" font-size="13" font-weight="700" text-anchor="middle" font-family="sans-serif">'+Math.round(x.v)+'</text>';
+    s+='<text x="'+(xx+ww/2)+'" y="'+(h-8)+'" fill="#B3C0D6" font-size="12" text-anchor="middle" font-family="sans-serif">'+(x.s||x.d.replace("Semana ","S"))+'</text>';
+  });
+  el.innerHTML=s;
+}
+barChart($("#home-chart"),week,4,330,130);
+
+function renderHist(){
+  var b=$("#hist-body"),w=$("#hp-w"),m=$("#hp-m");
+  var isM=S.hp==="m";
+  w.className="btn sm"+(S.hp==="w"||S.hp==="empty"?"":" sec");m.className="btn sm"+(isM?"":" sec");
+  w.setAttribute("aria-selected",!isM);m.setAttribute("aria-selected",isM);
+  if(S.hp==="empty"){
+    b.innerHTML='<div class="center" style="padding:48px 8px"><div class="ok" style="border-color:var(--line);color:var(--mu);box-shadow:none"><svg class="i"><use href="#i-list"/></svg></div><h2 class="mt2">Nada por aqui ainda</h2><p class="mu mt">Registre sua primeira corrida e ela aparece aqui.</p><button class="btn mt2" data-go="registrar">Registrar corrida</button></div>';return;
+  }
+  var h='<div class="card mt"><svg id="h-chart" viewBox="0 0 340 150" width="100%" role="img" aria-label="Líquido"></svg></div><div class="list mt">';
+  if(!isM)week.slice().reverse().forEach(function(x){var i=week.indexOf(x);h+='<button class="item" data-day="'+i+'"><span class="gr">'+x.d+'<small>'+x.h+' · '+x.km+' km</small></span><span class="r" style="color:'+(i===4?"var(--lime)":"var(--tx)")+'">'+money0(x.v)+'</span><svg class="i"><use href="#i-next"/></svg></button>'});
+  else months.forEach(function(x){h+='<div class="item"><span class="gr">'+x.d+'</span><span class="r">'+money0(x.v)+'</span></div>'});
+  b.innerHTML=h+'</div>';
+  barChart($("#h-chart"),isM?months:week,isM?3:4,340,150);
+}
+$("#hp-w").addEventListener("click",function(){S.hp="w";renderHist()});
+$("#hp-m").addEventListener("click",function(){S.hp="m";renderHist()});
+function openDay(i){
+  var x=week[i];
+  $("#d-name").textContent=x.d;$("#d-liq").textContent=money(x.v);
+  $("#d-kv").innerHTML='<div class="kv"><span>Ganho bruto</span><b>'+money(x.b)+'</b></div><div class="kv"><span>Combustível</span><b style="color:var(--amb)">− '+money(x.c)+'</b></div><div class="kv"><span>Distância</span><b>'+x.km+' km</b></div><div class="kv"><span>Tempo</span><b>'+x.h+'</b></div>';
+  go("dia");
+}
+
+/* reservas */
+function renderRes(){
+  var tot=0,h="";
+  res.forEach(function(r,i){tot+=r.v;h+='<button class="item" data-res="'+i+'"><span class="ic"><svg class="i"><use href="#i-wallet"/></svg></span><span class="gr">'+r.n+'<small>Toque para depositar ou retirar</small></span><span class="r">'+money0(r.v)+'</span></button>'});
+  $("#r-list").innerHTML=h;$("#r-tot").textContent=money0(tot);
+}
+var ri=0;
+function openRes(i){ri=i;$("#rs-n").textContent=res[i].n;$("#rs-t").textContent=money0(res[i].v);$("#ov-res").classList.add("on");$("#rs-dep").focus()}
+$("#rs-dep").addEventListener("click",function(){res[ri].v+=S.ramt;$("#ov-res").classList.remove("on");renderRes();toast(money0(S.ramt)+" guardados em "+res[ri].n)});
+$("#rs-ret").addEventListener("click",function(){
+  if(res[ri].v<S.ramt){toast("Saldo menor que "+money0(S.ramt)+". Diminua o valor.",true);return}
+  res[ri].v-=S.ramt;$("#ov-res").classList.remove("on");renderRes();toast(money0(S.ramt)+" retirados de "+res[ri].n)});
+$("#rs-x").addEventListener("click",function(){$("#ov-res").classList.remove("on")});
+
+/* modal */
+var mkind="";
+function openModal(k){
+  mkind=k;
+  if(k==="delday"){$("#md-t").textContent="Excluir este dia?";$("#md-p").textContent="As corridas deste dia serão apagadas.";$("#md-ok").textContent="Excluir dia"}
+  else{$("#md-t").textContent="Excluir conta?";$("#md-p").textContent="Isso apaga tudo e não dá para desfazer.";$("#md-ok").textContent="Excluir conta"}
+  $("#ov-del").classList.add("on");$("#md-no").focus();
+}
+$("#md-no").addEventListener("click",function(){$("#ov-del").classList.remove("on")});
+$("#md-ok").addEventListener("click",function(){$("#ov-del").classList.remove("on");
+  if(mkind==="delday"){go("historico");toast("Dia excluído")}else{go("welcome");toast("Conta excluída")}});
+
+/* tour */
+var tsteps=[{t:"Este é o seu líquido de hoje: o que sobrou no bolso.",sel:"#t-hero",pos:"up"},{t:"Toque aqui depois de cada corrida ou turno.",sel:"#t-reg",pos:"up"},{t:"Veja se a meta da semana está de pé na aba Planejar.",sel:'.tab[data-tab="planejar"]',pos:"dn"}];
+var ti=0,hl=null;
+function startTour(){ti=0;go("home");$("#tour").style.display="block";tourStep()}
+function tourStep(){
+  if(hl)hl.classList.remove("hl");
+  var s=tsteps[ti],el=$(s.sel);hl=el;el.classList.add("hl");
+  $("#tour-t").textContent=s.t;$("#tour-n").textContent=(ti+1)+" de 3";
+  $("#tour-nx").textContent=ti===2?"Entendi":"Próxima";
+  var t=$("#tour");t.className="tour "+s.pos;
+  if(s.pos==="dn"){t.style.top="auto";t.style.bottom="84px"}
+  else{var r=el.getBoundingClientRect(),pr=$("#phone").getBoundingClientRect();t.style.bottom="auto";t.style.top=Math.min(r.bottom-pr.top+14,pr.height-200)+"px"}
+}
+function endTour(){var t=$("#tour");if(t)t.style.display="none";if(hl){hl.classList.remove("hl");hl=null}}
+$("#tour-nx").addEventListener("click",function(){if(ti<2){ti++;tourStep()}else endTour()});
+$("#tour-x").addEventListener("click",endTour);
+$("#tour-b").addEventListener("click",startTour);
+
+/* misc */
+$("#cup-b").addEventListener("click",function(){
+  var v=$("#cup").value.trim().toUpperCase();
+  if(v==="PRAGAS"){$("#cup-t").textContent="PRAGAS ativo: 7 dias grátis.";$("#cup-t").style.color="var(--mu)";toast("Cupom PRAGAS aplicado")}
+  else{$("#cup-t").textContent="Cupom não encontrado. Confira as letras e tente de novo.";$("#cup-t").style.color="var(--red)";toast("Cupom inválido",true)}
+});
+$("#stripe").addEventListener("click",function(){toast("Abrindo o portal seguro…")});
+$("#exp").addEventListener("click",function(){toast("Arquivo pronto: faro-dados.csv")});
+$("#f-sv").addEventListener("click",function(){toast("Preço salvo: "+money(S.fprice));go("mais")});
+$("#pay").addEventListener("click",function(){toast("Abrindo pagamento seguro…")});
+$("#s-r").addEventListener("input",sim);
+
+/* delegação */
+document.addEventListener("click",function(e){
+  var g=e.target.closest("[data-go]");if(g){closeAll();go(g.dataset.go);return}
+  var t=e.target.closest("[data-tab]");if(t){closeAll();if(t.dataset.tab==="historico")S.hp="w";go(t.dataset.tab);return}
+  var s=e.target.closest("[data-step]");if(s){var p=s.dataset.step.split(":");step(p[0],parseFloat(p[1]));return}
+  var d=e.target.closest("[data-day]");if(d){openDay(+d.dataset.day);return}
+  var r=e.target.closest("[data-res]");if(r){openRes(+r.dataset.res);return}
+  var m=e.target.closest("[data-modal]");if(m){openModal(m.dataset.modal);return}
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){$$(".ov").forEach(function(o){o.classList.remove("on")});endTour()}
+});
+sel.addEventListener("change",function(){jump(sel.value)});
+
+Object.keys(OUT).forEach(paint);
+ckm();pgoalUp();
+var q=location.hash.slice(1);
+var start=q&&INDEX.some(function(x){return x[0]===q})?q:"welcome";
+jump(start);
+})();
+</script>
+</body>
+</html>
