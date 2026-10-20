@@ -19,6 +19,12 @@
   let authMode = 'signin';
   let deletionInProgress = false;
   const DELETED_BACKUP_KEY = 'faro-deleted-account-backup-v1';
+  // Cópias exportáveis de outra conta, guardadas quando o usuário da sessão muda (nunca enviadas).
+  const SWITCH_BACKUP_KEY = 'faro-account-switch-backup-v1';
+  const RECORD_DRAFT_KEY = 'faro-record-draft-v1';
+  const PAYWALL_TEXT = 'Assine para voltar a salvar na nuvem. Seus dados continuam neste aparelho.';
+  let writeBlocked = false;
+  let signingOut = false;
 
   const readMeta = () => {
     try {
@@ -28,6 +34,9 @@
     }
   };
   const writeMeta = meta => localStorage.setItem(SYNC_META_KEY, JSON.stringify(meta));
+  // Dono dos dados locais nesta aba. Fica em memória: sobrevive a outra aba apagar a meta.
+  let boundUserId = readMeta().userId || null;
+  const bindOwner = userId => { boundUserId = userId || null; };
   const deviceId = (() => {
     let value = localStorage.getItem(DEVICE_KEY);
     if (!value) {
@@ -88,6 +97,10 @@
         <a href="privacidade.html" class="text-sm">Política de privacidade</a>
         <button id="faroExportData" type="button" class="text-sm">Exportar meus dados</button>
         <button id="faroDeleteAccount" type="button" class="text-sm">Excluir minha conta</button>
+        <div id="faroSwitchBackup" class="hidden text-sm"><p>Cópia de outra conta guardada neste aparelho.</p>
+          <button id="faroExportSwitch" type="button">Exportar cópia da outra conta</button>
+          <button id="faroRemoveSwitch" type="button">Apagar cópia da outra conta</button>
+        </div>
         <div id="faroDeletedBackup" class="hidden text-sm"><p>Cópia da conta guardada neste aparelho.</p>
           <button id="faroExportDeleted" type="button">Exportar cópia guardada</button>
           <button id="faroRemoveDeleted" type="button">Apagar cópia guardada</button>
@@ -172,7 +185,21 @@
       #faroDeleteDialog :focus-visible{outline:2px solid #FFC21A;outline-offset:2px}`;
     document.head.appendChild(style);
     $('faroDeletedBackup').classList.toggle('hidden', !localStorage.getItem(DELETED_BACKUP_KEY));
+    refreshSwitchBackupUi();
   };
+  const readSwitchBackups = () => {
+    try {
+      const list = JSON.parse(localStorage.getItem(SWITCH_BACKUP_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch { return []; }
+  };
+  const writeSwitchBackups = list => {
+    if (list.length) localStorage.setItem(SWITCH_BACKUP_KEY, JSON.stringify(list));
+    else localStorage.removeItem(SWITCH_BACKUP_KEY);
+  };
+  function refreshSwitchBackupUi() {
+    $('faroSwitchBackup')?.classList.toggle('hidden', readSwitchBackups().length === 0);
+  }
   injectUi();
 
   const normalizeEmail = raw => String(raw || '').trim().toLowerCase();
@@ -227,7 +254,7 @@
   };
 
   const scheduleSync = () => {
-    if (deletionInProgress) return;
+    if (deletionInProgress || writeBlocked) return;
     if (!configured || !session || !navigator.onLine) return;
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => syncNow('debounced'), 2500);
@@ -240,8 +267,11 @@
       meta.localRevision += 1;
       meta.dirty = true;
       meta.lastMutationId = crypto.randomUUID?.() || `mutation-${Date.now()}`;
+      // Meta recriada (ex.: outra aba a apagou) herda o dono desta aba: dado sem dono nunca vira de outra conta.
+      if (!meta.userId && boundUserId) meta.userId = boundUserId;
       writeMeta(meta);
-      setSyncText(navigator.onLine ? 'Alteração salva no aparelho; sincronizando depois' : 'Salvo no aparelho; enviaremos quando houver internet');
+      if (writeBlocked) setSyncText(PAYWALL_TEXT, 'attention');
+      else setSyncText(navigator.onLine ? 'Alteração salva no aparelho; sincronizando depois' : 'Salvo no aparelho; enviaremos quando houver internet');
       scheduleSync();
     }
     return result;
@@ -326,20 +356,49 @@
     $('faroSubscriptionAction').disabled = !billingEnabled;
   };
 
-  const uploadLocal = async userId => {
+  const ownershipError = () => Object.assign(new Error('dados locais pertencem a outra conta'), { code: 'FARO_OWNER' });
+  const assertOwner = userId => {
+    const owner = readMeta().userId || boundUserId;
+    if (!userId || userId !== session?.user?.id || (owner && owner !== userId)) throw ownershipError();
+  };
+
+  // Linha afetada nenhuma: ou outro aparelho gravou (conflito) ou o servidor recusou a escrita.
+  const resolveRejectedWrite = async (userId, expectedRevision) => {
+    const { data:remote, error } = await client.from('faro_state').select('schema_version,revision,state,server_updated_at,last_mutation_id').eq('user_id', userId).maybeSingle();
+    if (error) throw error;
+    if (!remote) throw new Error('cópia da conta sumiu durante o envio');
+    if (expectedRevision != null && Number(remote.revision || 0) === Number(expectedRevision)) throw Object.assign(new Error('escrita recusada'), { code: '42501' });
+    openConflict(remote);
+  };
+
+  // Compare-and-set: UPDATE só na revisão esperada; INSERT só quando ainda não existe cópia.
+  const uploadLocal = async (userId, expectedRevision = null) => {
+    assertOwner(userId);
     const meta = readMeta();
+    const sentMutationId = meta.lastMutationId || null;
     const payload = {
       user_id: userId,
       schema_version: Number(config.schemaVersion || 1),
       state: app.state,
       device_id: deviceId,
-      last_mutation_id: meta.lastMutationId || crypto.randomUUID?.() || `mutation-${Date.now()}`,
+      last_mutation_id: sentMutationId || crypto.randomUUID?.() || `mutation-${Date.now()}`,
       client_updated_at: new Date().toISOString()
     };
-    const { data, error } = await client.from('faro_state').upsert(payload, { onConflict:'user_id' }).select('revision,server_updated_at').single();
+    const table = client.from('faro_state');
+    const { data, error } = expectedRevision == null
+      ? await table.insert(payload).select('revision,server_updated_at')
+      : await table.update(payload).eq('user_id', userId).eq('revision', Number(expectedRevision)).select('revision,server_updated_at');
+    if (error?.code === '23505') return resolveRejectedWrite(userId, null);
     if (error) throw error;
-    writeMeta({ ...meta, userId, remoteRevision:Number(data.revision || 0), dirty:false, lastSyncedAt:data.server_updated_at || new Date().toISOString() });
-    setSyncText('Seus dados estão salvos', 'positive');
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return resolveRejectedWrite(userId, expectedRevision);
+    const after = readMeta();
+    // Só limpa dirty se ninguém editou durante o voo; senão mantém pendente e reenvia.
+    const unchanged = (after.lastMutationId || null) === sentMutationId;
+    writeMeta({ ...after, userId, remoteRevision:Number(row.revision || 0), dirty:!unchanged, lastSyncedAt:row.server_updated_at || new Date().toISOString() });
+    bindOwner(userId);
+    if (unchanged) setSyncText('Seus dados estão salvos', 'positive');
+    else { setSyncText('Alteração salva no aparelho; sincronizando depois'); scheduleSync(); }
   };
 
   const applyRemote = remote => {
@@ -354,6 +413,7 @@
     }
     const meta = readMeta();
     writeMeta({ ...meta, userId:session.user.id, remoteRevision:Number(remote.revision || 0), dirty:false, lastSyncedAt:remote.server_updated_at || new Date().toISOString() });
+    bindOwner(session.user.id);
     setSyncText('Dados recuperados da sua conta', 'positive');
   };
 
@@ -370,18 +430,25 @@
     const { data:remote, error } = await client.from('faro_state').select('schema_version,revision,state,server_updated_at,last_mutation_id').eq('user_id', userId).maybeSingle();
     if (error) throw error;
 
-    if (!remote) return uploadLocal(userId);
     if (meta.userId && meta.userId !== userId) {
+      // Dados de outra conta: isola (cópia exportável) antes de qualquer coisa; nunca envia.
+      if (!isolateLocal(meta.userId)) throw ownershipError();
+      if (!remote) return;
       applyRemote(remote);
       return;
+    }
+    if (!remote) {
+      if (!stateHasMeaningfulData(app.state)) return;
+      return uploadLocal(userId, null);
     }
     if (!stateHasMeaningfulData(app.state)) {
       applyRemote(remote);
       return;
     }
-    if (!stateHasMeaningfulData(remote.state)) return uploadLocal(userId);
+    if (!stateHasMeaningfulData(remote.state)) return uploadLocal(userId, remote.revision);
     if (sameState(app.state, remote.state)) {
       writeMeta({ ...meta, userId, remoteRevision:Number(remote.revision || 0), dirty:false, lastSyncedAt:remote.server_updated_at || new Date().toISOString() });
+      bindOwner(userId);
       setSyncText('Seus dados estão salvos', 'positive');
       return;
     }
@@ -390,7 +457,7 @@
       return;
     }
     if (meta.dirty) {
-      if (Number(remote.revision || 0) === Number(meta.remoteRevision || 0)) await uploadLocal(userId);
+      if (Number(remote.revision || 0) === Number(meta.remoteRevision || 0)) await uploadLocal(userId, remote.revision);
       else openConflict(remote);
       return;
     }
@@ -405,16 +472,101 @@
     try {
       await reconcile();
     } catch (error) {
-      console.warn('FARO sync', error);
-      setSyncText('Salvo no aparelho; tentaremos a conta novamente', 'attention');
+      handleSyncError(error);
     } finally {
       syncing = false;
     }
   }
 
+  // Paywall/RLS (42501, 401/403) não é falha de rede: repetir não adianta.
+  const isWriteDenied = error => Boolean(error) && (error.code === '42501' || error.status === 401 || error.status === 403
+    || /row-level security|permission denied/i.test(String(error.message || '')));
+  function handleSyncError(error) {
+    console.warn('FARO sync', error);
+    if (error?.code === 'FARO_OWNER') return setSyncText('Dados de outra conta guardados neste aparelho; nada foi enviado', 'attention');
+    if (isWriteDenied(error)) {
+      writeBlocked = true;
+      clearTimeout(syncTimer);
+      return setSyncText(PAYWALL_TEXT, 'attention');
+    }
+    setSyncText('Salvo no aparelho; tentaremos a conta novamente', 'attention');
+  }
+
+  // Entrar e recuperar dados não dependem de gravar o perfil (pode ser recusado pelo paywall).
   const ensureProfile = async userId => {
-    const { error } = await client.from('faro_profiles').upsert({ user_id:userId }, { onConflict:'user_id' });
-    if (error) throw error;
+    try {
+      const { error } = await client.from('faro_profiles').upsert({ user_id:userId }, { onConflict:'user_id' });
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.warn('FARO perfil', error);
+      return false;
+    }
+  };
+
+  // Guarda cópia exportável e limpa o estado local da conta anterior. Falha ao guardar = não limpa.
+  function isolateLocal(previousUserId) {
+    const meta = readMeta();
+    const synced = meta.userId === previousUserId && !meta.dirty && meta.lastSyncedAt;
+    if (stateHasMeaningfulData(app.state) && !synced) {
+      const list = readSwitchBackups();
+      list.push({ userId: previousUserId || null, savedAt: new Date().toISOString(), remoteRevision: Number(meta.remoteRevision || 0),
+        lastMutationId: meta.lastMutationId || null, recordDraft: localStorage.getItem(RECORD_DRAFT_KEY), state: app.state });
+      try { writeSwitchBackups(list); } catch (error) {
+        console.warn('FARO cópia da conta', error);
+        app.toast('Sem espaço para guardar a cópia. Exporte seus dados antes de trocar de conta.');
+        return false;
+      }
+    }
+    clearTimeout(syncTimer);
+    pendingConflict = null;
+    $('faroSyncConflict').classList.add('hidden');
+    localStorage.removeItem(SYNC_META_KEY);
+    localStorage.removeItem(RECORD_DRAFT_KEY);
+    suppressDirty = true;
+    try {
+      app.state = app.cloneDefaults();
+      app.state.onboardingComplete = false;
+      baseSave.call(app);
+      app.syncInputs();
+      app.render();
+    } finally { suppressDirty = false; }
+    bindOwner(null);
+    refreshSwitchBackupUi();
+    return true;
+  }
+
+  // Volta a cópia guardada quando a mesma conta entra de novo com o aparelho vazio.
+  const restoreOwnBackup = userId => {
+    if (stateHasMeaningfulData(app.state)) return;
+    const list = readSwitchBackups();
+    const index = list.map(item => item?.userId).lastIndexOf(userId);
+    if (index < 0) return;
+    const [entry] = list.splice(index, 1);
+    suppressDirty = true;
+    try {
+      app.state = app.normalizeState(entry.state || {});
+      baseSave.call(app);
+      app.syncInputs();
+      app.render();
+    } finally { suppressDirty = false; }
+    if (entry.recordDraft) localStorage.setItem(RECORD_DRAFT_KEY, entry.recordDraft);
+    writeMeta({ ...readMeta(), userId, dirty:true, remoteRevision:entry.remoteRevision || 0, lastMutationId:entry.lastMutationId || null });
+    writeSwitchBackups(list);
+    refreshSwitchBackupUi();
+  };
+
+  // Toda troca de usuário passa aqui antes de qualquer sincronização.
+  const adoptUser = (nextUserId, event = '') => {
+    if (signingOut) return true;
+    if (event !== 'TOKEN_REFRESHED' && event !== 'INITIAL_SESSION') writeBlocked = false;
+    const owner = boundUserId || readMeta().userId || null;
+    if (owner && owner !== nextUserId && !isolateLocal(owner)) return false;
+    if (nextUserId) {
+      restoreOwnBackup(nextUserId);
+      bindOwner(nextUserId);
+    }
+    return true;
   };
 
   const readCredentials = ({ requireConfirmation = false } = {}) => {
@@ -458,6 +610,8 @@
       return showAccountError(message);
     }
     session = data.session;
+    writeBlocked = false;
+    adoptUser(session.user.id, 'SIGNED_IN');
     await ensureProfile(session.user.id);
     $('faroAccountModal').classList.add('hidden');
     await setAccountState();
@@ -515,8 +669,10 @@
     if (!navigator.onLine) return app.toast('Conecte-se à internet para sair sem arriscar dados não sincronizados.');
     await syncNow();
     if (readMeta().dirty) return app.toast('Ainda há dados esperando sincronização. Tente sair novamente em instantes.');
-    await client.auth.signOut();
+    signingOut = true;
+    try { await client.auth.signOut(); } finally { signingOut = false; }
     session = null;
+    bindOwner(null);
     localStorage.removeItem(SYNC_META_KEY);
     suppressDirty = true;
     try {
@@ -659,8 +815,29 @@
   $('faroPlanExport')?.addEventListener('click', () => app.exportData());
   $('faroKeepLocal').addEventListener('click', async () => {
     $('faroSyncConflict').classList.add('hidden');
+    const chosen = pendingConflict;
     pendingConflict = null;
-    await uploadLocal(session.user.id);
+    // O usuário escolheu substituir exatamente a versão que viu; se mudou de novo, o conflito reabre.
+    try { await uploadLocal(session.user.id, chosen ? chosen.revision : null); } catch (error) { handleSyncError(error); }
+  });
+  $('faroExportSwitch').addEventListener('click', () => {
+    const latest = readSwitchBackups().at(-1);
+    if (latest) app.exportData.call(Object.assign(Object.create(app), { state: latest.state }));
+  });
+  $('faroRemoveSwitch').addEventListener('click', () => {
+    const list = readSwitchBackups();
+    list.pop();
+    writeSwitchBackups(list);
+    refreshSwitchBackupUi();
+  });
+  // Outra aba trocou ou encerrou a conta: isola os dados desta aba antes de qualquer envio.
+  window.addEventListener('storage', event => {
+    if (event.key !== SYNC_META_KEY && event.key !== null) return;
+    if (!boundUserId || deletionInProgress) return;
+    let nextOwner = null;
+    try { nextOwner = event.newValue ? JSON.parse(event.newValue).userId || null : null; } catch { nextOwner = null; }
+    if (nextOwner === boundUserId) return;
+    if (isolateLocal(boundUserId)) setAccountState();
   });
   $('faroUseRemote').addEventListener('click', () => {
     if (pendingConflict) applyRemote(pendingConflict);
@@ -682,9 +859,11 @@
       const supabase = await loadClient();
       const { data } = await supabase.auth.getSession();
       session = data.session;
+      if (session?.user) adoptUser(session.user.id, 'INITIAL_SESSION');
       supabase.auth.onAuthStateChange((event, nextSession) => {
         if (deletionInProgress) return;
         session = nextSession;
+        adoptUser(nextSession?.user?.id || null, event);
         if (event === 'PASSWORD_RECOVERY') {
           $('faroAccountModal').classList.remove('hidden');
           setAuthMode('recovery');
