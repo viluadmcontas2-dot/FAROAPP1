@@ -127,13 +127,12 @@
     style.id = 'faroHomeStyles';
     style.textContent = `
       :root{
-        --faro-black:#15130E;--faro-paper:#F6F1E4;--faro-amber:#F2B705;--faro-profit:#0A7A47;
-        --faro-night:#0C0D0F;--faro-night-surface:#17191D;--faro-amber-night:#FFC21A;--faro-profit-night:#4BE3A0;
-        --faro-home-bg:var(--faro-paper);--faro-home-surface:#FFFFFF;--faro-home-surface-2:#EDE6D2;
-        --faro-home-ink:var(--faro-black);--faro-home-muted:#5B5648;--faro-home-line:#D9D0B8;
-        --faro-home-amber:var(--faro-amber);--faro-home-on-amber:var(--faro-black);--faro-home-amber-soft:#FBEFC4;--faro-home-amber-text:#7A5200;
-        --faro-home-profit:var(--faro-profit);--faro-home-profit-soft:#DCF0E3;--faro-home-loss:#B3261E;--faro-home-loss-soft:#F9E0DD;
-        --faro-home-ring:#1D4ED8;
+        /* Cores da marca moram em faro-theme.css (fonte única); aqui só os apelidos do Início. */
+        --faro-home-bg:var(--faro-paper);--faro-home-surface:var(--faro-surface);--faro-home-surface-2:var(--faro-surface-2);
+        --faro-home-ink:var(--faro-ink);--faro-home-muted:var(--faro-muted);--faro-home-line:var(--faro-line);
+        --faro-home-amber:var(--faro-amber);--faro-home-on-amber:var(--faro-on-amber);--faro-home-amber-soft:var(--faro-amber-soft);--faro-home-amber-text:var(--faro-amber-text);
+        --faro-home-profit:var(--faro-profit);--faro-home-profit-soft:var(--faro-profit-soft);--faro-home-loss:var(--faro-loss);--faro-home-loss-soft:var(--faro-loss-soft);
+        --faro-home-ring:var(--faro-focus);
         --faro-home-display:"Bahnschrift","DIN Alternate","Avenir Next Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif;
       }
       @media (prefers-color-scheme:dark){:root{
@@ -191,7 +190,7 @@
       #faroHomeDetails[open]>summary::after{content:'−'}
       #faroHomeDetails .faro-home-details-body{display:grid;gap:16px;padding:8px 0 4px}
       #faroHomeDetails .faro-home-link{min-height:48px;padding:0 4px;font-size:15px;font-weight:800;color:var(--faro-home-ink);text-decoration:underline;text-underline-offset:3px;justify-self:start}
-      #view-dashboard [data-faro-role="week"]{border-color:#dbeafe;background:linear-gradient(180deg,#fff,#f8fbff)}
+      #view-dashboard [data-faro-role="week"]{border-color:var(--faro-line);background:var(--faro-surface)}
       #view-dashboard [data-faro-role="month"]{box-shadow:var(--faro-shadow-card,0 12px 30px -18px rgba(15,23,42,.18));cursor:pointer;position:relative;padding-right:2.8rem}
       #view-dashboard [data-faro-role="month"]::after{content:'›';position:absolute;right:1.15rem;top:50%;transform:translateY(-50%);font-size:28px;color:#94a3b8;font-weight:500}
       #faroHomeAttention{border-color:#fed7aa;background:linear-gradient(180deg,#fff,#fffaf5);transition:transform .12s ease,border-color .16s ease,background-color .16s ease}

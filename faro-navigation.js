@@ -115,9 +115,9 @@
   if (more && !document.getElementById('faroCentralIntro')) {
     const intro = document.createElement('div');
     intro.id = 'faroCentralIntro';
-    intro.className = 'card-vetta p-5 bg-gradient-to-br from-blue-50 to-white';
+    intro.className = 'card-vetta p-5 faro-intro-card';
     intro.innerHTML = `
-      <span class="label-micro !text-blue-700">Central FARO</span>
+      <span class="label-micro faro-eyebrow">Central FARO</span>
       <strong class="block text-lg">O que você usa de vez em quando fica aqui</strong>
       <p class="text-xs text-slate-500 mt-2">Backup, relatório, comparadores e informações do aplicativo sem poluir sua rotina diária.</p>`;
     const firstContent = [...more.children].find(node => node !== more.firstElementChild);
@@ -132,7 +132,7 @@
     <div class="modal-sheet">
       <div class="flex justify-between items-start gap-3">
         <div>
-          <span class="label-micro !text-blue-600">Dia registrado</span>
+          <span class="label-micro faro-eyebrow">Dia registrado</span>
           <h3 id="faroHistoryDetailTitle" class="text-xl font-extrabold">Detalhe do dia</h3>
         </div>
         <button id="faroHistoryDetailClose" type="button" class="w-12 h-12 rounded-2xl bg-slate-100" aria-label="Fechar detalhe"><i class="fas fa-xmark"></i></button>
@@ -140,11 +140,11 @@
       <div class="grid grid-cols-2 gap-3 mt-5">
         <div class="bg-slate-50 rounded-2xl p-4"><span class="label-micro">Faturamento</span><strong id="faroHistoryDetailGross" class="text-lg"></strong></div>
         <div class="bg-emerald-50 rounded-2xl p-4"><span class="label-micro !text-emerald-700">Líquido estimado</span><strong id="faroHistoryDetailNet" class="text-lg text-emerald-700"></strong></div>
-        <div class="bg-blue-50 rounded-2xl p-4"><span class="label-micro !text-blue-700">Quilômetros</span><strong id="faroHistoryDetailKm" class="text-lg"></strong></div>
+        <div class="faro-soft-tile rounded-2xl p-4"><span class="label-micro faro-eyebrow">Quilômetros</span><strong id="faroHistoryDetailKm" class="text-lg"></strong></div>
         <div class="bg-amber-50 rounded-2xl p-4"><span class="label-micro !text-amber-700">Receita/km</span><strong id="faroHistoryDetailRevenueKm" class="text-lg text-amber-700"></strong></div>
       </div>
       <p id="faroHistoryDetailContext" class="text-xs text-slate-500 mt-4"></p>
-      <button id="faroHistoryDetailEdit" type="button" class="w-full mt-5 py-4 rounded-2xl bg-blue-600 text-white font-extrabold">EDITAR ESTE DIA</button>
+      <button id="faroHistoryDetailEdit" type="button" class="faro-primary-button w-full mt-5 py-4 rounded-2xl font-extrabold">EDITAR ESTE DIA</button>
     </div>`;
   document.body.appendChild(detail);
 

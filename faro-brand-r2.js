@@ -119,7 +119,7 @@
         #faroOptionalDetails{border:1px solid #e2e8f0;border-radius:18px;background:#f8fafc;padding:14px 16px}
         #faroOptionalDetails summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;color:#334155;font-size:12px;font-weight:800}
         #faroOptionalDetails summary::-webkit-details-marker{display:none}
-        #faroOptionalDetails summary::after{content:'+';width:26px;height:26px;border-radius:999px;display:grid;place-items:center;background:#fff;color:#2563eb;font-size:18px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+        #faroOptionalDetails summary::after{content:'+';width:26px;height:26px;border-radius:999px;display:grid;place-items:center;background:var(--faro-amber-soft);color:var(--faro-amber-text);font-size:18px;box-shadow:0 1px 3px rgba(var(--faro-black-rgb),.08)}
         #faroOptionalDetails[open] summary::after{content:'−'}
         #faroOptionalDetails .faro-optional-grid{margin-top:14px}
       `;
