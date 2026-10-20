@@ -7,3 +7,8 @@
 5. Cloudflare Pages: criar conta e conectar o repositório (guia em `docs/deploy/cloudflare-pages.md`).
 6. Decidir: duração do cupom PRAGAS (hoje 5 meses), desenho do trial, mudar o onboarding (contrato do baseline).
 7. Governança: `governance/hosting-policy.md` ainda diz HOSTING_TARGET=VERCEL (teste de governança exige). Decidir/autorizar alinhar para Cloudflare Pages (mudança de regra, não aplicada pelo agente).
+8. Páginas legais (`termos.html` e `privacidade.html`): preencher responsável/controlador, CNPJ se aplicável e endereço. Substituir `contato@FARO_DOMINIO_A_DEFINIR` por contato funcional antes do lançamento.
+9. Privacidade: definir prazos reais de backups, logs e retenções de cobrança; avaliar e documentar base legal e prazo do hash antiabuso em `faro_trials_used` (hoje não há expiração automática). Validar informações de fornecedores/transferências e canal de direitos antes de publicar as páginas como definitivas.
+10. Exclusão de conta: publicar `excluir-conta-faro` somente no gate autorizado; conferir segredos de Supabase/Stripe e permissões de leitura/cancelamento de assinaturas. Provar E2E sandbox, cascatas, repetição após falha e ausência de cobrança futura. Não houve deploy nesta trilha.
+11. Validação desta trilha: executar `npm run check` em ambiente que permita servidor local/Chromium e subprocessos; o sandbox atual bloqueou `listen 127.0.0.1` e `spawnSync` com EPERM. Conferir páginas offline, CSP aplicada e diálogo em iPhone/Android reais.
+12. Registrar commit desta trilha em ambiente com Git gravável: o diretório comum `/home/user/FAROAPP1/.git/worktrees/wt-legal-lgpd` está somente leitura neste sandbox. Usar os trailers solicitados; não houve push.
