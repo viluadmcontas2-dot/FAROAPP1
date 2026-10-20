@@ -11,17 +11,16 @@ assert.match(onboarding, /const parsed = Math\.max\(500, Math\.min\(50000, n\(va
 assert.match(onboarding, /faroTargetSlider'\)\.addEventListener\('input', e => syncTarget\(e\.target\.value\)\)/, 'Arraste/teclado do range precisa atualizar pelo mesmo caminho');
 assert.match(onboarding, /faroTargetNumber'\)\.addEventListener\('input', e => \{ if \(e\.target\.value !== ''\) syncTarget\(e\.target\.value\); \}\)/, 'Digitação precisa usar o mesmo clamp');
 
-// 9.18 — elétrico: zero não pode avançar; decimais são aceitos; km/kWh deriva de bateria e autonomia.
-assert.match(onboarding, /id="faroElectricPrice"[^>]*min="0"[^>]*step="\.01"/);
-assert.match(onboarding, /id="faroBatteryKwh"[^>]*min="0"[^>]*step="\.1"/);
-assert.match(onboarding, /id="faroRangeKm"[^>]*min="0"[^>]*step="1"/);
+// 9.18 — elétrico (F5): sem perguntar, usa estimativas não zeradas; km/kWh deriva de bateria e autonomia.
+assert.match(onboarding, /electricPrice: 0\.95/);
+assert.match(onboarding, /electricBatteryKwh: 45/);
+assert.match(onboarding, /electricRangeKm: 280/);
 assert.match(onboarding, /draft\.energyEfficiency = draft\.batteryKwh > 0 \? draft\.rangeKm \/ draft\.batteryKwh : 0/);
-assert.match(onboarding, /draft\.energy === 'electric' && \(draft\.energyPrice <= 0 \|\| draft\.batteryKwh <= 0 \|\| draft\.rangeKm <= 0\)/, 'Elétrico com zero deve ser rejeitado antes do plano');
+assert.match(onboarding, /draft\.energy === 'electric' && \(draft\.energyPrice <= 0 \|\| draft\.batteryKwh <= 0 \|\| draft\.rangeKm <= 0\)/, 'Elétrico com zero não pode chegar ao plano');
 
-// 9.19 — aluguel semanal: todos os sete dias precisam existir e a recorrência usa módulo de 7 dias.
-for (const [value, label] of [['0','Domingo'],['1','Segunda'],['2','Terça'],['3','Quarta'],['4','Quinta'],['5','Sexta'],['6','Sábado']]) {
-  assert.match(onboarding, new RegExp(`<option value="${value}">${label}</option>`), `Onboarding precisa aceitar ${label}`);
-}
+// 9.19 — aluguel semanal (F5): vencimento estimado num dia válido (0…6); a recorrência usa módulo de 7 dias.
+assert.match(onboarding, /rentedDueWeekday: [0-6],/);
+assert.match(onboarding, /kind:'weekly'[^}]*dueWeekday:DEFAULTS\.rentedDueWeekday/);
 assert.match(finance, /Number\(cost\.dueWeekday\) >= 0 && Number\(cost\.dueWeekday\) <= 6/);
 assert.match(finance, /\(Number\(cost\.dueWeekday\) - cursor\.getDay\(\) \+ 7\) % 7/);
 assert.match(finance, /cursor = addDays\(cursor, 7\)/);
