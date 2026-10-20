@@ -3,12 +3,11 @@
   if (!app || window.FaroTour) return;
 
   const STORAGE_KEY = 'faro-ui-tour-v1';
+  // F5: no máximo 3 passos, todos no Início, sem trocar de tela e sem apontar nada oculto.
   const steps = [
-    { target:'[data-faro-tour="today"]', title:'Hoje', text:'Aqui você bate o olho e sabe o que a pista pede agora.', view:'dashboard' },
-    { target:'[data-faro-tour="register"]', title:'Registrar', text:'Terminou o dia? Registre faturamento e quilômetros; o FARO cuida do resto.', view:'day' },
-    { target:'[data-faro-tour="planning"]', title:'Planejar', text:'Aqui você ajusta a rota para chegar na sua meta sem fazer conta na cabeça.', view:'planning' },
-    { target:'[data-faro-tour="history"]', title:'Histórico', text:'Aqui fica o que aconteceu de verdade, dia por dia.', view:'history' },
-    { target:'[data-faro-tour="central"]', title:'Central', text:'Ajuda, dados e ferramentas ocasionais ficam aqui, sem poluir sua rotina.', view:'more' }
+    { target:'[data-faro-tour="today"]', title:'Hoje', text:'Aqui você vê quanto sobrou de verdade hoje.', view:'dashboard' },
+    { target:'[data-faro-tour="register"]', title:'Registrar', text:'Terminou o dia? Toque aqui e registre o que entrou.', view:'dashboard' },
+    { target:'[data-faro-tour="planning"]', title:'Planejar', text:'Ajuste meta, contas e combustível quando quiser.', view:'dashboard' }
   ];
 
   const readState = () => {
@@ -56,7 +55,16 @@
     return layer;
   };
 
-  const currentTarget = () => document.querySelector(steps[state.step]?.target || '');
+  const isVisible = el => {
+    if (!el || !el.isConnected || el.closest('.hidden,[hidden]')) return false;
+    const style = getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+  };
+  const currentTarget = () => {
+    const el = document.querySelector(steps[state.step]?.target || '');
+    return isVisible(el) ? el : null;
+  };
   const place = () => {
     if (!layer || layer.classList.contains('hidden') || state.status !== 'active') return;
     const target = currentTarget();
@@ -93,9 +101,8 @@
     if (step.view && app.currentView !== step.view) app.navigateToPrimary(step.view);
     const target = currentTarget();
     if (!target) {
-      layer.classList.add('hidden');
       console.error(`FARO TOUR: alvo obrigatório ausente: ${step.target}`);
-      return;
+      return next();
     }
     layer.querySelector('#faroTourProgress').textContent = `${state.step + 1}/${steps.length}`;
     layer.querySelector('#faroTourTitle').textContent = step.title;
@@ -153,7 +160,7 @@
     const help = document.createElement('section');
     help.id = 'faroTourHelp';
     help.className = 'card-vetta p-5';
-    help.innerHTML = `<span class="label-micro !text-blue-600">Ajuda</span><div class="flex items-center justify-between gap-3"><div><strong class="block text-sm">Tour rápido do FARO</strong><p class="text-xs text-slate-500 mt-1">Reveja onde ficam as cinco ações principais.</p></div><button id="faroReplayTour" type="button" class="min-h-[44px] px-4 rounded-2xl bg-blue-50 text-blue-700 text-xs font-extrabold">VER TOUR</button></div>`;
+    help.innerHTML = `<span class="label-micro !text-blue-600">Ajuda</span><div class="flex items-center justify-between gap-3"><div><strong class="block text-sm">Tour rápido do FARO</strong><p class="text-xs text-slate-500 mt-1">Reveja onde ficam as três ações principais.</p></div><button id="faroReplayTour" type="button" class="min-h-[48px] px-4 rounded-2xl bg-blue-50 text-blue-700 text-xs font-extrabold">VER TOUR</button></div>`;
     central.appendChild(help);
     help.querySelector('#faroReplayTour').addEventListener('click', () => start({ replay:true }));
   }
@@ -170,5 +177,5 @@
 
   if (state.status === 'active' && app.state.onboardingComplete) setTimeout(render, 80);
 
-  window.FaroTour = Object.freeze({ start, replay:() => start({ replay:true }), skip, complete, getState:() => ({ ...state }) });
+  window.FaroTour = Object.freeze({ steps:Object.freeze(steps.map(step => Object.freeze({ ...step }))), start, replay:() => start({ replay:true }), skip, complete, getState:() => ({ ...state }) });
 })();

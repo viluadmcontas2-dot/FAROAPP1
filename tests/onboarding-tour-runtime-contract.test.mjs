@@ -4,17 +4,14 @@ import { readFile } from 'node:fs/promises';
 const onboarding = await readFile('faro-onboarding.js', 'utf8');
 const tour = await readFile('faro-tour.js', 'utf8');
 
-// HF1 physical regression: the final onboarding gesture has exactly one owner.
-const finishStart = onboarding.indexOf("$('faroFinish').addEventListener('click'");
-assert.ok(finishStart >= 0, 'Onboarding precisa possuir o gesto final');
-const finishEnd = onboarding.indexOf("$('faroRentalWeekly').value", finishStart);
-const finishBlock = onboarding.slice(finishStart, finishEnd);
-
-assert.match(finishBlock, /app\.state\.onboardingComplete = true;[\s\S]*app\.save\(\);/,
+// HF1 physical regression: the final onboarding gesture has exactly one owner (faro-onboarding-commit.js).
+const commit = await readFile('faro-onboarding-commit.js', 'utf8');
+assert.doesNotMatch(onboarding, /\$\('faroFinish'\)\.addEventListener\('click'/, 'Onboarding não pode ser segundo owner do gesto final');
+assert.match(commit, /app\.state\.onboardingComplete = true;[\s\S]*app\.save\(\);/,
   'Onboarding precisa persistir conclusão antes do handoff');
-assert.match(finishBlock, /modal\.classList\.add\('hidden'\);[\s\S]*navigateToPrimary\('dashboard'\);[\s\S]*faro:onboarding-complete/,
+assert.match(commit, /modal\.classList\.add\('hidden'\);[\s\S]*navigateToPrimary\('dashboard'\);[\s\S]*faro:onboarding-complete/,
   'Handoff só pode acontecer depois de fechar onboarding e entrar na Home real');
-assert.match(finishBlock, /disabled\s*=\s*true|finaliz/i,
+assert.match(commit, /disabled\s*=\s*value|finaliz/i,
   'Gesto final precisa ser idempotente contra duplo toque');
 
 assert.doesNotMatch(tour, /getElementById\('faroFinish'\)|querySelector\(['"]#faroFinish['"]\)/,
