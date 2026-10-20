@@ -163,3 +163,16 @@
   text-transform: none !important;
   letter-spacing: normal !important;
 }
+
+/* Refino de fluxo: avisos nunca seguram o toque; Registrar mostra o teclado mais cedo; modo leitura e aviso do teste. */
+:root:not([data-faro-car="on"]) .toast,:root:not([data-faro-car="on"]) .faro-ach-toast{pointer-events:none}
+:root:not([data-faro-car="on"]) #view-day > .bg-vetta-900:first-of-type{padding:16px 20px !important;border-radius:20px !important}
+:root:not([data-faro-car="on"]) #view-day > .bg-vetta-900:first-of-type p{display:none}
+:root:not([data-faro-car="on"]) #view-day > .bg-vetta-900:first-of-type h2{margin-top:4px !important;font-size:20px !important}
+:root:not([data-faro-car="on"])[data-faro-read-only] #saveDayButton{opacity:.55}
+:root:not([data-faro-car="on"]) #faroTrialNotice{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:12px 14px;border:1px solid var(--faro-line);border-radius:16px;background:var(--faro-amber-soft);color:var(--faro-ink);font-size:14px;font-weight:700}
+:root:not([data-faro-car="on"]) #faroTrialNotice[hidden]{display:none}
+:root:not([data-faro-car="on"]) #faroTrialNotice span{min-width:0;line-height:1.35}
+:root:not([data-faro-car="on"]) #faroTrialNotice button{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-size:14px;font-weight:800;background:var(--faro-amber);color:var(--faro-on-amber)}
+:root:not([data-faro-car="on"]) #faroTrialNotice button[data-faro-trial="dismiss"]{background:transparent;color:var(--faro-muted)}
+:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-continue{display:block;width:100%;min-height:48px;margin-top:10px;border-radius:16px;background:transparent;color:var(--faro-ink);font-size:14px;font-weight:800;text-decoration:underline}

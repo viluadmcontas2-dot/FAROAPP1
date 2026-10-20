@@ -312,7 +312,12 @@
     document.getElementById('faroGoalActual').textContent = integer(actual);
     document.getElementById('faroGoalTarget').textContent = ` / ${integer(target)}`;
     goal.querySelector('[data-faro-fill]').style.width = `${(ratio(actual) * 100).toFixed(1)}%`;
-    goal.querySelector('[data-faro-pace]').style.left = `${(ratio(calculation.expectedNetToDate) * 100).toFixed(1)}%`;
+    const pacePct = ratio(calculation.expectedNetToDate) * 100;
+    const paceMark = goal.querySelector('[data-faro-pace]');
+    paceMark.style.left = `${pacePct.toFixed(1)}%`;
+    // Perto das pontas o rótulo "ritmo" não pode sair da tela: encosta na borda em vez de centralizar.
+    const paceLabel = paceMark.querySelector('span');
+    if (paceLabel) { paceLabel.style.left = pacePct < 12 ? '-2px' : pacePct > 88 ? '100%' : '50%'; paceLabel.style.transform = pacePct < 12 ? 'none' : pacePct > 88 ? 'translateX(-100%)' : 'translateX(-50%)'; }
     const delta = calculation.paceDelta;
     const ahead = delta >= 0.5, behind = delta <= -0.5;
     goal.dataset.pace = ahead ? 'ahead' : behind ? 'behind' : 'on';

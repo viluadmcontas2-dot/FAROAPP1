@@ -2,6 +2,7 @@
 // Uso: node tests/theme-browser.test.cjs [raiz]  (capturas em docs/evidence/tema/ só com FARO_SAVE_EVIDENCE=1, para o check não sujar o repositório)
 const fs = require('node:fs');
 const path = require('node:path');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 const { openFaro, findChrome } = require('../scripts/lib/faro-browser.cjs');
 
 if (!findChrome()) {
@@ -89,6 +90,23 @@ const audit = `
       app.state.records = [0,1,2,3].map(i => ({ id:'d' + i, date:key(-i), gross:300 - i * 20, km:120, hours:8, fuelSpend:0, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() })).sort((a,b) => a.date.localeCompare(b.date));
       app.save(); app.render(); return true;`);
 
+    // Refino de fluxo: Registrar mostra o teclado cedo, Central abre pelo título, "ritmo" não sai da tela.
+    await faro.command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+    const flow = await run(`
+      app.navigateToPrimary('day'); await new Promise(r => setTimeout(r, 900)); window.scrollTo(0, 0);
+      const hero = [...document.querySelectorAll('#view-day > .bg-vetta-900')].find(e => e.checkVisibility()) || document.querySelector('#view-day > .bg-vetta-900');
+      const heroH = hero.getBoundingClientRect().height, heroP = getComputedStyle(hero.querySelector('p')).display;
+      app.showView('more'); await new Promise(r => setTimeout(r, 150));
+      const more = document.getElementById('view-more');
+      const order = [...more.children].filter(c => c.checkVisibility()).slice(0, 2).map(c => c.id || c.querySelector('h2')?.textContent);
+      const icon = more.querySelector('h2')?.closest('div.flex')?.querySelector('i')?.className;
+      app.showView('dashboard'); await new Promise(r => setTimeout(r, 150));
+      const label = document.querySelector('#faroHomeGoal .faro-home-pace span').getBoundingClientRect();
+      return { heroP, heroH, order, icon, labelLeft: label.left };`);
+    check('registrar: faixa do topo compacta (menos de 130 px), sem texto repetido', flow.heroP === 'none' && flow.heroH > 0 && flow.heroH < 130, flow);
+    check('central: título primeiro, modo carro depois', flow.order[0] === 'Central' || /Central/.test(String(flow.order[0])), flow.order);
+    check('central: ícone existe no pacote de ícones (não é quadrado vazio)', flow.icon && !/fa-grid-2/.test(flow.icon), flow.icon);
+    check('início: rótulo "ritmo" não sai da tela', flow.labelLeft >= 0, flow.labelLeft);
     const screens = [
       { name: '1-inicio', view: 'dashboard', scope: '#view-dashboard', primary: '[data-faro-primary="true"]' },
       { name: '2-registrar', view: 'day', scope: '#view-day', primary: '#saveDayButton' },
@@ -163,6 +181,19 @@ const audit = `
     check('modo carro: texto AA', car.text.length === 0, car.text);
     const off = await run(`window.FaroPwa.setCarMode(false); await new Promise(r => setTimeout(r, 100)); return getComputedStyle(document.body).backgroundColor;`);
     check('modo carro desligado: volta ao papel quente', off === 'rgb(246, 241, 228)', off);
+    // iPhone: o tutorial diz "Compartilhar > Tela de Início" e dá para continuar no navegador (não bloqueia o uso).
+    await faro.command('Page.enable', {});
+    await faro.command('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1' });
+    await faro.evaluate(`sessionStorage.clear(); localStorage.clear(); true`);
+    await faro.command('Page.reload', { ignoreCache: true });
+    await sleep(2500);
+    const ios = await faro.evaluate(`(() => { const g = document.getElementById('faroInstallGate'); return g ? { title: g.querySelector('#faroInstallTutorialTitle').textContent, steps: g.querySelectorAll('#faroInstallSteps li').length, cont: g.querySelector('#faroInstallContinue')?.textContent, locked: document.querySelectorAll('[data-faro-install-locked]').length } : null; })()`);
+    check('iPhone: tutorial Compartilhar > Tela de Início com 3 passos', ios && /Compartilhar > Tela de Início/.test(ios.title) && ios.steps === 3, ios);
+    check('iPhone: "Continuar no navegador" disponível', ios && ios.cont === 'Continuar no navegador' && ios.locked > 0, ios);
+    await faro.evaluate(`document.getElementById('faroInstallContinue').click(); true`);
+    const freed = await faro.evaluate(`({ gate: Boolean(document.getElementById('faroInstallGate')), locked: document.querySelectorAll('[data-faro-install-locked],[inert]').length, stage: document.documentElement.dataset.faroActivationStage, scroll: document.body.style.overflow })`);
+    check('iPhone: continuar libera o app (sem trava)', !freed.gate && freed.stage === 'product' && freed.scroll === '', freed);
+    await faro.command('Emulation.setUserAgentOverride', { userAgent: '' });
   } finally {
     await faro.close();
   }

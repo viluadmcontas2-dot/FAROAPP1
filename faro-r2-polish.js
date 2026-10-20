@@ -26,6 +26,9 @@
     const heading = more.querySelector('h2');
     const description = more.querySelector('h2 + p');
     if (heading) heading.textContent = 'Central';
+    // O ícone original (fa-grid-2) não existe no pacote de ícones embutido e aparecia como um quadrado vazio.
+    const moreIcon = more.querySelector('h2')?.closest('div.flex')?.querySelector('i.fa-grid-2');
+    if (moreIcon) moreIcon.className = 'fas fa-ellipsis';
     if (description) description.textContent = 'Dados, aplicativo, ajuda e ferramentas ocasionais.';
 
     const account = document.getElementById('faroAccountCard') || document.querySelector('[data-faro-account]');

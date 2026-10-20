@@ -72,7 +72,9 @@
         <span id="faroCarHint">Tema escuro, botões grandes e tela sempre acesa.</span>
       </div>
       <button id="faroCarToggle" class="faro-switch" type="button" role="switch" aria-checked="false" aria-labelledby="faroCarTitle" aria-describedby="faroCarHint"><span class="faro-switch-knob" aria-hidden="true"></span></button>`;
-    central.insertBefore(card, central.firstChild);
+    // Fica depois do título da Central (o título abre a tela), não antes dele.
+    const heading = central.firstElementChild;
+    central.insertBefore(card, heading ? heading.nextSibling : central.firstChild);
     const toggle = card.querySelector('#faroCarToggle');
     toggle.setAttribute('aria-checked', String(root.dataset.faroCar === 'on'));
     toggle.addEventListener('click', () => setCarMode(root.dataset.faroCar !== 'on'));
