@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { buildHeadersFile, buildRedirectsFile } from './csp.mjs';
 
 const SITE = '_site';
 
@@ -103,6 +104,10 @@ for (const path of copyFiles) {
   if (path === 'app.js') await writeFile(target, transformAppJs(buffer.toString('utf8')));
   else await cp(path, target);
 }
+
+// Cloudflare Pages: cabeçalhos de segurança/cache e fallback de SPA (mesma política do vercel.json).
+await writeFile(join(SITE, '_headers'), buildHeadersFile());
+await writeFile(join(SITE, '_redirects'), buildRedirectsFile());
 
 await mkdir(join(SITE, '.well-known'), { recursive: true });
 await writeFile(join(SITE, '.well-known', 'faro-baseline.json'), `${JSON.stringify({
