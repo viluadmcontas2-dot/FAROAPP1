@@ -183,6 +183,7 @@
       #view-dashboard [data-view="day"][data-faro-primary="true"].faro-action-card:active{transform:scale(.985)}
       #faroHomeDetails{border-top:2px solid var(--faro-home-line);padding-top:2px}
       #faroHomeDetails>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:8px 2px;cursor:pointer;color:var(--faro-home-ink)}
+      #faroHomeDetails .overflow-hidden{overflow:clip;contain:paint}
       #faroHomeDetails>summary::-webkit-details-marker{display:none}
       #faroHomeDetails>summary span{font-size:16px;font-weight:800}
       #faroHomeDetails>summary small{font-size:13px;color:var(--faro-home-muted);text-align:right}
