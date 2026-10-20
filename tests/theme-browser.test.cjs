@@ -1,5 +1,5 @@
 // Tema global FARO no Chrome real (390x844): 6 telas sem o azul antigo, contraste AA e modo carro intacto.
-// Uso: node tests/theme-browser.test.cjs [raiz]  (capturas em docs/evidence/tema/)
+// Uso: node tests/theme-browser.test.cjs [raiz]  (capturas em docs/evidence/tema/ só com FARO_SAVE_EVIDENCE=1, para o check não sujar o repositório)
 const fs = require('node:fs');
 const path = require('node:path');
 const { openFaro, findChrome } = require('../scripts/lib/faro-browser.cjs');
@@ -68,7 +68,7 @@ const audit = `
   fs.mkdirSync(evidence, { recursive: true });
   const faro = await openFaro(root);
   const run = body => faro.evaluate(`(async () => { ${audit} ${body} })()`);
-  const shot = async name => { const s = await faro.command('Page.captureScreenshot', { format: 'png' }); fs.writeFileSync(path.join(evidence, name + '.png'), Buffer.from(s.data, 'base64')); };
+  const shot = async name => { const s = await faro.command('Page.captureScreenshot', { format: 'png' }); if (!process.env.FARO_SAVE_EVIDENCE) return; fs.writeFileSync(path.join(evidence, name + '.png'), Buffer.from(s.data, 'base64')); };
   try {
     await faro.command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
     // Portão de instalação (primeira tela fora do app instalado) também veste a marca.
