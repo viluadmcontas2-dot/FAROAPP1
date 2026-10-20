@@ -7,7 +7,10 @@
 
   const isAndroid = () => /Android/i.test(navigator.userAgent);
   const isSamsungBrowser = () => /SamsungBrowser/i.test(navigator.userAgent);
-  const isInstallRequired = () => INSTALL_GATE_ENFORCED && !app.isStandalone();
+  // No iPhone o motorista pode seguir pelo navegador: a instalação é recomendada, não obrigatória (vale nesta visita).
+  const SKIP_KEY = 'faro-install-skip-v1';
+  const installSkipped = () => { try { return app.isIos() && sessionStorage.getItem(SKIP_KEY) === '1'; } catch { return false; } };
+  const isInstallRequired = () => INSTALL_GATE_ENFORCED && !app.isStandalone() && !installSkipped();
   const getActivationStage = () => isInstallRequired() ? 'install' : 'product';
   const deviceKind = () => app.isIos() ? 'ios' : isAndroid() ? 'android' : 'desktop';
   const deviceLabel = kind => ({ ios:'iPhone ou iPad', android:'Android', desktop:'Computador' })[kind] || 'Dispositivo';
@@ -54,12 +57,11 @@
   const tutorialFor = (kind, manual = false) => {
     if (kind === 'ios') {
       return {
-        title: 'Como instalar no iPhone',
+        title: 'No iPhone: Compartilhar > Tela de Início',
         steps: [
-          'Toque em Compartilhar.',
-          'Escolha “Adicionar à Tela de Início”.',
-          'Se aparecer “Abrir como App da Web”, deixe ativado.',
-          'Toque em “Adicionar” e depois abra o FARO pelo novo ícone.'
+          'Toque em Compartilhar (o quadrado com a seta para cima, na barra do Safari).',
+          'Role a lista e escolha “Adicionar à Tela de Início”.',
+          'Toque em “Adicionar” e abra o FARO pelo novo ícone.'
         ],
         help: app.isSafari()
           ? 'No Safari, use o menu Compartilhar para concluir.'
@@ -193,12 +195,32 @@
         <p id="faroInstallGateHelp" class="faro-install-help hidden" aria-live="polite"></p>
         <p class="text-xs text-slate-400 text-center mt-4">Já instalou? Abra o FARO pelo ícone.</p>
       </div>`;
+    if (kind === 'ios') {
+      const keepGoing = document.createElement('button');
+      keepGoing.id = 'faroInstallContinue';
+      keepGoing.type = 'button';
+      keepGoing.className = 'faro-install-continue';
+      keepGoing.textContent = 'Continuar no navegador';
+      gate.querySelector('.faro-install-sheet').insertBefore(keepGoing, gate.querySelector('.faro-install-sheet > p:last-child'));
+    }
     document.body.appendChild(gate);
     lockProductBehindGate(gate);
     renderTutorial(gate, kind, false);
 
     const button = gate.querySelector('#faroInstallGateButton');
     let installing = false;
+
+    gate.querySelector('#faroInstallContinue')?.addEventListener('click', () => {
+      try { sessionStorage.setItem(SKIP_KEY, '1'); } catch { /* sem armazenamento: vale só até recarregar */ }
+      document.querySelectorAll('[data-faro-install-locked]').forEach(child => {
+        child.removeAttribute('inert');
+        child.removeAttribute('aria-hidden');
+        delete child.dataset.faroInstallLocked;
+      });
+      document.body.style.overflow = '';
+      gate.remove();
+      root.dataset.faroActivationStage = 'product';
+    });
 
     button.addEventListener('click', async () => {
       if (kind === 'ios') {
