@@ -36,8 +36,8 @@
       #faroTourTip{position:fixed;width:min(330px,calc(100vw - 24px));border-radius:22px;background:#fff;padding:16px;box-shadow:0 24px 70px rgba(15,23,42,.32);pointer-events:auto}
       #faroTourTip .faro-tour-head{display:flex;align-items:center;gap:10px}.faro-tour-head img{width:42px;height:42px;object-fit:contain;background:#eff6ff;border-radius:14px;padding:5px}
       #faroTourTip h3{font-size:18px;font-weight:900;color:#0f172a}.faro-tour-text{margin-top:8px;color:#64748b;font-size:12px;line-height:1.5}
-      #faroTourTip .faro-tour-progress{font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
-      #faroTourTip .faro-tour-actions{display:grid;grid-template-columns:auto 1fr auto;gap:8px;margin-top:14px}.faro-tour-actions button{min-height:44px;border-radius:14px;padding:0 13px;font-size:11px;font-weight:900}.faro-tour-skip{background:#f8fafc;color:#64748b}.faro-tour-back{background:#f1f5f9;color:#475569}.faro-tour-next{background:#2563eb;color:#fff}
+      #faroTourTip .faro-tour-progress{font-size:12px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+      #faroTourTip .faro-tour-actions{display:grid;grid-template-columns:auto 1fr auto;gap:8px;margin-top:14px}.faro-tour-actions button{min-height:48px;border-radius:14px;padding:0 13px;font-size:12px;font-weight:900}.faro-tour-skip{background:#f8fafc;color:#64748b}.faro-tour-back{background:#f1f5f9;color:#475569}.faro-tour-next{background:#2563eb;color:#fff}
       @media(prefers-reduced-motion:reduce){#faroTourSpotlight{transition:none!important}}
     `;
     document.head.appendChild(style);
@@ -153,7 +153,7 @@
     const help = document.createElement('section');
     help.id = 'faroTourHelp';
     help.className = 'card-vetta p-5';
-    help.innerHTML = `<span class="label-micro !text-blue-600">Ajuda</span><div class="flex items-center justify-between gap-3"><div><strong class="block text-sm">Tour rápido do FARO</strong><p class="text-xs text-slate-500 mt-1">Reveja onde ficam as cinco ações principais.</p></div><button id="faroReplayTour" type="button" class="min-h-[44px] px-4 rounded-2xl bg-blue-50 text-blue-700 text-[10px] font-extrabold">VER TOUR</button></div>`;
+    help.innerHTML = `<span class="label-micro !text-blue-600">Ajuda</span><div class="flex items-center justify-between gap-3"><div><strong class="block text-sm">Tour rápido do FARO</strong><p class="text-xs text-slate-500 mt-1">Reveja onde ficam as cinco ações principais.</p></div><button id="faroReplayTour" type="button" class="min-h-[44px] px-4 rounded-2xl bg-blue-50 text-blue-700 text-xs font-extrabold">VER TOUR</button></div>`;
     central.appendChild(help);
     help.querySelector('#faroReplayTour').addEventListener('click', () => start({ replay:true }));
   }

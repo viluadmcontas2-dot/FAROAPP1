@@ -90,7 +90,7 @@
       #view-planning .faro-r3-head{padding:3px 2px 4px;align-items:center}
       #view-planning .faro-r3-title{font-size:25px;line-height:1.05;font-weight:800;letter-spacing:-.035em;color:#0B1121}
       #view-planning .faro-r3-subtitle{margin-top:5px;font-size:12px;line-height:1.45;font-weight:600;color:#64748B}
-      #view-planning .faro-r3-month{padding:8px 12px;border:1px solid #DBEAFE;border-radius:999px;background:#EFF6FF;color:#1D4ED8;font-size:10px;font-weight:800;letter-spacing:.025em;text-transform:capitalize}
+      #view-planning .faro-r3-month{padding:8px 12px;border:1px solid #DBEAFE;border-radius:999px;background:#EFF6FF;color:#1D4ED8;font-size:12px;font-weight:800;letter-spacing:.025em;text-transform:capitalize}
       #view-planning .faro-r3-grid{gap:12px}
       #view-planning .faro-r3-tile{--r3b-accent:37,99,235;isolation:isolate;aspect-ratio:1/1;position:relative;padding:15px;border-radius:24px;border:1px solid rgba(var(--r3b-accent),.12);background:linear-gradient(150deg,#fff 10%,rgba(var(--r3b-accent),.045) 100%);box-shadow:0 18px 38px -30px rgba(11,17,33,.48),0 1px 2px rgba(11,17,33,.03),inset 0 2px 0 rgba(var(--r3b-accent),.08);font-family:inherit;display:grid;grid-template-rows:auto 1fr auto;gap:8px;overflow:hidden;transition:transform .1s ease,box-shadow .2s ease,border-color .2s ease,background .22s ease}
       #view-planning .faro-r3-tile::before{content:"";position:absolute;z-index:-1;width:112px;height:112px;right:-46px;bottom:-52px;border-radius:999px;background:rgba(var(--r3b-accent),.11);filter:blur(2px);pointer-events:none;transition:transform .22s cubic-bezier(.16,1,.3,1),opacity .2s ease}
@@ -105,34 +105,34 @@
       #view-planning .faro-r3-tile:active::before{transform:scale(1.12);opacity:.82}
       #view-planning .faro-r3-icon{width:43px;height:43px;border-radius:16px;background:rgba(var(--r3b-accent),.1);color:rgb(var(--r3b-accent));font-size:17px;box-shadow:inset 0 0 0 1px rgba(var(--r3b-accent),.07);transition:transform .14s cubic-bezier(.16,1,.3,1),background .18s ease}
       #view-planning .faro-r3-tile:active .faro-r3-icon{transform:scale(.93) rotate(-2deg);background:rgba(var(--r3b-accent),.15)}
-      #view-planning .faro-r3-arrow{right:12px;top:12px;width:30px;height:30px;border:1px solid rgba(var(--r3b-accent),.09);border-radius:999px;background:rgba(255,255,255,.82);color:rgba(var(--r3b-accent),.74);font-size:9px;box-shadow:0 5px 15px -10px rgba(11,17,33,.35);transition:transform .14s cubic-bezier(.16,1,.3,1),background .18s ease}
+      #view-planning .faro-r3-arrow{right:12px;top:12px;width:30px;height:30px;border:1px solid rgba(var(--r3b-accent),.09);border-radius:999px;background:rgba(255,255,255,.82);color:rgba(var(--r3b-accent),.74);font-size:12px;box-shadow:0 5px 15px -10px rgba(11,17,33,.35);transition:transform .14s cubic-bezier(.16,1,.3,1),background .18s ease}
       #view-planning .faro-r3-tile:active .faro-r3-arrow{transform:translateX(3px);background:#fff}
       .faro-r3b-card-copy{align-self:end;min-width:0}
-      #view-planning .faro-r3-tile-label{font-size:9.5px;line-height:1.3;font-weight:800;letter-spacing:.055em;color:#64748B}
+      #view-planning .faro-r3-tile-label{font-size:12px;line-height:1.3;font-weight:800;letter-spacing:.055em;color:#64748B}
       #view-planning .faro-r3-tile-value{margin-top:4px;font-size:20px;line-height:1.08;font-weight:800;letter-spacing:-.032em;color:#0B1121;overflow-wrap:anywhere}
-      #view-planning .faro-r3-tile-meta{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-top:6px;font-size:10px;line-height:1.35;font-weight:600;color:#64748B}
-      .faro-r3b-card-cta{min-height:24px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding-top:6px;border-top:1px solid rgba(var(--r3b-accent),.1);font-size:9.5px;line-height:1.2;font-weight:800;color:rgb(var(--r3b-accent));letter-spacing:.01em}
-      .faro-r3b-card-cta i{font-size:8px;transition:transform .14s cubic-bezier(.16,1,.3,1)}
+      #view-planning .faro-r3-tile-meta{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-top:6px;font-size:12px;line-height:1.35;font-weight:600;color:#64748B}
+      .faro-r3b-card-cta{min-height:24px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding-top:6px;border-top:1px solid rgba(var(--r3b-accent),.1);font-size:12px;line-height:1.2;font-weight:800;color:rgb(var(--r3b-accent));letter-spacing:.01em}
+      .faro-r3b-card-cta i{font-size:12px;transition:transform .14s cubic-bezier(.16,1,.3,1)}
       #view-planning .faro-r3-tile:active .faro-r3b-card-cta i{transform:translateX(4px)}
       .faro-r3b-week-strip{display:flex;align-items:center;gap:3px;margin-top:6px}
-      .faro-r3b-week-dot{width:15px;height:15px;display:grid;place-items:center;border-radius:999px;background:rgba(30,64,175,.07);color:#94A3B8;font-size:6.5px;font-weight:800;line-height:1}
+      .faro-r3b-week-dot{width:15px;height:15px;display:grid;place-items:center;border-radius:999px;background:rgba(30,64,175,.07);color:#94A3B8;font-size:12px;font-weight:800;line-height:1}
       .faro-r3b-week-dot[data-active="true"]{background:#1E40AF;color:#fff;box-shadow:0 4px 10px -6px rgba(30,64,175,.75)}
-      .faro-r3b-status-pill{display:inline-flex;align-items:center;width:max-content;max-width:100%;margin-top:6px;padding:4px 7px;border-radius:999px;background:rgba(var(--r3b-accent),.09);color:rgb(var(--r3b-accent));font-size:8.5px;line-height:1;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .faro-r3b-status-pill{display:inline-flex;align-items:center;width:max-content;max-width:100%;margin-top:6px;padding:4px 7px;border-radius:999px;background:rgba(var(--r3b-accent),.09);color:rgb(var(--r3b-accent));font-size:12px;line-height:1;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       #view-planning .faro-r3-hero{position:relative;isolation:isolate;overflow:hidden;min-height:176px;padding:21px;border:1px solid rgba(255,255,255,.08);border-radius:28px;background:linear-gradient(138deg,#0B1121 0%,#111E39 54%,#12325D 100%);box-shadow:0 24px 54px -30px rgba(11,17,33,.88);font-family:inherit;gap:13px;transition:transform .1s ease,box-shadow .2s ease}
       #view-planning .faro-r3-hero::before{content:"";position:absolute;z-index:-1;width:190px;height:190px;right:-82px;top:-96px;border-radius:999px;background:rgba(37,99,235,.45);filter:blur(44px);pointer-events:none}
       #view-planning .faro-r3-hero::after{content:"";position:absolute;z-index:-1;width:145px;height:145px;left:-76px;bottom:-105px;border-radius:999px;background:rgba(16,185,129,.26);filter:blur(42px);pointer-events:none}
       #view-planning .faro-r3-hero:active{transform:scale(.986)}
       .faro-r3b-hero-brand,.faro-r3b-hero-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
-      .faro-r3b-hero-brand>span:first-child{font-size:10px;font-weight:800;letter-spacing:.075em;text-transform:uppercase;color:#BFDBFE}
+      .faro-r3b-hero-brand>span:first-child{font-size:12px;font-weight:800;letter-spacing:.075em;text-transform:uppercase;color:#BFDBFE}
       .faro-r3b-hero-mark{width:32px;height:32px;object-fit:contain;opacity:.88;filter:drop-shadow(0 7px 14px rgba(0,0,0,.16))}
       #view-planning .faro-r3-hero-value{display:block;margin-top:1px;font-size:24px;line-height:1.08;font-weight:800;letter-spacing:-.04em;color:#fff}
-      .faro-r3b-hero-progress-copy{font-size:10px;font-weight:600;line-height:1.35;color:#CBD5E1}
+      .faro-r3b-hero-progress-copy{font-size:12px;font-weight:600;line-height:1.35;color:#CBD5E1}
       #view-planning .faro-r3-progress{height:7px;background:rgba(255,255,255,.12)}
       #view-planning .faro-r3-progress>span{background:linear-gradient(90deg,#60A5FA,#34D399)}
       #view-planning .faro-r3-hero-stats{gap:7px}
-      #view-planning .faro-r3-hero-stats span{padding:7px 8px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.055);font-size:9.5px;font-weight:600;color:#E2E8F0;text-align:center}
-      .faro-r3b-hero-footer small{font-size:10px;font-weight:600;color:#94A3B8}
-      #view-planning .faro-r3-hero-action{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(191,219,254,.14);border-radius:999px;background:rgba(255,255,255,.07);font-size:9.5px;font-weight:800;color:#DBEAFE}
+      #view-planning .faro-r3-hero-stats span{padding:7px 8px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.055);font-size:12px;font-weight:600;color:#E2E8F0;text-align:center}
+      .faro-r3b-hero-footer small{font-size:12px;font-weight:600;color:#94A3B8}
+      #view-planning .faro-r3-hero-action{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(191,219,254,.14);border-radius:999px;background:rgba(255,255,255,.07);font-size:12px;font-weight:800;color:#DBEAFE}
       .faro-r3b-updated{animation:faroR3BUpdated .42s cubic-bezier(.16,1,.3,1)}
       @keyframes faroR3BUpdated{0%{box-shadow:0 0 0 0 rgba(var(--r3b-accent,37,99,235),.22)}45%{box-shadow:0 0 0 6px rgba(var(--r3b-accent,37,99,235),.08)}100%{box-shadow:0 0 0 0 rgba(var(--r3b-accent,37,99,235),0)}}
       .faro-r3b-live-change{animation:faroR3BLive .18s cubic-bezier(.16,1,.3,1)}
@@ -143,9 +143,9 @@
       .faro-plan-preview strong,.faro-field input,.faro-field select,.faro-week-day,.faro-r3-actions button,.faro-subview-title,.faro-detail-metric strong{font-weight:700!important}
       #faroMetaDialog .input-wrapper>span{z-index:1}
       #faroMetaDialog #faroTargetExact{padding-left:40px!important}
-      .faro-r3-actions button{text-transform:none;font-size:11px;letter-spacing:0}
+      .faro-r3-actions button{text-transform:none;font-size:12px;letter-spacing:0}
       .faro-r3-primary{box-shadow:0 12px 24px -16px rgba(37,99,235,.75)}
-      .faro-r3b-dialog-lead{margin:0 0 16px;padding:12px 14px;border-left:3px solid rgba(var(--faro-dialog-accent,37,99,235),.45);border-radius:16px;background:linear-gradient(145deg,rgba(var(--faro-dialog-accent,37,99,235),.07),#F8FAFC 70%);color:#64748B;font-size:11px;line-height:1.5;font-weight:600}
+      .faro-r3b-dialog-lead{margin:0 0 16px;padding:12px 14px;border-left:3px solid rgba(var(--faro-dialog-accent,37,99,235),.45);border-radius:16px;background:linear-gradient(145deg,rgba(var(--faro-dialog-accent,37,99,235),.07),#F8FAFC 70%);color:#64748B;font-size:12px;line-height:1.5;font-weight:600}
       .faro-r3b-dialog-symbol{width:44px;height:44px;display:grid;place-items:center;flex:0 0 auto;border-radius:16px;background:rgba(var(--faro-dialog-accent,37,99,235),.1);color:rgb(var(--faro-dialog-accent,37,99,235));font-size:16px;box-shadow:inset 0 0 0 1px rgba(var(--faro-dialog-accent,37,99,235),.1)}
       .faro-dialog--focus .faro-dialog-head,.faro-dialog--workspace .faro-dialog-head{align-items:center}
       .faro-dialog--focus .faro-dialog-kicker,.faro-dialog--workspace .faro-dialog-kicker{font-weight:800!important;color:rgb(var(--faro-dialog-accent,37,99,235))}
@@ -156,55 +156,55 @@
       #faroMoneyDialog .faro-dialog-kicker{text-transform:capitalize}
       .faro-r3b2-status-hero{--radar-accent:5,150,105;position:relative;overflow:hidden;padding:18px;border:1px solid rgba(var(--radar-accent),.13);border-radius:23px;background:linear-gradient(145deg,#fff 0%,rgba(var(--radar-accent),.07) 100%);box-shadow:0 18px 40px -34px rgba(11,17,33,.5);transition:background .2s ease,border-color .2s ease}
       .faro-r3b2-status-hero::after{content:"";position:absolute;width:130px;height:130px;right:-60px;top:-72px;border-radius:999px;background:rgba(var(--radar-accent),.11);filter:blur(8px)}
-      .faro-r3b2-status-top{position:relative;z-index:1;display:flex;align-items:center;gap:8px;color:rgb(var(--radar-accent));font-size:9px;font-weight:800;letter-spacing:.07em}
+      .faro-r3b2-status-top{position:relative;z-index:1;display:flex;align-items:center;gap:8px;color:rgb(var(--radar-accent));font-size:12px;font-weight:800;letter-spacing:.07em}
       .faro-r3b2-status-top i{width:24px;height:24px;display:grid;place-items:center;border-radius:9px;background:rgba(var(--radar-accent),.1)}
       .faro-r3b2-status-value{position:relative;z-index:1;display:block;margin-top:12px;color:#0B1121;font-size:30px;line-height:1;font-weight:800;letter-spacing:-.045em}
-      .faro-r3b2-status-caption{position:relative;z-index:1;display:block;margin-top:4px;color:#64748B;font-size:10px;font-weight:600}
-      .faro-r3b2-status-message{position:relative;z-index:1;margin-top:14px;padding-top:12px;border-top:1px solid rgba(var(--radar-accent),.1);color:#334155;font-size:11px;line-height:1.45;font-weight:700}
-      .faro-r3b2-status-protected{position:relative;z-index:1;display:flex;align-items:center;gap:6px;margin-top:7px;color:#64748B;font-size:9.5px;font-weight:600}
+      .faro-r3b2-status-caption{position:relative;z-index:1;display:block;margin-top:4px;color:#64748B;font-size:12px;font-weight:600}
+      .faro-r3b2-status-message{position:relative;z-index:1;margin-top:14px;padding-top:12px;border-top:1px solid rgba(var(--radar-accent),.1);color:#334155;font-size:12px;line-height:1.45;font-weight:700}
+      .faro-r3b2-status-protected{position:relative;z-index:1;display:flex;align-items:center;gap:6px;margin-top:7px;color:#64748B;font-size:12px;font-weight:600}
       .faro-r3b2-status-protected i{color:#059669}
       #faroMoneyDialog .faro-money-tabs{position:relative;top:auto;display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:4px;border:1px solid #E2E8F0;border-radius:19px;background:#EEF2F7;overflow:hidden}
       #faroMoneyDialog .faro-money-tab{min-height:57px;padding:8px 10px;border-radius:15px;text-align:left;color:#64748B;background:transparent;box-shadow:none;transition:background .18s ease,box-shadow .18s ease,transform .18s ease}
       #faroMoneyDialog .faro-money-tab.active{background:#fff;color:#0B1121;box-shadow:0 8px 20px -16px rgba(11,17,33,.55)}
-      .faro-r3b2-tab-label{display:block;font-size:8px;line-height:1.2;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-      .faro-r3b2-tab-value{display:block;margin-top:3px;font-size:11px;line-height:1.2;font-weight:800;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .faro-r3b2-tab-meta{display:block;margin-top:2px;font-size:8px;line-height:1.2;font-weight:600;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .faro-r3b2-tab-label{display:block;font-size:12px;line-height:1.2;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+      .faro-r3b2-tab-value{display:block;margin-top:3px;font-size:12px;line-height:1.2;font-weight:800;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .faro-r3b2-tab-meta{display:block;margin-top:2px;font-size:12px;line-height:1.2;font-weight:600;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .faro-r3b2-panel{animation:faroR3B2Panel .18s cubic-bezier(.16,1,.3,1)}
       @keyframes faroR3B2Panel{from{opacity:.35;transform:translateX(9px)}to{opacity:1;transform:translateX(0)}}
       .faro-r3b2-group{display:grid;gap:7px}
       .faro-r3b2-group+.faro-r3b2-group{margin-top:14px}
-      .faro-r3b2-group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px;color:#64748B;font-size:8.5px;line-height:1.2;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
-      .faro-r3b2-group-title strong{color:#334155;font-size:8px;font-weight:700;letter-spacing:0;text-transform:none}
+      .faro-r3b2-group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px;color:#64748B;font-size:12px;line-height:1.2;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
+      .faro-r3b2-group-title strong{color:#334155;font-size:12px;font-weight:700;letter-spacing:0;text-transform:none}
       .faro-r3b2-bill{border:1px solid #E2E8F0;border-radius:17px;background:#fff;overflow:hidden;box-shadow:0 12px 28px -26px rgba(11,17,33,.42)}
       .faro-r3b2-bill>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;min-height:62px;padding:11px 12px;cursor:pointer}
       .faro-r3b2-bill>summary::-webkit-details-marker{display:none}
       .faro-r3b2-bill[data-state="risk"]{border-color:#FECACA}.faro-r3b2-bill[data-state="attention"]{border-color:#FED7AA}
       .faro-r3b2-bill[data-state="paid"]{opacity:.72;background:#F8FAFC}
-      .faro-r3b2-bill-date{display:block;color:#2563EB;font-size:7.5px;font-weight:800;letter-spacing:.055em}
+      .faro-r3b2-bill-date{display:block;color:#2563EB;font-size:12px;font-weight:800;letter-spacing:.055em}
       .faro-r3b2-bill[data-state="risk"] .faro-r3b2-bill-date{color:#B91C1C}.faro-r3b2-bill[data-state="attention"] .faro-r3b2-bill-date{color:#C2410C}.faro-r3b2-bill[data-state="paid"] .faro-r3b2-bill-date{color:#64748B}
-      .faro-r3b2-bill-name{display:block;margin-top:3px;color:#0B1121;font-size:11.5px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .faro-r3b2-bill-when{display:block;margin-top:2px;color:#64748B;font-size:8.5px;font-weight:600}
-      .faro-r3b2-bill-side{display:flex;align-items:center;gap:8px}.faro-r3b2-bill-amount{color:#0B1121;font-size:11px;font-weight:800;white-space:nowrap}.faro-r3b2-bill-chevron{color:#94A3B8;font-size:8px;transition:transform .16s ease}.faro-r3b2-bill[open] .faro-r3b2-bill-chevron{transform:rotate(90deg)}
+      .faro-r3b2-bill-name{display:block;margin-top:3px;color:#0B1121;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .faro-r3b2-bill-when{display:block;margin-top:2px;color:#64748B;font-size:12px;font-weight:600}
+      .faro-r3b2-bill-side{display:flex;align-items:center;gap:8px}.faro-r3b2-bill-amount{color:#0B1121;font-size:12px;font-weight:800;white-space:nowrap}.faro-r3b2-bill-chevron{color:#94A3B8;font-size:12px;transition:transform .16s ease}.faro-r3b2-bill[open] .faro-r3b2-bill-chevron{transform:rotate(90deg)}
       .faro-r3b2-peek{display:grid;gap:8px;padding:10px 12px 12px;border-top:1px solid #F1F5F9;background:#FBFDFF;animation:faroR3B2Peek .17s cubic-bezier(.16,1,.3,1)}
       @keyframes faroR3B2Peek{from{opacity:.35;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-      .faro-r3b2-peek-context{color:#64748B;font-size:8.5px;line-height:1.4;font-weight:600}
-      .faro-r3b2-peek-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:7px}.faro-r3b2-peek-actions button{min-height:42px;border-radius:12px;font-size:9px;font-weight:800}
+      .faro-r3b2-peek-context{color:#64748B;font-size:12px;line-height:1.4;font-weight:600}
+      .faro-r3b2-peek-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:7px}.faro-r3b2-peek-actions button{min-height:48px;border-radius:12px;font-size:12px;font-weight:800}
       .faro-r3b2-pay{background:#059669;color:#fff}.faro-r3b2-edit{background:#EFF6FF;color:#1D4ED8}.faro-r3b2-undo{background:#F1F5F9;color:#475569}
       .faro-r3b2-empty{display:grid;justify-items:center;text-align:center;padding:24px 16px 16px;border:1px dashed #DCE5EF;border-radius:20px;background:linear-gradient(145deg,#fff,#F8FAFC)}
-      .faro-r3b2-empty-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:#ECFDF5;color:#059669;font-size:16px}.faro-r3b2-empty strong{margin-top:10px;color:#0B1121;font-size:13px}.faro-r3b2-empty p{max-width:280px;margin-top:5px;color:#64748B;font-size:10px;line-height:1.45}.faro-r3b2-empty button{min-height:42px;margin-top:13px;padding:0 15px;border-radius:13px;background:#EFF6FF;color:#1D4ED8;font-size:9.5px;font-weight:800}
-      #faroMoneyAddBill,#faroMoneyCreateReserve{min-height:42px!important;margin-top:10px!important;border:1px solid #DBEAFE!important;border-radius:14px!important;background:#fff!important;color:#2563EB!important;font-size:9.5px!important;font-weight:800!important;box-shadow:none!important}
+      .faro-r3b2-empty-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:#ECFDF5;color:#059669;font-size:16px}.faro-r3b2-empty strong{margin-top:10px;color:#0B1121;font-size:13px}.faro-r3b2-empty p{max-width:280px;margin-top:5px;color:#64748B;font-size:12px;line-height:1.45}.faro-r3b2-empty button{min-height:48px;margin-top:13px;padding:0 15px;border-radius:13px;background:#EFF6FF;color:#1D4ED8;font-size:12px;font-weight:800}
+      #faroMoneyAddBill,#faroMoneyCreateReserve{min-height:48px!important;margin-top:10px!important;border:1px solid #DBEAFE!important;border-radius:14px!important;background:#fff!important;color:#2563EB!important;font-size:12px!important;font-weight:800!important;box-shadow:none!important}
       .faro-r3b2-reserve{padding:15px;border:1px solid #D1FAE5;border-radius:20px;background:linear-gradient(145deg,#fff,#F3FBF7);box-shadow:0 14px 30px -28px rgba(5,150,105,.4)}
-      .faro-r3b2-reserve+.faro-r3b2-reserve{margin-top:10px}.faro-r3b2-reserve-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.faro-r3b2-reserve-title{min-width:0}.faro-r3b2-reserve-name{display:block;color:#0B1121;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.faro-r3b2-reserve-rule{display:block;margin-top:3px;color:#64748B;font-size:8.5px;line-height:1.35;font-weight:600}.faro-r3b2-reserve-balance{color:#047857;font-size:16px;line-height:1;font-weight:800;white-space:nowrap}
-      .faro-r3b2-reserve-caption{display:block;margin-top:4px;color:#64748B;font-size:8px;font-weight:600}.faro-r3b2-progress-copy{display:flex;justify-content:space-between;gap:8px;margin-top:13px;color:#64748B;font-size:8.5px;font-weight:700}.faro-r3b2-progress{height:7px;margin-top:6px;border-radius:999px;background:#DDF5E8;overflow:hidden}.faro-r3b2-progress>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#10B981,#34D399);transition:width .22s cubic-bezier(.16,1,.3,1)}
-      .faro-r3b2-no-goal{margin-top:12px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.8);color:#64748B;font-size:9px;line-height:1.4;font-weight:600}.faro-r3b2-reserve-actions{display:grid;grid-template-columns:1.2fr 1fr;gap:7px;margin-top:12px}.faro-r3b2-reserve-actions button{min-height:42px;border-radius:12px;font-size:9px;font-weight:800}.faro-r3b2-contribute{background:#059669;color:#fff}.faro-r3b2-goal{background:#fff;color:#047857;border:1px solid #A7F3D0}
-      .faro-r3b2-reserve-details{margin-top:9px;border-top:1px solid rgba(5,150,105,.1);padding-top:8px}.faro-r3b2-reserve-details>summary{list-style:none;cursor:pointer;color:#047857;font-size:8.5px;font-weight:800}.faro-r3b2-reserve-details>summary::-webkit-details-marker{display:none}.faro-r3b2-contribution{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px;padding:8px 9px;border-radius:11px;background:#fff;color:#64748B;font-size:8.5px}.faro-r3b2-contribution button{min-height:34px;color:#B91C1C;font-size:8px;font-weight:800}
-      .faro-r3b2-undo-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:#0B1121;color:#E2E8F0;font-size:9px;font-weight:700;animation:faroR3B2Peek .17s ease}.faro-r3b2-undo-bar button{min-height:34px;padding:0 10px;border-radius:10px;background:#fff;color:#0B1121;font-size:8.5px;font-weight:800}
-      #faroMoneyLegacyCosts{margin-top:10px;border:0!important;background:transparent!important}#faroMoneyLegacyCosts>summary{padding:11px 2px!important;color:#64748B!important;font-size:9px!important;font-weight:700!important}#faroMoneyLegacyCosts>summary::after{content:'›'!important;float:right;color:#2563EB;font-size:15px}
+      .faro-r3b2-reserve+.faro-r3b2-reserve{margin-top:10px}.faro-r3b2-reserve-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.faro-r3b2-reserve-title{min-width:0}.faro-r3b2-reserve-name{display:block;color:#0B1121;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.faro-r3b2-reserve-rule{display:block;margin-top:3px;color:#64748B;font-size:12px;line-height:1.35;font-weight:600}.faro-r3b2-reserve-balance{color:#047857;font-size:16px;line-height:1;font-weight:800;white-space:nowrap}
+      .faro-r3b2-reserve-caption{display:block;margin-top:4px;color:#64748B;font-size:12px;font-weight:600}.faro-r3b2-progress-copy{display:flex;justify-content:space-between;gap:8px;margin-top:13px;color:#64748B;font-size:12px;font-weight:700}.faro-r3b2-progress{height:7px;margin-top:6px;border-radius:999px;background:#DDF5E8;overflow:hidden}.faro-r3b2-progress>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#10B981,#34D399);transition:width .22s cubic-bezier(.16,1,.3,1)}
+      .faro-r3b2-no-goal{margin-top:12px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.8);color:#64748B;font-size:12px;line-height:1.4;font-weight:600}.faro-r3b2-reserve-actions{display:grid;grid-template-columns:1.2fr 1fr;gap:7px;margin-top:12px}.faro-r3b2-reserve-actions button{min-height:48px;border-radius:12px;font-size:12px;font-weight:800}.faro-r3b2-contribute{background:#059669;color:#fff}.faro-r3b2-goal{background:#fff;color:#047857;border:1px solid #A7F3D0}
+      .faro-r3b2-reserve-details{margin-top:9px;border-top:1px solid rgba(5,150,105,.1);padding-top:8px}.faro-r3b2-reserve-details>summary{list-style:none;cursor:pointer;color:#047857;font-size:12px;font-weight:800}.faro-r3b2-reserve-details>summary::-webkit-details-marker{display:none}.faro-r3b2-contribution{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px;padding:8px 9px;border-radius:11px;background:#fff;color:#64748B;font-size:12px}.faro-r3b2-contribution button{min-height:34px;color:#B91C1C;font-size:12px;font-weight:800}
+      .faro-r3b2-undo-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:#0B1121;color:#E2E8F0;font-size:12px;font-weight:700;animation:faroR3B2Peek .17s ease}.faro-r3b2-undo-bar button{min-height:34px;padding:0 10px;border-radius:10px;background:#fff;color:#0B1121;font-size:12px;font-weight:800}
+      #faroMoneyLegacyCosts{margin-top:10px;border:0!important;background:transparent!important}#faroMoneyLegacyCosts>summary{padding:11px 2px!important;color:#64748B!important;font-size:12px!important;font-weight:700!important}#faroMoneyLegacyCosts>summary::after{content:'›'!important;float:right;color:#2563EB;font-size:15px}
       #view-planning-detail .faro-subview-title{font-weight:800!important}
       #view-planning-detail .faro-detail-summary{background:linear-gradient(145deg,#F8FBFF,#fff);box-shadow:0 18px 40px -32px rgba(11,17,33,.45)}
       #faroOpenPlanDetail{view-transition-name:faro-plan-card}#view-planning-detail .faro-detail-summary{view-transition-name:faro-plan-detail}
       @media(hover:hover) and (pointer:fine){#view-planning .faro-r3-tile:hover{transform:translateY(-2px);border-color:rgba(var(--r3b-accent),.22)}}
-      @media(max-width:360px){#view-planning .faro-r3-hero{min-height:166px;padding:18px}#view-planning .faro-r3-tile{padding:13px;gap:6px}.faro-r3b-hero-mark{width:28px;height:28px}.faro-r3b-card-cta{font-size:9px}.faro-r3b-week-dot{width:13px;height:13px;font-size:6px}#view-planning .faro-r3-tile-value{font-size:18px}.faro-r3b2-status-value{font-size:27px}.faro-r3b2-peek-actions{grid-template-columns:1fr}}
+      @media(max-width:360px){#view-planning .faro-r3-hero{min-height:166px;padding:18px}#view-planning .faro-r3-tile{padding:13px;gap:6px}.faro-r3b-hero-mark{width:28px;height:28px}.faro-r3b-card-cta{font-size:12px}.faro-r3b-week-dot{width:13px;height:13px;font-size:12px}#view-planning .faro-r3-tile-value{font-size:18px}.faro-r3b2-status-value{font-size:27px}.faro-r3b2-peek-actions{grid-template-columns:1fr}}
       @media(prefers-reduced-motion:reduce){#view-planning .faro-r3-tile,#view-planning .faro-r3-hero,#view-planning .faro-r3-icon,#view-planning .faro-r3-arrow,.faro-r3b-card-cta i,#view-planning .faro-r3-hero-action,.faro-r3b2-progress>span{transition:none}.faro-r3b-updated,.faro-r3b-live-change,.faro-r3b2-panel,.faro-r3b2-peek,.faro-r3b2-undo-bar{animation:none!important}}
     `;
     document.head.appendChild(style);

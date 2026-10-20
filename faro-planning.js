@@ -30,7 +30,7 @@
       .faro-r3-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:2px 2px 6px}
       .faro-r3-title{font-size:26px;line-height:1;font-weight:900;letter-spacing:-.04em;color:#0f172a}
       .faro-r3-subtitle{margin-top:6px;color:#64748b;font-size:12px;font-weight:600}
-      .faro-r3-month{flex:0 0 auto;padding:8px 11px;border-radius:14px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;text-transform:capitalize;letter-spacing:.04em}
+      .faro-r3-month{flex:0 0 auto;padding:8px 11px;border-radius:14px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;text-transform:capitalize;letter-spacing:.04em}
       .faro-r3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
       .faro-r3-tile{aspect-ratio:1/1;width:100%;border:1px solid #e2e8f0;border-radius:24px;background:#fff;padding:16px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;box-shadow:0 10px 28px -24px rgba(15,23,42,.3)}
       .faro-r3-tile[data-tone="blue"]{background:linear-gradient(145deg,#fff,#f3f8ff);border-color:#dbeafe}
@@ -39,49 +39,49 @@
       .faro-r3-icon{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:#eff6ff;color:#2563eb;font-size:17px}
       [data-tone="emerald"] .faro-r3-icon{background:#ecfdf5;color:#059669}
       [data-tone="amber"] .faro-r3-icon{background:#fffbeb;color:#d97706}
-      .faro-r3-tile-label{display:block;color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+      .faro-r3-tile-label{display:block;color:#64748b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
       .faro-r3-tile-value{display:block;margin-top:3px;color:#0f172a;font-size:20px;line-height:1.05;font-weight:900;letter-spacing:-.035em}
-      .faro-r3-tile-meta{display:block;margin-top:6px;color:#64748b;font-size:11px;line-height:1.3;font-weight:650}
-      .faro-r3-arrow{position:absolute;right:14px;top:14px;width:30px;height:30px;border-radius:12px;background:rgba(255,255,255,.72);display:grid;place-items:center;color:#94a3b8;font-size:11px}
+      .faro-r3-tile-meta{display:block;margin-top:6px;color:#64748b;font-size:12px;line-height:1.3;font-weight:650}
+      .faro-r3-arrow{position:absolute;right:14px;top:14px;width:30px;height:30px;border-radius:12px;background:rgba(255,255,255,.72);display:grid;place-items:center;color:#94a3b8;font-size:12px}
       .faro-r3-hero{width:100%;min-height:148px;border:0;border-radius:26px;background:linear-gradient(135deg,#0b1121,#16213b);padding:18px;color:#fff;text-align:left;display:grid;gap:12px;box-shadow:0 18px 45px -28px rgba(15,23,42,.8)}
       .faro-r3-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-      .faro-r3-hero-label{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd}
+      .faro-r3-hero-label{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd}
       .faro-r3-hero-value{display:block;margin-top:4px;font-size:21px;line-height:1.05;font-weight:900;letter-spacing:-.035em}
-      .faro-r3-hero-action{font-size:10px;font-weight:900;color:#bfdbfe;white-space:nowrap}
+      .faro-r3-hero-action{font-size:12px;font-weight:900;color:#bfdbfe;white-space:nowrap}
       .faro-r3-progress{height:7px;border-radius:999px;background:rgba(255,255,255,.13);overflow:hidden}
       .faro-r3-progress>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#60a5fa,#34d399);transition:width .2s ease}
       .faro-r3-hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-      .faro-r3-hero-stats span{font-size:10px;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .faro-r3-hero-stats span{font-size:12px;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .faro-r3-editor{border:0;background:#fff;padding:0;margin:0}
       .faro-r3-editor-head{padding:4px 0 10px}
-      .faro-r3-editor-label{display:block;color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+      .faro-r3-editor-label{display:block;color:#64748b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
       .faro-plan-target-value{display:block;margin-top:4px;font-size:38px;line-height:1;font-weight:900;letter-spacing:-.05em;color:#0f172a}
       .faro-plan-slider{width:100%;min-height:48px;accent-color:#2563eb;margin-top:8px}
-      .faro-field{display:grid;gap:6px}.faro-field label{font-size:10px;font-weight:900;text-transform:uppercase;color:#64748b;letter-spacing:.04em}
+      .faro-field{display:grid;gap:6px}.faro-field label{font-size:12px;font-weight:900;text-transform:uppercase;color:#64748b;letter-spacing:.04em}
       .faro-field input,.faro-field select{width:100%;min-height:50px;border:1px solid #e2e8f0;border-radius:15px;padding:0 13px;background:#fff;color:#0f172a;font-weight:750}
       .faro-plan-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
       .faro-plan-preview>div{background:#f8fafc;border-radius:15px;padding:11px 9px;min-width:0}
-      .faro-plan-preview span{display:block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8}
+      .faro-plan-preview span{display:block;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8}
       .faro-plan-preview strong{display:block;margin-top:3px;font-size:12px;color:#334155;overflow:hidden;text-overflow:ellipsis}
       .faro-r3-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin-top:18px;position:sticky;bottom:0;padding:10px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,0),#fff 24%)}
-      .faro-r3-actions button{min-height:50px;border-radius:16px;font-size:11px;font-weight:900}
+      .faro-r3-actions button{min-height:50px;border-radius:16px;font-size:12px;font-weight:900}
       .faro-r3-secondary{background:#f1f5f9;color:#475569}.faro-r3-primary{background:#2563eb;color:#fff}.faro-r3-primary:disabled{opacity:.45}
       .faro-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
-      .faro-week-day{min-height:46px;border:0;border-radius:13px;background:#f1f5f9;color:#64748b;font-size:10px;font-weight:900}
+      .faro-week-day{min-height:48px;border:0;border-radius:13px;background:#f1f5f9;color:#64748b;font-size:12px;font-weight:900}
       .faro-week-day.active{background:#2563eb;color:#fff}
       .faro-context-note{border-radius:17px;background:#eff6ff;color:#1d4ed8;padding:13px 14px;font-size:12px;line-height:1.45}
       .faro-money-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f5f9;padding:4px;border-radius:16px;position:sticky;top:0;z-index:1}
-      .faro-money-tab{min-height:42px;border-radius:13px;color:#64748b;font-size:11px;font-weight:900}.faro-money-tab.active{background:#fff;color:#0f172a;box-shadow:0 3px 12px rgba(15,23,42,.08)}
+      .faro-money-tab{min-height:48px;border-radius:13px;color:#64748b;font-size:12px;font-weight:900}.faro-money-tab.active{background:#fff;color:#0f172a;box-shadow:0 3px 12px rgba(15,23,42,.08)}
       .faro-money-row{border:1px solid #e2e8f0;border-radius:18px;padding:14px;background:#fff}
       .faro-money-row-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-      .faro-money-row strong{font-size:13px;color:#0f172a}.faro-money-row small{display:block;margin-top:3px;color:#64748b;font-size:10px}
-      .faro-money-action{min-height:40px;padding:0 12px;border-radius:12px;font-size:9px;font-weight:900}
+      .faro-money-row strong{font-size:13px;color:#0f172a}.faro-money-row small{display:block;margin-top:3px;color:#64748b;font-size:12px}
+      .faro-money-action{min-height:48px;padding:0 12px;border-radius:12px;font-size:12px;font-weight:900}
       .faro-money-empty{padding:18px;border-radius:18px;background:#f8fafc;color:#64748b;font-size:12px;line-height:1.45}
-      .faro-money-legacy{margin-top:12px;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;background:#fff}.faro-money-legacy>summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:11px;font-weight:900;color:#475569}.faro-money-legacy>summary::-webkit-details-marker{display:none}.faro-money-legacy>summary::after{content:'+';float:right;color:#2563eb;font-size:16px}.faro-money-legacy[open]>summary::after{content:'−'}.faro-money-legacy .card-vetta{border:0!important;border-radius:0!important;box-shadow:none!important;margin:0!important}
+      .faro-money-legacy{margin-top:12px;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;background:#fff}.faro-money-legacy>summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:12px;font-weight:900;color:#475569}.faro-money-legacy>summary::-webkit-details-marker{display:none}.faro-money-legacy>summary::after{content:'+';float:right;color:#2563eb;font-size:16px}.faro-money-legacy[open]>summary::after{content:'−'}.faro-money-legacy .card-vetta{border:0!important;border-radius:0!important;box-shadow:none!important;margin:0!important}
       .faro-plan-details{border:1px solid #e2e8f0;border-radius:20px;background:#fff;overflow:hidden}.faro-plan-details>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:14px 16px;cursor:pointer;font-size:12px;font-weight:900;color:#334155}.faro-plan-details>summary::-webkit-details-marker{display:none}.faro-plan-details>summary::after{content:'+';width:30px;height:30px;border-radius:12px;background:#f1f5f9;display:grid;place-items:center;color:#2563eb;font-size:18px}.faro-plan-details[open]>summary::after{content:'−'}.faro-plan-details .card-vetta{box-shadow:none;border:0;border-top:1px solid #f1f5f9;border-radius:0;margin:0}
       .faro-subview-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}.faro-subview-back{width:46px;height:46px;border-radius:16px;background:#f1f5f9;color:#334155;display:grid;place-items:center;flex:0 0 auto}.faro-subview-title{font-size:23px;font-weight:900;letter-spacing:-.03em;color:#0f172a}
-      .faro-detail-summary{border-radius:24px;background:linear-gradient(145deg,#f8fbff,#fff);border:1px solid #dbeafe;padding:18px}.faro-detail-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}.faro-detail-metric{border-radius:16px;background:#fff;padding:12px}.faro-detail-metric span{display:block;font-size:9px;font-weight:900;text-transform:uppercase;color:#94a3b8}.faro-detail-metric strong{display:block;margin-top:3px;font-size:13px;color:#0f172a}
-      @media(max-width:360px){.faro-r3-tile{padding:13px;border-radius:21px}.faro-r3-tile-value{font-size:18px}.faro-r3-tile-meta{font-size:10px}.faro-r3-hero{padding:16px}.faro-plan-preview{grid-template-columns:1fr 1fr}.faro-plan-preview>div:last-child{grid-column:1/-1}.faro-week-grid{gap:3px}.faro-week-day{font-size:9px}}
+      .faro-detail-summary{border-radius:24px;background:linear-gradient(145deg,#f8fbff,#fff);border:1px solid #dbeafe;padding:18px}.faro-detail-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}.faro-detail-metric{border-radius:16px;background:#fff;padding:12px}.faro-detail-metric span{display:block;font-size:12px;font-weight:900;text-transform:uppercase;color:#94a3b8}.faro-detail-metric strong{display:block;margin-top:3px;font-size:13px;color:#0f172a}
+      @media(max-width:360px){.faro-r3-tile{padding:13px;border-radius:21px}.faro-r3-tile-value{font-size:18px}.faro-r3-tile-meta{font-size:12px}.faro-r3-hero{padding:16px}.faro-plan-preview{grid-template-columns:1fr 1fr}.faro-plan-preview>div:last-child{grid-column:1/-1}.faro-week-grid{gap:3px}.faro-week-day{font-size:12px}}
       @media(prefers-reduced-motion:reduce){.faro-r3-progress>span{transition:none}}
     `;
     document.head.appendChild(style);
@@ -176,7 +176,7 @@
 
   const moneyDialog = createDialog('faroMoneyDialog', 'Planejar', 'Dinheiro do mês', 'page');
   const moneyBody = moneyDialog.querySelector('[data-faro-dialog-body]');
-  moneyBody.innerHTML = `<div id="faroMoneySummary" class="faro-context-note mb-3"></div><div class="faro-money-tabs" role="tablist" aria-label="Dinheiro do mês"><button id="faroMoneyTabBills" type="button" class="faro-money-tab active" role="tab" aria-selected="true">CONTAS</button><button id="faroMoneyTabReserves" type="button" class="faro-money-tab" role="tab" aria-selected="false">RESERVAS</button></div><section id="faroMoneyBills" class="space-y-3 mt-3" role="tabpanel"><div id="faroMoneyBillList" class="space-y-3"></div><button id="faroMoneyAddBill" type="button" class="w-full min-h-[48px] rounded-2xl bg-blue-600 text-white text-[11px] font-extrabold">+ ADICIONAR CONTA</button></section><section id="faroMoneyReserves" class="space-y-3 mt-3 hidden" role="tabpanel"><div id="faroMoneyReserveList" class="space-y-3"></div><button id="faroMoneyCreateReserve" type="button" class="w-full min-h-[48px] rounded-2xl bg-emerald-600 text-white text-[11px] font-extrabold">+ CRIAR RESERVA</button></section>`;
+  moneyBody.innerHTML = `<div id="faroMoneySummary" class="faro-context-note mb-3"></div><div class="faro-money-tabs" role="tablist" aria-label="Dinheiro do mês"><button id="faroMoneyTabBills" type="button" class="faro-money-tab active" role="tab" aria-selected="true">CONTAS</button><button id="faroMoneyTabReserves" type="button" class="faro-money-tab" role="tab" aria-selected="false">RESERVAS</button></div><section id="faroMoneyBills" class="space-y-3 mt-3" role="tabpanel"><div id="faroMoneyBillList" class="space-y-3"></div><button id="faroMoneyAddBill" type="button" class="w-full min-h-[48px] rounded-2xl bg-blue-600 text-white text-xs font-extrabold">+ ADICIONAR CONTA</button></section><section id="faroMoneyReserves" class="space-y-3 mt-3 hidden" role="tabpanel"><div id="faroMoneyReserveList" class="space-y-3"></div><button id="faroMoneyCreateReserve" type="button" class="w-full min-h-[48px] rounded-2xl bg-emerald-600 text-white text-xs font-extrabold">+ CRIAR RESERVA</button></section>`;
 
   const legacyPlanNow = $('faroPlanNow');
   legacyPlanNow?.remove();
@@ -357,7 +357,7 @@
       const goal = app.number(profile.goalAmount);
       const progress = goal > 0 ? Math.min(100,Math.max(0,balance/goal*100)) : null;
       const recent = window.FaroReserves?.contributionsFor?.(reserve.id)?.slice(0,3) || [];
-      return `<article class="faro-money-row"><div class="faro-money-row-head"><span class="min-w-0"><strong class="block truncate">${app.escape(reserve.name)}</strong><small>${reservePlannedText(reserve)}</small></span><strong class="text-emerald-700">${app.money(balance,0)}</strong></div>${goal > 0 ? `<div class="mt-3"><div class="flex justify-between text-[9px] font-bold text-slate-500"><span>Meta ${app.money(goal,0)}</span><span>${Math.round(progress)}%</span></div><div class="progress-track mt-2"><div class="progress-fill" style="width:${progress}%"></div></div></div>` : ''}<div class="grid grid-cols-2 gap-2 mt-3"><button type="button" data-r3-reserve-contribute="${reserve.id}" class="faro-money-action bg-emerald-600 text-white">+ APORTAR</button><button type="button" data-r3-reserve-goal="${reserve.id}" class="faro-money-action bg-emerald-50 text-emerald-700">META</button></div>${recent.length ? `<details class="mt-3"><summary class="text-[9px] font-extrabold text-slate-500 cursor-pointer">ÚLTIMOS APORTES</summary><div class="space-y-2 mt-2">${recent.map(entry => `<div class="flex items-center justify-between gap-2 text-[10px] bg-slate-50 rounded-xl px-3 py-2"><span>${app.parseDate(entry.date).toLocaleDateString('pt-BR')} · ${app.money(entry.amount,0)}</span><button type="button" data-r3-reserve-remove="${entry.id}" class="text-red-500 font-extrabold">REMOVER</button></div>`).join('')}</div></details>` : ''}</article>`;
+      return `<article class="faro-money-row"><div class="faro-money-row-head"><span class="min-w-0"><strong class="block truncate">${app.escape(reserve.name)}</strong><small>${reservePlannedText(reserve)}</small></span><strong class="text-emerald-700">${app.money(balance,0)}</strong></div>${goal > 0 ? `<div class="mt-3"><div class="flex justify-between text-xs font-bold text-slate-500"><span>Meta ${app.money(goal,0)}</span><span>${Math.round(progress)}%</span></div><div class="progress-track mt-2"><div class="progress-fill" style="width:${progress}%"></div></div></div>` : ''}<div class="grid grid-cols-2 gap-2 mt-3"><button type="button" data-r3-reserve-contribute="${reserve.id}" class="faro-money-action bg-emerald-600 text-white">+ APORTAR</button><button type="button" data-r3-reserve-goal="${reserve.id}" class="faro-money-action bg-emerald-50 text-emerald-700">META</button></div>${recent.length ? `<details class="mt-3"><summary class="text-xs font-extrabold text-slate-500 cursor-pointer">ÚLTIMOS APORTES</summary><div class="space-y-2 mt-2">${recent.map(entry => `<div class="flex items-center justify-between gap-2 text-xs bg-slate-50 rounded-xl px-3 py-2"><span>${app.parseDate(entry.date).toLocaleDateString('pt-BR')} · ${app.money(entry.amount,0)}</span><button type="button" data-r3-reserve-remove="${entry.id}" class="text-red-500 font-extrabold">REMOVER</button></div>`).join('')}</div></details>` : ''}</article>`;
     }).join('') : '<div class="faro-money-empty"><strong class="block text-slate-700">Nenhuma reserva criada</strong><span class="block mt-1">Crie uma reserva para manutenção, pneus, emergência ou outro objetivo.</span></div>';
   };
 

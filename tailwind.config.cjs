@@ -1,6 +1,8 @@
 // Mesma configuração que o legacy-shell.html declarava para o Tailwind CDN.
 // Usada só em desenvolvimento por `npm run vendor:css` (gera vendor/tailwind.css, versionado).
 module.exports = {
+  // Hover só em dispositivos com hover real: evita "hover grudado" após o toque no celular.
+  future: { hoverOnlyWhenSupported: true },
   content: ['./legacy-shell.html', './app-shell.html', './app.js', './faro-*.js'],
   theme: {
     extend: {

@@ -38,6 +38,7 @@ const copyFiles = [
   'faro-account.js',
   'faro-notifications.js',
   'faro-r2-polish.js',
+  'faro-pwa.js',
   'faro-onboarding.js',
   'faro-onboarding-commit.js',
   'faro-tour.js',

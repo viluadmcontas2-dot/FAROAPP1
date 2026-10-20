@@ -49,7 +49,7 @@
         <div><span class="label-micro !text-blue-700">Preferências</span><h3 class="text-lg font-extrabold">Avisos úteis do FARO</h3><p class="text-xs text-slate-500 mt-2">Lembretes de vencimentos, contas pendentes e mudanças importantes no seu plano. Sem excesso.</p></div>
         <button id="faroNoticesToggle" type="button" role="switch" aria-checked="false" class="toggle shrink-0" aria-label="Ativar avisos úteis do FARO"></button>
       </div>
-      <p id="faroNoticesStatus" class="text-[10px] text-slate-500 mt-3">Desativados</p>`;
+      <p id="faroNoticesStatus" class="text-xs text-slate-500 mt-3">Desativados</p>`;
     const account = $('faroAccountCard');
     if (account) account.insertAdjacentElement('afterend', card);
     else central.appendChild(card);

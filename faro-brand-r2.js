@@ -125,7 +125,7 @@
         #faroDailyResult .faro-result-value{font-size:34px;font-weight:900;letter-spacing:-.04em}
         #faroDailyResult .faro-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
         #faroDailyResult .faro-result-metric{border-radius:16px;background:#f8fafc;padding:13px}
-        #faroDailyResult .faro-result-label{display:block;color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+        #faroDailyResult .faro-result-label{display:block;color:#64748b;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
       `;
       document.head.appendChild(style);
     }
@@ -149,7 +149,7 @@
       label.textContent = 'Adicionar detalhes opcionais';
       const hint = document.createElement('span');
       hint.textContent = 'horas + combustível';
-      hint.className = 'text-[10px] text-slate-400 font-bold';
+      hint.className = 'text-xs text-slate-400 font-bold';
       summary.append(label, hint);
       optionalGrid.parentNode.insertBefore(details, optionalGrid);
       optionalGrid.classList.add('faro-optional-grid');
@@ -166,7 +166,7 @@
           <button id="faroResultClose" class="w-9 h-9 rounded-full bg-slate-100" aria-label="Fechar resultado"><i class="fas fa-xmark"></i></button>
         </div>
         <div class="faro-result-hero mt-5">
-          <span class="text-[10px] text-slate-300 font-extrabold uppercase tracking-widest">Líquido estimado do dia</span>
+          <span class="text-xs text-slate-300 font-extrabold uppercase tracking-widest">Líquido estimado do dia</span>
           <strong id="faroResultNet" class="faro-result-value block mt-1">R$ 0</strong>
           <p id="faroResultMessage" class="text-xs text-slate-300 mt-2 leading-relaxed"></p>
         </div>
