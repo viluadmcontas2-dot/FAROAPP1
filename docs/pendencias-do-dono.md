@@ -7,3 +7,5 @@
 5. Cloudflare Pages: criar conta e conectar o repositório (guia em `docs/deploy/cloudflare-pages.md`).
 6. Decidir: duração do cupom PRAGAS (hoje 5 meses), desenho do trial, mudar o onboarding (contrato do baseline).
 7. Governança: `governance/hosting-policy.md` ainda diz HOSTING_TARGET=VERCEL (teste de governança exige). Decidir/autorizar alinhar para Cloudflare Pages (mudança de regra, não aplicada pelo agente).
+8. Decidir: preço de fundador travado (R$ 14,90 para os 100–150 primeiros) em vez do cupom de 5 meses; plano anual R$ 179; trial sem cartão para todos (já assumido).
+9. Confirmar CNPJ/MEI e nota fiscal com contador; combinar por escrito com o admin do grupo Pragas na Pista.
