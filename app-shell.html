@@ -52,7 +52,8 @@
         ["<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>", ""],
         ["<link href=\"https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">", "<link href=\"./vendor/fonts/plus-jakarta-sans.css\" rel=\"stylesheet\">"],
         // O CDN do Tailwind injetava seu <style> no fim do <head>, DEPOIS do styles.css; manter essa ordem preserva a cascata.
-        ["<link href=\"./styles.css\" rel=\"stylesheet\">", "<link href=\"./styles.css\" rel=\"stylesheet\"><link href=\"./vendor/tailwind.css\" rel=\"stylesheet\">"]
+        // faro-theme.css (tema global da marca) vem por último para vestir as classes do legado sem editar o núcleo.
+        ["<link href=\"./styles.css\" rel=\"stylesheet\">", "<link href=\"./styles.css\" rel=\"stylesheet\"><link href=\"./vendor/tailwind.css\" rel=\"stylesheet\"><link href=\"./faro-theme.css?v=1\" rel=\"stylesheet\">"]
       ]/*END_VENDOR_SWAPS*/;
       for (const [from, to] of vendorSwaps) html = html.replace(from, to);
       html = html

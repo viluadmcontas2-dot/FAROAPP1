@@ -43,6 +43,7 @@ const copyFiles = [
   'faro-onboarding-commit.js',
   'faro-tour.js',
   'styles.css',
+  'faro-theme.css',
   'index.html',
   'offline.html',
   'manifest.webmanifest',
