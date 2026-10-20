@@ -145,7 +145,7 @@
       body:has(#view-dashboard:not(.hidden)){background:var(--faro-home-bg)}
       #view-dashboard{color:var(--faro-home-ink);background:var(--faro-home-bg)}
       #view-dashboard [hidden]{display:none!important}
-      #view-dashboard{display:flex;flex-direction:column;gap:var(--sp-3)}
+      #view-dashboard:not(.hidden){display:flex;flex-direction:column;gap:var(--sp-3)}
       #view-dashboard>*+*{margin-top:0}
       #faroHomeHero{order:1}
       #faroHomeGoal{order:2}

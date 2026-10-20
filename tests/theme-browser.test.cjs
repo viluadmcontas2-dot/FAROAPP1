@@ -134,10 +134,12 @@ const audit = `
           blueButtons: blueHits(buttons),
           text: textFails(els),
           primary: primary ? { bg: ps.backgroundColor, ratio: ratio(parse(ps.color), parse(ps.backgroundColor)) } : null,
-          body: getComputedStyle(document.body).backgroundColor
+          body: getComputedStyle(document.body).backgroundColor,
+          homeVaza: '${screen.view}' !== 'dashboard' && document.getElementById('view-dashboard').checkVisibility({ checkVisibilityCSS: true })
         };`);
       await shot(screen.name);
       check(`${screen.name}: tela renderizou`, result.count > 5, result.count);
+      check(`${screen.name}: Início escondido (não empilha embaixo da aba)`, !result.homeVaza, result.homeVaza);
       check(`${screen.name}: nenhum botão com azul antigo no estilo computado`, result.blueButtons.length === 0, result.blueButtons);
       check(`${screen.name}: nenhum elemento visível com azul antigo`, result.blue.length === 0, result.blue);
       check(`${screen.name}: todo texto com contraste AA`, result.text.length === 0, result.text);

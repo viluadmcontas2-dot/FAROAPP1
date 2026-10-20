@@ -175,3 +175,28 @@
 :root:root #faroTrialNotice span{min-width:0;line-height:1.35}
 :root:root #faroTrialNotice button{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-size:14px;font-weight:800;background:var(--faro-amber);color:var(--faro-on-amber)}
 :root:root #faroTrialNotice button[data-faro-trial="dismiss"]{background:transparent;color:var(--faro-muted)}
+
+/* ---------- Refino no S23 (360x780 a 412x915): cabeçalho enxuto, sem vão morto, chips sem corte ---------- */
+:root:root nav.sticky.top-0{padding-top:max(.75rem,env(safe-area-inset-top))!important;padding-bottom:.75rem!important}
+:root:root nav.sticky.top-0 img{width:40px;height:40px}
+:root:root nav.sticky.top-0 .gap-3{gap:10px;min-width:0}
+:root:root nav.sticky.top-0 h1+span{display:block;margin-top:4px;font-size:12px;letter-spacing:.04em;white-space:nowrap}
+:root:root #installButton{min-height:44px;padding:0 14px;font-size:13px;letter-spacing:0;text-transform:none;white-space:nowrap}
+:root:root main.p-5{padding-top:var(--sp-4)}
+:root:root main>.view-section{margin-top:0}
+:root:root .view-section>*+*{margin-top:var(--sp-4)}
+:root:root #view-day>.bg-vetta-900{padding:16px 20px;border-radius:var(--faro-radius-card)}
+:root:root #view-more>.bg-white:first-child{padding:20px;align-items:center;gap:12px}
+:root:root #view-more>.bg-white:first-child>div:first-child{min-width:0;flex:1}
+:root:root #view-more>.bg-white:first-child>div:last-child{flex:none;width:40px;height:40px}
+:root:root #view-more>.bg-white:first-child p{font-size:14px;color:var(--faro-muted)}
+:root:root #view-planning .faro-r3-hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+:root:root #view-planning .faro-r3-hero-stats span{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25;padding:8px 6px}
+:root:root #view-planning .faro-r3-tile-meta{color:var(--faro-muted)!important}
+/* Refino 2: menos grito nos títulos, rótulos calmos, Registrar mais curto */
+:root:root #faroHomeHero .faro-home-hello h2{font-size:20px;letter-spacing:0;text-transform:none}
+:root:root #faroHomeHero .faro-home-invite{font-size:34px}
+:root:root #view-dashboard .faro-home-eyebrow{letter-spacing:.04em;font-size:12px}
+:root:root #view-day>.bg-vetta-900 .uppercase{letter-spacing:.04em}
+:root:root #view-day>.bg-vetta-900 h2,:root:root #view-day>.bg-vetta-900 p{font-size:18px;line-height:1.3}
+:root:root .view-section .uppercase{letter-spacing:.04em}

@@ -11,7 +11,7 @@ for (const [token, px] of [['--sp-1', 4], ['--sp-2', 8], ['--sp-3', 12], ['--sp-
   assert.match(theme, new RegExp(`${token}:\\s*${px}px`), `faro-theme.css precisa definir ${token}: ${px}px`);
   assert.doesNotMatch(home, new RegExp(`${token}:\\s*\\d`), `${token} só pode ser definido em faro-theme.css`);
 }
-assert.match(style, /#view-dashboard\{[^}]*display:flex[^}]*flex-direction:column[^}]*gap:var\(--sp-3\)/,
+assert.match(style, /#view-dashboard(?::not\(\.hidden\))?\{[^}]*display:flex[^}]*flex-direction:column[^}]*gap:var\(--sp-3\)/,
   'O Início precisa de um único gap entre blocos, vindo do token');
 assert.match(style, /#view-dashboard>\*\+\*\{margin-top:0\}/, 'space-y-6 do legado não pode somar com o gap');
 assert.ok((style.match(/var\(--sp-\d\)/g) || []).length >= 12, 'Início deve usar os tokens de espaçamento');

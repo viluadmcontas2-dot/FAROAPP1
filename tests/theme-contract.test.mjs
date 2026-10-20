@@ -37,7 +37,7 @@ for (const file of [...sources, 'styles.css']) {
 assert.match(shell, /vendor\/tailwind\.css\\?" rel=\\?"stylesheet\\?"><link href=\\?"\.\/faro-theme\.css\?v=1\\?" rel=\\?"stylesheet\\?">/, 'faro-theme.css entra logo depois do tailwind.css (ganha a cascata)');
 assert.ok(sw.includes("'./faro-theme.css?v=1'"), 'faro-theme.css precisa estar no pré-cache');
 assert.ok(build.includes("'faro-theme.css'"), 'o build precisa copiar faro-theme.css');
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-34'/, 'tema novo precisa renovar o cache instalado');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-35'/, 'tema novo precisa renovar o cache instalado');
 
 // 3) Azul antigo: lista fechada de tons do tema anterior (Tailwind blue + navy vetta).
 const BLUE_HEX = ['#2563EB', '#1D4ED8', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE', '#EFF6FF', '#1E40AF', '#1E3A8A', '#172554',
