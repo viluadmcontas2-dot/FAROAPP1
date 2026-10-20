@@ -16,8 +16,8 @@ for (const file of modules) {
 assert.doesNotMatch(register, /MutationObserver/, 'Registro não pode reescrever texto de outro módulo por observador');
 assert.doesNotMatch(register, /brutos/, 'Retorno do dia fala de lucro líquido, nunca de bruto');
 assert.match(register, /Lucro de hoje/, 'Retorno precisa dizer o lucro do dia');
-assert.match(register, /'Editar dia'/, 'Retorno precisa oferecer "Editar dia"');
-assert.match(register, /'Ver Início'/, 'Retorno precisa oferecer "Ver Início" quando o motorista não está no Início');
+assert.match(register, />Editar dia</, 'Retorno precisa oferecer "Editar dia"');
+assert.match(register, />Ver Início</, 'Retorno precisa oferecer "Ver Início" quando o motorista não está no Início');
 assert.match(register, /id = 'faroDaySaved'/, 'Retorno único tem um só elemento');
 assert.match(register, /role', 'status'/, 'Retorno precisa ser anunciado a leitores de tela sem bloquear');
 

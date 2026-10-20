@@ -15,7 +15,7 @@ const candidates = process.platform === 'win32'
      'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe']
   : process.platform === 'darwin'
     ? ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome']
-    : ['/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser'];
+    : ['/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'];
 const chromeBinary = process.env.FARO_CHROME_BIN || candidates.find(fs.existsSync);
 if (!chromeBinary) throw new Error('Chrome unavailable; set FARO_CHROME_BIN to its executable path.');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -120,7 +120,8 @@ let browser, socket;
       error, records:app.state.records.length,
       record:record ? { date:record.date, gross:record.gross, km:record.km, breakdown:record.earningsBySource } : null,
       savedToLocalStorage:localStorage.getItem('faro-app-finance-v1') !== null,
-      resultDialogExists:document.getElementById('faroDailyResult') !== null
+      resultDialogExists:document.getElementById('faroDailyResult') !== null,
+      savedFeedback:(() => { const el = document.getElementById('faroDaySaved'); return el && !el.classList.contains('hidden') ? el.textContent : ''; })()
     };
   })()`);
   assert.equal(result.error, null, 'Saving must finish without a rendering exception');
@@ -130,7 +131,8 @@ let browser, socket;
   assert.equal(result.record?.km, 80);
   assert.deepEqual(JSON.parse(JSON.stringify(result.record?.breakdown)), { uber:180, ninetyNine:120, indrive:70, extras:40 });
   assert.equal(result.savedToLocalStorage, true);
-  assert.equal(result.resultDialogExists, true);
+  assert.equal(result.resultDialogExists, false, 'O modal bloqueante de resultado saiu (F2): o retorno é um aviso único');
+  assert.match(result.savedFeedback, /Dia salvo\. Lucro de hoje/, 'Salvar precisa responder com o lucro do dia num único aviso');
   console.log('PASS FARO daily save browser regression: ', JSON.stringify({ date:draft.date, gross:410, km:80, platformSources:4, records:1 }));
 })().catch(error => {
   console.error('FAIL FARO daily save browser regression:', error);

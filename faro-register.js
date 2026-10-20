@@ -36,6 +36,7 @@
   const grossGrid = grossInput?.closest('.grid') || null;
   let earningsMode = 'detailed';
   const activeSources = new Set();
+  let loadedDate = null;
 
   const earningsSection = document.createElement('section');
   earningsSection.id = 'faroEarningsBySource';
@@ -102,6 +103,19 @@
       #view-day .faro-earnings-legacy strong{font-size:12px}.faro-earnings-legacy p{margin-top:4px;font-size:10px;line-height:1.45}
       #view-day .faro-earnings-legacy button{min-height:42px;border-radius:13px;background:#fff;color:#c2410c;font-size:10px;font-weight:800;border:1px solid #fdba74}
       #saveDayButton[data-saving="true"]{opacity:.68;pointer-events:none}
+      #view-day .faro-date-conflict{display:grid;gap:10px;margin-top:10px;padding:14px;border-radius:var(--faro-radius-row,17px);background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+      #view-day .faro-date-conflict strong{font-size:13px;line-height:1.35}
+      #view-day .faro-date-conflict p{font-size:11px;line-height:1.45;font-weight:600}
+      #view-day .faro-date-conflict-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      #view-day .faro-date-conflict button{min-height:44px;border-radius:13px;font-size:11px;font-weight:800;border:1px solid #fdba74;background:#fff;color:#c2410c}
+      #view-day .faro-date-conflict button[data-faro-conflict="open"]{background:#c2410c;border-color:#c2410c;color:#fff}
+      .faro-day-saved{position:fixed;left:50%;bottom:calc(105px + env(safe-area-inset-bottom));z-index:100;transform:translateX(-50%);width:min(92vw,440px);display:grid;gap:10px;padding:14px 16px;border-radius:18px;background:#0b1121;color:#fff;box-shadow:0 16px 35px rgba(11,17,33,.35)}
+      .faro-day-saved.hidden{display:none}
+      .faro-day-saved p{font-size:13px;line-height:1.4;font-weight:700}
+      .faro-day-saved strong{font-variant-numeric:tabular-nums}
+      .faro-day-saved-actions{display:flex;gap:8px;justify-content:flex-end}
+      .faro-day-saved button{min-height:40px;padding:0 14px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(255,255,255,.12);color:#fff}
+      .faro-day-saved button:focus-visible,#view-day .faro-date-conflict button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
       #view-day .faro-draft-note{display:flex;align-items:center;gap:7px;margin-top:10px;color:#64748b;font-size:11px;font-weight:700}
       @media(max-width:350px){#view-day .faro-earning-toggle{grid-template-columns:38px 1fr 18px;padding:9px}#view-day .faro-earning-brand,#view-day .faro-extra-icon{width:38px;height:38px}}
       @media(prefers-reduced-motion:reduce){#view-day .faro-register-chip,#view-day .faro-earning-card,#view-day .faro-earning-add{transition:none}#view-day .faro-register-chip:active{transform:none}}
@@ -206,6 +220,7 @@
       km: $('recordKm')?.value || '',
       hours: $('recordHours')?.value || '',
       fuel: $('recordFuel')?.value || '',
+      editing: loadedDate,
       updatedAt: new Date().toISOString()
     };
     if (earningsMode !== 'detailed') return base;
@@ -304,15 +319,121 @@
   const note = document.createElement('div');
   note.id = 'faroRegisterDraftNote';
   note.className = 'faro-draft-note hidden';
-  note.innerHTML = '<i class="fas fa-cloud-arrow-down" aria-hidden="true"></i><span>Rascunho recuperado. Continue de onde parou.</span>';
+  note.innerHTML = '<i class="fas fa-cloud-arrow-down" aria-hidden="true"></i><span></span>';
+  const showNote = (text, icon = 'fa-cloud-arrow-down') => {
+    note.querySelector('span').textContent = text;
+    note.querySelector('i').className = `fas ${icon}`;
+    note.classList.remove('hidden');
+  };
   const firstCard = $('recordDate')?.closest('.card-vetta');
   if (firstCard) firstCard.insertBefore(note, firstCard.firstChild);
 
+  // ---- Edição sem perda (F1) ----
+  // loadedDate = data do registro salvo que o formulário está mostrando. Só esse dia pode ser sobrescrito.
+  const recordFor = date => app.state.records.find(record => record.date === date) || null;
+  const shortDate = date => { const [, month, day] = String(date).split('-'); return `${day}/${month}`; };
+  const fieldText = value => (Number(value) > 0 ? String(value) : '');
+  const formHasValues = () => hasMeaningfulDraft(readForm());
+  const hasConflict = () => {
+    const date = $('recordDate')?.value;
+    return Boolean(date && recordFor(date) && loadedDate !== date);
+  };
+
+  const conflict = document.createElement('div');
+  conflict.id = 'faroDateConflict';
+  conflict.className = 'faro-date-conflict hidden';
+  conflict.setAttribute('role', 'alert');
+  conflict.innerHTML = `
+    <strong>Esse dia já tem registro. Abrir e editar?</strong>
+    <p data-faro-conflict-detail>Nada é salvo por cima do registro sem você confirmar.</p>
+    <div class="faro-date-conflict-actions">
+      <button type="button" data-faro-conflict="keep">Escolher outra data</button>
+      <button type="button" data-faro-conflict="open">Abrir e editar</button>
+    </div>`;
+  ($('recordDate')?.parentElement || firstCard)?.appendChild(conflict);
+  let lastDate = $('recordDate')?.value || app.todayKey();
+
+  const hideConflict = () => conflict.classList.add('hidden');
+  const showConflict = () => {
+    const date = $('recordDate')?.value;
+    conflict.querySelector('[data-faro-conflict-detail]').textContent =
+      `O dia ${shortDate(date)} já está salvo. Abra para ver e editar os valores salvos; nada é salvo por cima sem você confirmar.`;
+    conflict.classList.remove('hidden');
+  };
+
+  const fillFromRecord = record => {
+    $('recordDate').value = record.date;
+    $('recordKm').value = fieldText(record.km);
+    $('recordHours').value = fieldText(record.hours);
+    $('recordFuel').value = fieldText(record.fuelSpend);
+    if (record.earningsBySource) {
+      setEarningsMode('detailed', { values:record.earningsBySource, render:false, persist:false });
+    } else {
+      if (grossInput) grossInput.value = fieldText(record.gross);
+      setEarningsMode('legacy', { render:false, persist:false });
+    }
+    loadedDate = record.date;
+    lastDate = record.date;
+    hideConflict();
+    const optional = document.getElementById('faroOptionalDetails');
+    if (optional) optional.open = Boolean(record.hours || record.fuelSpend);
+    showNote(`Editando ${shortDate(record.date)}. Os valores salvos já estão nos campos.`, 'fa-pen');
+    app.renderRecordPreview();
+  };
+
+  const evaluateDate = () => {
+    const date = $('recordDate')?.value;
+    if (!date) return;
+    const record = recordFor(date);
+    if (record && loadedDate !== date) {
+      if (formHasValues()) showConflict();
+      else fillFromRecord(record);
+      return;
+    }
+    hideConflict();
+    lastDate = date;
+    if (!record && loadedDate) note.classList.add('hidden');
+  };
+
+  $('recordDate')?.addEventListener('change', evaluateDate);
+  $('recordDate')?.addEventListener('input', evaluateDate);
+
+  conflict.addEventListener('click', event => {
+    const action = event.target.closest('[data-faro-conflict]')?.dataset.faroConflict;
+    if (!action) return;
+    event.preventDefault();
+    if (action === 'open') {
+      const record = recordFor($('recordDate')?.value);
+      if (record) fillFromRecord(record);
+      saveDraft();
+      return;
+    }
+    $('recordDate').value = lastDate && lastDate !== $('recordDate').value ? lastDate : '';
+    hideConflict();
+    if ($('recordDate').value) evaluateDate();
+    app.renderRecordPreview();
+    $('recordDate').focus({ preventScroll:true });
+  });
+
+  // O núcleo rotula "Atualizar este dia"; quando o dia foi aberto, a ação é salvar alterações.
+  const baseRenderRecordPreview = app.renderRecordPreview;
+  app.renderRecordPreview = function(...args) {
+    const result = baseRenderRecordPreview.apply(this, args);
+    const button = $('saveDayButton');
+    const date = $('recordDate')?.value;
+    if (button && date && loadedDate === date && recordFor(date)) button.innerHTML = '<i class="fas fa-check mr-2"></i>Salvar alterações';
+    return result;
+  };
+
   $('clearDayButton')?.addEventListener('click', () => {
+    // O núcleo volta a data para hoje. Se o motorista limpou o próprio dia aberto, ele continua sendo esse dia.
+    if (loadedDate !== $('recordDate')?.value) loadedDate = null;
     setEarningsMode('detailed', { render:false, persist:false });
     if (grossInput) grossInput.value = '';
     clearDraft();
     note.classList.add('hidden');
+    hideConflict();
+    if (!loadedDate) evaluateDate();
   });
 
   earningsSection.addEventListener('click', event => {
@@ -356,6 +477,58 @@
   window.addEventListener('pagehide', saveDraft);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && app.currentView === 'day') saveDraft(); });
 
+  // ---- Retorno único depois de salvar (F2) ----
+  const saved = document.createElement('div');
+  saved.id = 'faroDaySaved';
+  saved.className = 'faro-day-saved hidden';
+  saved.setAttribute('role', 'status');
+  saved.setAttribute('aria-live', 'polite');
+  saved.innerHTML = `
+    <p data-faro-saved-text></p>
+    <div class="faro-day-saved-actions">
+      <button type="button" data-faro-saved="edit">Editar dia</button>
+      <button type="button" data-faro-saved="home">Ver Início</button>
+    </div>`;
+  document.body.appendChild(saved);
+  let savedDate = null;
+  let savedTimer = null;
+  const hideSaved = () => { saved.classList.add('hidden'); clearTimeout(savedTimer); };
+  const syncSavedActions = () => {
+    saved.querySelector('[data-faro-saved="home"]').hidden = app.currentView === 'dashboard';
+  };
+  const showSaved = (record, updated) => {
+    const context = app.monthContext(app.parseDate(record.date));
+    const net = app.recordNumbers(record, context).net;
+    const isToday = record.date === app.todayKey();
+    const day = shortDate(record.date);
+    const label = net >= 0
+      ? (isToday ? 'Lucro de hoje' : `Lucro do dia ${day}`)
+      : (isToday ? 'Prejuízo de hoje' : `Prejuízo do dia ${day}`);
+    const text = saved.querySelector('[data-faro-saved-text]');
+    text.textContent = `${updated ? 'Dia atualizado.' : 'Dia salvo.'} ${label}: `;
+    const value = document.createElement('strong');
+    value.textContent = app.money(Math.abs(net));
+    text.appendChild(value);
+    savedDate = record.date;
+    syncSavedActions();
+    saved.classList.remove('hidden');
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(hideSaved, 8000);
+  };
+  saved.addEventListener('click', event => {
+    const action = event.target.closest('[data-faro-saved]')?.dataset.faroSaved;
+    if (!action) return;
+    hideSaved();
+    if (action === 'home') return app.navigateToPrimary('dashboard');
+    if (savedDate) {
+      clearDraft();
+      loadedDate = null;
+      ['recordGross', 'recordKm', 'recordHours', 'recordFuel'].forEach(id => { if ($(id)) $(id).value = ''; });
+      $('recordDate').value = savedDate;
+    }
+    app.navigateToPrimary('day');
+  });
+
   const baseShowView = app.showView;
   app.showView = function(view, primaryView = view) {
     const editingExisting = view === 'day' && Boolean(
@@ -366,17 +539,37 @@
     const editingDate = editingExisting ? $('recordDate')?.value : null;
     const result = baseShowView.call(this, view, primaryView);
     if (view === 'day') {
+      hideSaved();
       note.classList.add('hidden');
+      hideConflict();
       if (editingExisting) {
-        const record = this.state.records.find(item => item.date === editingDate);
-        if (record?.earningsBySource) setEarningsMode('detailed', { values:record.earningsBySource, render:false, persist:false });
-        else setEarningsMode('legacy', { render:false, persist:false });
-        app.renderRecordPreview();
+        // Histórico > Editar: o núcleo preenche só parte dos campos; carregamos o registro inteiro.
+        fillFromRecord(recordFor(editingDate));
       } else {
-        const restored = applyDraft(loadDraft());
-        if (restored) note.classList.remove('hidden');
-        else setEarningsMode('detailed', { render:false, persist:false });
+        const draft = loadDraft();
+        const draftRecord = draft ? recordFor(draft.date) : null;
+        const staleDraft = draftRecord && draft.editing === draft.date && String(draftRecord.updatedAt || '') > String(draft.updatedAt || '');
+        if (hasMeaningfulDraft(draft) && !staleDraft) {
+          applyDraft(draft);
+          loadedDate = draftRecord && draft.editing === draft.date ? draft.date : null;
+          lastDate = draft.date;
+          showNote('Rascunho recuperado. Continue de onde parou.');
+          if (hasConflict()) showConflict();
+          app.renderRecordPreview();
+        } else {
+          if (staleDraft) clearDraft();
+          const record = recordFor($('recordDate')?.value || app.todayKey());
+          if (record) fillFromRecord(record);
+          else {
+            loadedDate = null;
+            lastDate = $('recordDate')?.value || app.todayKey();
+            setEarningsMode('detailed', { render:false, persist:false });
+            app.renderRecordPreview();
+          }
+        }
       }
+    } else if (!saved.classList.contains('hidden')) {
+      syncSavedActions();
     }
     return result;
   };
@@ -385,6 +578,12 @@
   const baseSaveDay = app.saveDay;
   app.saveDay = function(...args) {
     if (saving) return;
+
+    if (hasConflict()) {
+      showConflict();
+      conflict.querySelector('[data-faro-conflict="open"]')?.focus({ preventScroll:true });
+      return;
+    }
 
     if (earningsMode === 'detailed') {
       const snapshot = earningsSnapshot();
@@ -395,22 +594,34 @@
 
     const before = this.recordDraft();
     if (!before.date || before.gross <= 0 || before.km <= 0) return baseSaveDay.apply(this, args);
+    const existedBefore = Boolean(recordFor(before.date));
     saving = true;
     const button = $('saveDayButton');
     if (button) {
       button.dataset.saving = 'true';
       button.setAttribute('aria-busy', 'true');
     }
+    // O núcleo avisa "Dia salvo..." num toast; aqui o retorno é um só, então o toast dele é segurado.
+    const ownToast = Object.prototype.hasOwnProperty.call(this, 'toast');
+    const previousToast = this.toast;
+    let heldToast = null;
+    this.toast = message => { heldToast = message; };
     try {
       const result = baseSaveDay.apply(this, args);
-      const saved = this.state.records.find(record => record.date === before.date && Number(record.gross) === before.gross && Number(record.km) === before.km);
-      if (saved) {
+      const savedRecord = this.state.records.find(record => record.date === before.date && Number(record.gross) === before.gross && Number(record.km) === before.km);
+      if (savedRecord) {
         clearDraft();
+        loadedDate = null;
+        hideConflict();
         setEarningsMode('detailed', { render:false, persist:false });
         if (grossInput) grossInput.value = '';
+        heldToast = null;
+        showSaved(savedRecord, existedBefore);
       }
       return result;
     } finally {
+      if (ownToast) this.toast = previousToast; else delete this.toast;
+      if (heldToast) this.toast(heldToast);
       setTimeout(() => {
         saving = false;
         if (button) {
@@ -421,28 +632,6 @@
     }
   };
 
-  const resultModal = document.getElementById('faroDailyResult');
-  const resultMessage = document.getElementById('faroResultMessage');
-  const resultDelta = document.getElementById('faroResultDelta');
-  if (resultModal && resultMessage && resultDelta) {
-    const observer = new MutationObserver(() => {
-      if (resultModal.classList.contains('hidden')) return;
-      const c = app.calculations();
-      const week = app.weekContext(c);
-      const remainingWeek = Math.max(0, week.target - week.actual);
-      resultMessage.textContent = week.target > 0
-        ? remainingWeek > 0
-          ? `Na semana, faltam ${app.money(remainingWeek, 0)} brutos para o ritmo planejado.`
-          : `A semana já alcançou o ritmo planejado. O mês continua como seu norte.`
-        : resultMessage.textContent;
-      const remainingMonth = Math.max(0, app.state.targetProfit - c.actualNet);
-      resultDelta.textContent = remainingMonth > 0
-        ? `No mês, faltam ${app.money(remainingMonth, 0)} líquidos. O FARO redistribui o restante pelos próximos dias planejados.`
-        : `Objetivo líquido do mês alcançado. Seus próximos registros continuam alimentando o histórico real.`;
-    });
-    observer.observe(resultModal, { attributes:true, attributeFilter:['class'] });
-  }
-
   window.FaroRegister = {
     loadDraft,
     clearDraft,
@@ -450,6 +639,8 @@
     readEarningsInputs,
     syncEarningsTotal,
     setEarningsMode,
+    hasConflict,
+    editingDate:() => loadedDate,
     mode:() => earningsMode
   };
 })();

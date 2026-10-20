@@ -108,7 +108,7 @@ const pageHelpers = `
       const text = banner ? banner.textContent.replace(/\\s+/g, ' ').trim() : '';
       const buttons = banner ? [...banner.querySelectorAll('button')].filter(visible).map(el => el.textContent.trim()) : [];
       const net = app.recordNumbers(app.state.records.find(r => r.date === app.todayKey()), app.monthContext(app.parseDate(app.todayKey()))).net;
-      const feedback = { banner: visible(banner), modal: visible(modal), toast: visible(toast), view: app.currentView, text, buttons, netText: app.money(net) };
+      const feedback = { banner: visible(banner), modal: visible(modal), toast: visible(toast), view: app.currentView, text, buttons, netText: app.money(net).replace(/\\s+/g, ' ') };
       await wait(450);
       [...(banner?.querySelectorAll('button') || [])].find(el => el.textContent.trim() === 'Editar dia')?.click();
       await wait(80);
@@ -117,10 +117,37 @@ const pageHelpers = `
     check('C: modal antigo de resultado não aparece', !c.modal);
     check('C: aviso rápido duplicado do núcleo não aparece', !c.toast);
     check('C: um único retorno visível', c.banner, c);
-    check('C: retorno fala do lucro líquido do dia', /Lucro de hoje/.test(c.text) && c.text.includes(c.netText), c.text);
+    check('C: retorno fala do lucro líquido do dia', /Lucro de hoje/.test(c.text) && c.text.includes(c.netText), { text:c.text, net:c.netText });
     check('C: retorno não mistura bruto com líquido', !/brut/i.test(c.text) && !/líquid/i.test(c.text), c.text);
     check('C: ação "Editar dia" disponível', c.buttons.includes('Editar dia'), c.buttons);
     check('C: "Editar dia" abre o dia preenchido', c.afterEditView === 'day' && c.afterEditForm.extras === '30' && c.afterEditForm.uber === '200', { view:c.afterEditView, form:c.afterEditForm });
+
+    // Cenário D: registro antigo (sem origem por app) aberto pelo Histórico e "Escolher outra data".
+    const d = await run(`
+      const old = dateKey(-3);
+      app.state.records.push({ id:'day-' + old, date:old, gross:250, km:90, hours:7, fuelSpend:40, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() });
+      app.state.records.sort((x, y) => x.date.localeCompare(y.date)); app.save(); app.render();
+      app.navigateToPrimary('history'); await wait(80);
+      const editButton = document.createElement('button'); editButton.dataset.action = 'edit'; editButton.dataset.date = old; app.handleHistoryAction({ target: editButton });
+      await wait(80);
+      const opened = { ...form(), gross: field('recordGross').value, mode: window.FaroRegister.mode() };
+      type(field('recordKm'), 95);
+      await save();
+      const afterLegacyEdit = record(old);
+      await openFromHome();
+      field('clearDayButton').click();
+      const newDay = dateKey(-5);
+      type(field('recordDate'), newDay);
+      typeEarning('uber', 10); type(field('recordKm'), 5);
+      type(field('recordDate'), old);
+      document.querySelector('[data-faro-conflict="keep"]').click();
+      await wait(30);
+      return { old, newDay, opened, afterLegacyEdit, dateAfterKeep: field('recordDate').value, uberAfterKeep: source('uber').value, untouched: record(old) };
+    `);
+    check('D: Histórico > Editar abre registro antigo com bruto, horas e combustível', d.opened.gross === '250' && d.opened.km === '90' && d.opened.hours === '7' && d.opened.fuel === '40' && d.opened.mode === 'legacy', d.opened);
+    check('D: mudar só o km de um registro antigo mantém bruto, horas e combustível', d.afterLegacyEdit && d.afterLegacyEdit.gross === 250 && d.afterLegacyEdit.km === 95 && d.afterLegacyEdit.hours === 7 && d.afterLegacyEdit.fuelSpend === 40, d.afterLegacyEdit);
+    check('D: "Escolher outra data" volta à data anterior e mantém o que foi digitado', d.dateAfterKeep === d.newDay && d.uberAfterKeep === '10', { date:d.dateAfterKeep, uber:d.uberAfterKeep });
+    check('D: dia antigo intacto depois de desistir', d.untouched && d.untouched.km === 95 && d.untouched.gross === 250, d.untouched);
   } finally {
     await faro.close();
   }
