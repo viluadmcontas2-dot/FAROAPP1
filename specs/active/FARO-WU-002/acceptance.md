@@ -8,7 +8,7 @@
 - [ ] B6 — Checkout nasce de usuário FARO autenticado e cria a subscription correta.
 - [ ] B7 — Webhook assinado, idempotência e entitlement server-side provados.
 - [ ] B8 — Billing Portal provado para a assinatura criada.
-- [x] B9 — Código `RATAO` provado no motor de invoice do Stripe: 2299 − 800 = 1499, desconto recorrente por 5 meses.
+- [ ] B9 — Código `PRAGAS` provado no motor de invoice do Stripe: 2299 − 809 = 1490, desconto recorrente por 5 meses. (O código anterior foi provado e substituído em 2026-10-20; prova antiga em `docs/evidence`.)
 - [ ] B10 — `billingEnabled=true` somente após B6–B9 e regressão verde.
 - [ ] B11 — FARO-WU-003 definida como handoff; nenhuma validação física é inferida.
 
