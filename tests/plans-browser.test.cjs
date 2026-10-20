@@ -34,6 +34,7 @@ const DAY = 86400000;
           functions:{ invoke: async (name, options) => { window.testInvoke={name,options}; return { data:{ url:'#faro-teste-'+name }, error:null }; } } };
       };`);
     browser = await openFaro(root);
+    await browser.command('Page.addScriptToEvaluateOnNewDocument', { source: "Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true });" });
     const run = body => browser.evaluate(`(async()=>{const app=window.__vettaApp;const el=id=>document.getElementById(id);${body}})()`);
     const scenario = async (sc, billing = false, kind = sc.session ? null : 'anon') => {
       await run(`localStorage.setItem('plan-scenario', ${JSON.stringify(JSON.stringify(sc))});localStorage.setItem('test-billing','${billing ? 1 : 0}');localStorage.removeItem('faro-promo-code-v1');`);
@@ -45,12 +46,21 @@ const DAY = 86400000;
       }
       await run(`window.nativeConfirms=0;window.confirm=()=>{window.nativeConfirms++;return true};app.showView('more');`);
     };
+    // 320 px: a Conta (com a seção de plano) nunca rola na horizontal, em cada estado.
+    const noOverflow = async label => {
+      await browser.command('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true });
+      const r = await run(`document.getElementById('faroInstallGate')?.style.setProperty('display','none','important');document.documentElement.dataset.faroActivationStage='product';app.state.onboardingComplete=true;app.save();app.render();app.navigateToPrimary('more');if(el('faroPlanCodeBox').hidden)el('faroPlanCodeToggle').click();await new Promise(r=>setTimeout(r,200));const w=document.documentElement.clientWidth;return {sw:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),w};`);
+      await browser.command('Emulation.clearDeviceMetricsOverride', {});
+      if (process.env.DBG) console.log(label, JSON.stringify(r));
+      assert.ok(r.sw <= r.w, 'rolagem horizontal a 320px em ' + label + ': ' + JSON.stringify(r));
+    };
     const state = () => run(`const p=el('faroPlan');return {kind:p.dataset.state,title:el('faroSubscriptionTitle').textContent,badge:el('faroPlanBadge').hidden?'':el('faroPlanBadge').textContent,label:el('faroSubscriptionAction').textContent,disabled:el('faroSubscriptionAction').disabled,exportShown:!el('faroPlanExport').hidden,readOnly:!el('faroPlanReadOnly').hidden,ro:document.documentElement.dataset.faroReadOnly||'',timeline:!el('faroPlanTimeline').hidden};`);
 
     // 1. Sem conta: convida a criar conta (1 passo), cobrança não aparece.
     await scenario({ session: false });
     let s = await state();
     assert.equal(s.kind, 'anon'); assert.equal(s.title, 'Um plano. Tudo liberado.'); assert.equal(s.label, 'Testar 7 dias grátis');
+    await noOverflow('anon');
     assert.equal(s.disabled, false); assert.equal(s.timeline, true);
     assert.equal(await run(`return el('faroPlanTimeline').textContent.includes('Dia 6: a gente avisa') && el('faroPlanTimeline').textContent.includes('Dia 8: você escolhe');`), true);
     await run(`el('faroSubscriptionAction').click();`);
@@ -60,22 +70,26 @@ const DAY = 86400000;
     await scenario({ session: true, trialDays: 5 });
     s = await state();
     assert.equal(s.kind, 'trial'); assert.equal(s.badge, 'Faltam 5 dias'); assert.equal(s.label, 'Em breve'); assert.equal(s.disabled, true);
+    await noOverflow('trial');
     assert.equal(await run(`return window.testRpc;`), 'faro_my_trial_ends_at');
 
     // 3. Trial acabando.
     await scenario({ session: true, trialDays: 1.5 });
     s = await state();
     assert.equal(s.kind, 'trial-ending'); assert.equal(s.title, 'Seu teste acaba em 2 dias'); assert.equal(s.badge, 'Faltam 2 dias');
+    await noOverflow('trial-ending');
 
     // 4. Trial acabou, cobrança desligada: nada trava, exportar visível.
     await scenario({ session: true, trialDays: -1 });
     s = await state();
     assert.equal(s.kind, 'expired'); assert.equal(s.exportShown, true); assert.equal(s.readOnly, false); assert.equal(s.ro, ''); assert.equal(s.label, 'Em breve');
+    await noOverflow('expired');
 
     // 5. Trial acabou com cobrança ligada (só neste teste): modo leitura, exportar e assinar.
     await scenario({ session: true, trialDays: -1 }, true);
     s = await state();
     assert.equal(s.readOnly, true); assert.equal(s.ro, 'on'); assert.equal(s.label, 'Assinar FARO'); assert.equal(s.disabled, false);
+    await noOverflow('leitura');
     assert.equal(await run(`let n=0;const o=app.exportData;app.exportData=function(){n++};el('faroPlanExport').click();app.exportData=o;return n;`), 1);
     await run(`el('faroSubscriptionAction').click();`); await browser.sleep(200);
     assert.equal(await run(`return window.testInvoke?.name+'|'+location.hash;`), 'criar-checkout-faro|#faro-teste-criar-checkout-faro');
@@ -84,6 +98,7 @@ const DAY = 86400000;
     await scenario({ session: true, trialDays: -3, sub: { status: 'active', stripe_customer_id: 'cus_teste', current_period_end: new Date(Date.now() + 20 * DAY).toISOString() } }, true);
     s = await state();
     assert.equal(s.kind, 'subscriber'); assert.equal(s.label, 'Gerenciar assinatura'); assert.equal(s.ro, '');
+    await noOverflow('subscriber');
     await run(`el('faroSubscriptionAction').click();`); await browser.sleep(200);
     assert.equal(await run(`return window.testInvoke?.name;`), 'abrir-portal-faro');
 
@@ -92,6 +107,7 @@ const DAY = 86400000;
     await run(`el('faroPlanCodeToggle').click();el('faroPlanCode').value='pragas';el('faroPlanCodeSave').click();`);
     assert.deepEqual(await run(`return [el('faroPlanAmount').textContent,el('faroPlanSave').hidden,el('faroPlanSave').textContent.includes('R$ 40,45'),el('faroPlanCodeToggle').textContent,el('faroPlanCodeHelp').textContent.includes('Adicionar código promocional')];`),
       ['R$ 14,90', false, true, 'Trocar cupom', true]);
+    await noOverflow('codigo');
     assert.equal(await run(`return window.nativeConfirms;`), 0);
     console.log('PASS Chrome plano: sem conta, trial, trial acabando, trial vencido (com e sem cobrança), assinante e código PRAGAS.');
   } finally { await browser?.close(); await fs.rm(root, { recursive: true, force: true }); }

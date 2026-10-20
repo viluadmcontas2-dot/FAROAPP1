@@ -87,7 +87,7 @@
     if (!doc.getElementById('faroPlanStyle')) {
       const style = doc.createElement('style');
       style.id = 'faroPlanStyle';
-      style.textContent = `#faroPlan{display:grid;gap:12px}
+      style.textContent = `#faroPlan{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}#faroPlan *{min-width:0;overflow-wrap:anywhere}
         #faroPlan .faro-plan-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
         #faroPlan .faro-plan-badge{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--faro-amber-soft);color:var(--faro-amber-text)}
         #faroPlan .faro-plan-badge[data-tone="attention"]{background:var(--faro-loss-soft);color:var(--faro-loss)}
@@ -110,10 +110,10 @@
         #faroPlan .faro-plan-primary:disabled{background:var(--faro-surface-2);color:var(--faro-muted)}
         #faroPlan .faro-plan-secondary{background:var(--faro-black);color:var(--faro-paper)}
         #faroPlan .faro-plan-link{background:transparent;color:var(--faro-amber-text);text-decoration:underline}
-        #faroPlan .faro-plan-code{display:grid;gap:8px}#faroPlan .faro-plan-code label{font-size:13px;font-weight:700}
+        #faroPlan .faro-plan-code{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}#faroPlan .faro-plan-code label{font-size:13px;font-weight:700}
         #faroPlan .faro-plan-code-row{display:flex;gap:8px}
-        #faroPlan .faro-plan-code-row input{flex:1;min-width:0;min-height:48px;font-size:16px;text-transform:uppercase;padding:0 12px;border-radius:14px;border:1px solid var(--faro-line);background:var(--faro-surface);color:var(--faro-ink)}
-        #faroPlan .faro-plan-code-row button{padding:0 16px;background:var(--faro-black);color:var(--faro-paper)}
+        #faroPlan .faro-plan-code-row input{flex:1;width:0;min-width:0;min-height:48px;font-size:16px;text-transform:uppercase;padding:0 12px;border-radius:14px;border:1px solid var(--faro-line);background:var(--faro-surface);color:var(--faro-ink)}
+        #faroPlan .faro-plan-code-row button{flex:none;padding:0 16px;background:var(--faro-black);color:var(--faro-paper)}
         #faroPlan :focus-visible{outline:2px solid var(--faro-focus);outline-offset:2px}`;
       doc.head.appendChild(style);
     }
