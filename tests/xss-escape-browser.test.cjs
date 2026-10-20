@@ -42,12 +42,27 @@ const { openFaro } = require('../scripts/lib/faro-browser.cjs');
       window.FaroFinance.refresh();
       window.FaroReserves.render(); window.FaroR3B.renderMoneyWorkspace();
       await new Promise(resolve => setTimeout(resolve,100));
-      return {control,screens,names,contribution:document.querySelector('#faroReserveList [data-reserve-remove-entry]').dataset.reserveRemoveEntry,safe:window.__xss === undefined, id:document.querySelector('#faroReserveList [data-reserve-contribute]').dataset.reserveContribute, hostileId};
+      // Registro: valores monetários vêm de app.money (formatação externa); lista de ganhos usa innerHTML.
+      window.__xss = undefined;
+      app.showView('day');
+      const realMoney = app.money;
+      app.money = () => payload;
+      const earn = document.querySelector('[data-faro-earning-source="uber"]');
+      earn.value = '10'; earn.dispatchEvent(new Event('input',{bubbles:true}));
+      await new Promise(resolve => setTimeout(resolve,100));
+      const earningList = document.getElementById('faroEarningList');
+      const register = {safe:window.__xss === undefined, images:earningList.querySelectorAll('img[onerror]').length, text:earningList.textContent.includes(payload), row:!!earningList.querySelector('[data-faro-earning-row="uber"]')};
+      app.money = realMoney;
+      return {register,control,screens,names,contribution:document.querySelector('#faroReserveList [data-reserve-remove-entry]').dataset.reserveRemoveEntry,safe:window.__xss === undefined, id:document.querySelector('#faroReserveList [data-reserve-contribute]').dataset.reserveContribute, hostileId};
     })()`);
     assert.equal(result.control,true,'controle positivo executou a carga sem escape');
     assert.equal(result.contribution,result.hostileId + '-entry','aporte preserva ID como atributo');
     for (const screen of result.screens) { assert.equal(screen.safe,true,screen.view); assert.equal(screen.images,0,screen.view); }
     for (const name of result.names) assert.equal(name.text,true,`${name.id}: nome preservado como texto`);
+    assert.equal(result.register.row,true,'registro: linha do app renderizada');
+    assert.equal(result.register.safe,true,'registro: valor monetário não executa HTML');
+    assert.equal(result.register.images,0,'registro: nenhuma tag injetada');
+    assert.equal(result.register.text,true,'registro: valor preservado como texto');
     assert.equal(result.safe,true,'ID de backup não executa HTML');
     assert.equal(result.id,result.hostileId,'ID preservado como um único atributo');
     console.log('PASS XSS no Chromium: custos, reservas, aportes e IDs importados (nome pessoal sem UI nesta versão)');

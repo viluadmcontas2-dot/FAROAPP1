@@ -52,9 +52,16 @@
   const KM_ERROR = 'Informe os km rodados nesse dia.';
 
   const brandMark = source => source.asset
-    ? `<img src="${source.asset}" alt="" aria-hidden="true">`
+    ? `<img src="${window.FaroSafe.esc(source.asset)}" alt="" aria-hidden="true">`
     : '<span class="faro-extra-icon" aria-hidden="true"><i class="fas fa-plus"></i></span>';
   const keypadKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'];
+
+  const chipsMarkup = earningsSources.map(source => `
+          <button type="button" role="radio" aria-checked="false" class="faro-source-chip" data-faro-source-chip="${window.FaroSafe.esc(source.key)}"><span class="faro-source-mark">${window.FaroSafe.raw(brandMark(source))}</span><span>${window.FaroSafe.esc(chipLabel(source))}</span></button>`).join('');
+  const keypadMarkup = keypadKeys.map(key => key === 'del'
+          ? '<button type="button" class="faro-key" data-faro-key="del" aria-label="Apagar"><i class="fas fa-delete-left" aria-hidden="true"></i><span class="faro-key-text">Apagar</span></button>'
+          : `<button type="button" class="faro-key" data-faro-key="${window.FaroSafe.esc(key)}">${window.FaroSafe.esc(key)}</button>`).join('');
+  const storeMarkup = earningsSources.map(source => `<input id="faroEarning-${window.FaroSafe.esc(source.key)}" data-faro-earning-source="${window.FaroSafe.esc(source.key)}" type="number" min="0" step=".01" tabindex="-1" aria-hidden="true">`).join('');
 
   const earningsSection = document.createElement('section');
   earningsSection.id = 'faroEarningsBySource';
@@ -65,22 +72,19 @@
     </div>
     <div id="faroEarningsQuick" class="faro-quick">
       <div id="faroEarningChips" class="faro-source-chips" role="radiogroup" aria-label="App do ganho">
-        ${earningsSources.map(source => `
-          <button type="button" role="radio" aria-checked="false" class="faro-source-chip" data-faro-source-chip="${source.key}"><span class="faro-source-mark">${brandMark(source)}</span><span>${chipLabel(source)}</span></button>`).join('')}
+        ${window.FaroSafe.raw(chipsMarkup)}
       </div>
       <p id="faroEarningQuestion" class="faro-earning-question">Quanto entrou em Uber?</p>
-      <output id="faroEarningDisplay" class="faro-earning-display" data-zero="true" aria-live="polite">${app.money(0)}</output>
+      <output id="faroEarningDisplay" class="faro-earning-display" data-zero="true" aria-live="polite">${window.FaroSafe.esc(app.money(0))}</output>
       <div id="faroEarningMessage" class="faro-field-error hidden" role="alert"></div>
       <div id="faroEarningPad" class="faro-keypad">
-        ${keypadKeys.map(key => key === 'del'
-          ? '<button type="button" class="faro-key" data-faro-key="del" aria-label="Apagar"><i class="fas fa-delete-left" aria-hidden="true"></i><span class="faro-key-text">Apagar</span></button>'
-          : `<button type="button" class="faro-key" data-faro-key="${key}">${key}</button>`).join('')}
+        ${window.FaroSafe.raw(keypadMarkup)}
       </div>
       <button id="faroEarningAdd" type="button" class="faro-earning-add-button">Adicionar</button>
       <div id="faroEarningList" class="faro-earning-list" aria-live="polite"></div>
     </div>
     <div id="faroEarningsGrid" class="faro-earnings-store" hidden>
-      ${earningsSources.map(source => `<input id="faroEarning-${source.key}" data-faro-earning-source="${source.key}" type="number" min="0" step=".01" tabindex="-1" aria-hidden="true">`).join('')}
+      ${window.FaroSafe.raw(storeMarkup)}
     </div>
     <div id="faroLegacyEarnings" class="faro-earnings-legacy faro-state-card hidden" data-faro-tone="attention">
       <div><strong>Faturamento sem origem detalhada</strong><p>Este registro é antigo. Você pode manter o total como está ou distribuir por aplicativo.</p></div>
@@ -209,12 +213,12 @@
       list.innerHTML = '<div class="faro-earning-empty"><i class="fas fa-pen-to-square" aria-hidden="true"></i><div><strong>Nenhum ganho ainda</strong><span>Escolha o app, digite o valor e toque em Adicionar.</span></div></div>';
       return snapshot;
     }
-    list.innerHTML = used.map(source => `
-      <div class="faro-earning-row" data-faro-earning-row="${source.key}">
-        <span>${source.label}</span><strong>${app.money(snapshot.normalized[source.key])}</strong>
-        <button type="button" data-faro-earning-remove="${source.key}" aria-label="Remover ganho de ${source.label}">Remover</button>
-      </div>`).join('') +
-      `<div id="faroEarningsTotalWrap" class="faro-earnings-total"><span>Total do dia</span><strong id="faroEarningsTotal">${app.money(snapshot.total)}</strong></div>`;
+    const rows = used.map(source => `
+      <div class="faro-earning-row" data-faro-earning-row="${window.FaroSafe.esc(source.key)}">
+        <span>${window.FaroSafe.esc(source.label)}</span><strong>${window.FaroSafe.esc(app.money(snapshot.normalized[source.key]))}</strong>
+        <button type="button" data-faro-earning-remove="${window.FaroSafe.esc(source.key)}" aria-label="Remover ganho de ${window.FaroSafe.esc(source.label)}">Remover</button>
+      </div>`).join('');
+    list.innerHTML = `${window.FaroSafe.raw(rows)}<div id="faroEarningsTotalWrap" class="faro-earnings-total"><span>Total do dia</span><strong id="faroEarningsTotal">${window.FaroSafe.esc(app.money(snapshot.total))}</strong></div>`;
     return snapshot;
   };
 
