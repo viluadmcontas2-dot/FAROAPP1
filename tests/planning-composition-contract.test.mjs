@@ -20,8 +20,8 @@ assert.deepEqual(
   `FARO UX-R3-B: composição base de Planejar ainda viola o contrato:\n${violations.map(item => `- ${item.code}: ${item.detail}`).join('\n')}`
 );
 
-assert.match(appShell, /faro-brand-r2\.js\?v=1/);
-assert.match(appShell, /faro-home-r2\.js\?v=2/);
+assert.match(appShell, /faro-brand-r2\.js\?v=2/);
+assert.match(appShell, /faro-home-r2\.js\?v=3/);
 assert.match(appShell, /faro-interactions\.js\?v=2/);
 assert.match(appShell, /faro-planning\.js\?v=2/);
 assert.match(appShell, /faro-planning-invariants\.js\?v=1/);

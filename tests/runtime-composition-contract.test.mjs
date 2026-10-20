@@ -46,14 +46,14 @@ assert.deepEqual(duplicates, [], `IDs declarados por mais de uma superfície ati
 const shell = await readFile('app-shell.html', 'utf8');
 const r3b = await readFile('faro-r3b.js', 'utf8');
 const orderedModules = [
-  'faro-brand-r2.js?v=1',
+  'faro-brand-r2.js?v=2',
   'faro-platform.js?v=3',
   'faro-update.js?v=1',
   'faro-state.js?v=1',
   'faro-energy.js?v=1',
-  'faro-home-r2.js?v=2',
+  'faro-home-r2.js?v=3',
   'faro-register-earnings.js?v=1',
-  'faro-register.js?v=3',
+  'faro-register.js?v=4',
   'faro-finance.js?v=1',
   'faro-reserves.js?v=1',
   'faro-interactions.js?v=2',
@@ -87,7 +87,7 @@ assert.doesNotMatch(r3b, /appendChild\(hero\.cloneNode|cloneNode\(true\)[\s\S]*f
 const updateIndex = orderedModules.indexOf('faro-update.js?v=1');
 const stateIndex = orderedModules.indexOf('faro-state.js?v=1');
 const registerHelperIndex = orderedModules.indexOf('faro-register-earnings.js?v=1');
-const registerIndex = orderedModules.indexOf('faro-register.js?v=3');
+const registerIndex = orderedModules.indexOf('faro-register.js?v=4');
 const planningIndex = orderedModules.indexOf('faro-planning.js?v=2');
 const invariantsIndex = orderedModules.indexOf('faro-planning-invariants.js?v=1');
 const r3bIndex = orderedModules.indexOf('faro-r3b.js?v=1');

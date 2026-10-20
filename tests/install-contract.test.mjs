@@ -40,9 +40,9 @@ contains(shell, 'window.__faroInstallPrompt = null', 'Bootstrap precisa preparar
 contains(shell, "window.addEventListener('beforeinstallprompt'", 'Bootstrap precisa capturar o instalador antes da UI');
 contains(shell, 'faro-platform.js?v=3', 'Shell precisa carregar a porta de instalação');
 contains(shell, 'faro-update.js?v=1', 'Shell precisa carregar a política de atualização silenciosa');
-contains(shell, 'faro-home-r2.js?v=2', 'Shell precisa carregar Home premium');
+contains(shell, 'faro-home-r2.js?v=3', 'Shell precisa carregar Home premium');
 contains(shell, 'faro-register-earnings.js?v=1', 'Shell precisa carregar o helper de ganhos antes do Registro');
-contains(shell, 'faro-register.js?v=3', 'Shell precisa carregar a geração premium do Registro');
+contains(shell, 'faro-register.js?v=4', 'Shell precisa carregar a geração premium do Registro');
 contains(shell, 'faro-interactions.js?v=2', 'Shell precisa carregar a fundação de interação R3-B');
 contains(shell, 'faro-planning.js?v=2', 'Shell precisa carregar o cockpit estrutural R3');
 contains(shell, 'faro-r3b.js?v=1', 'Shell precisa carregar a identidade/interação R3-B');
@@ -64,14 +64,14 @@ contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<m
 contains(index, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Entrada deve pedir a geração nova do manifest ao Android/Chrome');
 contains(shell, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Shell deve pedir a mesma geração nova do manifest');
 contains(shell, ".replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">', '<link rel=\"manifest\" href=\"./manifest.webmanifest?v=2\">')", 'Shell final não pode reintroduzir a geração antiga do manifest ao escrever o legado');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-23'", 'Geração premium precisa renovar o core cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-24'", 'Geração premium precisa renovar o core cache');
 contains(sw, "'./manifest.webmanifest?v=2'", 'PWA deve armazenar a mesma geração versionada do manifest');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');
 contains(sw, 'faro-update.js?v=1', 'PWA precisa armazenar a política de atualização silenciosa');
-contains(sw, 'faro-home-r2.js?v=2', 'PWA precisa armazenar Home premium');
+contains(sw, 'faro-home-r2.js?v=3', 'PWA precisa armazenar Home premium');
 contains(sw, 'faro-register-earnings.js?v=1', 'PWA precisa armazenar o helper de ganhos');
-contains(sw, 'faro-register.js?v=3', 'PWA precisa armazenar Registro premium por plataforma');
+contains(sw, 'faro-register.js?v=4', 'PWA precisa armazenar Registro premium por plataforma');
 contains(sw, 'faro-interactions.js?v=2', 'PWA precisa armazenar a fundação de interação R3-B');
 contains(sw, 'faro-planning.js?v=2', 'PWA precisa armazenar Planejar R3');
 contains(sw, 'faro-r3b.js?v=1', 'PWA precisa armazenar a camada R3-B');

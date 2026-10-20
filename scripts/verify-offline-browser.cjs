@@ -30,7 +30,7 @@ server.listen(0, '127.0.0.1');
   await page.goto(`${origin}/app-shell.html`);
   await page.waitForFunction(() => document.documentElement.dataset.faroPlatformReady === 'true', null, { timeout: 15000 });
   await page.evaluate(() => navigator.serviceWorker.ready);
-  await page.waitForFunction(async () => (await caches.keys()).length > 0 && (await (await caches.open('faro-v1-core-23')).keys()).length > 40, null, { timeout: 15000 });
+  await page.waitForFunction(async () => (await caches.keys()).length > 0 && (await (await caches.open('faro-v1-core-24')).keys()).length > 40, null, { timeout: 15000 });
   console.log('online: shell pronto, SW instalado, requests externos =', [...external].length);
   await context.setOffline(true);
   await page.reload();

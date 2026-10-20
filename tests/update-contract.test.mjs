@@ -16,11 +16,11 @@ assert.match(update, /window\.addEventListener\('pageshow', \(\) => checkForUpda
 assert.match(update, /worker\.postMessage\(\{ type: 'FARO_ACTIVATE_WHEN_SAFE' \}\)/);
 assert.doesNotMatch(update, /location\.reload|skipWaiting\s*\(/);
 
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-23'/, 'Geração premium precisa invalidar o cache anterior');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-24'/, 'Geração premium precisa invalidar o cache anterior');
 assert.match(sw, /\.\/faro-update\.js\?v=1/);
-assert.match(sw, /\.\/faro-home-r2\.js\?v=2/);
+assert.match(sw, /\.\/faro-home-r2\.js\?v=3/);
 assert.match(sw, /\.\/faro-register-earnings\.js\?v=1/);
-assert.match(sw, /\.\/faro-register\.js\?v=3/);
+assert.match(sw, /\.\/faro-register\.js\?v=4/);
 assert.match(sw, /\.\/faro-interactions\.js\?v=2/);
 assert.match(sw, /\.\/faro-planning\.js\?v=2/);
 assert.match(sw, /\.\/faro-r3b\.js\?v=1/);
@@ -41,8 +41,8 @@ assert.doesNotMatch(installBlock, /skipWaiting\s*\(/);
 assert.doesNotMatch(activateBlock, /clients\.claim\s*\(/);
 
 assert.match(shell, /faro-update\.js\?v=1/);
-assert.match(shell, /faro-home-r2\.js\?v=2/);
-assert.match(shell, /faro-register-earnings\.js\?v=1[\s\S]*faro-register\.js\?v=3/);
+assert.match(shell, /faro-home-r2\.js\?v=3/);
+assert.match(shell, /faro-register-earnings\.js\?v=1[\s\S]*faro-register\.js\?v=4/);
 assert.match(shell, /faro-interactions\.js\?v=2/);
 assert.match(shell, /faro-r3b\.js\?v=1/);
 assert.match(shell, /faro-r3-routing\.js\?v=3/);

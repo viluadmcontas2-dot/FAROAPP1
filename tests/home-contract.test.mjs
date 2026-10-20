@@ -10,8 +10,8 @@ const shell = await readFile('app-shell.html', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 const build = await readFile('scripts/build-static-site.mjs', 'utf8');
 
-assert.match(shell, /faro-home-r2\.js\?v=2/);
-assert.match(sw, /faro-home-r2\.js\?v=2/);
+assert.match(shell, /faro-home-r2\.js\?v=3/);
+assert.match(sw, /faro-home-r2\.js\?v=3/);
 assert.match(build, /'faro-home-r2\.js'/);
 assert.doesNotMatch(shell, /faro-home\.js\?v=1/);
 assert.match(home, /insertBefore\(weekCard, monthCard\)/);
