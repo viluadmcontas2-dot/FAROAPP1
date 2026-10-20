@@ -47,3 +47,7 @@ Branch: `claude/cobranca-servidor`. Cada item diz o que foi decidido, por quê e
 - Webhook passa a usar `constructEventAsync` (Deno); teste de contrato exige a versão async.
 - A cópia publicada de `_shared/faro-billing.js` está SEM comentários (só texto); lógica idêntica ao repositório.
 - Fumaça sem credenciais: checkout/portal = 401; webhook = 503 "não configurado" (faltam os 4 segredos).
+
+## 2026-10-20 — excluir-conta-faro publicada (v1)
+- Exclusão LGPD não depende da cobrança: Stripe só é exigido quando o usuário tem cliente/assinatura (teste em tests/legal-pages-contract.test.mjs).
+- Preserva `faro_trials_used` (anti-abuso). Sem login → 401. Sem os segredos de Stripe, quem tem assinatura recebe 503 com a conta mantida.

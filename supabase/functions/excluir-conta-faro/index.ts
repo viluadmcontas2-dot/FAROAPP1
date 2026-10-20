@@ -1,8 +1,10 @@
 import { withSupabase } from 'npm:@supabase/server@1.4.1';
 import Stripe from 'npm:stripe@22.5.0';
 
+class SkipStripe extends Error {}
 const json = (body: unknown, status = 200) => Response.json(body, { status });
-const configured = () => ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'STRIPE_SECRET_KEY']
+// Excluir a conta (direito LGPD) não depende da cobrança: o Stripe só é exigido se o usuário tem cliente/assinatura.
+const configured = () => ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
   .every(name => Boolean(Deno.env.get(name)));
 
 const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
@@ -17,8 +19,12 @@ const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
     const { data, error } = await ctx.supabaseAdmin.from('faro_subscriptions')
       .select('stripe_customer_id,stripe_subscription_id').eq('user_id', userId).maybeSingle();
     if (error) return json({ error: 'Não foi possível conferir a assinatura. Tente novamente.' }, 503);
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
+    const needsStripe = Boolean(data?.stripe_customer_id || data?.stripe_subscription_id);
+    const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
+    if (needsStripe && !stripeSecret) return json({ error: 'Cancelamento da assinatura indisponível agora. Sua conta foi mantida; tente novamente.' }, 503);
     try {
+      if (!needsStripe) throw new SkipStripe();
+      const stripe = new Stripe(stripeSecret);
       // Consultar Stripe evita depender do status local ou de um webhook atrasado.
       const ids = new Set<string>();
       if (data?.stripe_subscription_id) ids.add(data.stripe_subscription_id);
@@ -33,8 +39,8 @@ const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
           await stripe.subscriptions.cancel(id, { prorate: false, invoice_now: false });
         }
       }
-    } catch {
-      return json({ error: 'Não foi possível cancelar a assinatura. Sua conta foi mantida; tente novamente.' }, 502);
+    } catch (error) {
+      if (!(error instanceof SkipStripe)) return json({ error: 'Não foi possível cancelar a assinatura. Sua conta foi mantida; tente novamente.' }, 502);
     }
     // Uma única exclusão usa ON DELETE CASCADE de faro_profiles, faro_state,
     // faro_subscriptions e faro_push_devices. faro_trials_used não tem FK e permanece.

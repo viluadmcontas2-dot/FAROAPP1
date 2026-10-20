@@ -78,3 +78,12 @@ test('Handler cancela assinaturas abertas antes da exclusão e tolera repetiçã
   assert.deepEqual(retry.calls, ['faro_subscriptions', 'delete:titular']);
   assert.equal((await edgeHarness({ deleteError:true }).invoke()).status, 503);
 });
+
+// Excluir a conta (LGPD) não pode depender da cobrança: Stripe só é exigido quando há cliente/assinatura.
+{
+  const { readFile } = await import('node:fs/promises');
+  const fn = await readFile(new URL('../supabase/functions/excluir-conta-faro/index.ts', import.meta.url), 'utf8');
+  const configuredBlock = fn.match(/const configured = \(\) => \[(.*?)\]/s)?.[1] || '';
+  if (/STRIPE_SECRET_KEY/.test(configuredBlock)) throw new Error('excluir-conta-faro não pode exigir STRIPE_SECRET_KEY para todo usuário');
+  if (!/needsStripe/.test(fn)) throw new Error('excluir-conta-faro precisa exigir o Stripe só quando existe cliente/assinatura');
+}
