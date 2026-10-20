@@ -22,14 +22,16 @@
   "experienceContract": [
     "GitHub remoto e Notion governam a execução; hashes rígidos não bloqueiam microajustes de UI autorizados",
     "instalação e ativação ficam isoladas em faro-platform.js para não bloquear o bootstrap do PWA",
-    "onboarding é progressivo, condicional e retomável",
-    "alugado e financiado usam etapas próprias simétricas e depois convergem para custos individuais",
+    "onboarding tem 3 perguntas (carro, quanto quer sobrar, combustível), é retomável e chega ao Início em até 4 toques (decisão: docs/decisoes/onboarding-3-perguntas.md; mockup v3 aprovado pelo dono em 2026-10-20)",
+    "alugado e financiado pedem só 1 valor pré-preenchido com estimativa e geram a conta própria (Aluguel do carro semanal / Parcela do carro mensal)",
+    "custos adicionais, reserva inicial, manutenção por km e energia detalhada viram estimativas marcadas e o cartão Completar meu perfil",
     "custos adicionais preservam nome, valor e vencimento opcional",
     "manutenção por km fica fora do onboarding inicial",
     "reserva inicial é opcional e planejada, sem fingir saldo depositado",
-    "elétrico usa preço por kWh, capacidade da bateria e autonomia por carga",
-    "meta mantém slider, valor editável e atalhos +R$50 +R$100 +R$500",
-    "Farejando sua operação dura aproximadamente quatro segundos na primeira configuração",
+    "elétrico usa preço por kWh, capacidade da bateria e autonomia por carga (estimados no onboarding)",
+    "meta tem 3 opções e Outro valor com slider, valor editável e limite 500 a 50000",
+    "sem espera artificial: o plano aparece na hora (antes: Farejando ~4 s)",
+    "tour tem no máximo 3 passos, todos no Início e só em elementos visíveis",
     "service worker protege o núcleo e melhora disponibilidade offline de dependências externas sem deixar CDN bloquear a instalação",
     "workflow de validação comercial é manual; push comum deve consumir zero Actions"
   ]

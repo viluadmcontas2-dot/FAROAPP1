@@ -9,11 +9,12 @@ const shell = await readFile('app-shell.html', 'utf8');
 
 assert.match(tour, /faro-ui-tour-v1/);
 assert.match(tour, /title:'Hoje'[\s\S]*view:'dashboard'/);
-assert.match(tour, /title:'Registrar'[\s\S]*view:'day'/);
-assert.match(tour, /title:'Planejar'[\s\S]*view:'planning'/);
-assert.match(tour, /title:'Histórico'[\s\S]*view:'history'/);
-assert.match(tour, /title:'Central'[\s\S]*view:'more'/);
-assert.equal((tour.match(/title:'/g) || []).length, 5, 'Tour deve ensinar exatamente cinco destinos principais');
+assert.match(tour, /title:'Registrar'[\s\S]*view:'dashboard'/);
+assert.match(tour, /title:'Planejar'[\s\S]*view:'dashboard'/);
+// F5 (docs/decisoes/onboarding-3-perguntas.md): no máximo 3 passos, sem trocar de tela.
+assert.equal((tour.match(/title:'/g) || []).length, 3, 'Tour deve ter no máximo três passos');
+assert.doesNotMatch(tour, /view:'(day|planning|history|more)'/, 'Tour não troca de tela: tudo é apontado a partir do Início');
+assert.match(tour, /const isVisible = el =>/, 'Tour não aponta elemento oculto');
 assert.match(tour, /PULAR/);
 assert.match(tour, /VOLTAR/);
 assert.match(tour, /PRÓXIMO/);

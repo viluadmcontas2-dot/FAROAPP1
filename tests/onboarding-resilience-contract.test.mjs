@@ -10,36 +10,31 @@ const contains = (snippet, label) => assert.equal(onboarding.includes(snippet), 
 contains("const DRAFT_KEY = 'faro-onboarding-draft-v2'", 'Onboarding precisa de chave própria de rascunho');
 contains("localStorage.getItem(DRAFT_KEY)", 'Retomada precisa ler o rascunho salvo');
 contains("localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))", 'Mudanças do onboarding precisam persistir o rascunho');
-contains("localStorage.removeItem(DRAFT_KEY)", 'Rascunho só deve ser removido ao concluir');
-contains("if (draft.stepId === 'processing') showProcessing()", 'Reload durante processamento precisa retomar o processamento');
-contains("else if (draft.stepId === 'result') showResult()", 'Reload no resultado precisa restaurar o resultado');
+// F5: o rascunho só some no commit final, que tem um único owner (faro-onboarding-commit.js).
+const commit = await readFile('faro-onboarding-commit.js', 'utf8');
+assert.doesNotMatch(onboarding, /removeItem\(DRAFT_KEY\)/, 'Onboarding não pode apagar o rascunho antes do commit final');
+assert.match(commit, /localStorage\.removeItem\('faro-onboarding-draft-v2'\)/, 'Rascunho só deve ser removido ao concluir (owner do commit)');
+contains("else renderStep()", 'Reload no meio precisa retomar a pergunta salva');
+contains("if (draft.stepId === 'result') showResult()", 'Reload no resultado precisa restaurar o resultado');
 
 for (const field of [
-  "draft.days = Number(button.dataset.days)",
-  "draft.vehicle = button.dataset.vehicle",
-  "draft.financeMonthly = n($('faroFinanceMonthly').value)",
-  "draft.financeDueDay = clampDueDay($('faroFinanceDue').value) ?? ''",
-  "draft.reserveDraft.name=$('faroReserveName').value",
-  "draft.reserveDraft.value=$('faroReserveValue').value",
-  "draft.revenueKm=n(e.target.value)"
-]) contains(field, `Campo de onboarding precisa permanecer persistente: ${field}`);
+  "draft.vehicle = vehicle",
+  "draft.vehicleCost = n(e.target.value)",
+  "syncTarget(Number(button.dataset.targetChoice))",
+  "applyEnergy(button.dataset.energyChoice)"
+]) contains(field, `Resposta do onboarding precisa permanecer persistente: ${field}`);
+assert.match(onboarding, /const goTo = stepId => \{ draft\.stepId = stepId; saveDraft\(\); renderStep\(\); \}/, 'Trocar de pergunta precisa salvar a posição');
 
-assert.match(onboarding, /draft\.stepId=seq\[index-1\];\s*saveDraft\(\);\s*renderStep\(\)/, 'Voltar etapa precisa salvar a posição');
-assert.match(onboarding, /draft\.stepId=seq\[index\+1\];\s*saveDraft\(\);\s*renderStep\(\)/, 'Avançar etapa precisa salvar a posição');
-
-// 9.16 — processamento e conclusão precisam ser idempotentes: reconstruir, não anexar fatos/custos.
-assert.match(onboarding, /const showProcessing = \(\) => \{[\s\S]*draft\.stepId = 'processing';[\s\S]*saveDraft\(\);[\s\S]*app\.state\.costs = buildCosts\(\);[\s\S]*app\.state\.onboardingComplete = false;[\s\S]*app\.save\(\);/,
-  'Processamento precisa salvar checkpoint, reconstruir custos e manter onboarding incompleto');
+// 9.16 — gravação idempotente: reconstruir, não anexar fatos/custos; nunca concluir antes do gesto final.
+assert.match(onboarding, /const commitDraftToState = \(\) => \{[\s\S]*app\.state\.costs = buildCosts\(\);[\s\S]*app\.state\.onboardingComplete = false;[\s\S]*app\.save\(\);/,
+  'Gravação precisa reconstruir custos e manter onboarding incompleto');
 assert.doesNotMatch(onboarding, /app\.state\.costs\.push|app\.state\.records\.push|app\.state\.events\.push/, 'Onboarding não pode duplicar estado por append durante retomada/conclusão');
 assert.match(onboarding, /const showResult = \(\) => \{[\s\S]*draft\.stepId = 'result';[\s\S]*saveDraft\(\);[\s\S]*app\.state\.onboardingComplete = false;[\s\S]*app\.save\(\);/,
   'Tela de resultado precisa continuar reversível e não concluir o onboarding');
-
-const finishStart = onboarding.indexOf("$('faroFinish').addEventListener('click'");
-assert.ok(finishStart >= 0, 'Conclusão final precisa existir');
-const finishEnd = onboarding.indexOf("$('faroRentalWeekly').value", finishStart);
-const finishBlock = onboarding.slice(finishStart, finishEnd);
-assert.match(finishBlock, /app\.state\.onboardingComplete = true;[\s\S]*app\.save\(\);[\s\S]*clearDraft\(\);/, 'Somente o gesto final pode concluir, salvar e então apagar o rascunho');
-assert.doesNotMatch(finishBlock, /buildCosts\(|\.push\(/, 'Duplo toque na conclusão não pode adicionar custos ou registros novamente');
+assert.doesNotMatch(onboarding, /onboardingComplete = true/, 'Somente o owner do commit conclui o onboarding');
+assert.doesNotMatch(onboarding, /setTimeout\(showResult/, 'Sem espera artificial antes do plano');
+assert.match(commit, /app\.state\.onboardingComplete = true;[\s\S]*app\.save\(\);[\s\S]*removeItem\('faro-onboarding-draft-v2'\)/, 'Somente o gesto final pode concluir, salvar e então apagar o rascunho');
+assert.doesNotMatch(commit, /buildCosts\(|\.push\(/, 'Duplo toque na conclusão não pode adicionar custos ou registros novamente');
 
 // HF1 físico — app.js ainda abre o onboarding legado antes de faro-onboarding assumir o modal.
 // O shell deve impedir qualquer frame visível do owner legado: o modal só pode aparecer
