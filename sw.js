@@ -54,6 +54,8 @@ const APP_SHELL = [
   './icon-maskable-512.png',
   './apple-touch-icon.png',
   './favicon-32.png',
+  './screenshot-home.png',
+  './screenshot-register.png',
   './assets/platforms/faro-platform-99.svg',
   './assets/platforms/faro-platform-indrive.svg',
   './assets/platforms/faro-platform-uber.svg'

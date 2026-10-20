@@ -51,6 +51,8 @@ const copyFiles = [
   'icon-maskable-512.png',
   'apple-touch-icon.png',
   'favicon-32.png',
+  'screenshot-home.png',
+  'screenshot-register.png',
   'faro-mark.svg',
   // Dependências de terceiros hospedadas localmente com versão fixa (sem CDN).
   'vendor/chart-4.5.1.umd.min.js',

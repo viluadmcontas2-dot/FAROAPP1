@@ -44,6 +44,16 @@ for (const shortcut of manifest.shortcuts) {
   assert.ok(shortcut.short_name && shortcut.icons?.[0]?.src.endsWith('.png'), 'atalho precisa de ícone PNG');
 }
 
+// Screenshots reais 390x844 (@2x) declarados com as dimensões verdadeiras.
+assert.ok(manifest.screenshots.length >= 2, 'precisa de ao menos 2 screenshots');
+for (const shot of manifest.screenshots) {
+  assert.equal(shot.form_factor, 'narrow');
+  assert.equal(shot.type, 'image/png');
+  const [w, h] = await png(shot.src.replace('./', ''));
+  assert.equal(shot.sizes, `${w}x${h}`);
+  assert.ok(shot.label);
+}
+
 // iOS: apple-touch-icon PNG 180 + metas de app standalone nas duas entradas.
 for (const [name, html] of [['index', index], ['app-shell', shell]]) {
   assert.match(html, /<link rel="apple-touch-icon" href="\.\/apple-touch-icon\.png">/, `${name}: apple-touch-icon PNG`);
@@ -56,7 +66,7 @@ for (const [name, html] of [['index', index], ['app-shell', shell]]) {
 // O shell legado é reescrito em runtime: o ícone SVG não pode sobreviver como apple-touch-icon.
 assert.match(shell, /<link rel="apple-touch-icon" href="\.\/icon\.svg">'?,\s*'<link rel="apple-touch-icon" href="\.\/apple-touch-icon\.png">/);
 
-for (const file of ['icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png']) {
+for (const file of ['icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'screenshot-home.png', 'screenshot-register.png']) {
   assert.ok(sw.includes(`./${file}`), `sw.js precisa pré-cachear ${file}`);
   assert.ok(build.includes(`'${file}'`), `build precisa copiar ${file}`);
 }
