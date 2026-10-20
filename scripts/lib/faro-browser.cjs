@@ -95,7 +95,7 @@ async function openFaro(rootDir) {
       await sleep(250);
     }
     assert.ok(ready, 'Runtime do FARO e Registro não ficaram prontos');
-    return { evaluate, close, sleep };
+    return { evaluate, command, close, sleep };
   } catch (error) {
     await close();
     throw error;
