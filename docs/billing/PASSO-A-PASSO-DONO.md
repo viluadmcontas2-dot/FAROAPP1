@@ -66,6 +66,12 @@ Resultado: R$ 22,99 − R$ 8,09 = **R$ 14,90** nos 5 primeiros meses.
 
 4. Clique **Save**.
 
+### Interruptor da cobrança: `FARO_BILLING_ENABLED`
+
+É a trava do servidor. Sem ela, os botões **Assinar** e **Gerenciar assinatura** respondem "Cobrança ainda não aberta"
+(mesmo que alguém force o app). **No beta, NÃO crie essa variável.** Só no dia de abrir a venda (ou para o teste com
+cartão do passo 5), adicione o segredo `FARO_BILLING_ENABLED` com o valor `true`. Para fechar de novo, apague-o.
+
 ## 5. Testar com cartão de teste
 
 1. Avise o Claude: "segredos instalados". Ele aplica a migration e liga o botão só no ambiente de teste.

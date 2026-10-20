@@ -11,6 +11,8 @@ export default {
     const userId = String(ctx.userClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
     if (ctx.userClaims?.is_anonymous === true) return json({ error: 'Crie sua conta com e-mail para assinar.' }, 403);
+    // Trava de servidor (fail-closed): sem FARO_BILLING_ENABLED=true nos segredos, a cobrança fica fechada (beta).
+    if (!(Deno.env.get('FARO_BILLING_ENABLED') === 'true')) return json({ error: 'Cobrança ainda não aberta.' }, 503);
     if (!stripeSecret || !appUrl) return json({ error: 'Portal ainda não configurado.' }, 503);
 
     const stripe = new Stripe(stripeSecret);

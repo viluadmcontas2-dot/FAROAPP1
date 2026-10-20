@@ -59,8 +59,8 @@ assert.match(lower, /old\.server_updated_at > now\(\) - interval '1 second'/, 'R
 // 2/3 — Webhook.
 assert.match(shared, /items\?\.data\?\.\[0\]\?\.current_period_end/);
 assert.match(webhook, /subscriptionPeriodEnd\(subscription\)/);
-assert.match(webhook, /isStaleSubscriptionEvent\(/);
-assert.match(webhook, /last_event_created/);
+// Ordem de eventos agora é decidida na RPC atômica (migration 20261020140000; ver billing-atomica-contract).
+assert.match(webhook, /rpc\('faro_apply_subscription_event'/);
 for (const type of ['customer.subscription.trial_will_end', 'invoice.payment_failed', 'charge.dispute.created', 'customer.subscription.deleted']) {
   assert.ok(webhook.includes(`'${type}'`), `Webhook deve tratar ${type}`);
 }

@@ -11,6 +11,7 @@ create table auth.users (
   id uuid primary key,
   email text,
   is_anonymous boolean not null default false,
+  email_confirmed_at timestamptz,
   created_at timestamptz not null default now()
 );
 create function auth.jwt() returns jsonb language sql stable as $$
@@ -19,4 +20,7 @@ $$;
 create function auth.uid() returns uuid language sql stable as $$
   select nullif(auth.jwt() ->> 'sub', '')::uuid
 $$;
-grant execute on function auth.jwt(), auth.uid() to anon, authenticated, service_role;
+create function auth.role() returns text language sql stable as $$
+  select coalesce(auth.jwt() ->> 'role', '')
+$$;
+grant execute on function auth.jwt(), auth.uid(), auth.role() to anon, authenticated, service_role;

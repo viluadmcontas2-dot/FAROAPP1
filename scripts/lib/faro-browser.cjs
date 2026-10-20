@@ -18,7 +18,14 @@ const findChrome = () => {
       ? ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome']
       : ['/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser',
          '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'];
-  return process.env.FARO_CHROME_BIN || candidates.find(fs.existsSync) || null;
+  const found = process.env.FARO_CHROME_BIN
+    ? (fs.existsSync(process.env.FARO_CHROME_BIN) ? process.env.FARO_CHROME_BIN : null)
+    : candidates.find(fs.existsSync) || null;
+  // Localmente, sem Chrome o teste faz SKIP com aviso; com CI=true, pular em silêncio é proibido.
+  if (!found && process.env.CI === 'true') {
+    throw new Error('FARO: CI=true exige Chrome para os testes de navegador (defina FARO_CHROME_BIN).');
+  }
+  return found;
 };
 
 const types = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.json':'application/json', '.webmanifest':'application/manifest+json' };

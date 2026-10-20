@@ -57,9 +57,10 @@ assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon
 // e delete atrasado de uma assinatura antiga não pode cancelar uma assinatura nova do mesmo usuário.
 assert.match(webhook, /customer\.subscription\.created'[\s\S]*customer\.subscription\.updated'[\s\S]*stripe\.subscriptions\.retrieve\(subscriptionId\)/,
   'Eventos created/updated devem buscar a assinatura atual na Stripe antes de escrever entitlement');
-assert.match(webhook, /select\('stripe_subscription_id,status,last_event_created'\)[\s\S]*if \(isStaleSubscriptionEvent\(current, \{ subscriptionId: subscription\.id, status, eventCreated: event\.created \}\)\)[\s\S]*return false;/,
+// Ordem do evento agora é decidida de forma atômica no banco (faro_apply_subscription_event, migration 20261020140000).
+assert.match(webhook, /rpc\('faro_apply_subscription_event'[\s\S]*p_event_created/,
   'Evento atrasado (inclusive delete de assinatura antiga) precisa pular a mutação quando o usuário já está em estado mais novo');
-assert.match(webhook, /customer\.subscription\.deleted' && subscriptionId\)[\s\S]*await applySubscription\(object,/,
+assert.match(webhook, /customer\.subscription\.deleted' && subscriptionId\)[\s\S]*await applyEvent\(object,/,
   'Delete passa pela mesma guarda de evento velho');
 
 assert.match(schema, /grant select on public\.faro_subscriptions to authenticated/);

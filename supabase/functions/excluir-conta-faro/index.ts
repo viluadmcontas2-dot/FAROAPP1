@@ -16,6 +16,10 @@ const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
   if (body?.confirmation !== 'EXCLUIR') return json({ error: 'Confirme a exclusão no aplicativo.' }, 400);
 
   try {
+    // 1º: marca a exclusão (bloqueia checkouts novos) e recebe a sessão de checkout aberta conhecida.
+    const { data: savedCheckout, error: beginError } = await ctx.supabaseAdmin
+      .rpc('faro_begin_account_deletion', { p_user_id: userId });
+    if (beginError) return json({ error: 'Não foi possível iniciar a exclusão. Tente novamente.' }, 503);
     const { data, error } = await ctx.supabaseAdmin.from('faro_subscriptions')
       .select('stripe_customer_id,stripe_subscription_id').eq('user_id', userId).maybeSingle();
     if (error) return json({ error: 'Não foi possível conferir a assinatura. Tente novamente.' }, 503);
@@ -25,7 +29,19 @@ const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
     try {
       if (!needsStripe) throw new SkipStripe();
       const stripe = new Stripe(stripeSecret);
-      // Consultar Stripe evita depender do status local ou de um webhook atrasado.
+      // 2º: expira checkouts abertos (o salvo e os listados no customer) ANTES de cancelar: ninguém paga depois.
+      const openCheckouts = new Set<string>();
+      if (typeof savedCheckout === 'string' && savedCheckout) openCheckouts.add(savedCheckout);
+      if (data?.stripe_customer_id) {
+        for await (const session of stripe.checkout.sessions.list({ customer: data.stripe_customer_id, status: 'open', limit: 100 })) {
+          openCheckouts.add(session.id);
+        }
+      }
+      for (const id of openCheckouts) {
+        const session = await stripe.checkout.sessions.retrieve(id);
+        if (session.status === 'open') await stripe.checkout.sessions.expire(id);
+      }
+      // 3º: cancela assinaturas. Consultar Stripe evita depender do status local ou de um webhook atrasado.
       const ids = new Set<string>();
       if (data?.stripe_subscription_id) ids.add(data.stripe_subscription_id);
       if (data?.stripe_customer_id) {
@@ -42,7 +58,7 @@ const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
     } catch (error) {
       if (!(error instanceof SkipStripe)) return json({ error: 'Não foi possível cancelar a assinatura. Sua conta foi mantida; tente novamente.' }, 502);
     }
-    // Uma única exclusão usa ON DELETE CASCADE de faro_profiles, faro_state,
+    // 4º: apaga o usuário. Uma única exclusão usa ON DELETE CASCADE de faro_profiles, faro_state,
     // faro_subscriptions e faro_push_devices. faro_trials_used não tem FK e permanece.
     const { error: deleteError } = await ctx.supabaseAdmin.auth.admin.deleteUser(userId);
     if (deleteError) return json({ error: 'Não foi possível excluir a conta. A assinatura pode já estar cancelada; tente novamente.' }, 503);
