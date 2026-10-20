@@ -21,8 +21,8 @@ assert.doesNotMatch(config, /otpChannel/);
 for (const source of [config, account, shell]) {
   assert.doesNotMatch(source, /sk_live_|sk_test_|sb_secret_|service_role|SUPABASE_SECRET_KEYS|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET/);
 }
-assert.match(account, /@supabase\/supabase-js@2\.112\.3\/\+esm/,
-  'SDK Supabase do navegador precisa ser pinado em versão exata; major flutuante não é reprodutível');
+assert.match(account, /supabase-js-2\.112\.3\.mjs/,
+  'SDK Supabase do navegador precisa ser local e pinado em versão exata (offline-first, sem CDN)');
 
 // N5: backend FARO Financeiro dedicado e publicável; nunca reutilizar FARO Corridas.
 assert.match(config, /supabaseUrl: 'https:\/\/mjbyqhreptllilkggiri\.supabase\.co'/,

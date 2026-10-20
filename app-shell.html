@@ -43,6 +43,17 @@
   });
 })();
 <\/script>`;
+      const vendorSwaps = /*VENDOR_SWAPS*/[
+        ["<script src=\"https://cdn.tailwindcss.com\"><\/script>", ""],
+        ["<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"><\/script>", "<script src=\"./vendor/chart-4.5.1.umd.min.js\"><\/script>"],
+        ["<script>tailwind.config={theme:{extend:{fontFamily:{sans:['\\\"Plus Jakarta Sans\\\"','sans-serif']},colors:{vetta:{900:'#0B1121',800:'#1E293B',100:'#F1F5F9',50:'#F8FAFC'}},boxShadow:{float:'0 10px 30px -5px rgba(37,99,235,.15)'}}}};<\/script>", ""],
+        ["<link href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\" rel=\"stylesheet\">", "<link href=\"./vendor/fontawesome-6.4.0/css/all.min.css\" rel=\"stylesheet\">"],
+        ["<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>", ""],
+        ["<link href=\"https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">", "<link href=\"./vendor/fonts/plus-jakarta-sans.css\" rel=\"stylesheet\">"],
+        // O CDN do Tailwind injetava seu <style> no fim do <head>, DEPOIS do styles.css; manter essa ordem preserva a cascata.
+        ["<link href=\"./styles.css\" rel=\"stylesheet\">", "<link href=\"./styles.css\" rel=\"stylesheet\"><link href=\"./vendor/tailwind.css\" rel=\"stylesheet\">"]
+      ]/*END_VENDOR_SWAPS*/;
+      for (const [from, to] of vendorSwaps) html = html.replace(from, to);
       html = html
         .replace('<head>', `<head>${bootstrap}`)
         .replace('<link rel="manifest" href="./manifest.webmanifest">', '<link rel="manifest" href="./manifest.webmanifest?v=2">')
