@@ -76,7 +76,7 @@ for (const [name, expected] of Object.entries(integrity.coreFunctionSha256)) {
 
 assert.match(index, /location\.replace\('\.\/app-shell\.html'\)/);
 assert.doesNotMatch(index, /Instalar FARO|login|assinatura|password|senha|access-gate/i);
-assert.match(shell, /faro-brand-r2\.js\?v=2/);
+assert.match(shell, /faro-brand-r2\.js\?v=3/);
 assert.match(shell, /faro-home-r2\.js\?v=3/);
 assert.match(shell, /faro-register-earnings\.js\?v=1[\s\S]*faro-register\.js\?v=4/);
 assert.match(shell, /faro-interactions\.js\?v=2/);
@@ -137,10 +137,10 @@ assert.match(routing, /FaroPlanning\?\.openMoney/);
 assert.match(tour, /faro-ui-tour-v1/);
 
 for (const source of [sw, await read('_site/sw.js')]) {
-  assert.match(source, /faro-v1-core-28/);
+  assert.match(source, /faro-v1-core-29/);
   assert.match(source, /faro-platform\.js\?v=3/);
   assert.match(source, /faro-update\.js\?v=1/);
-  assert.match(source, /faro-brand-r2\.js\?v=2/);
+  assert.match(source, /faro-brand-r2\.js\?v=3/);
   assert.match(source, /faro-home-r2\.js\?v=3/);
   assert.match(source, /faro-register-earnings\.js\?v=1/);
   assert.match(source, /faro-register\.js\?v=4/);

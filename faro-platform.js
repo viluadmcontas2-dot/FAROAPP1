@@ -64,7 +64,7 @@
         help: app.isSafari()
           ? 'No Safari, use o menu Compartilhar para concluir.'
           : 'Se “Adicionar à Tela de Início” não aparecer, abra este mesmo link no Safari.',
-        button: 'VER PASSO A PASSO'
+        button: 'Ver passo a passo'
       };
     }
 
@@ -76,7 +76,7 @@
           ? ['Toque no menu ☰.', 'Escolha “Adicionar página a”.', 'Escolha “Tela inicial” e confirme.', 'Abra o FARO pelo ícone criado.']
           : ['Toque no menu ⋮.', 'Escolha “Instalar app” ou “Adicionar à tela inicial”.', 'Confirme a instalação.', 'Abra o FARO pelo ícone criado.'],
         help: 'Use esse passo a passo se o instalador não abrir sozinho.',
-        button: 'TENTAR INSTALAR DE NOVO'
+        button: 'Tentar instalar de novo'
       };
     }
 
@@ -85,7 +85,7 @@
         title: 'Instalar no Android',
         steps: ['Toque em “Instalar FARO” abaixo.', 'Confirme quando o celular perguntar.', 'Quando terminar, abra o FARO pelo novo ícone.'],
         help: '',
-        button: 'INSTALAR FARO'
+        button: 'Instalar o FARO'
       };
     }
 
@@ -94,7 +94,7 @@
         title: 'Instalar no computador',
         steps: ['Abra o menu do navegador.', 'Procure “Instalar FARO”, “Instalar app” ou opção equivalente.', 'Confirme.', 'Abra o FARO pelo novo ícone ou atalho criado.'],
         help: 'Use esse passo a passo se o instalador não abrir sozinho.',
-        button: 'TENTAR INSTALAR DE NOVO'
+        button: 'Tentar instalar de novo'
       };
     }
 
@@ -102,7 +102,7 @@
       title: 'Instalar no computador',
       steps: ['Clique em “Instalar FARO”.', 'Confirme quando aparecer a instalação.', 'Depois abra o FARO pelo novo ícone ou atalho criado.'],
       help: '',
-      button: 'INSTALAR FARO'
+      button: 'Instalar o FARO'
     };
   };
 

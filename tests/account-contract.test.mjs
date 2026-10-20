@@ -53,8 +53,8 @@ assert.doesNotMatch(account, /signInWithOtp|verifyOtp|pendingPhone|faroPhone|far
   'Fluxo ativo não pode depender de telefone ou OTP');
 
 // Conflito explícito quando o backend estiver configurado.
-assert.match(account, /USAR DADOS DESTE APARELHO/);
-assert.match(account, /USAR DADOS SALVOS NA CONTA/);
+assert.match(account, /Usar dados deste aparelho/);
+assert.match(account, /Usar dados da conta/);
 assert.match(account, /O FARO não vai sobrescrever nada sozinho/);
 assert.match(account, /meta\.dirty/);
 assert.match(account, /remote\.revision/);

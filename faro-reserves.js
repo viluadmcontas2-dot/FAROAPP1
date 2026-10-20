@@ -23,7 +23,7 @@
     center.innerHTML = `
       <div class="flex justify-between items-start gap-3"><div><span class="label-micro !text-emerald-700">Reservas</span><h3 class="text-lg font-extrabold">Dinheiro que você realmente separou</h3><p class="text-xs text-slate-500 mt-1">Planejar uma reserva entra na meta. O saldo abaixo só aumenta quando você registra um aporte real.</p></div><i class="fas fa-piggy-bank text-emerald-600 text-xl" aria-hidden="true"></i></div>
       <div id="faroReserveList" class="space-y-3 mt-5"></div>
-      <button id="faroCreateReserve" type="button" class="w-full mt-4 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-extrabold">+ CRIAR UMA RESERVA</button>`;
+      <button id="faroCreateReserve" type="button" class="w-full mt-4 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-extrabold">+ Criar reserva</button>`;
     const payment = $('faroPaymentCenter');
     if (payment) payment.insertAdjacentElement('afterend', center);
     else settings.insertBefore(center, settings.children[1] || null);
@@ -45,7 +45,7 @@
           <div><label class="label-micro">Quanto quer juntar? (opcional)</label><div class="input-wrapper"><span>R$</span><input id="faroReserveGoalAmount" type="number" min="0" step="50" inputmode="decimal" class="input-vetta faro-money" placeholder="2000"></div></div>
           <div><label class="label-micro">Até quando? (opcional)</label><input id="faroReserveGoalDate" type="date" class="input-vetta no-mask"></div>
         </div>
-        <button id="faroReserveSave" type="button" class="w-full mt-5 py-4 rounded-2xl bg-emerald-600 text-white font-extrabold">SALVAR APORTE</button>
+        <button id="faroReserveSave" type="button" class="w-full mt-5 py-4 rounded-2xl bg-emerald-600 text-white font-extrabold">Guardar aporte</button>
       </div>`;
     document.body.appendChild(modal);
   }
@@ -60,7 +60,7 @@
     $('faroGoalFields').classList.add('hidden');
     $('faroContributionAmount').value = '';
     $('faroContributionDate').value = app.todayKey();
-    $('faroReserveSave').textContent = 'SALVAR APORTE';
+    $('faroReserveSave').textContent = 'Guardar aporte';
     $('faroReserveSave').dataset.mode = 'contribution';
     $('faroReserveModal').classList.remove('hidden');
   };
@@ -75,7 +75,7 @@
     $('faroGoalFields').classList.remove('hidden');
     $('faroReserveGoalAmount').value = profile.goalAmount || '';
     $('faroReserveGoalDate').value = profile.targetDate || '';
-    $('faroReserveSave').textContent = 'SALVAR OBJETIVO';
+    $('faroReserveSave').textContent = 'Salvar meta da reserva';
     $('faroReserveSave').dataset.mode = 'goal';
     $('faroReserveModal').classList.remove('hidden');
   };
@@ -126,8 +126,8 @@
       return `<article class="rounded-2xl border border-emerald-100 bg-emerald-50/30 p-4">
         <div class="flex justify-between gap-3"><div class="min-w-0"><strong class="block text-sm truncate">${window.FaroSafe.esc(reserve.name)}</strong><span class="text-xs text-slate-500">${window.FaroSafe.esc(plannedText(reserve))}</span></div><strong class="text-emerald-700">${window.FaroSafe.esc(app.money(balance,0))}</strong></div>
         ${window.FaroSafe.raw(goal > 0 ? `<div class="mt-3"><div class="flex justify-between text-xs font-bold text-slate-500"><span>Meta ${window.FaroSafe.esc(app.money(goal,0))}</span><span>${window.FaroSafe.esc(Math.round(progress))}%</span></div><div class="progress-track mt-2"><div class="progress-fill" style="width:${window.FaroSafe.esc(progress)}%"></div></div>${window.FaroSafe.raw(profile.targetDate ? `<span class="text-xs text-slate-500 block mt-2">Data-alvo: ${window.FaroSafe.esc(app.parseDate(profile.targetDate).toLocaleDateString('pt-BR'))}</span>` : '')}</div>` : '<p class="text-xs text-slate-500 mt-2">Sem meta total definida. O saldo continua sendo acompanhado normalmente.</p>')}
-        <div class="grid grid-cols-2 gap-2 mt-3"><button type="button" data-reserve-contribute="${window.FaroSafe.esc(reserve.id)}" class="rounded-xl bg-emerald-600 text-white text-xs font-extrabold">+ REGISTRAR APORTE</button><button type="button" data-reserve-goal="${window.FaroSafe.esc(reserve.id)}" class="rounded-xl bg-white text-emerald-700 border border-emerald-100 text-xs font-extrabold">DEFINIR META</button></div>
-        ${window.FaroSafe.raw(recent.length ? `<details class="mt-3"><summary class="text-xs font-extrabold text-slate-500 cursor-pointer">ÚLTIMOS APORTES</summary><div class="mt-2 space-y-2">${window.FaroSafe.raw(recent.map(entry => `<div class="flex justify-between items-center gap-2 text-xs bg-white rounded-xl px-3 py-2"><span>${window.FaroSafe.esc(app.parseDate(entry.date).toLocaleDateString('pt-BR'))} · ${window.FaroSafe.esc(app.money(entry.amount,0))}</span><button type="button" data-reserve-remove-entry="${window.FaroSafe.esc(entry.id)}" class="min-h-[36px] px-2 text-red-500 text-xs font-extrabold">REMOVER</button></div>`).join(''))}</div></details>` : '')}
+        <div class="grid grid-cols-2 gap-2 mt-3"><button type="button" data-reserve-contribute="${window.FaroSafe.esc(reserve.id)}" class="rounded-xl bg-emerald-600 text-white text-xs font-extrabold">Guardar aporte</button><button type="button" data-reserve-goal="${window.FaroSafe.esc(reserve.id)}" class="rounded-xl bg-white text-emerald-700 border border-emerald-100 text-xs font-extrabold">Definir meta da reserva</button></div>
+        ${window.FaroSafe.raw(recent.length ? `<details class="mt-3"><summary class="text-xs font-extrabold text-slate-500 cursor-pointer">Últimos aportes</summary><div class="mt-2 space-y-2">${window.FaroSafe.raw(recent.map(entry => `<div class="flex justify-between items-center gap-2 text-xs bg-white rounded-xl px-3 py-2"><span>${window.FaroSafe.esc(app.parseDate(entry.date).toLocaleDateString('pt-BR'))} · ${window.FaroSafe.esc(app.money(entry.amount,0))}</span><button type="button" data-reserve-remove-entry="${window.FaroSafe.esc(entry.id)}" class="min-h-[36px] px-2 text-red-500 text-xs font-extrabold">Remover aporte</button></div>`).join(''))}</div></details>` : '')}
       </article>`;
     }).join('');
   };

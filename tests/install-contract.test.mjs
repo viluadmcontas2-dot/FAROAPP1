@@ -22,7 +22,7 @@ contains(platform, 'const INSTALL_GATE_ENFORCED = true', 'Instalação comercial
 contains(platform, "!app.isStandalone()", 'Gate deve liberar somente o app instalado');
 contains(platform, 'Instale o FARO', 'Gate precisa pedir instalação de forma direta');
 contains(platform, 'Seu FARO, sempre à mão.', 'Abertura precisa ter identidade sem explicar tecnologia');
-contains(platform, 'INSTALAR FARO', 'Android/computador precisam ter ação clara de instalação');
+contains(platform, 'Instalar o FARO', 'Android/computador precisam ter ação clara de instalação');
 contains(platform, 'Adicionar à Tela de Início', 'iPhone precisa ter tutorial de instalação');
 contains(platform, 'SamsungBrowser', 'Samsung Internet precisa de fallback próprio');
 contains(platform, 'window.__faroInstallPrompt', 'Plataforma precisa consumir o prompt capturado cedo');
@@ -64,7 +64,7 @@ contains(shell, ".replace('<meta name=\"theme-color\" content=\"#0B1121\">', '<m
 contains(index, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Entrada deve pedir a geração nova do manifest ao Android/Chrome');
 contains(shell, '<link rel="manifest" href="./manifest.webmanifest?v=2">', 'Shell deve pedir a mesma geração nova do manifest');
 contains(shell, ".replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">', '<link rel=\"manifest\" href=\"./manifest.webmanifest?v=2\">')", 'Shell final não pode reintroduzir a geração antiga do manifest ao escrever o legado');
-contains(sw, "const CORE_CACHE = 'faro-v1-core-28'", 'Geração premium precisa renovar o core cache');
+contains(sw, "const CORE_CACHE = 'faro-v1-core-29'", 'Geração premium precisa renovar o core cache');
 contains(sw, "'./manifest.webmanifest?v=2'", 'PWA deve armazenar a mesma geração versionada do manifest');
 
 contains(sw, 'faro-platform.js?v=3', 'PWA precisa armazenar a mesma geração da porta de instalação');

@@ -148,7 +148,7 @@ assert.equal(esc(null), ''); assert.equal(esc(undefined), ''); assert.equal(esc(
 assert.equal(String(html`<p>${'<img src=x>'}${raw('<b>ok</b>')}</p>`), '<p>&lt;img src=x&gt;<b>ok</b></p>');
 assert.equal(String(html`${{ toString:() => '<img>' }}`), '&lt;img&gt;');
 const shell = readFileSync('app-shell.html','utf8');
-assert.ok(shell.indexOf('./faro-safe.js?v=1') < shell.indexOf('./faro-brand-r2.js?v=2'));
+assert.ok(shell.indexOf('./faro-safe.js?v=1') < shell.indexOf('./faro-brand-r2.js?v=3'));
 assert.match(shell,/\.\/faro-safe\.js\?v=1/);
 assert.match(readFileSync('sw.js','utf8'), /'\.\/faro-safe\.js\?v=1'/);
 assert.match(readFileSync('scripts/build-static-site.mjs','utf8'), /'faro-safe.js'/);

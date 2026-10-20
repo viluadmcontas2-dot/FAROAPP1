@@ -72,7 +72,7 @@ const pageHelpers = `
       return { old, before, warningText, warningVisible, afterBlockedSave, formAfterOpen: form(), warningVisibleAfterOpen: visible(warning) };
     `);
     check('B: registro antigo foi salvo', b.before && b.before.gross === 300 && b.before.km === 120, b.before);
-    check('B: aviso "Esse dia já tem registro. Abrir e editar?" aparece', b.warningVisible && b.warningText.includes('Esse dia já tem registro. Abrir e editar?'), b.warningText);
+    check('B: aviso "Esse dia já foi registrado. Abrir e editar?" aparece', b.warningVisible && b.warningText.includes('Esse dia já foi registrado. Abrir e editar?'), b.warningText);
     check('B: salvar sem confirmar NÃO sobrescreve o dia antigo', b.afterBlockedSave && b.afterBlockedSave.gross === 300 && b.afterBlockedSave.km === 120 && b.afterBlockedSave.hours === 9, b.afterBlockedSave);
     check('B: "Abrir e editar" carrega o dia salvo', b.formAfterOpen.uber === '300' && b.formAfterOpen.km === '120' && b.formAfterOpen.hours === '9' && b.formAfterOpen.date === b.old, b.formAfterOpen);
     check('B: aviso some depois de abrir o dia', !b.warningVisibleAfterOpen);
