@@ -1,0 +1,20 @@
+# Registrar o dia em ~20 s (F3)
+
+Data: 2026-10-20. Branch: `claude/registrar-em-20s`. Base: `docs/auditorias/fluxos-2026-10-20.md` (J3, fatia F3) e `docs/design/mockups-v3-aprovado.html` (tela 4). Não regride F1/F2 (`docs/decisoes/registro-sem-perda.md`).
+
+## Decisões
+1. **Um só lugar para digitar dinheiro**: teclado próprio (1-9, 00, 0, Apagar) em centavos, até 7 dígitos. Os cartões 2x2 com um campo por app saíram. Os campos por app continuam existindo, ocultos, como depósito do valor de cada app: `Adicionar` soma o digitado no app escolhido e o bruto do dia continua sendo `earningsApi.total` (um único bruto, mesmo `recordDraft` estendido, mesmo `saveDay`).
+2. **Chips Uber, 99, inDrive, Extras** em linha (grupo de rádio, setas trocam). Uber já vem escolhido. A pergunta acompanha o chip ("Quanto entrou em 99?"). A lista mostra cada app com "Remover" e o "Total do dia" em tempo real.
+3. **Valor digitado e não adicionado entra ao salvar** no app escolhido. Assim 2 apps + km = 4 toques de botão (Adicionar, 99, Adicionar, Salvar dia) ou 3, e nada digitado se perde.
+4. **Km**: o núcleo exige km > 0 e isso ficou. O km vem preenchido com o km do último dia registrado antes da data (dica "Mesmo km de ontem. Ajuste se rodou diferente."), com botão "Igual a ontem" (ou "Igual ao último dia" se o último não foi ontem). Km só sugerido não conta como "digitado" (não dispara o aviso de troca de data nem cria rascunho sozinho). Os atalhos "+5/+10/+50 km" saíram (pouco úteis, segundo a auditoria). Os "+R$" ficam só no registro antigo sem origem.
+5. **Data**: resumo "Hoje, terça, 20 de outubro" com "Trocar data"; o campo de data só aparece quando pedido. A proteção F1 de troca de data continua igual.
+6. **Erros junto do campo**, sem aviso rápido que some: "Digite um valor no teclado antes de adicionar.", "Sem ganho não há o que salvar. Adicione pelo menos um app.", "Informe os km rodados nesse dia.".
+7. **"Salvar dia"** (ou "Salvar alterações" ao editar) fica logo depois de ganhos e km; a prévia do fechamento fica abaixo. O retorno continua o aviso único da F2, agora com **"Desfazer"** por 8 s.
+8. **Desfazer sem tocar o app.js**: antes de salvar, o Registro guarda a cópia do registro anterior daquele dia (ou nada, se era dia novo) e o formulário. Desfazer usa o mesmo caminho do núcleo para excluir um dia (filtra `state.records`, `app.save()`, `app.render()`), recoloca a cópia anterior quando havia, e abre o Registro com o que foi digitado ("Salvamento desfeito. Seus valores continuam aqui."). `app.save` embrulhado pela conta marca a mudança para sincronizar. Sem `push`/`splice` no Registro (contrato mantido).
+9. **Bug corrigido de passagem**: regras de layout do próprio Registro (`#view-day .faro-date-conflict{display:grid}` e o cartão de registro antigo) venciam a classe `.hidden`, então o aviso "Esse dia já tem registro" e o cartão legado apareciam sempre na tela real. O teste F1 usava visibilidade lógica e não via isso; o teste novo mede a tela de verdade.
+10. **Visual**: mantém a paleta azul atual do app (o âmbar do mockup v3 é do redesenho geral, outra trilha). CSS só dentro de `faro-register.js`, com regras para o modo carro. Fonte mínima 12 px, alvos de 48 px ou mais (botões do aviso e do conflito subiram de 40/44 para 48).
+11. **Cache do PWA não foi versionado** (`faro-register.js?v=3` em app-shell/sw e `CORE_CACHE`): outra trilha mexe nesses arquivos. Ao juntar, subir a versão, senão o aparelho instalado segue com o Registro antigo.
+
+## Testes
+- `tests/register-20s-browser.test.cjs` (novo, no `check`): Chrome real; data de hoje, km de ontem, chips, teclado, estado vazio, erros, 4 toques, um único bruto, Desfazer de dia novo e de edição, alvos ≥ 48 px, fonte ≥ 12 px, avisos ocultos de fato ocultos.
+- Ajustados por travarem a UI antiga: `tests/platform-earnings-contract.test.mjs` (grade 2x2, cartão por app, "Não usado", alternância de cartão → linha de 4 chips, teclado, estado vazio), `tests/register-contract.test.mjs` ("+5/10/50 km" → "Igual a ontem"), `tests/day-edit-safety-browser.test.cjs` (o ganho agora é digitado pelo teclado como o motorista faz; os cenários F1/F2 não mudaram).
