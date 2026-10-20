@@ -3,7 +3,7 @@
 **REMOTE_FIRST = ALWAYS** · **SOLE_DURABLE_PROJECT_TRUTH = GitHub remote** · Linear aposentado · Notion não é autoridade.
 
 ## Onde estamos (2026-10-20)
-- Linha canônica: `claude/pwa-driver-production-fm0kk9` (integra WU-004 poda, WU-002B correção do salvar dia, WU-002 docs comerciais).
+- Linha canônica: `claude/pwa-driver-production-fm0kk9` (PR rascunho #20). Integra WU-002/002B/004, cobrança no servidor, base PWA, registro/Início/tema novos, legal/LGPD.
 - `npm run check` e `npm run build`: PASS nesta linha.
 - Plano de lançamento em 4 dias: `PLANO.md`.
 - Billing: `billingEnabled=false` (fail-closed) até E2E Stripe/Supabase passar.

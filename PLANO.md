@@ -43,3 +43,9 @@ APK/Play Billing, ranking público, comparativo da cidade (v2), Pix recorrente (
 
 ## Governança enxuta
 Manter: hashes de núcleo financeiro, fail-closed do billing, deploy manual, branch de arquivo intocada. Dispensar para o resto: recibo por sondagem e estados BUILT/LOCAL_PASS em tudo que não for dinheiro.
+
+
+## Estado real em 2026-10-20 (fim do dia 1; atualizado a cada integração)
+FEITO e provado por teste (`npm run check` exit 0): paywall no servidor (trava ainda DESLIGADA), trial 7 dias único por e-mail, webhook corrigido, 4 Edge Functions no ar fail-closed (checkout, portal, webhook, excluir conta), cupom `PRAGAS` na sandbox, ícones PNG/manifest/offline, CSP/headers (Cloudflare), escape de HTML (módulos de dados), registro sem perda de dado + registrar em ~20 s, Início com 1 número herói, tema preto+âmbar global, termos/privacidade/excluir conta, QA de telas (qa:ui), guias Cloudflare/Supabase Free.
+FALTA (código): escape nos 4 módulos restantes (em andamento), vocabulário único (F7), edição com desfazer (F6), onboarding em 3 perguntas (F5), conquistas de dinheiro real, tela de Planos/trial/cupom (F8), tutorial de instalação iPhone refinado, telemetria mínima.
+FALTA (dono): 4 segredos no Supabase, permissões no settings.json, Cloudflare Pages (conta), campos legais, teste em iPhone/Android reais. Ver `docs/pendencias-do-dono.md`.

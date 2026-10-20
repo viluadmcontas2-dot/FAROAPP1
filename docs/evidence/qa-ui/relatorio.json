@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-10-20T17:53:27.993Z",
+  "geradoEm": "2026-10-20T18:03:35.390Z",
   "estado": "CONCLUIDO",
   "fixture": {
     "version": 3,
@@ -110,18 +110,7 @@
       "rolagemHorizontal": false,
       "textosPequenos": [],
       "alvosPequenos": [],
-      "elementosExcedentes": [
-        {
-          "seletor": "#view-dashboard > div:nth-child(2) > div:nth-child(1)",
-          "esquerda": 172,
-          "direita": 428
-        },
-        {
-          "seletor": "#view-dashboard > div:nth-child(2) > div:nth-child(2)",
-          "esquerda": -60,
-          "direita": 100
-        }
-      ],
+      "elementosExcedentes": [],
       "screenshot": "inicio-320x640.png",
       "contagem": {
         "rolagemHorizontal": 0,
@@ -308,18 +297,7 @@
       "rolagemHorizontal": false,
       "textosPequenos": [],
       "alvosPequenos": [],
-      "elementosExcedentes": [
-        {
-          "seletor": "#view-dashboard > div:nth-child(2) > div:nth-child(1)",
-          "esquerda": 242,
-          "direita": 498
-        },
-        {
-          "seletor": "#view-dashboard > div:nth-child(2) > div:nth-child(2)",
-          "esquerda": -60,
-          "direita": 100
-        }
-      ],
+      "elementosExcedentes": [],
       "screenshot": "inicio-390x844.png",
       "contagem": {
         "rolagemHorizontal": 0,
