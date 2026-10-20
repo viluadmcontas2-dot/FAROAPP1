@@ -29,7 +29,7 @@ assert.match(home,/monthCard\.setAttribute\('aria-label',\s*'Ver ou ajustar meta
   'Home precisa tornar a meta mensal uma unidade acionável');
 assert.match(home,/navigateToPrimary\('planning'\)/,
   'Home → Planejar precisa existir em uma ação');
-assert.match(home,/Registrar meu dia/,
+assert.match(home,/Registrar dia/, // F4: verbo + objeto (antes "Registrar meu dia")
   'Hoje precisa manter Registrar como ação dominante quando o dia está aberto');
 
 assert.match(register,/De onde veio seu faturamento\?/,

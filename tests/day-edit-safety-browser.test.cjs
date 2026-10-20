@@ -92,8 +92,9 @@ const pageHelpers = `
       return { today, saved, homeLabel, reopened, afterEdit: record(today) };
     `);
     check('A: dia de hoje salvo com 2 apps', a.saved && a.saved.gross === 300 && a.saved.km === 80, a.saved);
-    check('A: Início oferece "Revisar meu dia"', a.homeLabel.includes('Revisar meu dia'), a.homeLabel);
-    check('A: "Revisar meu dia" abre o formulário PREENCHIDO', a.reopened.uber === '180' && a.reopened.ninetyNine === '120' && a.reopened.km === '80' && a.reopened.hours === '8' && a.reopened.fuel === '50' && a.reopened.date === a.today, a.reopened);
+    // F4: o botão único do Início com hoje salvo passou a se chamar "Editar dia" (antes "Revisar meu dia").
+    check('A: Início oferece "Editar dia"', a.homeLabel.includes('Editar dia'), a.homeLabel);
+    check('A: "Editar dia" abre o formulário PREENCHIDO', a.reopened.uber === '180' && a.reopened.ninetyNine === '120' && a.reopened.km === '80' && a.reopened.hours === '8' && a.reopened.fuel === '50' && a.reopened.date === a.today, a.reopened);
     check('A: mudar só a Uber mantém 99, km, horas e combustível', a.afterEdit && a.afterEdit.gross === 320 && a.afterEdit.km === 80 && a.afterEdit.hours === 8 && a.afterEdit.fuelSpend === 50 && a.afterEdit.earningsBySource?.ninetyNine === 120 && a.afterEdit.earningsBySource?.uber === 200, a.afterEdit);
 
     // Cenário C (F2): um único retorno depois de salvar, falando de lucro, com ações claras.

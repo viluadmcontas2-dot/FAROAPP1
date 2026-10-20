@@ -15,8 +15,10 @@ assert.match(sw, /faro-home-r2\.js\?v=2/);
 assert.match(build, /'faro-home-r2\.js'/);
 assert.doesNotMatch(shell, /faro-home\.js\?v=1/);
 assert.match(home, /insertBefore\(weekCard, monthCard\)/);
-assert.match(home, /Hoje já está registrado/);
-assert.match(home, /Registrar meu dia/);
+// F4: o Início tem 1 ação com verbo + objeto — "Registrar dia" e, com hoje salvo, "Editar dia"
+// (antes: "Registrar meu dia" / "Hoje já está registrado" / "Revisar meu dia").
+assert.match(home, /'Editar dia'/);
+assert.match(home, /'Registrar dia'/);
 assert.match(home, /nextCommitment/);
 assert.match(home, /item\.days > 3/);
 assert.match(home, /Próximo compromisso/);
