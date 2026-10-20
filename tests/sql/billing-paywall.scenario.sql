@@ -6,10 +6,10 @@ create or replace function pg_temp.as_user(p_sub uuid, p_anon boolean default fa
 $$;
 
 -- Usuários: trial vigente, trial vencido, assinante, anônimo.
-insert into auth.users(id, email) values
-  ('00000000-0000-0000-0000-00000000000a', 'Novo.Motorista+app@Gmail.com'),
-  ('00000000-0000-0000-0000-00000000000b', 'vencido@faro.app'),
-  ('00000000-0000-0000-0000-00000000000c', 'assinante@faro.app');
+insert into auth.users(id, email, email_confirmed_at) values
+  ('00000000-0000-0000-0000-00000000000a', 'Novo.Motorista+app@Gmail.com', now()),
+  ('00000000-0000-0000-0000-00000000000b', 'vencido@faro.app', now()),
+  ('00000000-0000-0000-0000-00000000000c', 'assinante@faro.app', now());
 insert into auth.users(id, email, is_anonymous) values ('00000000-0000-0000-0000-00000000000d', null, true);
 
 do $$ begin
@@ -113,7 +113,9 @@ end $$;
 -- Trial é único: excluir a conta e recriar com o mesmo e-mail não renova.
 reset role;
 delete from auth.users where id = '00000000-0000-0000-0000-00000000000b';
-insert into auth.users(id, email) values ('00000000-0000-0000-0000-0000000000b2', 'VENCIDO@faro.app ');
+insert into auth.users(id, email, email_confirmed_at) values ('00000000-0000-0000-0000-0000000000b2', 'VENCIDO@faro.app ', now());
+-- Consultas do servidor (faro_has_access só responde a terceiros para service_role).
+select set_config('request.jwt.claims', '{"role":"service_role"}', false);
 do $$ begin
   if public.faro_has_access('00000000-0000-0000-0000-0000000000b2') then
     raise exception 'FALHA: recriar conta renovou o trial';
