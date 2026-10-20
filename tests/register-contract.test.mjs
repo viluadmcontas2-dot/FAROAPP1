@@ -19,7 +19,9 @@ contains(build, "'faro-register-earnings.js'", 'Build precisa copiar helper de g
 contains(build, "'faro-register.js'", 'Build precisa copiar Registro');
 contains(register, "const DRAFT_KEY = 'faro-record-draft-v1'", 'Registro precisa ter rascunho próprio');
 
-for (const chip of ['+ R$50', '+ R$100', '+ R$200', '+ 5 km', '+ 10 km', '+ 50 km']) {
+// F3: "+5/+10/+50 km" saiu (pouco útil para quem roda 180 km); o km vem do último dia com "Igual a ontem".
+contains(register, 'Igual a ontem', 'Km precisa oferecer "Igual a ontem"');
+for (const chip of ['+ R$50', '+ R$100', '+ R$200']) {
   contains(register, chip, `Atalho ausente: ${chip}`);
 }
 

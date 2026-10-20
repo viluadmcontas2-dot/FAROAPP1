@@ -24,10 +24,12 @@ const pageHelpers = `
   const type = (el, value) => { el.value = String(value); el.dispatchEvent(new Event('input', { bubbles:true })); el.dispatchEvent(new Event('change', { bubbles:true })); };
   const field = id => document.getElementById(id);
   const source = key => document.querySelector('[data-faro-earning-source="' + key + '"]');
+  // F3: o ganho é digitado como o motorista faz (chip do app, "Remover" o valor antigo, teclado próprio, "Adicionar").
   const typeEarning = (key, value) => {
-    const card = document.querySelector('[data-faro-earning-card="' + key + '"]');
-    if (card?.dataset.active !== 'true') document.querySelector('[data-faro-earning-toggle="' + key + '"]').click();
-    type(source(key), value);
+    document.querySelector('[data-faro-source-chip="' + key + '"]').click();
+    document.querySelector('[data-faro-earning-remove="' + key + '"]')?.click();
+    for (const digit of String(Math.round(Number(value) * 100))) document.querySelector('[data-faro-key="' + digit + '"]').click();
+    document.getElementById('faroEarningAdd').click();
   };
   const dateKey = offset => { const d = new Date(); d.setDate(d.getDate() + offset); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   const form = () => ({

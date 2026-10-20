@@ -49,15 +49,14 @@ assert.match(register, /faro-platform-uber\.svg/, 'Uber precisa usar o asset apr
 assert.match(register, /faro-platform-99\.svg/, '99 precisa usar o asset aprovado');
 assert.match(register, /faro-platform-indrive\.svg/, 'inDrive precisa usar o asset aprovado');
 assert.match(register, /Extras\/Outros/, 'Registrar precisa oferecer ganhos extras');
-assert.match(register, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/, 'Origens precisam usar grade mobile 2x2');
+// F3 (mockup 4): os cartões 2x2 com um campo por app saíram; agora é uma linha de chips + teclado próprio.
+assert.match(register, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/, 'Origens precisam ficar numa linha de 4 chips (Uber, 99, inDrive, Extras)');
+assert.match(register, /role="radio"/, 'Chip de origem é escolha única (radio)');
 assert.match(register, /Total do dia/, 'Total automático precisa ser explícito');
 assert.match(register, /Detalhar por aplicativo/, 'Registro legado precisa permitir optar pelo detalhamento');
-assert.match(register, /faro-action-card/, 'Cada origem precisa consumir a anatomia premium de Action Card');
-assert.match(register, /faro-state-card/, 'Total precisa consumir a anatomia premium de State Card');
-assert.match(register, /data-faro-platform-state/, 'Cada plataforma precisa expor estado humano no card');
-assert.match(register, /Não usado/, 'Plataforma sem valor precisa dizer que não foi usada');
-assert.match(register, /activeSources\.has\(key\)\s*\?\s*activeSources\.delete\(key\)\s*:\s*activeSources\.add\(key\)/,
-  'Tocar novamente deve recolher o campo sem apagar o valor');
+assert.match(register, /faro-state-card/, 'Registro legado continua na anatomia premium de State Card');
+assert.match(register, /data-faro-key/, 'Dinheiro é digitado num único teclado próprio');
+assert.match(register, /Nenhum ganho ainda/, 'Lista vazia precisa convidar a agir');
 assert.match(register, /const baseRecordDraft = app\.recordDraft/, 'Integração precisa estender o draft canônico existente');
 assert.match(register, /earningsBySource/, 'Draft detalhado precisa carregar breakdown de origem');
 assert.match(register, /FaroRegisterEarnings\.total|earningsApi\.total/, 'gross detalhado precisa vir da soma canônica das origens');
