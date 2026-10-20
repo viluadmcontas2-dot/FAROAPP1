@@ -63,6 +63,7 @@ const pageHelpers = `
     check('vazio: exatamente 1 ação primária, "Registrar dia"', empty.primaries.length === 1 && /^Registrar dia$/.test(empty.primaries[0]), empty.primaries);
     check('vazio: a ação primária é o botão de registro existente (hook data-view="day")', empty.primaryIsRegister);
     check('vazio: nenhum rótulo "bruto" fora de Detalhes', !/brut/i.test(empty.text), empty.text);
+    check('vazio: sem dia registrado no mês, não julga ritmo ("atrás")', !/atrás/i.test(empty.text), empty.text);
 
     // 2. Hoje registrado: lucro real de hoje é o herói, vindo do núcleo (recordNumbers).
     const today = await run(`
@@ -92,6 +93,8 @@ const pageHelpers = `
         text: visibleText(),
         small,
         streakText: clean(document.getElementById('faroHomeStreak')?.textContent),
+        // [hidden] precisa sumir de verdade: um display do CSS não pode ressuscitar o convite sob o lucro.
+        hiddenButRendered: [...home.querySelectorAll('[hidden]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.id || el.className),
         detailsHasLegacy: ['kpiGrossDaily','weekStatusTitle','monthStatusTitle','insightTitle'].every(id => details?.contains(document.getElementById(id))),
         detailsOpen: details?.open,
         detailsSummary: clean(details?.querySelector('summary')?.textContent)
@@ -104,6 +107,7 @@ const pageHelpers = `
     check('hoje: número herói em algarismos tabulares', /tabular-nums/.test(today.tabular), today.tabular);
     check('hoje: botão vira "Editar dia" (verbo + objeto) e continua único', today.primaries.length === 1 && today.primaries[0] === 'Editar dia', today.primaries);
     check('hoje: alvo do botão >= 48px', today.ctaHeight >= 48, today.ctaHeight);
+    check('hoje: nada marcado como oculto aparece na tela (convite some quando há lucro)', today.hiddenButRendered.length === 0, today.hiddenButRendered);
     check('hoje: nenhum texto visível abaixo de 12px', today.small.length === 0, today.small);
     check('hoje: nenhum rótulo "bruto" fora de Detalhes', !/brut/i.test(today.text), today.text);
     check('hoje: sequência mostra 5 dias seguidos', /5 dias/.test(today.streakText) && /seguidos/.test(today.streakText), today.streakText);

@@ -110,7 +110,7 @@
   // ---- "Detalhes": tudo que saiu do Início continua a um toque ----
   const details = document.createElement('details');
   details.id = 'faroHomeDetails';
-  details.innerHTML = '<summary><span>Detalhes</span><small>Semana, mês e meta de faturamento</small></summary><div class="faro-home-details-body"></div>';
+  details.innerHTML = '<summary><span>Detalhes</span><small>Semana, mês e faturamento</small></summary><div class="faro-home-details-body"></div>';
   const detailsBody = details.querySelector('.faro-home-details-body');
   [legacyHero, weekCard, monthCard, insightCard].filter(Boolean).forEach(node => detailsBody.appendChild(node));
   const historyLink = document.createElement('button');
@@ -145,6 +145,7 @@
       }}
       body:has(#view-dashboard:not(.hidden)){background:var(--faro-home-bg)}
       #view-dashboard{color:var(--faro-home-ink);background:var(--faro-home-bg)}
+      #view-dashboard [hidden]{display:none!important}
       #view-dashboard :is(button,summary,a,[role="button"]):focus-visible{outline:3px solid var(--faro-home-ring);outline-offset:3px}
       #view-dashboard .faro-home-eyebrow{display:block;font:800 13px/1.2 var(--faro-home-display);letter-spacing:.08em;text-transform:uppercase;color:var(--faro-home-muted)}
       #faroHomeHero{position:relative;padding:4px 2px 0}
@@ -162,7 +163,7 @@
       #faroHomeGoal .faro-home-goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
       #faroHomeGoal .faro-home-goal-num{font:800 30px/1 var(--faro-home-display);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
       #faroHomeGoal .faro-home-goal-of{color:var(--faro-home-muted);font-size:20px}
-      #faroHomeGoal .faro-home-track{position:relative;display:block;height:16px;border-radius:8px;background:var(--faro-home-surface-2);margin:28px 0 12px}
+      #faroHomeGoal .faro-home-track{position:relative;display:block;height:16px;border-radius:8px;background:var(--faro-home-surface-2);margin:34px 0 12px}
       #faroHomeGoal .faro-home-fill{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--faro-home-profit);transition:width .4s cubic-bezier(.16,1,.3,1)}
       #faroHomeGoal .faro-home-pace{position:absolute;top:-8px;bottom:-8px;width:4px;margin-left:-2px;border-radius:2px;background:var(--faro-home-ink)}
       #faroHomeGoal .faro-home-pace span{position:absolute;top:-21px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--faro-home-muted)}
@@ -316,8 +317,11 @@
     const ahead = delta >= 0.5, behind = delta <= -0.5;
     goal.dataset.pace = ahead ? 'ahead' : behind ? 'behind' : 'on';
     const pill = ahead ? `${app.money(delta, 0)} à frente` : behind ? `${app.money(Math.abs(delta), 0)} atrás do ritmo` : 'No ritmo';
-    document.getElementById('faroGoalPill').textContent = pill;
-    document.getElementById('faroGoalTrack').setAttribute('aria-label', `${Math.round(ratio(actual) * 100)}% da meta; ${pill}`);
+    const pillNode = document.getElementById('faroGoalPill');
+    pillNode.textContent = pill;
+    // Sem nenhum dia registrado no mês ainda não há ritmo para julgar: o marcador fica, o veredito não.
+    pillNode.hidden = !calculation.records.length;
+    document.getElementById('faroGoalTrack').setAttribute('aria-label', `${Math.round(ratio(actual) * 100)}% da meta${calculation.records.length ? `; ${pill}` : ''}`);
     const remaining = target - actual;
     const text = document.getElementById('faroGoalText');
     if (remaining <= 0) text.textContent = 'Meta batida. Tudo que entrar agora é extra.';
@@ -325,7 +329,7 @@
       const days = calculation.remainingDays;
       fill(text, ['Faltam ', strongMoney(remaining, 0), '. Sobrando ', strongMoney(calculation.dailyNet, 0), ` por dia nos ${days} ${days === 1 ? 'dia que resta' : 'dias que restam'}, você fecha.`]);
     } else fill(text, ['Faltam ', strongMoney(remaining, 0), '. Não restam dias planejados: ajuste a meta ou a agenda.']);
-    goal.setAttribute('aria-label', `Meta de ${month}: ${app.money(actual, 0)} de ${app.money(target, 0)}, ${pill}. Ajustar meta`);
+    goal.setAttribute('aria-label', `Meta de ${month}: ${app.money(actual, 0)} de ${app.money(target, 0)}${calculation.records.length ? `, ${pill}` : ''}. Ajustar meta`);
   };
 
   const updateStreak = () => {
