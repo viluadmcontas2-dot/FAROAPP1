@@ -5,7 +5,7 @@ import { buildCsp } from '../scripts/csp.mjs';
 const read = path => readFileSync(path, 'utf8');
 for (const page of ['termos.html', 'privacidade.html']) test(`Publicar ${page} acessível e offline`, () => {
   const html = read(page);
-  for (const text of ['lang="pt-BR"', 'viewport-fit=cover', 'contato@FARO_DOMINIO_A_DEFINIR', '[PREENCHER PELO DONO]', 'legal.css', 'app-shell.html']) assert.ok(html.includes(text), text);
+  for (const text of ['lang="pt-BR"', 'viewport-fit=cover', 'contato@FARO_DOMINIO_A_DEFINIR', 'legal.css', 'app-shell.html']) assert.ok(html.includes(text), text);
   assert.doesNotMatch(html, /<script|\son\w+=|javascript:/i);
   assert.match(read('scripts/build-static-site.mjs'), new RegExp(`'${page}'`));
   assert.ok(read('sw.js').includes(`'./${page}'`));
