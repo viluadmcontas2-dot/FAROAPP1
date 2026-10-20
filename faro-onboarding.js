@@ -16,12 +16,6 @@
   const $ = id => document.getElementById(id);
   const n = value => app.number(value);
   const text = value => String(value || '').trim().replace(/\s+/g, ' ');
-  const escapeHtml = value => String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
   const clampDueDay = value => {
     const parsed = Math.round(n(value));
     return parsed >= 1 && parsed <= 31 ? parsed : null;
@@ -296,7 +290,7 @@
   const renderCosts = () => {
     const list = $('faroAddedCosts');
     list.innerHTML = draft.otherCosts.length ? draft.otherCosts.map((item,index) => `
-      <div class="faro-cost-row"><div><strong class="text-sm">${escapeHtml(item.name)}</strong><span class="block text-xs text-slate-500">${app.money(item.value)}/mês${item.dueDay ? ` · vence dia ${item.dueDay}` : ''}</span></div><div class="faro-cost-actions"><button type="button" data-cost-edit="${index}" class="faro-cost-action">Editar</button><button type="button" data-cost-delete="${index}" class="faro-cost-action">×</button></div></div>`).join('') : '<p class="faro-helper">Nenhum outro custo adicionado ainda.</p>';
+      <div class="faro-cost-row"><div><strong class="text-sm">${window.FaroSafe.esc(item.name)}</strong><span class="block text-xs text-slate-500">${window.FaroSafe.esc(app.money(item.value))}/mês${window.FaroSafe.esc(item.dueDay ? ` · vence dia ${item.dueDay}` : '')}</span></div><div class="faro-cost-actions"><button type="button" data-cost-edit="${window.FaroSafe.esc(index)}" class="faro-cost-action">Editar</button><button type="button" data-cost-delete="${window.FaroSafe.esc(index)}" class="faro-cost-action">×</button></div></div>`).join('') : '<p class="faro-helper">Nenhum outro custo adicionado ainda.</p>';
     $('faroCostName').value = draft.pendingCost.name || '';
     $('faroCostValue').value = draft.pendingCost.value || '';
     $('faroCostDue').value = draft.pendingCost.dueDay || '';

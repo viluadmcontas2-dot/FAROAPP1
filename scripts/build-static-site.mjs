@@ -18,6 +18,7 @@ const copyFiles = [
   'app-shell.html',
   'legacy-shell.html',
   'app.js',
+  'faro-safe.js',
   'faro-brand-r2.js',
   'faro-platform.js',
   'faro-update.js',

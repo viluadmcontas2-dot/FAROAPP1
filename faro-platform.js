@@ -145,7 +145,7 @@
     const tutorial = tutorialFor(kind, manual);
     const help = gate.querySelector('#faroInstallGateHelp');
     gate.querySelector('#faroInstallTutorialTitle').textContent = tutorial.title;
-    gate.querySelector('#faroInstallSteps').innerHTML = tutorial.steps.map(step => `<li>${step}</li>`).join('');
+    gate.querySelector('#faroInstallSteps').innerHTML = tutorial.steps.map(step => `<li>${window.FaroSafe.esc(step)}</li>`).join('');
     help.textContent = tutorial.help;
     help.classList.toggle('hidden', !tutorial.help);
     gate.querySelector('#faroInstallGateButton').textContent = tutorial.button;
@@ -179,7 +179,7 @@
         <span class="label-micro !text-blue-600">FARO · APP DO MOTORISTA</span>
         <h1 id="faroInstallTitle" class="text-2xl font-extrabold mt-2">Instale o FARO</h1>
         <p id="faroInstallLead" class="text-sm text-slate-500 mt-3 leading-relaxed">Seu FARO, sempre à mão.</p>
-        <span class="faro-install-device">${deviceLabel(kind)}</span>
+        <span class="faro-install-device">${window.FaroSafe.esc(deviceLabel(kind))}</span>
         <div class="faro-install-benefits" aria-label="Vantagens da instalação">
           <div class="faro-install-benefit">Acesso rápido</div>
           <div class="faro-install-benefit">Instalação única</div>

@@ -7,6 +7,7 @@ const APP_SHELL = [
   './app-shell.html',
   './legacy-shell.html',
   './app.js?v=3.5.1-faro1',
+  './faro-safe.js?v=1',
   './faro-brand-r2.js?v=2',
   './faro-platform.js?v=3',
   './faro-update.js?v=1',

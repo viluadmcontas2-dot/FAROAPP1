@@ -232,7 +232,7 @@
       const symbol = document.createElement('span');
       symbol.className = 'faro-r3b-dialog-symbol';
       symbol.setAttribute('aria-hidden','true');
-      symbol.innerHTML = `<i class="fas ${icon}"></i>`;
+      symbol.innerHTML = `<i class="fas ${window.FaroSafe.esc(icon)}"></i>`;
       head.prepend(symbol);
     }
     addDialogLead(dialog, lead);
@@ -263,13 +263,13 @@
       const arrow = card.querySelector('.faro-r3-arrow i'); if (arrow) arrow.className = 'fas fa-chevron-right';
       if (kind === 'days' && copy && !copy.querySelector('.faro-r3b-week-strip')) {
         const strip = document.createElement('span'); strip.className = 'faro-r3b-week-strip'; strip.setAttribute('aria-hidden','true');
-        strip.innerHTML = WEEK.map(item => `<span class="faro-r3b-week-dot" data-r3b-weekday="${item.day}">${item.label}</span>`).join(''); copy.appendChild(strip);
+        strip.innerHTML = WEEK.map(item => `<span class="faro-r3b-week-dot" data-r3b-weekday="${window.FaroSafe.esc(item.day)}">${window.FaroSafe.esc(item.label)}</span>`).join(''); copy.appendChild(strip);
       }
       if (kind === 'commitments' && copy && !copy.querySelector('#faroR3BCommitmentStatus')) {
         const status = document.createElement('span'); status.id = 'faroR3BCommitmentStatus'; status.className = 'faro-r3b-status-pill'; copy.insertBefore(status,copy.querySelector('.faro-r3-tile-meta'));
       }
       if (!card.querySelector('.faro-r3b-card-cta')) {
-        const cta = document.createElement('span'); cta.className = 'faro-r3b-card-cta'; cta.innerHTML = `<span>${action}</span><i class="fas fa-chevron-right" aria-hidden="true"></i>`; card.appendChild(cta);
+        const cta = document.createElement('span'); cta.className = 'faro-r3b-card-cta'; cta.innerHTML = `<span>${window.FaroSafe.esc(action)}</span><i class="fas fa-chevron-right" aria-hidden="true"></i>`; card.appendChild(cta);
       }
     });
   };
@@ -299,7 +299,7 @@
   let moneyRendering = false;
   let moneyUndo = null;
   let moneyReturn = null;
-  const groupLabel = (title,items) => `<div class="faro-r3b2-group-title"><span>${title}</span><strong>${items.length} ${items.length === 1 ? 'item' : 'itens'}</strong></div>`;
+  const groupLabel = (title,items) => `<div class="faro-r3b2-group-title"><span>${window.FaroSafe.esc(title)}</span><strong>${window.FaroSafe.esc(items.length)} ${window.FaroSafe.esc(items.length === 1 ? 'item' : 'itens')}</strong></div>`;
   const recurrenceText = item => {
     const cost = item.cost || {};
     if (cost.kind === 'weekly') return `Recorrência semanal${cost.dueWeekday !== undefined ? ` · dia ${['domingo','segunda','terça','quarta','quinta','sexta','sábado'][Number(cost.dueWeekday)]}` : ''}`;
@@ -309,15 +309,15 @@
   const billMarkup = item => {
     const state = item.status === 'paid' ? 'paid' : item.days < 0 ? 'risk' : item.days <= 1 ? 'attention' : 'upcoming';
     const primary = item.status === 'paid'
-      ? `<button type="button" class="faro-r3b2-undo" data-r3-undo="${item.id}">Desfazer pagamento</button>`
-      : `<button type="button" class="faro-r3b2-pay" data-r3-pay="${item.id}">Marcar como paga</button>`;
-    return `<details class="faro-r3b2-bill" data-state="${state}" data-r3b2-bill="${item.id}"><summary><span class="min-w-0"><span class="faro-r3b2-bill-date">${dueDateLabel(item)}</span><strong class="faro-r3b2-bill-name">${app.escape(item.name)}</strong><span class="faro-r3b2-bill-when">${occurrenceWhen(item)}</span></span><span class="faro-r3b2-bill-side"><strong class="faro-r3b2-bill-amount">${app.money(item.amount,0)}</strong><i class="fas fa-chevron-right faro-r3b2-bill-chevron" aria-hidden="true"></i></span></summary><div class="faro-r3b2-peek"><span class="faro-r3b2-peek-context">${recurrenceText(item)}. A ação aqui altera só o estado real da conta; o planejamento recorrente continua existindo.</span><div class="faro-r3b2-peek-actions">${primary}<button type="button" class="faro-r3b2-edit" data-r3b2-edit-cost="${item.costId}">Editar conta</button></div></div></details>`;
+      ? `<button type="button" class="faro-r3b2-undo" data-r3-undo="${window.FaroSafe.esc(item.id)}">Desfazer pagamento</button>`
+      : `<button type="button" class="faro-r3b2-pay" data-r3-pay="${window.FaroSafe.esc(item.id)}">Marcar como paga</button>`;
+    return `<details class="faro-r3b2-bill" data-state="${window.FaroSafe.esc(state)}" data-r3b2-bill="${window.FaroSafe.esc(item.id)}"><summary><span class="min-w-0"><span class="faro-r3b2-bill-date">${window.FaroSafe.esc(dueDateLabel(item))}</span><strong class="faro-r3b2-bill-name">${window.FaroSafe.esc(item.name)}</strong><span class="faro-r3b2-bill-when">${window.FaroSafe.esc(occurrenceWhen(item))}</span></span><span class="faro-r3b2-bill-side"><strong class="faro-r3b2-bill-amount">${window.FaroSafe.esc(app.money(item.amount,0))}</strong><i class="fas fa-chevron-right faro-r3b2-bill-chevron" aria-hidden="true"></i></span></summary><div class="faro-r3b2-peek"><span class="faro-r3b2-peek-context">${window.FaroSafe.esc(recurrenceText(item))}. A ação aqui altera só o estado real da conta; o planejamento recorrente continua existindo.</span><div class="faro-r3b2-peek-actions">${window.FaroSafe.raw(primary)}<button type="button" class="faro-r3b2-edit" data-r3b2-edit-cost="${window.FaroSafe.esc(item.costId)}">Editar conta</button></div></div></details>`;
   };
   const billGroup = (title,items,{collapsed=false}={}) => {
     if (!items.length) return '';
     const rows = items.map(billMarkup).join('');
-    if (collapsed) return `<details class="faro-r3b2-group"><summary class="faro-r3b2-group-title"><span>${title}</span><strong>${items.length} ${items.length === 1 ? 'item' : 'itens'} ›</strong></summary><div class="faro-r3b2-group" style="margin-top:7px">${rows}</div></details>`;
-    return `<section class="faro-r3b2-group">${groupLabel(title,items)}${rows}</section>`;
+    if (collapsed) return `<details class="faro-r3b2-group"><summary class="faro-r3b2-group-title"><span>${window.FaroSafe.esc(title)}</span><strong>${window.FaroSafe.esc(items.length)} ${window.FaroSafe.esc(items.length === 1 ? 'item' : 'itens')} ›</strong></summary><div class="faro-r3b2-group" style="margin-top:7px">${window.FaroSafe.raw(rows)}</div></details>`;
+    return `<section class="faro-r3b2-group">${window.FaroSafe.raw(groupLabel(title,items))}${window.FaroSafe.raw(rows)}</section>`;
   };
   const reserveMarkup = reserve => {
     const balance = app.number(window.FaroReserves?.balanceFor?.(reserve.id));
@@ -325,7 +325,7 @@
     const goal = app.number(profile.goalAmount);
     const progress = goal > 0 ? Math.min(100,Math.max(0,balance/goal*100)) : null;
     const recent = window.FaroReserves?.contributionsFor?.(reserve.id)?.slice(0,4) || [];
-    return `<article class="faro-r3b2-reserve" data-r3b2-reserve="${reserve.id}"><div class="faro-r3b2-reserve-head"><span class="faro-r3b2-reserve-title"><strong class="faro-r3b2-reserve-name">${app.escape(reserve.name)}</strong><span class="faro-r3b2-reserve-rule">${reservePlannedText(reserve)}</span></span><span><strong class="faro-r3b2-reserve-balance">${app.money(balance,0)}</strong><small class="faro-r3b2-reserve-caption">protegidos</small></span></div>${goal > 0 ? `<div class="faro-r3b2-progress-copy"><span>${app.money(balance,0)}</span><span>Meta ${app.money(goal,0)} · ${Math.round(progress)}%</span></div><div class="faro-r3b2-progress" aria-label="${Math.round(progress)}% da meta"><span style="width:${progress}%"></span></div>` : `<div class="faro-r3b2-no-goal">Você já começou a separar dinheiro. Defina um objetivo se quiser acompanhar até onde pretende chegar.</div>`}<div class="faro-r3b2-reserve-actions"><button type="button" class="faro-r3b2-contribute" data-r3-reserve-contribute="${reserve.id}">+ Aportar</button><button type="button" class="faro-r3b2-goal" data-r3-reserve-goal="${reserve.id}">${goal > 0 ? 'Editar objetivo' : 'Definir objetivo'}</button></div><details class="faro-r3b2-reserve-details"><summary>Detalhes e últimos aportes ›</summary><div>${recent.length ? recent.map(entry => `<div class="faro-r3b2-contribution"><span>${app.parseDate(entry.date).toLocaleDateString('pt-BR')} · ${app.money(entry.amount,0)}</span><button type="button" data-r3-reserve-remove="${entry.id}">Remover</button></div>`).join('') : '<div class="faro-r3b2-contribution"><span>Nenhum aporte registrado ainda.</span></div>'}</div></details></article>`;
+    return `<article class="faro-r3b2-reserve" data-r3b2-reserve="${window.FaroSafe.esc(reserve.id)}"><div class="faro-r3b2-reserve-head"><span class="faro-r3b2-reserve-title"><strong class="faro-r3b2-reserve-name">${window.FaroSafe.esc(reserve.name)}</strong><span class="faro-r3b2-reserve-rule">${window.FaroSafe.esc(reservePlannedText(reserve))}</span></span><span><strong class="faro-r3b2-reserve-balance">${window.FaroSafe.esc(app.money(balance,0))}</strong><small class="faro-r3b2-reserve-caption">protegidos</small></span></div>${window.FaroSafe.raw(goal > 0 ? `<div class="faro-r3b2-progress-copy"><span>${window.FaroSafe.esc(app.money(balance,0))}</span><span>Meta ${window.FaroSafe.esc(app.money(goal,0))} · ${window.FaroSafe.esc(Math.round(progress))}%</span></div><div class="faro-r3b2-progress" aria-label="${window.FaroSafe.esc(Math.round(progress))}% da meta"><span style="width:${window.FaroSafe.esc(progress)}%"></span></div>` : `<div class="faro-r3b2-no-goal">Você já começou a separar dinheiro. Defina um objetivo se quiser acompanhar até onde pretende chegar.</div>`)}<div class="faro-r3b2-reserve-actions"><button type="button" class="faro-r3b2-contribute" data-r3-reserve-contribute="${window.FaroSafe.esc(reserve.id)}">+ Aportar</button><button type="button" class="faro-r3b2-goal" data-r3-reserve-goal="${window.FaroSafe.esc(reserve.id)}">${window.FaroSafe.esc(goal > 0 ? 'Editar objetivo' : 'Definir objetivo')}</button></div><details class="faro-r3b2-reserve-details"><summary>Detalhes e últimos aportes ›</summary><div>${window.FaroSafe.raw(recent.length ? recent.map(entry => `<div class="faro-r3b2-contribution"><span>${window.FaroSafe.esc(app.parseDate(entry.date).toLocaleDateString('pt-BR'))} · ${window.FaroSafe.esc(app.money(entry.amount,0))}</span><button type="button" data-r3-reserve-remove="${window.FaroSafe.esc(entry.id)}">Remover</button></div>`).join('') : '<div class="faro-r3b2-contribution"><span>Nenhum aporte registrado ainda.</span></div>')}</div></details></article>`;
   };
   const heroMessage = model => {
     if (model.state === 'risk') return `${app.money(model.overdueAmount,0)} estão atrasados${model.overdue[0] ? ` · ${model.overdue[0].name} precisa de ação` : ''}.`;
@@ -352,12 +352,12 @@
     summary.dataset.r3b2State = model.state;
     summary.setAttribute('role','status');
     summary.setAttribute('aria-live','polite');
-    summary.innerHTML = `<span class="faro-r3b2-status-top"><i class="fas ${model.icon}" aria-hidden="true"></i>${model.label}</span><strong class="faro-r3b2-status-value">${app.money(model.committed,0)}</strong><span class="faro-r3b2-status-caption">já comprometidos no seu plano mensal</span><p class="faro-r3b2-status-message">${app.escape(heroMessage(model))}</p><span class="faro-r3b2-status-protected"><i class="fas fa-shield-heart" aria-hidden="true"></i>${app.money(model.reserveBalance,0)} já estão protegidos em ${model.reserveRules.length} ${model.reserveRules.length === 1 ? 'reserva' : 'reservas'}.</span>`;
+    summary.innerHTML = `<span class="faro-r3b2-status-top"><i class="fas ${window.FaroSafe.esc(model.icon)}" aria-hidden="true"></i>${window.FaroSafe.esc(model.label)}</span><strong class="faro-r3b2-status-value">${window.FaroSafe.esc(app.money(model.committed,0))}</strong><span class="faro-r3b2-status-caption">já comprometidos no seu plano mensal</span><p class="faro-r3b2-status-message">${window.FaroSafe.esc(heroMessage(model))}</p><span class="faro-r3b2-status-protected"><i class="fas fa-shield-heart" aria-hidden="true"></i>${window.FaroSafe.esc(app.money(model.reserveBalance,0))} já estão protegidos em ${window.FaroSafe.esc(model.reserveRules.length)} ${window.FaroSafe.esc(model.reserveRules.length === 1 ? 'reserva' : 'reservas')}.</span>`;
 
     const billsTab = $('faroMoneyTabBills');
     const reservesTab = $('faroMoneyTabReserves');
-    if (billsTab) billsTab.innerHTML = `<span class="faro-r3b2-tab-label">Contas</span><strong class="faro-r3b2-tab-value">${model.pending.length} ${model.pending.length === 1 ? 'pendente' : 'pendentes'}</strong><small class="faro-r3b2-tab-meta">${app.money(model.obligationMonthly,0)} no plano</small>`;
-    if (reservesTab) reservesTab.innerHTML = `<span class="faro-r3b2-tab-label">Reservas</span><strong class="faro-r3b2-tab-value">${app.money(model.reserveBalance,0)} protegidos</strong><small class="faro-r3b2-tab-meta">${model.reserveRules.length} ${model.reserveRules.length === 1 ? 'objetivo' : 'objetivos'}</small>`;
+    if (billsTab) billsTab.innerHTML = `<span class="faro-r3b2-tab-label">Contas</span><strong class="faro-r3b2-tab-value">${window.FaroSafe.esc(model.pending.length)} ${window.FaroSafe.esc(model.pending.length === 1 ? 'pendente' : 'pendentes')}</strong><small class="faro-r3b2-tab-meta">${window.FaroSafe.esc(app.money(model.obligationMonthly,0))} no plano</small>`;
+    if (reservesTab) reservesTab.innerHTML = `<span class="faro-r3b2-tab-label">Reservas</span><strong class="faro-r3b2-tab-value">${window.FaroSafe.esc(app.money(model.reserveBalance,0))} protegidos</strong><small class="faro-r3b2-tab-meta">${window.FaroSafe.esc(model.reserveRules.length)} ${window.FaroSafe.esc(model.reserveRules.length === 1 ? 'objetivo' : 'objetivos')}</small>`;
 
     const urgent = model.pending.filter(item => item.days <= 1);
     const next = model.pending.filter(item => item.days >= 2 && item.days <= 7);
@@ -366,9 +366,9 @@
     const hasObligations = model.obligations.length > 0;
     billList.className = 'faro-r3b2-panel';
     if (!urgent.length && !next.length && !later.length && !resolved.length) {
-      billList.innerHTML = `<div class="faro-r3b2-empty"><span class="faro-r3b2-empty-icon"><i class="fas fa-route" aria-hidden="true"></i></span><strong>${hasObligations ? 'Pista livre por aqui' : 'Seu plano ainda não conhece suas contas'}</strong><p>${hasObligations ? 'Nenhuma conta pede atenção nos próximos dias.' : 'Adicione as contas recorrentes para o FARO proteger esse dinheiro antes de chamá-lo de lucro.'}</p></div>`;
+      billList.innerHTML = `<div class="faro-r3b2-empty"><span class="faro-r3b2-empty-icon"><i class="fas fa-route" aria-hidden="true"></i></span><strong>${window.FaroSafe.esc(hasObligations ? 'Pista livre por aqui' : 'Seu plano ainda não conhece suas contas')}</strong><p>${window.FaroSafe.esc(hasObligations ? 'Nenhuma conta pede atenção nos próximos dias.' : 'Adicione as contas recorrentes para o FARO proteger esse dinheiro antes de chamá-lo de lucro.')}</p></div>`;
     } else {
-      billList.innerHTML = `${billGroup('Precisa de você',urgent)}${billGroup('Próximos dias',next)}${billGroup('Mais adiante',later,{collapsed:later.length > 3})}${billGroup('Resolvidas',resolved,{collapsed:true})}`;
+      billList.innerHTML = `${window.FaroSafe.raw(billGroup('Precisa de você',urgent))}${window.FaroSafe.raw(billGroup('Próximos dias',next))}${window.FaroSafe.raw(billGroup('Mais adiante',later,{collapsed:later.length > 3}))}${window.FaroSafe.raw(billGroup('Resolvidas',resolved,{collapsed:true}))}`;
     }
     setText($('faroMoneyAddBill'),'+ Adicionar conta');
     const legacySummary = $('faroMoneyLegacyCosts')?.querySelector('summary');
@@ -383,7 +383,7 @@
     if (moneyUndo && Date.now() < moneyUndo.expires && $('faroMoneyBills') && !$('faroMoneyBills').classList.contains('hidden')) {
       const bar = document.createElement('div');
       bar.className = 'faro-r3b2-undo-bar';
-      bar.innerHTML = `<span>${app.escape(moneyUndo.name)} saiu das pendências.</span><button type="button" data-r3-undo="${moneyUndo.id}">Desfazer</button>`;
+      bar.innerHTML = `<span>${window.FaroSafe.esc(moneyUndo.name)} saiu das pendências.</span><button type="button" data-r3-undo="${window.FaroSafe.esc(moneyUndo.id)}">Desfazer</button>`;
       $('faroMoneyBills').prepend(bar);
     }
     if (body) requestAnimationFrame(() => { body.scrollTop = scrollTop; moneyRendering = false; });
