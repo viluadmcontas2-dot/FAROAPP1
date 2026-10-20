@@ -58,7 +58,6 @@
     }
     window.dispatchEvent(new CustomEvent('faro:onboarding-complete'));
     refreshCommittedUi();
-    app.toast('Seu FARO está pronto. Ajuste quando sua rotina mudar.');
   };
 
   button.addEventListener('click', finish);

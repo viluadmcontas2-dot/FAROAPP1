@@ -81,6 +81,7 @@ const waitFor = async (run, expr, label) => {
       return { taps: window.__taps, modalHidden: modal.classList.contains('hidden'), dash: shown(dash), primary, view: app.currentView };
     `);
     check('Início aberto com "Registrar dia"', home.modalHidden && home.dash && home.primary.some(t => /Registrar dia/i.test(t)), home);
+    check('sem aviso duplicado: o plano pronto já foi dito na tela anterior', await run(`return !/Seu FARO está pronto/.test(document.getElementById('toast')?.textContent || '');`));
     check('do primeiro acesso ao Início em no máximo 4 toques', home.taps <= 4, home.taps);
 
     const saved = await run(`

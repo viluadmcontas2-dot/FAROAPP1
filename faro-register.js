@@ -774,6 +774,15 @@
     app.navigateToPrimary('day');
   });
 
+  // Modo leitura (faro-plans.js marca data-faro-read-only): ver e exportar continua; gravar dia novo pede assinatura.
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('#saveDayButton');
+    if (!button || !document.documentElement.hasAttribute('data-faro-read-only')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    app.toast('Modo leitura: assine o FARO na Central para salvar novos dias.');
+  }, true);
+
   const baseShowView = app.showView;
   app.showView = function(view, primaryView = view) {
     const editingExisting = view === 'day' && Boolean(
@@ -828,7 +837,8 @@
         }
       }
     } else if (!saved.classList.contains('hidden')) {
-      syncSavedActions();
+      // O retorno "Dia salvo" só faz sentido no Início e no Histórico; em outras telas ele cobria o conteúdo.
+      if (view === 'dashboard' || view === 'history') syncSavedActions(); else hideSaved();
     }
     return result;
   };

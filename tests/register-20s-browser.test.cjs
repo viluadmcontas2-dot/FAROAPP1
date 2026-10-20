@@ -151,6 +151,19 @@ const pageHelpers = `
     check('6: valor digitado sem "Adicionar" entra ao salvar', undoEdit.edited && undoEdit.edited.earningsBySource.extras === 50 && undoEdit.edited.gross === 350, undoEdit.edited);
     check('6: "Desfazer" uma edição devolve o registro anterior inteiro', JSON.stringify(undoEdit.restored) === JSON.stringify(undoEdit.first), { first:undoEdit.first, restored:undoEdit.restored });
 
+    // 6b) O retorno "Dia salvo" some ao sair do Início/Histórico (não cobre Planejar nem Central); avisos não seguram o toque.
+    const banner = await run(`
+      await wait(400);
+      tap(field('saveDayButton')); await wait(120);
+      const shown = visible(savedBanner());
+      app.showView('history'); const keptInHistory = visible(savedBanner());
+      app.showView('planning'); const keptInPlanning = visible(savedBanner());
+      app.navigateToPrimary('day'); await wait(250);
+      return { shown, keptInHistory, keptInPlanning, toastPointer: getComputedStyle(field('toast')).pointerEvents };
+    `);
+    check('6b: retorno "Dia salvo" aparece, fica no Histórico e some em Planejar', banner.shown && banner.keptInHistory && !banner.keptInPlanning, banner);
+    check('6b: aviso rápido não bloqueia o toque no teclado', banner.toastPointer === 'none', banner.toastPointer);
+
     // 7) Km: sem km o erro aparece junto do campo; "Igual a ontem" preenche.
     const km = await run(`
       await wait(400);
