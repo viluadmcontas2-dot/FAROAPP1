@@ -37,18 +37,24 @@ import vm from 'node:vm';
 import { stripTypeScriptTypes } from 'node:module';
 const edgeSource = () => stripTypeScriptTypes(read('supabase/functions/excluir-conta-faro/index.ts')
   .replace(/^import .*;\n/gm, '').replace('export default', 'globalThis.handler ='));
-function edgeHarness({ secrets = true, anonymous = false, stripeError = false, dbError = false, deleteError = false, subscriptions = [] } = {}) {
+function edgeHarness({ secrets = true, anonymous = false, stripeError = false, dbError = false, deleteError = false, subscriptions = [], checkouts = [], savedCheckout = null } = {}) {
   const calls = [];
   const context = {
     userClaims: { sub: 'titular', is_anonymous: anonymous },
     supabaseAdmin: {
+      async rpc(name, args) { calls.push(`rpc:${name}`); assert.equal(args.p_user_id, 'titular'); return { data: savedCheckout, error: null }; },
       from(table) { calls.push(table); return { select() { return this; }, eq(key, value) { assert.equal(key, 'user_id'); assert.equal(value, 'titular'); return this; }, async maybeSingle() { return { data: { stripe_customer_id: 'customer' }, error: dbError }; } }; },
       auth: { admin: { async deleteUser(id) { calls.push(`delete:${id}`); return { error: deleteError }; } } }
     }
   };
   const sandbox = { Response, Set, Deno: { env: { get: () => secrets ? 'configured' : '' } },
     withSupabase: (options, fn) => { assert.equal(options.auth, 'user'); return req => fn(req, context); },
-    Stripe: class { subscriptions = {
+    Stripe: class { checkout = { sessions: {
+      async *list(params) { assert.equal(params.status, 'open'); for (const c of checkouts) yield c; },
+      async retrieve(id) { return checkouts.find(c => c.id === id) || { id, status: 'open' }; },
+      async expire(id) { calls.push(`expire:${id}`); }
+    } };
+    subscriptions = {
       async *list() { if (stripeError) throw Error('segredo não deve vazar'); for (const sub of subscriptions) yield sub; },
       async retrieve(id) { return subscriptions.find(s => s.id === id); },
       async cancel(id) { calls.push(`cancel:${id}`); }
@@ -72,11 +78,16 @@ test('Handler preserva conta quando Stripe ou banco falha; responde sem detalhes
 test('Handler cancela assinaturas abertas antes da exclusão e tolera repetição', async () => {
   const h = edgeHarness({ subscriptions: [{ id:'ativa', status:'active' }, { id:'pausada', status:'paused' }, { id:'encerrada', status:'canceled' }] });
   assert.equal((await h.invoke()).status, 200);
-  assert.deepEqual(h.calls, ['faro_subscriptions', 'cancel:ativa', 'cancel:pausada', 'delete:titular']);
+  assert.deepEqual(h.calls, ['rpc:faro_begin_account_deletion', 'faro_subscriptions', 'cancel:ativa', 'cancel:pausada', 'delete:titular']);
   const retry = edgeHarness({ subscriptions: [{ id:'ativa', status:'canceled' }] });
   assert.equal((await retry.invoke()).status, 200);
-  assert.deepEqual(retry.calls, ['faro_subscriptions', 'delete:titular']);
+  assert.deepEqual(retry.calls, ['rpc:faro_begin_account_deletion', 'faro_subscriptions', 'delete:titular']);
   assert.equal((await edgeHarness({ deleteError:true }).invoke()).status, 503);
+});
+test('Handler expira checkouts abertos (salvo e listados) antes de cancelar e apagar', async () => {
+  const h = edgeHarness({ savedCheckout: 'cs_salvo', checkouts: [{ id:'cs_listado', status:'open' }], subscriptions: [{ id:'ativa', status:'active' }] });
+  assert.equal((await h.invoke()).status, 200);
+  assert.deepEqual(h.calls, ['rpc:faro_begin_account_deletion', 'faro_subscriptions', 'expire:cs_salvo', 'expire:cs_listado', 'cancel:ativa', 'delete:titular']);
 });
 
 // Excluir a conta (LGPD) não pode depender da cobrança: Stripe só é exigido quando há cliente/assinatura.
