@@ -24,8 +24,8 @@ assert.match(account, /if \(!configured \|\| !session\?\.user \|\| !navigator\.o
 // Conflito nunca pode sobrescrever silenciosamente quando local e remoto divergem.
 assert.match(account, /O FARO não vai sobrescrever nada sozinho/);
 assert.match(account, /if \(meta\.dirty\)[\s\S]*remote\.revision[\s\S]*meta\.remoteRevision[\s\S]*openConflict\(remote\)/);
-assert.match(account, /USAR DADOS DESTE APARELHO/);
-assert.match(account, /USAR DADOS SALVOS NA CONTA/);
+assert.match(account, /Usar dados deste aparelho/);
+assert.match(account, /Usar dados da conta/);
 
 // 9.50 — assinatura falha/cancelada não pode destruir os dados financeiros.
 for (const status of ['past_due','unpaid','paused','canceled']) {

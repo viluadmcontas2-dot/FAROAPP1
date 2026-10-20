@@ -20,8 +20,8 @@ assert.match(finance, /dueDay/);
 assert.match(finance, /status: 'paid'/);
 assert.match(finance, /costName: occurrence\.cost\.name/);
 assert.match(finance, /kindSnapshot: occurrence\.cost\.kind/);
-assert.match(finance, /MARCAR PAGO/);
-assert.match(finance, /DESFAZER/);
+assert.match(finance, /Marcar como paga/);
+assert.match(finance, /Desfazer pagamento/);
 assert.match(finance, /Marcar pago não remove o custo dos próximos períodos/);
 
 // Onboarding e Planejar continuam com IDs separados.

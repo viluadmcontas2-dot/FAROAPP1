@@ -22,7 +22,7 @@ contains(platform, 'const INSTALL_GATE_ENFORCED = true', 'Instalação comercial
 contains(platform, "!app.isStandalone()", 'Gate deve liberar somente o app instalado');
 contains(platform, 'Instale o FARO', 'Gate precisa pedir instalação de forma direta');
 contains(platform, 'Seu FARO, sempre à mão.', 'Abertura precisa ter identidade sem explicar tecnologia');
-contains(platform, 'INSTALAR FARO', 'Android/computador precisam ter ação clara de instalação');
+contains(platform, 'Instalar o FARO', 'Android/computador precisam ter ação clara de instalação');
 contains(platform, 'Adicionar à Tela de Início', 'iPhone precisa ter tutorial de instalação');
 contains(platform, 'SamsungBrowser', 'Samsung Internet precisa de fallback próprio');
 contains(platform, 'window.__faroInstallPrompt', 'Plataforma precisa consumir o prompt capturado cedo');

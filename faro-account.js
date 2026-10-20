@@ -79,8 +79,8 @@
       </div>
       <div class="mt-4 rounded-2xl bg-slate-50 p-4"><span class="label-micro">Seus dados</span><strong id="faroSyncStatus" class="block text-sm">Salvos neste aparelho</strong></div>
       <div id="faroAccountActions" class="mt-4 grid gap-2">
-        <button id="faroSaveAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold text-xs">SALVAR MEU FARO</button>
-        <button id="faroSignOut" type="button" class="hidden w-full rounded-2xl bg-slate-100 text-slate-700 font-extrabold text-xs">SAIR DESTA CONTA</button>
+        <button id="faroSaveAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold text-xs">Salvar meu FARO</button>
+        <button id="faroSignOut" type="button" class="hidden w-full rounded-2xl bg-slate-100 text-slate-700 font-extrabold text-xs">Sair da conta</button>
       </div>
       <div id="faroPlanSlot" class="mt-5 pt-5 border-t border-slate-100"></div>
       <nav class="mt-5 grid gap-2" aria-label="Privacidade e conta">
@@ -101,7 +101,7 @@
         <span class="label-micro">Meu plano</span>
         <strong id="faroSubscriptionTitle" class="block text-sm">Sem assinatura ativa</strong>
         <p id="faroSubscriptionText" class="text-xs text-slate-500 mt-1">A cobrança comercial será vinculada à sua conta.</p>
-        <button id="faroSubscriptionAction" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">ASSINAR FARO</button>
+        <button id="faroSubscriptionAction" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">Assinar o FARO</button>
       </div>`;
 
     const modal = document.createElement('div');
@@ -118,16 +118,16 @@
           <div><label class="label-micro" for="faroPassword">Senha</label><input id="faroPassword" type="password" autocomplete="current-password" class="input-vetta no-mask" placeholder="Sua senha"></div>
           <div id="faroPasswordConfirmWrap" class="hidden"><label class="label-micro" for="faroPasswordConfirm">Confirme a senha</label><input id="faroPasswordConfirm" type="password" autocomplete="new-password" class="input-vetta no-mask" placeholder="Digite a senha novamente"><p class="text-xs text-slate-500 mt-2">Use pelo menos 8 caracteres.</p></div>
           <div id="faroSignInActions" class="grid gap-2">
-            <button id="faroSignIn" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">ENTRAR</button>
-            <button id="faroShowSignup" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">CRIAR MINHA CONTA</button>
-            <button id="faroResetPassword" type="button" class="w-full text-blue-700 font-bold text-xs">ESQUECI MINHA SENHA</button>
+            <button id="faroSignIn" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">Entrar na conta</button>
+            <button id="faroShowSignup" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">Criar minha conta</button>
+            <button id="faroResetPassword" type="button" class="w-full text-blue-700 font-bold text-xs">Recuperar senha</button>
           </div>
           <div id="faroSignupActions" class="hidden grid gap-2">
-            <button id="faroCreateAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">CRIAR CONTA</button>
-            <button id="faroBackToLogin" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">JÁ TENHO CONTA</button>
+            <button id="faroCreateAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">Criar conta</button>
+            <button id="faroBackToLogin" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">Entrar com minha conta</button>
           </div>
           <div id="faroRecoveryActions" class="hidden grid gap-2">
-            <button id="faroUpdatePassword" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">SALVAR NOVA SENHA</button>
+            <button id="faroUpdatePassword" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">Salvar nova senha</button>
           </div>
         </div>
         <p id="faroAccountNotice" class="hidden mt-4 rounded-2xl bg-blue-50 text-blue-800 p-3 text-xs"></p>
@@ -144,9 +144,9 @@
         <h3 class="text-xl font-extrabold">Há dados neste aparelho e na sua conta</h3>
         <p class="text-xs text-slate-500 mt-2">O FARO não vai sobrescrever nada sozinho.</p>
         <div class="grid gap-3 mt-5">
-          <button id="faroKeepLocal" type="button" class="rounded-2xl bg-blue-600 text-white font-extrabold">USAR DADOS DESTE APARELHO</button>
-          <button id="faroUseRemote" type="button" class="rounded-2xl bg-slate-900 text-white font-extrabold">USAR DADOS SALVOS NA CONTA</button>
-          <button id="faroDecideLater" type="button" class="rounded-2xl bg-slate-100 text-slate-700 font-bold">DECIDIR DEPOIS</button>
+          <button id="faroKeepLocal" type="button" class="rounded-2xl bg-blue-600 text-white font-extrabold">Usar dados deste aparelho</button>
+          <button id="faroUseRemote" type="button" class="rounded-2xl bg-slate-900 text-white font-extrabold">Usar dados da conta</button>
+          <button id="faroDecideLater" type="button" class="rounded-2xl bg-slate-100 text-slate-700 font-bold">Decidir depois</button>
         </div>
       </div>`;
     document.body.appendChild(conflict);
@@ -306,7 +306,7 @@
       const [title, text] = subscriptionCopy('inactive');
       $('faroSubscriptionTitle').textContent = billingEnabled ? title : 'Assinatura em breve';
       $('faroSubscriptionText').textContent = billingEnabled ? text : 'A cobrança permanece desativada até o provedor comercial estar pronto.';
-      $('faroSubscriptionAction').textContent = billingEnabled ? 'ASSINAR FARO' : 'EM BREVE';
+      $('faroSubscriptionAction').textContent = billingEnabled ? 'Assinar o FARO' : 'Em breve';
       $('faroSubscriptionAction').disabled = !billingEnabled;
       return;
     }
@@ -320,8 +320,8 @@
           : text)
       : 'A cobrança permanece desativada até o provedor comercial estar pronto.';
     $('faroSubscriptionAction').textContent = billingEnabled
-      ? (data?.stripe_customer_id ? 'GERENCIAR ASSINATURA' : 'ASSINAR FARO')
-      : 'EM BREVE';
+      ? (data?.stripe_customer_id ? 'Gerenciar assinatura' : 'Assinar o FARO')
+      : 'Em breve';
     $('faroSubscriptionAction').dataset.portal = data?.stripe_customer_id ? 'true' : 'false';
     $('faroSubscriptionAction').disabled = !billingEnabled;
   };

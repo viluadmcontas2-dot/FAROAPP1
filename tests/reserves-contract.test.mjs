@@ -16,7 +16,7 @@ assert.match(reserves,/Quanto você guardou de verdade\?/);
 assert.match(reserves,/R\$.*realmente guardados|Dinheiro que você realmente separou/);
 assert.match(reserves,/goalAmount/);
 assert.match(reserves,/targetDate/);
-assert.match(reserves,/SALVAR APORTE/);
+assert.match(reserves,/Guardar aporte/);
 assert.match(reserves,/Aporte removido\. O planejamento da reserva continua igual/);
 assert.match(reserves,/app\.openCostModal\(\)/);
 assert.match(reserves,/applyCostTemplate\?\.\('reserve'\)/);

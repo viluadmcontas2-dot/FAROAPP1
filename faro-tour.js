@@ -47,7 +47,7 @@
     layer.setAttribute('role', 'dialog');
     layer.setAttribute('aria-modal', 'false');
     layer.setAttribute('aria-label', 'Tour rápido do FARO');
-    layer.innerHTML = `<div id="faroTourSpotlight"></div><div id="faroTourTip"><div class="faro-tour-head"><img src="./faro-mark.svg" alt=""><div class="min-w-0 flex-1"><span id="faroTourProgress" class="faro-tour-progress"></span><h3 id="faroTourTitle"></h3></div></div><p id="faroTourText" class="faro-tour-text"></p><div class="faro-tour-actions"><button id="faroTourSkip" type="button" class="faro-tour-skip">PULAR</button><button id="faroTourBack" type="button" class="faro-tour-back">VOLTAR</button><button id="faroTourNext" type="button" class="faro-tour-next">PRÓXIMO</button></div></div>`;
+    layer.innerHTML = `<div id="faroTourSpotlight"></div><div id="faroTourTip"><div class="faro-tour-head"><img src="./faro-mark.svg" alt=""><div class="min-w-0 flex-1"><span id="faroTourProgress" class="faro-tour-progress"></span><h3 id="faroTourTitle"></h3></div></div><p id="faroTourText" class="faro-tour-text"></p><div class="faro-tour-actions"><button id="faroTourSkip" type="button" class="faro-tour-skip">Pular tour</button><button id="faroTourBack" type="button" class="faro-tour-back">Voltar</button><button id="faroTourNext" type="button" class="faro-tour-next">Ver próximo passo</button></div></div>`;
     document.body.appendChild(layer);
     layer.querySelector('#faroTourSkip').addEventListener('click', skip);
     layer.querySelector('#faroTourBack').addEventListener('click', previous);
@@ -108,7 +108,7 @@
     layer.querySelector('#faroTourTitle').textContent = step.title;
     layer.querySelector('#faroTourText').textContent = step.text;
     layer.querySelector('#faroTourBack').classList.toggle('invisible', state.step === 0);
-    layer.querySelector('#faroTourNext').textContent = state.step === steps.length - 1 ? 'IR PARA O INÍCIO' : 'PRÓXIMO';
+    layer.querySelector('#faroTourNext').textContent = state.step === steps.length - 1 ? 'Ir para o início' : 'Ver próximo passo';
     layer.classList.remove('hidden');
     requestAnimationFrame(place);
   };
@@ -160,7 +160,7 @@
     const help = document.createElement('section');
     help.id = 'faroTourHelp';
     help.className = 'card-vetta p-5';
-    help.innerHTML = `<span class="label-micro !text-blue-600">Ajuda</span><div class="flex items-center justify-between gap-3"><div><strong class="block text-sm">Tour rápido do FARO</strong><p class="text-xs text-slate-500 mt-1">Reveja onde ficam as três ações principais.</p></div><button id="faroReplayTour" type="button" class="min-h-[48px] px-4 rounded-2xl bg-blue-50 text-blue-700 text-xs font-extrabold">VER TOUR</button></div>`;
+    help.innerHTML = `<span class="label-micro !text-blue-600">Ajuda</span><div class="flex items-center justify-between gap-3"><div><strong class="block text-sm">Tour rápido do FARO</strong><p class="text-xs text-slate-500 mt-1">Reveja onde ficam as três ações principais.</p></div><button id="faroReplayTour" type="button" class="min-h-[48px] px-4 rounded-2xl bg-blue-50 text-blue-700 text-xs font-extrabold">Ver tour</button></div>`;
     central.appendChild(help);
     help.querySelector('#faroReplayTour').addEventListener('click', () => start({ replay:true }));
   }

@@ -153,3 +153,13 @@
 :root:not([data-faro-car="on"]) .faro-r3b2-reserve-details>summary{color:var(--faro-amber-text)!important}
 :root:not([data-faro-car="on"]) .faro-dialog-close{border-color:var(--faro-line)!important;background:var(--faro-surface-soft)!important;color:var(--faro-ink)!important}
 :root:not([data-faro-car="on"]) .faro-switch{background:#A39A86}
+
+/* F7 vocabulário: botões não gritam. Caixa alta fica só em rótulos de seção (label, .label-micro, h2/h4 de seção). */
+:root:not([data-faro-car="on"]) button,
+:root:not([data-faro-car="on"]) [role="button"],
+:root:not([data-faro-car="on"]) summary,
+:root:not([data-faro-car="on"]) input[type="button"],
+:root:not([data-faro-car="on"]) input[type="submit"] {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}

@@ -46,7 +46,7 @@ assert.deepEqual(duplicates, [], `IDs declarados por mais de uma superfície ati
 const shell = await readFile('app-shell.html', 'utf8');
 const r3b = await readFile('faro-r3b.js', 'utf8');
 const orderedModules = [
-  'faro-brand-r2.js?v=2',
+  'faro-brand-r2.js?v=3',
   'faro-platform.js?v=3',
   'faro-update.js?v=1',
   'faro-state.js?v=1',

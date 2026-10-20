@@ -144,7 +144,7 @@
         <div class="bg-amber-50 rounded-2xl p-4"><span class="label-micro !text-amber-700">Receita/km</span><strong id="faroHistoryDetailRevenueKm" class="text-lg text-amber-700"></strong></div>
       </div>
       <p id="faroHistoryDetailContext" class="text-xs text-slate-500 mt-4"></p>
-      <button id="faroHistoryDetailEdit" type="button" class="faro-primary-button w-full mt-5 py-4 rounded-2xl font-extrabold">EDITAR ESTE DIA</button>
+      <button id="faroHistoryDetailEdit" type="button" class="faro-primary-button w-full mt-5 py-4 rounded-2xl font-extrabold">Editar este dia</button>
     </div>`;
   document.body.appendChild(detail);
 
