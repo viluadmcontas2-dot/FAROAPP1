@@ -15,3 +15,8 @@
 13. Porta de instalação só no navegador: o bloqueio vive no app (service worker + `faro-platform.js`). Na primeira visita, antes do service worker instalar, quem digitar `/legacy-shell.html` à mão vê o miolo. Fechar na borda: regra do Cloudflare Pages (redirecionar `/legacy-shell.html` para `/` quando o pedido for de navegação, `Sec-Fetch-Mode: navigate`) ao criar o site (item 5).
 14. (FUTURO, não bloqueia o lançamento) APK na Play Store: só quando decidirem. Exigirá conta Google Play (~US$ 25), chave de assinatura e política de cobrança. Hoje o lançamento é só PWA.
 15. Decisão do dono: trocar o hash SHA-256 sem sal de `faro_trials_used` por HMAC com segredo (pepper) guardado no servidor. Não foi feito por agente: mudar o hash invalida as linhas já gravadas (quem apagou a conta poderia refazer o trial) e exige criar o segredo no painel do Supabase (`app.faro_pepper`) e migrar os dados. Se decidir fazer, planejar migração em duas etapas (gravar os dois hashes, depois remover o antigo) e definir o prazo de retenção (item 11).
+16. Analytics anônimo (`supabase/migrations/20261020170000_faro_analytics.sql`, ainda não aplicada no Supabase real):
+    - Aplicar a migration (idempotente) e ler o funil/telas/botões nas views `faro_v_funil`, `faro_v_telas`, `faro_v_botoes` (só service_role).
+    - Retenção de 90 dias: agendar a limpeza (pg_cron) ou apagar à mão `delete from faro_events where created_at < now() - interval '90 days'`.
+    - Parecer jurídico sobre o legítimo interesse (privacidade.html promete 90 dias e opt-out).
+    - Opcional: Cloudflare Web Analytics só na landing.

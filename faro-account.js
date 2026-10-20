@@ -88,13 +88,14 @@
       </div>
       <div class="mt-4 rounded-2xl bg-slate-50 p-4"><span class="label-micro">Seus dados</span><strong id="faroSyncStatus" class="block text-sm">Salvos neste aparelho</strong></div>
       <div id="faroAccountActions" class="mt-4 grid gap-2">
-        <button id="faroSaveAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold text-xs">Salvar meu FARO</button>
+        <button id="faroSaveAccount" data-faro-track="salvar_conta" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold text-xs">Salvar meu FARO</button>
         <button id="faroSignOut" type="button" class="hidden w-full rounded-2xl bg-slate-100 text-slate-700 font-extrabold text-xs">Sair da conta</button>
       </div>
       <div id="faroPlanSlot" class="mt-5 pt-5 border-t border-slate-100"></div>
       <nav class="mt-5 grid gap-2" aria-label="Privacidade e conta">
         <a href="termos.html" class="text-sm">Termos de uso</a>
         <a href="privacidade.html" class="text-sm">Política de privacidade</a>
+        <label class="flex items-start gap-3 text-sm"><input id="faroAnalyticsToggle" type="checkbox" class="mt-1 w-5 h-5 shrink-0"><span><strong class="block">Ajudar a melhorar o FARO (uso anônimo)</strong><span class="text-xs text-slate-500">Medimos só telas e ações, sem nome, e-mail ou valores. <a href="privacidade.html#uso-anonimo">Saiba como</a></span></span></label>
         <button id="faroExportData" type="button" class="text-sm">Exportar meus dados</button>
         <button id="faroDeleteAccount" type="button" class="text-sm">Excluir minha conta</button>
         <div id="faroSwitchBackup" class="hidden text-sm"><p>Cópia de outra conta guardada neste aparelho.</p>
@@ -114,7 +115,7 @@
         <span class="label-micro">Meu plano</span>
         <strong id="faroSubscriptionTitle" class="block text-sm">Sem assinatura ativa</strong>
         <p id="faroSubscriptionText" class="text-xs text-slate-500 mt-1">A cobrança comercial será vinculada à sua conta.</p>
-        <button id="faroSubscriptionAction" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">Assinar o FARO</button>
+        <button id="faroSubscriptionAction" data-faro-track="assinar" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">Assinar o FARO</button>
       </div>`;
 
     const modal = document.createElement('div');
@@ -136,7 +137,7 @@
             <button id="faroResetPassword" type="button" class="w-full text-blue-700 font-bold text-xs">Recuperar senha</button>
           </div>
           <div id="faroSignupActions" class="hidden grid gap-2">
-            <button id="faroCreateAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">Criar conta</button>
+            <button id="faroCreateAccount" data-faro-track="criar_conta" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold">Criar conta</button>
             <button id="faroBackToLogin" type="button" class="w-full rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs">Entrar com minha conta</button>
           </div>
           <div id="faroRecoveryActions" class="hidden grid gap-2">

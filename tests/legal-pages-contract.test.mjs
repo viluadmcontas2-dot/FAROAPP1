@@ -16,6 +16,14 @@ test('Informar coleta, retenção e direitos sem prometer eliminação absoluta'
   for (const term of ['Supabase', 'RLS', 'acessar', 'exportar', 'corrigir', 'excluir', 'hash', 'Stripe', 'aparelho']) assert.ok(text.includes(term), term);
   assert.match(read('termos.html'), /não é consultoria financeira/);
 });
+test('Informar a medição anônima de uso com base legal, retenção e como desativar', () => {
+  const text = read('privacidade.html');
+  for (const term of ['Medição anônima de uso', 'legítimo interesse', 'art. 7º, IX', '90 dias', 'Do Not Track', 'Global Privacy Control', 'Ajudar a melhorar o FARO (uso anônimo)', 'sem ligação com sua conta']) assert.ok(text.includes(term), term);
+  assert.doesNotMatch(text, /não (usamos|fazemos) analytics|sem analytics/i);
+  assert.match(read('termos.html'), /anônima/);
+  const account = read('faro-account.js');
+  assert.ok(account.includes('faroAnalyticsToggle') && account.includes('Ajudar a melhorar o FARO (uso anônimo)'));
+});
 test('Conectar Conta com exportação existente e confirmação em duas etapas', () => {
   const code = read('faro-account.js');
   for (const text of ['href="termos.html"', 'href="privacidade.html"', 'Exportar meus dados', 'Excluir minha conta', 'faroDeleteContinue', 'faroDeleteConfirm', "invoke('excluir-conta-faro'", 'app.exportData()', 'deletionInProgress', 'faro-deleted-account-backup-v1']) assert.ok(code.includes(text), text);

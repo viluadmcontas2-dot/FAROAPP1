@@ -115,7 +115,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-JuGA6d+FRGnYg3LaPiupopg+0WN7Jx7NKeInpvLvC4I=' 'sha256-u4eeRek5b8fu4ElhRp9cWbReazf8stcFIWTTsw9GUZs=' 'sha256-k0f1DXRNew+E8frfzyHU16Dd+mFQq79FmvfJRRB6510='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://mjbyqhreptllilkggiri.supabase.co wss://mjbyqhreptllilkggiri.supabase.co; worker-src 'self'; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'sha256-JuGA6d+FRGnYg3LaPiupopg+0WN7Jx7NKeInpvLvC4I=' 'sha256-PEiv+hlQIW1xsD+xNd8/zgqrovqfcoCpR6Jhl2rxW3E=' 'sha256-k0f1DXRNew+E8frfzyHU16Dd+mFQq79FmvfJRRB6510='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://mjbyqhreptllilkggiri.supabase.co wss://mjbyqhreptllilkggiri.supabase.co; worker-src 'self'; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
         },
         {
           "key": "Strict-Transport-Security",
