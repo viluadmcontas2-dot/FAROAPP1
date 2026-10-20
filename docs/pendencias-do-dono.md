@@ -9,3 +9,6 @@
 7. Governança: `governance/hosting-policy.md` ainda diz HOSTING_TARGET=VERCEL (teste de governança exige). Decidir/autorizar alinhar para Cloudflare Pages (mudança de regra, não aplicada pelo agente).
 8. Decidir: preço de fundador travado (R$ 14,90 para os 100–150 primeiros) em vez do cupom de 5 meses; plano anual R$ 179; trial sem cartão para todos (já assumido).
 9. Confirmar CNPJ/MEI e nota fiscal com contador; combinar por escrito com o admin do grupo Pragas na Pista.
+10. Páginas legais (`termos.html` e `privacidade.html`): preencher responsável/controlador, CNPJ se aplicável e endereço. Substituir `contato@FARO_DOMINIO_A_DEFINIR` por contato funcional antes do lançamento.
+11. Privacidade: definir prazos reais de backups, logs e retenções de cobrança; avaliar e documentar base legal e prazo do hash antiabuso em `faro_trials_used` (hoje não há expiração automática). Validar informações de fornecedores/transferências e canal de direitos antes de publicar as páginas como definitivas.
+12. Exclusão de conta: publicar `excluir-conta-faro` somente no gate autorizado; conferir segredos de Supabase/Stripe e permissões de leitura/cancelamento de assinaturas. Provar E2E sandbox, cascatas, repetição após falha e ausência de cobrança futura. Não houve deploy nesta trilha.

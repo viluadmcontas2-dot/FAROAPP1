@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.stripe-webhook-faro]
 verify_jwt = false
+
+[functions.excluir-conta-faro]
+verify_jwt = false
