@@ -45,6 +45,16 @@
       @keyframes faroFocusIn{from{opacity:.12;transform:translate(var(--faro-origin-x,0),var(--faro-origin-y,8px)) scale(.94)}to{opacity:1;transform:translate(0,0) scale(1)}}
       @keyframes faroFocusOut{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--faro-close-x,0),var(--faro-close-y,6px)) scale(.965)}}
       @media(max-width:360px){.faro-dialog--focus{width:min(94vw,430px)}.faro-dialog--workspace{width:95vw}.faro-dialog--focus .faro-dialog-shell,.faro-dialog--workspace .faro-dialog-shell{border-radius:26px}.faro-dialog-title{font-size:20px}}
+      .faro-confirm-panel{background:#fff;border-radius:28px 28px 0 0;padding:20px 20px max(22px,env(safe-area-inset-bottom));box-shadow:0 -20px 70px rgba(11,17,33,.22);animation:faroSheetIn .2s cubic-bezier(.2,.75,.25,1) both}
+      .faro-confirm-title{font-size:20px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:var(--faro-ink)}
+      .faro-confirm-body{margin-top:8px;font-size:14px;line-height:1.45;color:#475569}
+      .faro-confirm-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin-top:18px}
+      .faro-confirm-actions button{min-height:48px;border-radius:16px;font-size:14px;font-weight:800}
+      .faro-confirm-cancel{background:#F1F5F9;color:#334155}.faro-confirm-accept{background:var(--faro-loss);color:#fff}
+      .faro-confirm-actions button:focus-visible,.faro-undo-bar button:focus-visible{outline:3px solid var(--faro-amber,#F59E0B);outline-offset:2px}
+      .faro-undo-bar{position:fixed;inset:auto 0 max(96px,calc(env(safe-area-inset-bottom) + 84px)) 0;margin:0 auto;width:min(92vw,480px);border:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 16px;border-radius:18px;background:var(--faro-black);color:#F8FAFC;font-size:14px;font-weight:700;box-shadow:0 18px 40px rgba(var(--faro-black-rgb),.35)}
+      .faro-undo-bar:not(:popover-open){display:none}
+      .faro-undo-bar button{min-height:48px;min-width:96px;padding:0 16px;border-radius:14px;background:var(--faro-amber);color:var(--faro-on-amber);font-size:14px;font-weight:800}
       @media(prefers-reduced-motion:reduce){.faro-action-card,.faro-dialog-close{transition:none}.faro-action-card:active,.faro-dialog-close:active{transform:none}dialog.faro-dialog::backdrop,dialog.faro-dialog[data-closing="true"]::backdrop,.faro-dialog-shell,dialog.faro-dialog[data-closing="true"] .faro-dialog-shell{animation:none!important}}
     `;
     document.head.appendChild(style);
@@ -110,6 +120,7 @@
     dialog.removeAttribute('data-closing');
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
+    bumpUndo();
     requestAnimationFrame(() => {
       const focusTarget = dialog.querySelector('[autofocus],[data-faro-initial-focus],input:not([type="hidden"]),select,button:not([data-faro-dialog-close])');
       focusTarget?.focus?.({ preventScroll:true });
@@ -117,6 +128,109 @@
     return true;
   };
 
+  // Desfazer: barra na camada superior (popover), visível mesmo com folhas abertas.
+  let undoTimer = 0;
+  let undoHandler = null;
+  const undoBar = () => {
+    let bar = document.getElementById('faroUndoBar');
+    if (bar) return bar;
+    bar = document.createElement('div');
+    bar.id = 'faroUndoBar';
+    bar.className = 'faro-undo-bar';
+    bar.setAttribute('popover','manual');
+    bar.setAttribute('role','status');
+    bar.setAttribute('aria-live','polite');
+    bar.innerHTML = '<span id="faroUndoMessage"></span><button id="faroUndoAction" type="button">Desfazer</button>';
+    document.body.appendChild(bar);
+    bar.querySelector('#faroUndoAction').addEventListener('click', () => {
+      const handler = undoHandler;
+      hideUndo();
+      handler?.();
+    });
+    return bar;
+  };
+  const undoOpen = bar => { try { return bar.matches(':popover-open'); } catch { return bar.dataset.open === 'true'; } };
+  const showPopover = bar => { try { bar.showPopover(); } catch { bar.dataset.open = 'true'; bar.style.display = 'flex'; } };
+  const hideUndo = () => {
+    window.clearTimeout(undoTimer);
+    undoHandler = null;
+    const bar = document.getElementById('faroUndoBar');
+    if (!bar || !undoOpen(bar)) return;
+    try { bar.hidePopover(); } catch { bar.dataset.open = 'false'; bar.style.display = 'none'; }
+  };
+  // Com um <dialog> modal aberto, o resto da página fica inerte (até um popover). A barra mora
+  // dentro da folha do topo; quando as folhas mudam, ela muda de casa e volta ao topo da pilha.
+  const undoHost = () => [...document.querySelectorAll('dialog[open]')].filter(dialog => dialog.id !== 'faroConfirmSheet' && dialog.dataset.closing !== 'true').pop() || document.body;
+  const placeUndo = bar => {
+    const host = undoHost();
+    try { if (undoOpen(bar)) bar.hidePopover(); } catch {}
+    if (bar.parentElement !== host) host.appendChild(bar);
+    showPopover(bar);
+  };
+  const bumpUndo = () => {
+    const bar = document.getElementById('faroUndoBar');
+    if (!bar || !undoHandler) return;
+    placeUndo(bar);
+  };
+  const showUndo = ({ message, onUndo, ms = 8000 }) => {
+    const bar = undoBar();
+    hideUndo();
+    bar.querySelector('#faroUndoMessage').textContent = message;
+    undoHandler = onUndo;
+    placeUndo(bar);
+    undoTimer = window.setTimeout(hideUndo, ms);
+  };
+
+  // Confirmação dentro da UI: folha inferior com a marca, nunca o confirm() do navegador.
+  const ask = ({ title, body = '', confirmLabel, cancelLabel = 'Cancelar' }) => new Promise(resolve => {
+    let sheet = document.getElementById('faroConfirmSheet');
+    if (!sheet) {
+      sheet = document.createElement('dialog');
+      sheet.id = 'faroConfirmSheet';
+      sheet.className = 'faro-dialog faro-dialog--sheet';
+      sheet.setAttribute('aria-labelledby','faroConfirmTitle');
+      sheet.innerHTML = '<div class="faro-confirm-panel"><h2 id="faroConfirmTitle" class="faro-confirm-title"></h2><p id="faroConfirmBody" class="faro-confirm-body"></p><div class="faro-confirm-actions"><button id="faroConfirmCancel" type="button" class="faro-confirm-cancel"></button><button id="faroConfirmAccept" type="button" class="faro-confirm-accept"></button></div></div>';
+      document.body.appendChild(sheet);
+      register(sheet);
+      sheet.querySelector('#faroConfirmCancel').addEventListener('click', () => close(sheet,'cancel'));
+      sheet.querySelector('#faroConfirmAccept').addEventListener('click', () => { sheet.dataset.accepted = 'true'; finishClose(sheet,'accept'); });
+    }
+    sheet.querySelector('#faroConfirmTitle').textContent = title;
+    sheet.querySelector('#faroConfirmBody').textContent = body;
+    sheet.querySelector('#faroConfirmCancel').textContent = cancelLabel;
+    sheet.querySelector('#faroConfirmAccept').textContent = confirmLabel;
+    sheet.dataset.accepted = 'false';
+    sheet.addEventListener('close', () => resolve(sheet.dataset.accepted === 'true'), { once:true });
+    open(sheet);
+    requestAnimationFrame(() => sheet.querySelector('#faroConfirmCancel').focus({ preventScroll:true }));
+  });
+
+  // Modais antigos (div .modal-backdrop) ficam ABAIXO de um <dialog> aberto com showModal().
+  // Provado no Chrome: "Editar" da lista antiga abria o costModal atrás da Central. Aqui a folha
+  // sai de cena enquanto o modal está aberto e volta sozinha quando ele fecha.
+  const lifted = new Map();
+  const liftLegacyModals = () => {
+    const visible = modal => !modal.classList.contains('hidden');
+    new MutationObserver(records => {
+      for (const record of records) {
+        const modal = record.target;
+        if (record.attributeName === 'open') { if (modal.id !== 'faroConfirmSheet') bumpUndo(); continue; }
+        if (!(modal instanceof HTMLElement) || !modal.classList.contains('modal-backdrop')) continue;
+        if (visible(modal) && !lifted.has(modal)) {
+          const covering = [...document.querySelectorAll('dialog[open]')].filter(dialog => dialog.id !== 'faroConfirmSheet');
+          if (!covering.length) continue;
+          covering.forEach(dialog => { dialog.removeAttribute('data-closing'); dialog.close('handoff'); });
+          lifted.set(modal, covering);
+        } else if (!visible(modal) && lifted.has(modal)) {
+          const dialogs = lifted.get(modal);
+          lifted.delete(modal);
+          window.setTimeout(() => dialogs.forEach(dialog => { if (document.contains(dialog)) open(dialog, null); }), 60);
+        }
+      }
+    }).observe(document.body, { subtree:true, attributes:true, attributeFilter:['class','open'] });
+  };
+
   injectStyles();
-  window.FaroInteractions = Object.freeze({ open, close, register, reduceMotion });
+  liftLegacyModals();
+  window.FaroInteractions = Object.freeze({ open, close, register, reduceMotion, ask, showUndo, hideUndo });
 })();

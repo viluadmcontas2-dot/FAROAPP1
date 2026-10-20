@@ -194,7 +194,7 @@
     this.save();
     this.closeModal('costModal');
     this.render();
-    this.toast(index >= 0 ? 'Custo atualizado e meta recalculada.' : 'Custo adicionado e meta recalculada.');
+    this.toast(index >= 0 ? 'Conta atualizada. A meta foi recalculada.' : 'Conta adicionada. A meta foi recalculada.');
     renderFinance();
   };
 
@@ -292,6 +292,79 @@
       ? `<div class="pt-4 border-t border-slate-100"><span class="label-micro !text-vetta-900">Próximo vencimento</span><div class="flex justify-between text-xs py-2"><span>${window.FaroSafe.esc(next.name)}</span><strong>${window.FaroSafe.esc(occurrenceLabel(next))}</strong></div></div>`
       : '<p class="text-xs text-slate-400">Adicione o vencimento de uma conta para o FARO acompanhar.</p>';
   };
+
+  // ── Editar com desfazer (F6) ───────────────────────────────────────────
+  // Uma cópia do estado antes da ação; "Desfazer" devolve só o que mudou, pelo mesmo app.save().
+  const snapshot = () => JSON.parse(JSON.stringify(app.state));
+  const changedKeys = before => Object.keys({ ...before, ...app.state }).filter(key => JSON.stringify(before[key]) !== JSON.stringify(app.state[key]));
+  const restore = (before, keys) => {
+    keys.forEach(key => { if (key in before) app.state[key] = before[key]; else delete app.state[key]; });
+    app.save(); app.render(); renderFinance(); window.FaroR3B?.sync?.();
+    app.toast?.('Alteração desfeita.');
+  };
+  const offerUndo = (before, message) => {
+    const keys = changedKeys(before);
+    if (!keys.length) return;
+    window.FaroInteractions?.showUndo?.({ message, onUndo:() => restore(before, keys) });
+  };
+  const costById = id => (app.state.costs || []).find(cost => cost.id === id);
+  const isReserve = cost => cost?.category === 'reserve';
+  // Cada exclusão do app passa por uma folha da própria UI. Os textos usam "conta a pagar" e "reserva".
+  const guards = [
+    { selector:'[data-action="delete"][data-date]', spec:() => ({ title:'Excluir este dia?', body:'Os ganhos e os km deste dia saem do histórico e a meta é recalculada.', confirmLabel:'Excluir dia', done:'Dia excluído.' }) },
+    { selector:'[data-cost-action="delete"]', spec:button => {
+      const cost = costById(button.dataset.costId); const name = cost?.name || 'este item';
+      return isReserve(cost)
+        ? { title:`Excluir a reserva “${name}”?`, body:'A reserva e o plano dela saem do FARO. O histórico de aportes fica guardado.', confirmLabel:'Excluir reserva', done:`Reserva “${name}” excluída.` }
+        : { title:`Excluir a conta “${name}”?`, body:'A conta a pagar sai do seu plano e a meta é recalculada.', confirmLabel:'Excluir conta', done:`Conta “${name}” excluída.` };
+    } },
+    { selector:'[data-reserve-remove-entry]', spec:() => ({ title:'Remover este aporte?', body:'Só este aporte sai do saldo. A reserva continua existindo.', confirmLabel:'Remover aporte', done:'Aporte removido.' }) },
+    { selector:'[data-event-action="delete"]', spec:() => ({ title:'Excluir este alerta?', body:'O item sai do seu radar local.', confirmLabel:'Excluir alerta', done:'Alerta excluído.' }) },
+    { selector:'#resetButton', spec:() => ({ title:'Restaurar parâmetros?', body:'Meta, agenda, energia e receita por km voltam aos valores iniciais. Seus dias, contas, pagamentos e reservas ficam como estão.', confirmLabel:'Restaurar parâmetros', done:'Parâmetros restaurados.' }) }
+  ];
+  let approved = null;
+  // Executa a ação original do app (mesmo caminho de gravação) com o "sim" já dado na folha.
+  const runApproved = (button, done) => {
+    const before = snapshot();
+    const nativeConfirm = window.confirm;
+    approved = button;
+    window.confirm = () => true;
+    try { button.click(); }
+    finally { window.confirm = nativeConfirm; approved = null; }
+    offerUndo(before, done);
+  };
+  document.addEventListener('click', event => {
+    if (!(event.target instanceof Element)) return;
+    for (const guard of guards) {
+      const button = event.target.closest(guard.selector);
+      if (!button || button === approved) continue;
+      event.preventDefault(); event.stopImmediatePropagation();
+      const spec = guard.spec(button);
+      const ask = window.FaroInteractions?.ask;
+      if (!ask) return;
+      ask(spec).then(ok => { if (ok && document.contains(button)) runApproved(button, spec.done); });
+      return;
+    }
+  }, true);
+
+  // Salvar conta/reserva editada também oferece "Desfazer".
+  const guardedSaveCost = app.saveCost;
+  app.saveCost = function(...args) {
+    const before = snapshot();
+    const editing = Boolean(this.$('costId').value);
+    const result = guardedSaveCost.apply(this, args);
+    if (this.$('costModal')?.classList.contains('hidden')) offerUndo(before, editing ? 'Alterações salvas.' : 'Conta adicionada.');
+    return result;
+  };
+
+  // Caminho único para editar ou excluir uma conta a pagar ou reserva, de qualquer tela.
+  const editCost = id => { const cost = costById(id); if (cost) app.openCostModal(cost); return Boolean(cost); };
+  const deleteCost = id => {
+    const button = [...document.querySelectorAll('[data-cost-action="delete"]')].find(item => item.dataset.costId === id);
+    button?.click();
+    return Boolean(button);
+  };
+  window.FaroEdit = Object.freeze({ editCost, deleteCost, offerUndo, snapshot });
 
   renderFinance();
   window.FaroFinance = { occurrences, nextPendingOccurrence, markPaid, undoPaid, refresh:renderFinance };

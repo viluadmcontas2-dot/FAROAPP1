@@ -46,6 +46,7 @@ const compositions = new Set([
   'brandMark(source)', 'chipsMarkup', 'keypadMarkup', 'storeMarkup', // faro-register: filhos já escapam source.key/label/asset
   'rows', // billGroup: items.map(billMarkup).join('')
   'groupLabel(title,items)',
+  'editButton', 'allRows', "groupLabel('Suas contas a pagar',allBills)", // F6: botões Editar/Excluir; nomes e IDs escapados
   "billGroup('Precisa de você',urgent)", "billGroup('Próximos dias',next)",
   "billGroup('Mais adiante',later,{collapsed:later.length > 3})", "billGroup('Resolvidas',resolved,{collapsed:true})"
 ]);
