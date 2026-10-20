@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-10-20T18:03:35.390Z",
+  "geradoEm": "2026-10-20T18:07:28.749Z",
   "estado": "CONCLUIDO",
   "fixture": {
     "version": 3,
@@ -229,20 +229,13 @@
       "larguraConteudo": 320,
       "rolagemHorizontal": false,
       "textosPequenos": [],
-      "alvosPequenos": [
-        {
-          "seletor": "#faroMoneyReserveList > article:nth-child(1) > details:nth-child(4) > summary:nth-child(1)",
-          "texto": "Detalhes e últimos aportes ›",
-          "largura": 230,
-          "altura": 18
-        }
-      ],
+      "alvosPequenos": [],
       "elementosExcedentes": [],
       "screenshot": "reservas-320x640.png",
       "contagem": {
         "rolagemHorizontal": 0,
         "textosPequenos": 0,
-        "alvosPequenos": 1,
+        "alvosPequenos": 0,
         "errosConsole": 0,
         "requisicoesExternas": 0
       }
@@ -416,20 +409,13 @@
       "larguraConteudo": 390,
       "rolagemHorizontal": false,
       "textosPequenos": [],
-      "alvosPequenos": [
-        {
-          "seletor": "#faroMoneyReserveList > article:nth-child(1) > details:nth-child(4) > summary:nth-child(1)",
-          "texto": "Detalhes e últimos aportes ›",
-          "largura": 292.59375,
-          "altura": 18
-        }
-      ],
+      "alvosPequenos": [],
       "elementosExcedentes": [],
       "screenshot": "reservas-390x844.png",
       "contagem": {
         "rolagemHorizontal": 0,
         "textosPequenos": 0,
-        "alvosPequenos": 1,
+        "alvosPequenos": 0,
         "errosConsole": 0,
         "requisicoesExternas": 0
       }
@@ -603,20 +589,13 @@
       "larguraConteudo": 768,
       "rolagemHorizontal": false,
       "textosPequenos": [],
-      "alvosPequenos": [
-        {
-          "seletor": "#faroMoneyReserveList > article:nth-child(1) > details:nth-child(4) > summary:nth-child(1)",
-          "texto": "Detalhes e últimos aportes ›",
-          "largura": 496,
-          "altura": 18
-        }
-      ],
+      "alvosPequenos": [],
       "elementosExcedentes": [],
       "screenshot": "reservas-768x1024.png",
       "contagem": {
         "rolagemHorizontal": 0,
         "textosPequenos": 0,
-        "alvosPequenos": 1,
+        "alvosPequenos": 0,
         "errosConsole": 0,
         "requisicoesExternas": 0
       }

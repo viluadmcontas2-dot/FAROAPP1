@@ -22,4 +22,7 @@ assert.match(reserves,/app\.openCostModal\(\)/);
 assert.match(reserves,/applyCostTemplate\?\.\('reserve'\)/);
 assert.doesNotMatch(reserves,/state\.targetProfit\s*=|state\.costs\.push\(/,'Aporte real não pode aumentar a meta ou duplicar regra financeira');
 
+const r3b = await readFile('faro-r3b.js','utf8');
+assert.match(r3b, /\.faro-r3b2-reserve-details>summary\{[^}]*min-height:44px/, 'summary de aportes tem alvo de toque de 44px');
+
 console.log('FARO: reserva planejada e dinheiro realmente guardado permanecem conceitos separados — ok');

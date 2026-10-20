@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 
-const files = readdirSync('.').filter(file => /^faro-(account|finance|reserves|planning|r3b|interactions|notifications|onboarding.*|tour|platform|energy|state|update)\.js$/.test(file));
+const files = readdirSync('.').filter(file => /^faro-(account|finance|reserves|planning|r3b|interactions|notifications|onboarding.*|tour|platform|energy|state|update|register|register-earnings|home-r2|brand-r2)\.js$/.test(file));
 // Leitor lexical pequeno: balanceia expressões, strings e templates aninhados.
 // Não interpreta JS nem confunde o primeiro `}` de um objeto com o fim de ${...}.
 export function templates(source) {
@@ -43,6 +43,7 @@ const compositions = new Set([
   "recent.map(entry => TEMPLATE).join('')",
   "recent.length ? recent.map(entry => TEMPLATE).join('') : '<div class=\"faro-r3b2-contribution\"><span>Nenhum aporte registrado ainda.</span></div>'",
   'primary', // billMarkup: dois botões locais; IDs escapados
+  'brandMark(source)', 'chipsMarkup', 'keypadMarkup', 'storeMarkup', // faro-register: filhos já escapam source.key/label/asset
   'rows', // billGroup: items.map(billMarkup).join('')
   'groupLabel(title,items)',
   "billGroup('Precisa de você',urgent)", "billGroup('Próximos dias',next)",

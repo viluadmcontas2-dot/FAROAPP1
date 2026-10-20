@@ -99,4 +99,7 @@ assert.match(planning, /resetTargetDraft/);
 
 assert.match(home, /window\.FaroHome/);
 
+// Bolhas decorativas do cartão do Início ficam contidas no cartão (320/390 px).
+assert.match(home, /#faroHomeDetails \.overflow-hidden\{[^}]*overflow:clip[^}]*contain:paint/, 'cartão do Início contém as bolhas decorativas');
+
 console.log('FARO HF2 + R2/HOME: bruto semanal, primeiro mês e geração premium reconciliados — ok');
