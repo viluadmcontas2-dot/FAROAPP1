@@ -8,6 +8,8 @@ execFileSync(process.execPath, ['scripts/build-static-site.mjs'], { stdio: 'inhe
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const read = path => readFile(path, 'utf8');
 const integrity = JSON.parse(await read('ci/baseline-integrity.json'));
+assert.ok(integrity.experienceContract.some(item => /3 perguntas/.test(item) && /onboarding-3-perguntas\.md/.test(item)), 'Contrato de experiência precisa citar a decisão F5');
+assert.ok(!integrity.experienceContract.some(item => /dura aproximadamente quatro segundos/.test(item)), 'Espera de 4 s saiu do contrato');
 
 // Strict SHA-256 bytes must survive default Windows Git checkout as LF.
 const checkoutAttributes = await read('.gitattributes');
@@ -109,13 +111,15 @@ assert.match(energy, /baseChangeFuelType/);
 assert.match(energy, /baseUpdateFuelFromForm/);
 
 assert.match(onboarding, /const DRAFT_KEY = 'faro-onboarding-draft-v2'/);
-assert.match(onboarding, /data-faro-step="rental"/);
-assert.match(onboarding, /data-faro-step="finance"/);
-assert.match(onboarding, /data-faro-step="costs"/);
-assert.match(onboarding, /data-faro-step="reserve"/);
-assert.match(onboarding, /Farejando sua operação\.\.\./);
+// F5 (docs/decisoes/onboarding-3-perguntas.md, mockup v3 aprovado em 2026-10-20): 3 perguntas.
+assert.match(onboarding, /data-faro-step="vehicle"/);
+assert.match(onboarding, /data-faro-step="target"/);
+assert.match(onboarding, /data-faro-step="energy"/);
+assert.match(onboarding, /name:'Aluguel do carro', kind:'weekly'/);
+assert.match(onboarding, /name:'Parcela do carro', kind:'monthly'/);
+assert.doesNotMatch(onboarding, /setTimeout\(showResult/, 'Sem espera artificial de ~4 s');
 assert.match(onboarding, /id="faroFinish"/);
-assert.match(onboarding, /app\.state\.onboardingComplete = true/);
+assert.match(await read('faro-onboarding-commit.js'), /app\.state\.onboardingComplete = true/);
 assert.doesNotMatch(onboarding, /state\.records\.push|state\.records\.splice/);
 
 assert.match(brand, /replaceAll\('VETTA', BRAND\)/);
