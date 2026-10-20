@@ -82,12 +82,7 @@
         <button id="faroSaveAccount" type="button" class="w-full rounded-2xl bg-blue-600 text-white font-extrabold text-xs">SALVAR MEU FARO</button>
         <button id="faroSignOut" type="button" class="hidden w-full rounded-2xl bg-slate-100 text-slate-700 font-extrabold text-xs">SAIR DESTA CONTA</button>
       </div>
-      <div class="mt-5 pt-5 border-t border-slate-100">
-        <span class="label-micro">Meu plano</span>
-        <strong id="faroSubscriptionTitle" class="block text-sm">Sem assinatura ativa</strong>
-        <p id="faroSubscriptionText" class="text-xs text-slate-500 mt-1">A cobrança comercial será vinculada à sua conta.</p>
-        <button id="faroSubscriptionAction" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">ASSINAR FARO</button>
-      </div>
+      <div id="faroPlanSlot" class="mt-5 pt-5 border-t border-slate-100"></div>
       <nav class="mt-5 grid gap-2" aria-label="Privacidade e conta">
         <a href="termos.html" class="text-sm">Termos de uso</a>
         <a href="privacidade.html" class="text-sm">Política de privacidade</a>
@@ -101,6 +96,13 @@
     const intro = $('faroCentralIntro');
     if (intro) intro.insertAdjacentElement('afterend', card);
     else central.prepend(card);
+    if (window.FaroPlans) window.FaroPlans.mount($('faroPlanSlot'));
+    else $('faroPlanSlot').innerHTML = `<div>
+        <span class="label-micro">Meu plano</span>
+        <strong id="faroSubscriptionTitle" class="block text-sm">Sem assinatura ativa</strong>
+        <p id="faroSubscriptionText" class="text-xs text-slate-500 mt-1">A cobrança comercial será vinculada à sua conta.</p>
+        <button id="faroSubscriptionAction" type="button" class="w-full mt-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs">ASSINAR FARO</button>
+      </div>`;
 
     const modal = document.createElement('div');
     modal.id = 'faroAccountModal';
@@ -274,7 +276,32 @@
     await renderSubscription(session.user.id);
   };
 
+  // Tela Plano (faro-plans.js): sessão + trial do servidor + assinatura viram um estado só.
+  const renderPlan = async userId => {
+    let trialEndsAt = null;
+    let subscription = null;
+    if (configured && client && userId && !session?.user?.is_anonymous) {
+      try {
+        const [trial, sub] = await Promise.all([
+          client.rpc('faro_my_trial_ends_at'),
+          client.from('faro_subscriptions').select('status,stripe_customer_id,current_period_end,cancel_at_period_end').eq('user_id', userId).maybeSingle()
+        ]);
+        trialEndsAt = trial?.data || null;
+        subscription = sub?.data || null;
+      } catch (error) { console.warn('FARO plano', error); }
+    }
+    const plans = window.FaroPlans;
+    const state = plans.computeState({ signedIn: Boolean(userId), anonymous: Boolean(session?.user?.is_anonymous), trialEndsAt, subscription });
+    const plan = $('faroPlan');
+    plans.update(plan, state, { billingEnabled });
+    if (billingEnabled && state.kind === 'subscriber' && subscription?.cancel_at_period_end && subscription?.current_period_end) {
+      $('faroSubscriptionText').textContent = `Acesso mantido até ${new Date(subscription.current_period_end).toLocaleDateString('pt-BR')}.`;
+    }
+    plan.dataset.ready = '1';
+  };
+
   const renderSubscription = async userId => {
+    if (window.FaroPlans && $('faroPlan')) return renderPlan(userId);
     if (!configured || !userId || !client) {
       const [title, text] = subscriptionCopy('inactive');
       $('faroSubscriptionTitle').textContent = billingEnabled ? title : 'Assinatura em breve';
@@ -594,6 +621,12 @@
   $('faroDeleteDialog').addEventListener('cancel', event => { if (deletionInProgress) event.preventDefault(); });
 
   const openBilling = async () => {
+    if ($('faroSubscriptionAction').dataset.action === 'signup') {
+      setAuthMode('signup');
+      $('faroAccountModal').classList.remove('hidden');
+      $('faroEmail').focus();
+      return;
+    }
     if (!billingEnabled) return app.toast('Assinatura ainda não está disponível.');
     if (!configured || !client || !session?.user) return app.toast('Salve seu FARO na conta antes de gerenciar a assinatura.');
     const name = $('faroSubscriptionAction').dataset.portal === 'true' ? 'abrir-portal-faro' : 'criar-checkout-faro';
@@ -623,6 +656,7 @@
   $('faroUpdatePassword').addEventListener('click', updateRecoveredPassword);
   $('faroSignOut').addEventListener('click', safeSignOut);
   $('faroSubscriptionAction').addEventListener('click', openBilling);
+  $('faroPlanExport')?.addEventListener('click', () => app.exportData());
   $('faroKeepLocal').addEventListener('click', async () => {
     $('faroSyncConflict').classList.add('hidden');
     pendingConflict = null;
