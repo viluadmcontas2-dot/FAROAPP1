@@ -31,7 +31,7 @@ assert.match(checkout, /checkout\.sessions\.create/);
 assert.match(checkout, /mode: 'subscription'/);
 assert.match(checkout, /line_items:/);
 assert.match(checkout, /allow_promotion_codes:\s*true/,
-  'Checkout precisa aceitar o código promocional de lançamento RATAO');
+  'Checkout precisa aceitar o código promocional de lançamento PRAGAS');
 assert.match(checkout, /integration_identifier:\s*'faro_finance_[a-z]{8}'/,
   'Checkout deve carregar identificador estável/rastreável da integração FARO');
 
@@ -57,8 +57,10 @@ assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon
 // e delete atrasado de uma assinatura antiga não pode cancelar uma assinatura nova do mesmo usuário.
 assert.match(webhook, /customer\.subscription\.created'[\s\S]*customer\.subscription\.updated'[\s\S]*stripe\.subscriptions\.retrieve\(subscriptionId\)/,
   'Eventos created/updated devem buscar a assinatura atual na Stripe antes de escrever entitlement');
-assert.match(webhook, /select\('stripe_subscription_id'\)[\s\S]*const staleDelete = Boolean\(current\?\.stripe_subscription_id && current\.stripe_subscription_id !== subscriptionId\)[\s\S]*if \(!staleDelete\) await applySubscription\(object, resolvedUserId\)/,
-  'Delete atrasado precisa pular somente a mutação quando o usuário já está ligado a outra assinatura');
+assert.match(webhook, /select\('stripe_subscription_id,status,last_event_created'\)[\s\S]*if \(isStaleSubscriptionEvent\(current, \{ subscriptionId: subscription\.id, status, eventCreated: event\.created \}\)\)[\s\S]*return false;/,
+  'Evento atrasado (inclusive delete de assinatura antiga) precisa pular a mutação quando o usuário já está em estado mais novo');
+assert.match(webhook, /customer\.subscription\.deleted' && subscriptionId\)[\s\S]*await applySubscription\(object,/,
+  'Delete passa pela mesma guarda de evento velho');
 
 assert.match(schema, /grant select on public\.faro_subscriptions to authenticated/);
 assert.doesNotMatch(schema, /grant select, insert, update, delete on public\.faro_subscriptions to authenticated/,

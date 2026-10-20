@@ -10,13 +10,13 @@ Linha canônica: branch `claude/pwa-driver-production-fm0kk9` (contém WU-004 po
 - Prova em aparelho real é do dono; fica UNKNOWN até existir.
 
 ## Dia 1 — Cobrança segura (o que bloqueia vender)
-- [x] Decisão do dono (2026-10-20): custo zero de infraestrutura (planos grátis) e preço abaixo de R$19,90/mês.
+- [x] Decisão do dono (2026-10-20): custo zero de infraestrutura (planos grátis). Preço revisto pelo dono: R$22,99/mês com cupom PRAGAS (R$14,90 por 5 meses).
 - [ ] Hospedagem: Cloudflare Pages grátis (Vercel Hobby proíbe uso comercial). Supabase Free + despertador semanal + backup periódico; migrar p/ Pro quando houver assinantes.
-- [ ] Dono: criar novo preço no Stripe (sandbox) para R$19,90 e revisar cupom RATAO (19,90−8,00=11,90).
+- [ ] Dono: criar cupom PRAGAS no Stripe (sandbox): R$8,09 off, 5 meses (guia: `docs/billing/PASSO-A-PASSO-DONO.md`).
 - [ ] Dono: instalar 4 segredos no Supabase + criar Portal de Cobrança (guia passo a passo será entregue).
-- [ ] Código: paywall no servidor (`faro_has_access()` nas policies de escrita).
-- [ ] Código: webhook lê `items.data[0].current_period_end`; guarda contra evento velho; 1 assinatura por usuário; idempotency key no customer.
-- [ ] Código: trial 7 dias no servidor + tabela "trial usado" que sobrevive à exclusão de conta; limite de tamanho do estado.
+- [x] Código: paywall no servidor (`faro_has_access()` nas policies de escrita).
+- [x] Código: webhook lê `items.data[0].current_period_end`; guarda contra evento velho; 1 assinatura por usuário; idempotency key no customer.
+- [x] Código: trial 7 dias no servidor + tabela "trial usado" que sobrevive à exclusão de conta; limite de tamanho do estado.
 - [ ] Testes de função sem token = 401; `stripe trigger` no sandbox.
 
 ## Dia 2 — Base PWA e legibilidade
@@ -30,11 +30,11 @@ Linha canônica: branch `claude/pwa-driver-production-fm0kk9` (contém WU-004 po
 - [ ] Voz e identidade "Pragas na Pista" (copy, nome de conquistas, tela de boas-vindas por convite).
 - [ ] Onboarding em 3 perguntas; fechar o turno em ~20s.
 - [ ] Gamificação na medida: sequência com 1 folga/semana, meta com ritmo, conquistas ligadas a dinheiro real (reserva IPVA, mês no azul). Sem ranking/confete.
-- [ ] Tela de planos + trial + cupom RATAO; termos, privacidade, excluir conta (LGPD); tutorial de instalação no iPhone.
+- [ ] Tela de planos + trial + cupom PRAGAS; termos, privacidade, excluir conta (LGPD); tutorial de instalação no iPhone.
 
 ## Dia 4 — Qualidade e lançamento
 - [ ] Playwright 320/390/768, axe, Lighthouse; orçamento de desempenho.
-- [ ] E2E Stripe sandbox (checkout, webhook, portal, RATAO) e regressão.
+- [ ] E2E Stripe sandbox (checkout, webhook, portal, PRAGAS) e regressão.
 - [ ] Dono: teste em iPhone e Android reais (2 dias de uso).
 - [ ] Preview Vercel manual; só então `billingEnabled=true` e deploy de produção (gate manual).
 

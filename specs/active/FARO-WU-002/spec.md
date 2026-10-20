@@ -17,7 +17,7 @@ A execução começa por preflight **read-only** dos três providers relevantes:
 
 O fluxo comercial a provar é:
 
-`usuário FARO autenticado → Checkout Stripe → promoção RATAO → webhook assinado/idempotente → faro_subscriptions/entitlement server-side → Billing Portal`.
+`usuário FARO autenticado → Checkout Stripe → promoção PRAGAS → webhook assinado/idempotente → faro_subscriptions/entitlement server-side → Billing Portal`.
 
 `billingEnabled=false` permanece como trava até esse fluxo passar integralmente.
 
@@ -40,6 +40,6 @@ O fluxo comercial a provar é:
 4. Checkout autenticado provado;
 5. webhook assinado + idempotência + entitlement provados;
 6. Billing Portal provado;
-7. RATAO provado;
+7. PRAGAS provado (R$ 22,99 − R$ 8,09 = R$ 14,90 por 5 meses);
 8. billing habilitado somente após regressão verde;
 9. handoff explícito para FARO-WU-003.

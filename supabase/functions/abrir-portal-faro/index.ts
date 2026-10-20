@@ -1,5 +1,6 @@
 import { withSupabase } from 'npm:@supabase/server@1.4.1';
 import Stripe from 'npm:stripe@22.5.0';
+import { stripeFailure } from '../_shared/faro-billing.js';
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
 const appUrl = Deno.env.get('FARO_APP_URL') || '';
@@ -9,6 +10,7 @@ export default {
   fetch: withSupabase({ auth: 'user' }, async (_req, ctx) => {
     const userId = String(ctx.userClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
+    if (ctx.userClaims?.is_anonymous === true) return json({ error: 'Crie sua conta com e-mail para assinar.' }, 403);
     if (!stripeSecret || !appUrl) return json({ error: 'Portal ainda não configurado.' }, 503);
 
     const stripe = new Stripe(stripeSecret);
@@ -19,11 +21,16 @@ export default {
       .maybeSingle();
     if (error || !data?.stripe_customer_id) return json({ error: 'Nenhuma assinatura encontrada para esta conta.' }, 404);
 
-    const session = await stripe.billingPortal.sessions.create({
-      customer: data.stripe_customer_id,
-      return_url: `${appUrl}?faro_cobranca=portal`
-    });
-
-    return json({ url: session.url });
+    try {
+      const session = await stripe.billingPortal.sessions.create({
+        customer: data.stripe_customer_id,
+        return_url: `${appUrl}?faro_cobranca=portal`
+      });
+      return json({ url: session.url });
+    } catch (error) {
+      console.error('FARO portal falhou', (error as { type?: string })?.type || 'erro');
+      const failure = stripeFailure(error);
+      return json(failure.body, failure.status);
+    }
   })
 };

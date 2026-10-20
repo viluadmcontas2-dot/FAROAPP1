@@ -7,7 +7,7 @@
 - Source repo: `viluadmcontas2-dot/FAROAPP1`.
 - Engineering authority: repository + GitHub Issue/branch/PR/evidence lineage.
 - Backend: Supabase dedicado `mjbyqhreptllilkggiri`.
-- Billing: Stripe; preço oficial R$ 22,99/mês; campanha `RATAO` = R$ 8,00 off por 5 meses, resultando em R$ 14,99 nas 5 primeiras cobranças.
+- Billing: Stripe; preço oficial R$ 22,99/mês (decisão do dono 2026-10-20); cupom `PRAGAS` = R$ 8,09 off por 5 meses, resultando em R$ 14,90 nas 5 primeiras cobranças (duração revisável: `docs/decisoes/cobranca.md`). Trial de 7 dias concedido pelo servidor, uma vez por e-mail.
 - Hosting target: Vercel.
 - Netlify: retired hosting / historical isolation only.
 - `REMOTE_FIRST=ALWAYS`

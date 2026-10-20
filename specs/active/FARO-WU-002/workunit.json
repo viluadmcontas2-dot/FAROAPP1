@@ -25,8 +25,12 @@
     "monthly_price": "price_1UAF1HLsq19Xe9NBVCt4sSwN",
     "coupon": "VPBhfe03",
     "promotion_code": "promo_1UAF1tLsq19Xe9NBzv8mYQFP",
-    "customer_code": "RATAO",
-    "invoice_preview_total": 1499,
+    "customer_code": "PRAGAS",
+    "coupon_ids_note": "coupon e promotion_code acima pertencem ao código anterior (substituído); PRAGAS terá ids novos criados pelo dono",
+    "invoice_preview_total_expected": 1490,
+    "coupon_amount_off_expected": 809,
+    "coupon_duration_expected": "repeating_5_months",
+    "coupon_status": "PENDENTE_DONO_CRIAR_NO_SANDBOX",
     "persistent_customers_after_preview": 0,
     "persistent_subscriptions_after_preview": 0,
     "webhook_endpoint": "we_1UAFofLsq19Xe9NBk4gSh2tW",
@@ -97,7 +101,7 @@
     {"id":"B6","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B7","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B8","state":"UNPROVEN","evidence_refs":[]},
-    {"id":"B9","state":"PROVEN","evidence_refs":["docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md","Stripe invoice preview: subtotal=2299 discount=800 total=1499"]},
+    {"id":"B9","state":"UNPROVEN","evidence_refs":["cupom anterior substituído por PRAGAS em 2026-10-20 (prova antiga em docs/evidence/FARO-WU-002-stripe-sandbox-catalog-receipt.md)"]},
     {"id":"B10","state":"UNPROVEN","evidence_refs":[]},
     {"id":"B11","state":"UNPROVEN","evidence_refs":[]}
   ]
