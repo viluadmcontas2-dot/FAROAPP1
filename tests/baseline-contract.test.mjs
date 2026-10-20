@@ -72,6 +72,9 @@ assert.match(shell, /faro-tour\.js\?v=2/);
 assert.match(shell, /faro-r2-polish\.js\?v=2/);
 assert.doesNotMatch(shell, /faro-brand\.js\?v=2/);
 assert.doesNotMatch(shell, /faro-home\.js\?v=1/);
+for (const dead of ['faro-brand.js', 'faro-home.js']) {
+  await assert.rejects(stat(dead), { code: 'ENOENT' }, `${dead} é código morto e não deve existir no repositório`);
+}
 assert.match(shell, /faro-platform\.js\?v=3/);
 assert.match(shell, /faro-update\.js\?v=1/);
 assert.match(shell, /faro-state\.js\?v=1/);
