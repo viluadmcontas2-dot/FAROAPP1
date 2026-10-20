@@ -134,6 +134,12 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // O miolo do app só é lido pelo app-shell; abrir direto no navegador volta para a porta de instalação.
+  if (event.request.mode === 'navigate' && url.pathname.endsWith('/legacy-shell.html')) {
+    event.respondWith(Response.redirect(new URL('./', self.registration.scope).href, 302));
+    return;
+  }
+
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
     event.respondWith(networkFirst(event.request));
     return;

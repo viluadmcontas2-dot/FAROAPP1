@@ -160,7 +160,7 @@
     if (state.kind === 'expired') return { text: 'Seu teste acabou. Seus dados continuam aqui para ver e exportar.', tone: 'expired' };
     return null;
   };
-  const dayKey = () => new Date().toISOString().slice(0, 10);
+  const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   const noticeDismissed = tone => { try { return root.localStorage?.getItem(NOTICE_KEY) === tone + '|' + dayKey(); } catch { return false; } };
   const renderNotice = (doc, state) => {
     const home = doc.getElementById('view-dashboard');
