@@ -35,3 +35,9 @@ Branch: `claude/cobranca-servidor`. Cada item diz o que foi decidido, por quê e
 11. **Checkout**: quem já tem assinatura `active`/`trialing`/`past_due` é levado ao Portal (sem 2ª assinatura);
     `idempotencyKey: faro-customer-<uid>` na criação do customer; erros Stripe viram resposta limpa (402/502/500) sem detalhes.
 12. **Regras puras** em `supabase/functions/_shared/faro-billing.js` (JS sem dependências) para testar no Node.
+
+## 2026-10-20 — migrations aplicadas no Supabase real (`mjbyqhreptllilkggiri`)
+- `20261020120000_faro_server_paywall.sql` (colada no SQL Editor pelo dono) e `20261020130000_faro_has_access_own_only.sql` (apply_migration).
+- Conferido: 7 tabelas, 5 funções, 13 policies, 2 gatilhos; `enforce_paywall=false` (liga no go-live).
+- Advisors de segurança: 3 INFO "RLS sem policy" são intencionais (tabelas só do servidor); WARN de SECURITY DEFINER tratado limitando `faro_has_access` ao próprio usuário.
+- Pendente: deploy das 3 Edge Functions novas, 4 segredos (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_FARO_MONTHLY_PRICE_ID, FARO_APP_URL), webhook com +2 eventos (customer.subscription.trial_will_end, charge.dispute.created).
