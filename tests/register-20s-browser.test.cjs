@@ -153,6 +153,7 @@ const pageHelpers = `
 
     // 7) Km: sem km o erro aparece junto do campo; "Igual a ontem" preenche.
     const km = await run(`
+      await wait(400);
       localStorage.removeItem('faro-record-draft-v1');
       field('clearDayButton').click();
       type(field('recordDate'), dateKey(-4));
@@ -174,13 +175,22 @@ const pageHelpers = `
 
     // 8) Alvos de toque >= 48 px e fonte >= 12 px na área nova.
     const sizes = await run(`
+      // O perfil de teste não está instalado: a trava de instalação esconde o app. Para medir, tiramos a trava.
+      document.documentElement.removeAttribute('data-faro-activation-stage');
+      await wait(30);
       const targets = [...document.querySelectorAll('[data-faro-source-chip], [data-faro-key], #faroEarningAdd, #faroKmSame, #faroDateChange, #faroEarningList button')].filter(visible);
       const small = targets.filter(el => el.getBoundingClientRect().height < 48).map(el => (el.id || el.dataset.faroKey || el.dataset.faroSourceChip || el.textContent.trim()) + ':' + el.getBoundingClientRect().height);
       const tinyFont = [...document.querySelectorAll('#faroEarningsBySource *, #faroDateSummary, #faroKmSame, #faroKmMessage')].filter(visible).filter(el => el.childNodes.length && [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())).filter(el => parseFloat(getComputedStyle(el).fontSize) < 12).map(el => el.textContent.trim());
-      return { count: targets.length, small, tinyFont };
+      const shown = id => { const el = document.getElementById(id); return Boolean(el && el.getBoundingClientRect().height > 0); };
+      const hiddenLeaks = ['faroDateConflict', 'faroLegacyEarnings', 'faroKmMessage', 'faroEarningMessage'].filter(id => document.getElementById(id)?.classList.contains('hidden') && shown(id));
+      const total = document.getElementById('faroEarningsTotalWrap');
+      const totalBg = total ? getComputedStyle(total).backgroundImage : 'none';
+      return { count: targets.length, small, tinyFont, hiddenLeaks, totalBg };
     `);
     check('8: alvos de toque com pelo menos 48 px', sizes.count > 10 && sizes.small.length === 0, sizes);
     check('8: nenhuma fonte abaixo de 12 px', sizes.tinyFont.length === 0, sizes.tinyFont);
+    check('8: avisos marcados como ocultos não aparecem na tela (CSS real)', sizes.hiddenLeaks.length === 0, sizes.hiddenLeaks);
+    check('8: total do dia é uma linha da lista, sem cartão escuro', sizes.totalBg === 'none', sizes.totalBg);
   } finally {
     await faro.close();
   }
