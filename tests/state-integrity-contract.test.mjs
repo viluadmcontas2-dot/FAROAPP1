@@ -21,7 +21,7 @@ for (const required of [
 contains(state, 'const baseCloneDefaults = app.cloneDefaults', 'Todo estado novo precisa passar pelo guardião');
 contains(state, 'const baseNormalizeState = app.normalizeState', 'Todo estado importado/restaurado precisa passar pelo guardião');
 contains(state, 'return ensureExtensions(baseCloneDefaults.call(this))', 'Logout/defaults precisam nascer com extensões válidas');
-contains(state, 'return ensureExtensions(baseNormalizeState.call(this, value))', 'Backup/remoto precisam manter extensões válidas');
+contains(state, 'return ensureExtensions(sanitizeState(baseNormalizeState.call(this, value)))', 'Backup/remoto precisam manter extensões válidas');
 contains(state, 'if (!Array.isArray(state.paymentOccurrences)) state.paymentOccurrences = []', 'Pagamento ausente deve virar lista vazia, nunca dado inventado');
 contains(state, 'if (!Array.isArray(state.reserveContributions)) state.reserveContributions = []', 'Aportes ausentes devem virar lista vazia');
 contains(state, 'state.reserveProfiles = {}', 'Perfis de reserva antigos precisam de objeto vazio válido');
