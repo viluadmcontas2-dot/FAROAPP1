@@ -181,18 +181,15 @@ const audit = `
     check('modo carro: texto AA', car.text.length === 0, car.text);
     const off = await run(`window.FaroPwa.setCarMode(false); await new Promise(r => setTimeout(r, 100)); return getComputedStyle(document.body).backgroundColor;`);
     check('modo carro desligado: volta ao papel quente', off === 'rgb(246, 241, 228)', off);
-    // iPhone: o tutorial diz "Compartilhar > Tela de Início" e dá para continuar no navegador (não bloqueia o uso).
+    // iPhone: o tutorial diz "Compartilhar > Tela de Início" e não há atalho para usar sem instalar.
     await faro.command('Page.enable', {});
     await faro.command('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1' });
     await faro.evaluate(`sessionStorage.clear(); localStorage.clear(); true`);
     await faro.command('Page.reload', { ignoreCache: true });
     await sleep(2500);
-    const ios = await faro.evaluate(`(() => { const g = document.getElementById('faroInstallGate'); return g ? { title: g.querySelector('#faroInstallTutorialTitle').textContent, steps: g.querySelectorAll('#faroInstallSteps li').length, cont: g.querySelector('#faroInstallContinue')?.textContent, locked: document.querySelectorAll('[data-faro-install-locked]').length } : null; })()`);
+    const ios = await faro.evaluate(`(() => { const g = document.getElementById('faroInstallGate'); return g ? { title: g.querySelector('#faroInstallTutorialTitle').textContent, steps: g.querySelectorAll('#faroInstallSteps li').length, cont: g.querySelector('#faroInstallContinue') ? 'sim' : 'nao', locked: document.querySelectorAll('[data-faro-install-locked]').length } : null; })()`);
     check('iPhone: tutorial Compartilhar > Tela de Início com 3 passos', ios && /Compartilhar > Tela de Início/.test(ios.title) && ios.steps === 3, ios);
-    check('iPhone: "Continuar no navegador" disponível', ios && ios.cont === 'Continuar no navegador' && ios.locked > 0, ios);
-    await faro.evaluate(`document.getElementById('faroInstallContinue').click(); true`);
-    const freed = await faro.evaluate(`({ gate: Boolean(document.getElementById('faroInstallGate')), locked: document.querySelectorAll('[data-faro-install-locked],[inert]').length, stage: document.documentElement.dataset.faroActivationStage, scroll: document.body.style.overflow })`);
-    check('iPhone: continuar libera o app (sem trava)', !freed.gate && freed.stage === 'product' && freed.scroll === '', freed);
+    check('iPhone: sem "Continuar no navegador" e app travado até instalar', ios && ios.cont === 'nao' && ios.locked > 0, ios);
     await faro.command('Emulation.setUserAgentOverride', { userAgent: '' });
   } finally {
     await faro.close();

@@ -125,10 +125,7 @@ assert.equal(manifest.display, 'standalone');
 assert.equal(manifest.start_url, './app-shell.html');
 assert.equal(manifest.prefer_related_applications, false);
 
-// Decisão do dono (refino-fluxo): só no iPhone o tutorial não bloqueia o uso. Android e computador seguem sem bypass.
-assert.doesNotMatch(platform, /entrar sem instalar/i, 'Não pode existir bypass comercial visível');
-assert.equal((platform.match(/continuar no navegador/gi) || []).length, 1, 'O botão de continuar existe uma única vez');
-assert.match(platform, /if \(kind === 'ios'\) \{\s*const keepGoing[\s\S]*?Continuar no navegador/, 'Continuar no navegador só aparece no iPhone');
+assert.doesNotMatch(platform, /continuar no navegador|entrar sem instalar|faroInstallContinue/i, 'Não pode existir bypass comercial visível');
 assert.doesNotMatch(platform, /appinstalled[\s\S]{0,500}location\.reload/, 'Instalação concluída não pode criar loop de reload');
 
 console.log('FARO físico: instalação segura, splash adaptativo e geração premium de Registro/Home/Central — ok');

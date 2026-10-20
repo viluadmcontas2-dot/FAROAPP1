@@ -175,4 +175,3 @@
 :root:not([data-faro-car="on"]) #faroTrialNotice span{min-width:0;line-height:1.35}
 :root:not([data-faro-car="on"]) #faroTrialNotice button{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-size:14px;font-weight:800;background:var(--faro-amber);color:var(--faro-on-amber)}
 :root:not([data-faro-car="on"]) #faroTrialNotice button[data-faro-trial="dismiss"]{background:transparent;color:var(--faro-muted)}
-:root:not([data-faro-car="on"]) #faroInstallGate .faro-install-continue{display:block;width:100%;min-height:48px;margin-top:10px;border-radius:16px;background:transparent;color:var(--faro-ink);font-size:14px;font-weight:800;text-decoration:underline}
