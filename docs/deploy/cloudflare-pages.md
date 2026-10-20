@@ -1,5 +1,7 @@
 # Hospedar o FARO de graça na Cloudflare Pages
 
+> **Atualização (Workers):** o projeto no painel Cloudflare é o Worker **faroapp1** (Workers Builds), não o Pages `faro-motorista`. O arquivo `wrangler.jsonc` na raiz manda servir a pasta `_site`. No painel: **faroapp1 → Settings → Build**: Build command `npm run build`, Deploy command `npx wrangler deploy`, variável `NODE_VERSION` = `22`. O endereço fica em `https://faroapp1.<sua-conta>.workers.dev`. Os passos abaixo valem como referência (Pages); o resto (produção manual, Supabase `FARO_APP_URL`) segue igual.
+
 Custo: R$ 0. Tempo: uns 10 minutos. Faça uma vez só.
 
 ## 1. Criar a conta
