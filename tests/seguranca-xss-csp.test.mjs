@@ -151,7 +151,7 @@ test('1.1 backup importado com payloads (XSS, javascript:, CSS injection, __prot
   await context.close();
 });
 
-test('1.1b (endurecimento, baixa) o icone deveria aceitar so classes Phosphor, nao qualquer [a-z0-9 -]', { todo: 'baixa: icon() em src/core/state.js aceita qualquer classe; inerte hoje (app.css so tem .ph*, .fscroll, .hscroll), mas vira vetor se alguem adicionar utilitarios CSS' }, async () => {
+test('1.1b o icone aceita so classes Phosphor, nao qualquer [a-z0-9 -]', async () => {
   const { normalizeState } = await import('../src/core/state.js');
   const s = normalizeState({ schemaVersion: 2, expCats: [{ name: 'a', icon: 'fixed inset-0 z-50 hscroll' }] });
   assert.match(s.expCats[0].icon, /^(ph(-[a-z]+)? )?ph-[a-z0-9-]+$|^$/, `icone aceito: ${s.expCats[0].icon}`);

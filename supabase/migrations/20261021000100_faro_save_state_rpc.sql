@@ -6,18 +6,25 @@
 -- Estado v2 apenas; objeto JSON; teto de 512 KB.
 alter table public.faro_state alter column schema_version set default 2;
 alter table public.faro_state
+  drop constraint if exists faro_state_schema_v2,
+  drop constraint if exists faro_state_is_object,
+  drop constraint if exists faro_state_max_size,
+  drop constraint if exists faro_state_ids_len;
+alter table public.faro_state
   add constraint faro_state_schema_v2 check (schema_version = 2) not valid,
   add constraint faro_state_is_object check (jsonb_typeof(state) = 'object') not valid,
   add constraint faro_state_max_size check (pg_column_size(state) <= 524288) not valid,
   add constraint faro_state_ids_len check (char_length(coalesce(device_id,'')) <= 128 and char_length(coalesce(last_mutation_id,'')) <= 128) not valid;
 
 -- Aparelhos de push: limites contra abuso de armazenamento.
+alter table public.faro_push_devices drop constraint if exists faro_push_devices_limits;
 alter table public.faro_push_devices
   add constraint faro_push_devices_limits check (
     char_length(device_id) between 1 and 128
     and (subscription is null or pg_column_size(subscription) <= 8192)
   ) not valid;
 
+alter table public.faro_profiles drop constraint if exists faro_profiles_limits;
 alter table public.faro_profiles
   add constraint faro_profiles_limits check (
     char_length(coalesce(display_name,'')) <= 120

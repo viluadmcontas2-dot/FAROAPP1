@@ -14,6 +14,8 @@ const META_PREFIX = 'faro-sync-meta-v2:';
 const STASH_PREFIX = 'faro-sync-stash-v2:';
 const OWNER_KEY = 'faro-sync-owner-v2';
 const PERMANENT = new Set(['22023', '54000', '28000']);
+const SEM_DIREITO = '42501'; // paywall: o servidor só recusa gravar; nada local é apagado
+const MUITAS_GRAVACOES = 'P0429';
 
 // "Tem dado" = o usuário usou o app. Objeto vazio, lixo ou estado de fábrica NÃO contam (aparelho novo não pode virar conflito).
 const FACTORY = JSON.stringify(defaultState());
@@ -191,7 +193,11 @@ export const createSync = ({
     } catch (e) {
       if (my === epoch) {
         const code = String(e?.code || '');
-        if (PERMANENT.has(code)) emit({ status: 'error', error: 'Não foi possível salvar na conta. Seus dados continuam neste aparelho.', retryInMs: null });
+        if (code === SEM_DIREITO) emit({ status: 'error', error: 'Sua assinatura precisa estar ativa para salvar na conta. Seus dados continuam neste aparelho.', retryInMs: null });
+        else if (code === MUITAS_GRAVACOES) {
+          emit({ status: 'pending', error: 'Muitas gravações seguidas; tentaremos de novo em instantes.' });
+          retryLater();
+        } else if (PERMANENT.has(code)) emit({ status: 'error', error: 'Não foi possível salvar na conta. Seus dados continuam neste aparelho.', retryInMs: null });
         else {
           emit({ status: online ? 'pending' : 'offline', error: 'Salvo no aparelho; tentaremos a conta novamente.' });
           if (online) retryLater();

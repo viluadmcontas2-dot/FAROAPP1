@@ -133,6 +133,22 @@ test('erro permanente do servidor (estado grande/schema) para o retry e preserva
   assert.equal(r.sync.getStatus().status, 'error'); assert.equal(r.timers.pending(), 0); assert.equal(r.store.get().a, 2);
 });
 
+test('sem direito (assinatura) para o retry, explica o que fazer e preserva o local', async () => {
+  const r = await rig({ initial: { schema_version: 2, a: 1 } }); await r.login('a');
+  r.server.rpcError = { code: '42501', message: 'sem_direito' };
+  r.store.edit({ a: 2 }); await r.timers.fire();
+  assert.equal(r.sync.getStatus().status, 'error'); assert.equal(r.timers.pending(), 0); assert.equal(r.store.get().a, 2);
+  assert.match(r.sync.getStatus().error, /assinatura/i);
+});
+
+test('muitas gravacoes seguidas: tenta de novo depois, sem perder o local', async () => {
+  const r = await rig({ initial: { schema_version: 2, a: 1 } }); await r.login('a');
+  r.server.rpcError = { code: 'P0429', message: 'muitas_gravacoes' };
+  r.store.edit({ a: 2 }); await r.timers.fire();
+  assert.equal(r.sync.getStatus().status, 'pending'); assert.ok(r.timers.pending() > 0); assert.equal(r.store.get().a, 2);
+  assert.match(r.sync.getStatus().error, /instantes|seguidas/i);
+});
+
 test('flush(): sinaliza se ainda há dado só neste aparelho antes de sair', async () => {
   const r = await rig({ initial: { schema_version: 2, a: 1 } }); await r.login('a');
   r.store.edit({ a: 2 });
