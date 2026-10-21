@@ -17,6 +17,8 @@ const normalizedStatus = (value: string | null | undefined) => {
 
 export default {
   fetch: withSupabase({ auth: 'none' }, async (req, ctx) => {
+    if (req.method !== 'POST') return new Response('Método não permitido', { status: 405, headers: { Allow: 'POST' } });
+    if (Number(req.headers.get('content-length') || 0) > 1_000_000) return new Response('Corpo grande demais', { status: 413 });
     if (!stripeSecret || !webhookSecret) return json({ error: 'Webhook ainda não configurado.' }, 503);
 
     const stripe = new Stripe(stripeSecret);
@@ -43,7 +45,12 @@ export default {
       ? object.id
       : typeof object.subscription === 'string'
         ? object.subscription
-        : object.subscription?.id || null;
+        : object.subscription?.id
+          // Faturas na API recente trazem a assinatura em parent.subscription_details.
+          || (typeof object.parent?.subscription_details?.subscription === 'string'
+            ? object.parent.subscription_details.subscription
+            : object.parent?.subscription_details?.subscription?.id)
+          || null;
 
     let userId = String(object.client_reference_id || object.metadata?.faro_user_id || '');
     if (!userId && (subscriptionId || customerId)) {
@@ -56,12 +63,14 @@ export default {
     const applySubscription = async (subscription: any, fallbackUserId = userId) => {
       const resolvedUserId = String(subscription.metadata?.faro_user_id || fallbackUserId || '');
       if (!resolvedUserId) return false;
+      // API recente: o fim do período fica nos itens da assinatura.
+      const periodEnd = subscription.current_period_end ?? subscription.items?.data?.[0]?.current_period_end ?? null;
       const { error } = await ctx.supabaseAdmin.from('faro_subscriptions').upsert({
         user_id: resolvedUserId,
         stripe_customer_id: typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id || customerId,
         stripe_subscription_id: subscription.id,
         status: normalizedStatus(subscription.status),
-        current_period_end: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : null,
+        current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
         cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' });

@@ -6,10 +6,11 @@ const appUrl = Deno.env.get('FARO_APP_URL') || '';
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
 export default {
-  fetch: withSupabase({ auth: 'user' }, async (_req, ctx) => {
+  fetch: withSupabase({ auth: 'user' }, async (req, ctx) => {
+    if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
     const userId = String(ctx.userClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
-    if (!stripeSecret || !appUrl) return json({ error: 'Portal ainda não configurado.' }, 503);
+    if (!stripeSecret || !/^https:\/\/[^\s]+$/.test(appUrl)) return json({ error: 'Portal ainda não configurado.' }, 503);
 
     const stripe = new Stripe(stripeSecret);
     const { data, error } = await ctx.supabaseAdmin

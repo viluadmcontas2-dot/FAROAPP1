@@ -8,18 +8,24 @@ const appUrl = Deno.env.get('FARO_APP_URL') || '';
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
 export default {
-  fetch: withSupabase({ auth: 'user' }, async (_req, ctx) => {
+  fetch: withSupabase({ auth: 'user' }, async (req, ctx) => {
+    if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
     const userId = String(ctx.userClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
-    if (!stripeSecret || !priceId || !appUrl) return json({ error: 'Cobrança ainda não configurada.' }, 503);
+    if (!stripeSecret || !priceId || !/^https:\/\/[^\s]+$/.test(appUrl)) return json({ error: 'Cobrança ainda não configurada.' }, 503);
 
     const stripe = new Stripe(stripeSecret);
     const { data: existing, error: readError } = await ctx.supabaseAdmin
       .from('faro_subscriptions')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id,status')
       .eq('user_id', userId)
       .maybeSingle();
     if (readError) return json({ error: 'Não foi possível preparar a assinatura.' }, 500);
+
+    // Já tem assinatura viva: não cria uma segunda cobrança; o caminho é o portal.
+    if (existing && ['active', 'trialing', 'past_due', 'unpaid', 'paused'].includes(existing.status)) {
+      return json({ error: 'Você já tem uma assinatura. Use "Gerenciar assinatura".' }, 409);
+    }
 
     let customerId = existing?.stripe_customer_id || null;
     if (!customerId) {
