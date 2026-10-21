@@ -207,7 +207,6 @@
           <button type="button" data-energy-choice="gnv" class="faro-choice" role="radio" aria-checked="false"><span>GNV</span></button>
           <button type="button" data-energy-choice="electric" class="faro-choice" role="radio" aria-checked="false"><span>Elétrico</span></button>
         </div>
-        <p class="faro-helper mt-3">Usamos preço e consumo médios. Você ajusta depois.</p>
       </section>
 
       <section data-faro-step="consumption" class="hidden">

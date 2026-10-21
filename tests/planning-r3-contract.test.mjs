@@ -75,7 +75,7 @@ assert.match(routing, /#faroMoneyCreateReserve/);
 assert.match(routing, /event\.stopImmediatePropagation\(\)/);
 
 assert.match(shell, /faro-interactions\.js\?v=2[\s\S]*faro-planning\.js\?v=2[\s\S]*faro-planning-invariants\.js\?v=1[\s\S]*faro-r3b\.js\?v=1[\s\S]*faro-r3-routing\.js\?v=3/);
-assert.match(sw, /faro-v1-core-37/);
+assert.match(sw, /faro-v1-core-38/);
 assert.match(sw, /faro-interactions\.js\?v=2/);
 assert.match(sw, /faro-planning\.js\?v=2/);
 assert.match(sw, /faro-r3b\.js\?v=1/);
