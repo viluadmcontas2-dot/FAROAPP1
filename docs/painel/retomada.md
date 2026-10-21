@@ -1,0 +1,9 @@
+# Retomada do Faro 2.0 (leia isto primeiro após compactar a conversa)
+
+**Objetivo:** app do motorista (lucro de verdade), só instalado, 7 dias grátis, R$ 22,99/mês. Interface nova ligada ao Supabase e ao Stripe. Sem nada do app antigo.
+**Onde está o trabalho:** branch `claude/faro-2-0` no GitHub (viluadmcontas2-dot/FAROAPP1). Tarefa mãe: issue 21 e filhas. Painel: https://claude.ai/artifact/DCK5CYRBnmQVcdhgLAJaio (fonte: `docs/painel/painel-faro-2-0.html`). Tarefas do dono: Todoist, projeto "Faro 2.0" (fica FORA de PROJETOS, nos favoritos, por decisão do dono).
+**Estado:** 9 de 16 etapas prontas; 276 testes passando; banco real atualizado (vazio, sem usuários); funções do servidor publicadas; cobrança DESLIGADA de propósito.
+**Falta:** acabamento visual (agente terminando); link de prévia na Cloudflare (dono confere o painel); testes em Android/iPhone reais; segredos do Stripe no Supabase (dono cadastra, nunca no chat); assinatura de ponta a ponta; termos, privacidade, suporte, excluir conta, aviso do fim do teste; decisão "fechar o dia em 1 tela ou 3".
+**Decisões do dono:** estado v2 sem migrar o antigo; dia vira às 04:00; Cloudflare (sem Vercel); só funciona instalado; Strix autorizado com chave `MEU_APP_CLAUDE_KEY`, modelo barato, ~US$ 1,1 por scan; aplicar no banco real autorizado (feito).
+**Regras de trabalho:** falar com o dono em português simples e ensinar os termos; nunca citar código de commit, citar o nome do que foi feito; idempotência; teste antes do código; modelos baratos nos agentes; atualizar painel e Todoist só em marcos; nada de segredos no chat nem no repositório.
+**Armadilhas já vistas:** a ferramenta do Supabase estoura em 60 s com migrations grandes (aplicar em lotes de ≤3 comandos); o usuário das migrations não é dono de `auth.users`; `npm run check` leva ~3 min (rodar em segundo plano).
