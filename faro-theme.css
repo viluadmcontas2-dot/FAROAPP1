@@ -293,3 +293,23 @@
 :root:root #view-dashboard>*:nth-child(4){animation-delay:.18s}
 :root:root .faro-key:active,:root:root #saveDayButton:active,:root:root .card-vetta:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){:root:root #faroHomeGoal .faro-home-fill::after,:root:root #faroHomeGoal .faro-home-pill,:root:root #view-dashboard>*{animation:none!important}}
+/* Reformulação: padrão do Planejar em todas as telas (cartão escuro de destaque, ícones em quadrado âmbar, números grandes) */
+:root:root #view-day>.bg-vetta-900{background-color:var(--faro-black)!important;background-image:var(--faro-hero-bg)!important;color:var(--faro-paper)!important;padding:18px 20px!important;border-radius:24px!important;box-shadow:var(--faro-shadow-1)!important}
+:root:root #view-day>.bg-vetta-900 span{display:inline;color:var(--faro-amber-night)!important;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+:root:root #view-day>.bg-vetta-900 h2{font-size:26px;color:var(--faro-paper)!important}
+:root:root #view-day>.bg-vetta-900 p{font-size:14px;color:rgba(246,241,228,.74)!important}
+:root:root .faro-key{min-height:52px;font-size:22px;font-weight:700}
+:root:root .faro-key:active{background:var(--faro-amber-soft)}
+:root:root #saveDayButton{box-shadow:0 14px 26px -14px rgba(var(--faro-amber-rgb),.95)}
+:root:root #view-history .grid-cols-3{padding:12px;border-radius:24px;background-color:var(--faro-black);background-image:var(--faro-hero-bg);gap:8px}
+:root:root #view-history .grid-cols-3>.card-vetta{background:rgba(246,241,228,.08)!important;border:1px solid rgba(246,241,228,.14);box-shadow:none;text-align:left}
+:root:root #view-history .grid-cols-3 .label-micro{color:var(--faro-amber-night)!important}
+:root:root #view-history .grid-cols-3 strong{color:var(--faro-paper)!important;font-size:19px}
+:root:root #view-history .grid-cols-3 strong.text-emerald-600,:root:root #view-history .grid-cols-3 strong[class*="emerald"]{color:var(--faro-profit-night)!important}
+:root:root .history-row .block.text-xl{font-size:26px;letter-spacing:-.01em}
+:root:root .history-row strong[class*="emerald"]{display:inline-block;padding:4px 10px;border-radius:999px;background:#E3F3EA;color:var(--faro-profit)!important;font-size:15px}
+:root:root .history-row strong[class*="red"]{display:inline-block;padding:4px 10px;border-radius:999px;background:#FBE6E4;color:var(--faro-loss)!important;font-size:15px}
+:root:root .history-row .label-micro{display:block;margin-bottom:6px}
+:root:root #faroGoalTitle{display:inline-flex;align-items:center;gap:10px}
+:root:root #faroGoalTitle::before{content:"";width:32px;height:32px;border-radius:10px;flex:none;background-color:var(--faro-amber-soft);background-repeat:no-repeat;background-position:center;background-size:18px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5200' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1'/%3E%3C/svg%3E")}
+:root:root #faroHomeStreak .faro-home-flame{background:var(--faro-amber-soft);color:var(--faro-amber-text)}

@@ -41,5 +41,5 @@ await run('https://faro.test/faro-state.js?v=2');
 await run('https://faro.test/faro-state.js?v=3');
 assert.equal(store.size, 1, 'query string não pode multiplicar entradas de asset');
 assert.ok(store.has('https://faro.test/faro-state.js'), 'chave do asset sem query');
-assert.match(source, /const CORE_CACHE = 'faro-v1-core-38'/);
+assert.match(source, /const CORE_CACHE = 'faro-v1-core-39'/);
 console.log('FARO sw cache hardening — ok');
