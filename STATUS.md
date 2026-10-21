@@ -26,7 +26,7 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0`. Tarefa mãe no GitHub: #21 (
 - Acabamento visual final.
 
 ## Bloqueado pelo dono
-- **Link do app:** https://faroapp1.hugovitorslipknot.workers.dev — publicado em 21/10 pela API da Cloudflare (publicação manual feita pelo Claude com `wrangler deploy`; ainda não está ligado ao GitHub). A página pede login do Cloudflare Access (proteção que já existe na conta do dono). Falta conferir em celular de verdade (#28, #33). Para o link virar público na venda, a proteção de acesso precisa ser desligada para este endereço.
+- **Link do app:** https://faroapp1.hugovitorslipknot.workers.dev — aberto ao público (o Cloudflare Access foi desligado em 21/10). Ligado ao GitHub: cada commit na branch `claude/faro-2-0` (fora docs/specs/.md) é construído e publicado sozinho pelo Cloudflare Workers Builds; build de teste passou. Falta conferir em celular real (#28, #33). O Claude controla a Cloudflare pelo conector oficial (API completa), sem token colado.
 - **Decisão:** fechar o dia em 1 tela ou em 3.
 - **Segredos do Stripe** no Supabase (o dono cadastra; nunca no chat).
 - **Branches antigas:** foram copiadas para nomes `legado/...`; os nomes antigos continuam existindo porque o ambiente não apaga branch. O dono apaga na página Branches do GitHub. Os pedidos de junção rascunho antigos foram fechados. A branch `claude/hopeful-feynman-51q8b1` está inteira dentro desta; nada se perde.
