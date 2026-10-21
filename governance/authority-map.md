@@ -1,31 +1,14 @@
-# Authority Map — FARO
+# Quem manda em quê
 
-## Sole durable authority
+| Assunto | Fonte de verdade |
+|---------|------------------|
+| Código, testes, regras | este repositório (branch `claude/faro-2-0`) |
+| Tarefas e prioridade | issue #21 e filhas; `specs/active/faro-2-0/sprint.md` |
+| Estado atual | `STATUS.md` |
+| Por que foi decidido | `docs/decisions/` |
+| Provas | `docs/evidence/faro-2-0/` |
+| Banco | `supabase/migrations/` (o remoto só recebe o que está aqui) |
+| Preço e cupom | Stripe, conferido em `docs/evidence/faro-2-0/stripe-cupom-e-preco.md` |
+| Publicação | Cloudflare (manual); nunca fonte de verdade do código |
 
-`viluadmcontas2-dot/FAROAPP1` remoto é a única verdade durável.
-
-Boot:
-`AGENTS.md → PROJECT.md → STATUS.md → specs/active/<WU>/workunit.json → Issue → branch → PR → evidence`.
-
-## Repository owns
-
-- WorkUnit ativa e `next_unproven_item`;
-- source, specs, acceptance, ADRs e non-goals;
-- branch/PR lineage;
-- testes, evidence e release status;
-- contratos de hosting/backend/billing necessários para retomada.
-
-## External surfaces
-
-- **GitHub Issues/PRs:** execution ledger.
-- **Remote Desktop:** executor local do SHA remoto exato; não é autoridade.
-- **Vercel:** hosting/runtime/evidence; não é autoridade.
-- **Supabase:** backend/runtime/evidence; não é autoridade.
-- **Stripe:** billing provider/evidence; não é autoridade.
-- **Notion:** estratégia/histórico contextual somente.
-- **Linear:** histórico legado somente; execution writer aposentado.
-- **BRASKO/chat:** coordenação somente.
-
-## Supersession
-
-Este mapa substitui qualquer regra anterior que faça Notion ou Linear autoridade operacional do FARO.
+Chats, painéis e ferramentas externas são apoio, não fonte.

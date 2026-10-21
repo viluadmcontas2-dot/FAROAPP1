@@ -1,17 +1,12 @@
-## WorkUnit
-Issue: #
-WorkUnit ID:
+## O que muda e por quê
 
-## Objective
+## Prova
+- [ ] `npm run check` verde (saída colada abaixo)
+- [ ] `npm run build` verde
+- [ ] evidência em `docs/evidence/faro-2-0/` quando houver decisão, segurança ou cobrança
+- [ ] nenhuma publicação em produção feita ou necessária
 
-## Acceptance/evidence
-- [ ] source SHA identified
-- [ ] affected tests passed
-- [ ] full/release verification when required
-- [ ] no unapproved deploy
-- [ ] evidence recorded in repo/Issue
+## Issue / tarefa
+Fecha #
 
-## Non-goals
-
-## Handoff
-`next_unproven_item`:
+## Próximo passo

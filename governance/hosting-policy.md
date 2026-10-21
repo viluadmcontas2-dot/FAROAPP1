@@ -1,10 +1,7 @@
-# Hosting Policy — FARO
+# Hospedagem
 
-- `HOSTING_TARGET=VERCEL`.
-- `NETLIFY_STATUS=RETIRED_HOSTING`.
-- Nenhum novo deploy, preview, hook ou integração Git deve ser criado no Netlify para o FARO.
-- Recursos Netlify históricos permanecem somente como quarantine/provenance até remoção explícita futura.
-- Vercel é runtime/hosting, não autoridade de projeto.
-- Preview Vercel pode ser usado em WorkUnit de hosting após configuração explícita.
-- Production Vercel exige gate manual: source remoto provado, commercial E2E provado, release verification e autorização do owner.
-- Build do produto deve ser provider-neutral; nomes/scripts não devem acoplar o artefato a Netlify.
+- **Cloudflare Workers Static Assets** (`wrangler.jsonc`): serve `_site/`, gerado por `npm run build`.
+- **Preview = produção**: mesmo build, mesmos cabeçalhos (`_site/_headers`, de `src/pwa/headers.mjs`), mesma CSP estrita.
+- **Sem deploy automático de produção.** A CI não tem credencial de publicação; publicar é manual e com ok do dono.
+- Se a hospedagem falhar ou bater em cota, nenhum upgrade pago é autorizado; siga com a verificação local.
+- Backend: Supabase (auth, banco, Edge Functions) e Stripe; não ficam na hospedagem estática.
