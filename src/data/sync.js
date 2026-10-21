@@ -217,7 +217,7 @@ export const createSync = ({
   // Guarda o estado da conta ao sair (limpo ou pendente): nada se perde, e a nuvem continua sendo a fonte.
   const stashIfDirty = owner => {
     if (!owner) return;
-    if (!getMeta(owner).dirty && !hasData(store.getSnapshot())) return;
+    if (!getMeta(owner).dirty) return; // dado já na nuvem não precisa ficar em texto puro no aparelho
     write(STASH_PREFIX + owner, JSON.stringify(store.getSnapshot()));
   };
 

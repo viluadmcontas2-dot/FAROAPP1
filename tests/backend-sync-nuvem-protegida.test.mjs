@@ -70,10 +70,20 @@ test('conflito: escolher "este aparelho" e explicito e sobe', async () => {
   assert.equal(closedDays(r.cloud.row.state), 1);
 });
 
-test('sair guarda o estado da conta no stash por usuario e comeca vazio', async () => {
+test('sair com tudo sincronizado nao deixa copia dos dados no aparelho e comeca vazio', async () => {
   const r = rig();
   r.cloud.row = { schema_version: 2, revision: 3, state: cloudWith(4), server_updated_at: 'z', device_id: 'antigo' };
   r.signIn('A'); await r.sync.syncNow();
+  r.signOut();
+  assert.equal(r.storage.getItem('faro-sync-stash-v2:A'), null);
+  assert.equal(r.store.getState().onboarded, false);
+});
+
+test('sair com mudanca ainda nao enviada guarda a copia dessa conta e comeca vazio', async () => {
+  const r = rig();
+  r.cloud.row = { schema_version: 2, revision: 3, state: cloudWith(4), server_updated_at: 'z', device_id: 'antigo' };
+  r.signIn('A'); await r.sync.syncNow();
+  r.store.dispatch({ type: 'xp/add', payload: { n: 5 } });
   r.signOut();
   const stash = JSON.parse(r.storage.getItem('faro-sync-stash-v2:A'));
   assert.equal(closedDays(stash), 4);
