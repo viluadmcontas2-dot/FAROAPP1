@@ -65,7 +65,13 @@
       "Bash(git pull --rebase origin claude/faro-2-0)",
       "Bash(git push -u origin claude/faro-2-0)",
       "Bash(git push -q -u origin claude/faro-2-0)",
-      "Bash(npx --yes wrangler@4 deploy)"
+      "Bash(npx --yes wrangler@4 deploy)",
+      "Bash(git push origin --delete claude/pwa-driver-production-fm0kk9)",
+      "Bash(git push origin --delete claude/refino-fluxo)",
+      "Bash(git push origin --delete wu/faro-wu-002-vercel-commercial)",
+      "Bash(git push origin --delete wu/faro-wu-002b-product-hardening)",
+      "Bash(git push origin --delete ccr-35eb8125-a4zjh3)",
+      "Bash(git push origin --delete archive/pre-repo-first-lineages-20260830)"
     ]
   }
 }
