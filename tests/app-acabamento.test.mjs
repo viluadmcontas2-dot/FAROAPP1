@@ -3,7 +3,7 @@
 // 2) a dica de 1ª visita nunca cobre o fim da lista; o último item aparece inteiro acima da barra;
 // 3) contraste >= 4,5:1, foco de teclado visível, nomes em botões só-ícone, teclado numérico, ordem do Tab,
 //    prefers-reduced-motion respeitado e estados vazios que convidam a agir.
-import test from 'node:test';
+import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { reduce } from '../src/core/actions.js';
 import { todayISO } from '../src/core/dates.js';
@@ -58,22 +58,21 @@ function auditor(page, problems, vp, tag) {
     await page.waitForTimeout(150);
     await settle(page); // termina as animações de entrada para medir o estado final
     const add = (kind, list) => list.forEach(m => problems.push(`[${name}] ${kind}: ${m}`));
-    const t0 = Date.now(), lap = {};
-    const timed = async (key, fn) => { const t = Date.now(); const r = await fn(); lap[key] = Date.now() - t; return r; };
-    add('corte', await timed('corte', () => auditClipping(page)));
-    add('nome', await timed('nome', () => auditNames(page)));
-    if (contrast) add('contraste', await timed('contraste', () => auditContrast(page)));
-    if (end) add('fim da lista', await timed('fim', () => auditScrollEnd(page)));
+    add('corte', await auditClipping(page));
+    add('nome', await auditNames(page));
+    if (contrast) add('contraste', await auditContrast(page));
+    if (end) add('fim da lista', await auditScrollEnd(page));
     if (shot) await page.screenshot({ path: `${shots}/${vp.name}-${tag}-acab-${name}.png` });
     if (focus) {
-      const r = await timed('foco', () => auditFocus(page));
+      const r = await auditFocus(page);
       add('foco', r.problems);
     }
-    if (process.env.FARO_AUDIT_TIMING) console.log(name, Date.now() - t0, JSON.stringify(lap));
     await page.evaluate(() => { const sc = document.querySelector('.fscroll'); if (sc) sc.scrollTop = 0; });
   };
 }
 
+// cada teste abre o próprio contexto do navegador: rodam 4 ao mesmo tempo
+describe('acabamento de ponta a ponta', { concurrency: 4 }, () => {
 for (const vp of VIEWPORTS) for (const theme of THEMES) {
   test(`acabamento de todas as telas e folhas · ${vp.name} ${vp.width}x${vp.height} · ${theme}`, { skip }, async () => {
     const { context, page, errors } = await open(vp, fullState(theme));
@@ -249,3 +248,4 @@ for (const vp of VIEWPORTS) {
     assert.deepEqual(bad, [], `movimento sem respeitar prefers-reduced-motion:\n${bad.join('\n')}`);
   });
 }
+});
