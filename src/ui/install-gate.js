@@ -23,8 +23,7 @@ export function detectInstall(env = {}) {
   for (const [re, name] of EMBEDDED) if (re.test(ua)) { app = name; break; }
   if (!app && android && /; wv\)/.test(ua)) app = 'app';
   if (!app && ios && !ipadOs && !/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)) app = 'app'; // WebView do iOS não tem "Safari/"
-  const browser = /CriOS|Chrome\//.test(ua) && !/EdgiOS|EdgA|Edg\/|OPR\//.test(ua) ? 'chrome'
-    : /FxiOS|Firefox/.test(ua) ? 'firefox' : /EdgiOS|EdgA|Edg\//.test(ua) ? 'edge' : /SamsungBrowser/.test(ua) ? 'samsung' : /Safari\//.test(ua) ? 'safari' : 'other';
+  const browser = /SamsungBrowser/.test(ua) ? 'samsung' : /EdgiOS|EdgA|Edg\//.test(ua) ? 'edge' : /FxiOS|Firefox/.test(ua) ? 'firefox' : /CriOS|Chrome\//.test(ua) && !/OPR\//.test(ua) ? 'chrome' : /Safari\//.test(ua) ? 'safari' : 'other';
   return { installed, os, browser, embedded: installed ? null : app };
 }
 
