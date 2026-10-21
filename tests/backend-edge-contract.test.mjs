@@ -35,7 +35,7 @@ test('migração faro_save_state: revoga escrita direta, limites e schema 2', ()
 
 test('checkout: trial de 7 dias UMA vez (decidido no banco), cartão sempre, idempotência estável por usuário+janela', () => {
   assert.match(checkout, /faro_trial_days_for/); assert.match(checkout, /checkoutTrialParams\(/);
-  assert.match(checkout, /payment_method_collection: 'always'/); assert.match(checkout, /trial_period_days|subscription_data: \{[^}]*\.\.\.trial/s);
+  assert.match(checkout, /payment_method_collection: 'always'/); assert.match(checkout, /subscription_data: \{.*\.\.\.checkoutTrialParams\(trialDays\)/);
   assert.match(checkout, /idempotencyKey: `faro-checkout-\$\{userId\}-\$\{windowIndex\}-\$\{trialDays > 0 \? 't' : 'n'\}`/);
   assert.match(checkout, /allow_promotion_codes: true/, 'cupom RATAO continua valendo');
   assert.doesNotMatch(checkout, /trial_period_days:\s*7/, 'dias vêm do banco, não do código');

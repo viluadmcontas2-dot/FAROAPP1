@@ -107,13 +107,13 @@ assert.match(checkout, /mode: 'subscription'/);
 assert.match(checkout, /STRIPE_FARO_MONTHLY_PRICE_ID/);
 assert.match(portal, /billingPortal\.sessions\.create/);
 assert.match(webhook, /withSupabase\(\{ auth: 'none' \}/);
-assert.match(webhook, /stripe\.webhooks\.constructEvent/);
+assert.match(webhook, /stripe\.webhooks\.constructEvent(?:Async)?/);
 assert.match(webhook, /STRIPE_WEBHOOK_SECRET/);
 assert.match(webhook, /checkout\.session\.completed/);
 assert.match(webhook, /invoice\.paid/);
 assert.match(webhook, /invoice\.payment_failed/);
 assert.match(webhook, /customer\.subscription\.updated/);
-assert.match(webhook, /faro_webhook_events/);
+assert.match(webhook, /faro_apply_subscription_event/); // registro do evento é feito dentro da RPC atômica
 assert.match(functionConfig, /\[functions\.stripe-webhook-faro\][\s\S]*verify_jwt = false/);
 
 // Integração da camada comercial à fotografia instalada.

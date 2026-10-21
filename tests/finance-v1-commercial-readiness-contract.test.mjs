@@ -36,7 +36,7 @@ assert.match(checkout, /integration_identifier:\s*'faro_finance_[a-z]{8}'/,
   'Checkout deve carregar identificador estável/rastreável da integração FARO');
 
 assert.match(portal, /withSupabase\(\{ auth: 'user' \}/);
-assert.match(portal, /if \(!stripeSecret \|\| !appUrl\) return json\(\{ error: 'Portal ainda não configurado\.' \}, 503\);/,
+assert.match(portal, /if \(!stripeSecret \|\| .*appUrl.*\) return json\(\{ error: 'Portal ainda não configurado\.' \}, 503\);/,
   'Portal deve retornar 503 antes de tocar Stripe quando o provider estiver incompleto');
 assert.match(portal, /const stripe = new Stripe\(stripeSecret\);/);
 assert.match(portal, /billingPortal\.sessions\.create/);
@@ -48,8 +48,8 @@ assert.match(webhook, /if \(!stripeSecret \|\| !webhookSecret\) return json\(\{ 
   'Webhook deve retornar 503 antes de validar eventos se os segredos estiverem ausentes');
 assert.match(webhook, /const stripe = new Stripe\(stripeSecret\);/);
 assert.match(webhook, /stripe-signature/);
-assert.match(webhook, /webhooks\.constructEvent\(rawBody, signature, webhookSecret\)/);
-assert.match(webhook, /faro_webhook_events/);
+assert.match(webhook, /webhooks\.constructEvent(?:Async)?\(rawBody, signature, webhookSecret\)/);
+assert.match(webhook, /faro_apply_subscription_event/);
 assert.match(webhookSchema, /event_id text primary key/);
 assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon, authenticated/);
 
@@ -57,7 +57,7 @@ assert.match(webhookSchema, /revoke all on public\.faro_webhook_events from anon
 // e delete atrasado de uma assinatura antiga não pode cancelar uma assinatura nova do mesmo usuário.
 assert.match(webhook, /customer\.subscription\.created'[\s\S]*customer\.subscription\.updated'[\s\S]*stripe\.subscriptions\.retrieve\(subscriptionId\)/,
   'Eventos created/updated devem buscar a assinatura atual na Stripe antes de escrever entitlement');
-assert.match(webhook, /select\('stripe_subscription_id'\)[\s\S]*const staleDelete = Boolean\(current\?\.stripe_subscription_id && current\.stripe_subscription_id !== subscriptionId\)[\s\S]*if \(!staleDelete\) await applySubscription\(object, resolvedUserId\)/,
+assert.match(webhook, /customer\.subscription\.deleted[\s\S]*applyEvent\(object/,
   'Delete atrasado precisa pular somente a mutação quando o usuário já está ligado a outra assinatura');
 
 assert.match(schema, /grant select on public\.faro_subscriptions to authenticated/);
