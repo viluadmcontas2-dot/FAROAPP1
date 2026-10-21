@@ -12,7 +12,7 @@ Leia nesta ordem: `README.md` → `PROJECT.md` → `STATUS.md` → `specs/active
 7. **Segredos nunca no repositório.** IDs do Stripe: `docs/evidence/faro-2-0/stripe-cupom-e-preco.md`.
 8. Não inventar comportamento de provedor, valor financeiro ou sucesso de deploy; sem prova, diga "não provado".
 9. Apagar branch, force-push, gasto e publicação pedem confirmação do dono.
-10. **Mapa do código primeiro.** Antes de buscar em arquivos, rode `graphify query "pergunta"`. O gancho `.claude/hooks/graphify-gate.sh` barra a 1ª busca sem consulta (uma vez a cada 20 min) e registra o uso em `graphify-out/uso.log`.
+10. **Mapa do código primeiro.** Antes de buscar em arquivos, rode `graphify query "pergunta"`. O gancho `.claude/hooks/graphify-gate.sh` barra TODA busca sem consulta recente ao mapa (modo estrito; saída de emergência: criar `graphify-out/.sem-trava`) e registra o uso em `graphify-out/uso.log`.
 
 ## Retomar
 Issue #21 lista as tarefas; o estado real está em `STATUS.md` e `sprint.md`. Decisões em `docs/decisions/`.

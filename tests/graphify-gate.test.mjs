@@ -1,5 +1,6 @@
 // Gancho que garante a consulta ao mapa do código (Graphify) antes de buscas amplas.
-// Regra: a 1ª busca (Grep/Glob) sem consulta recente ao mapa é barrada UMA vez, com a instrução; depois passa.
+// Regra (modo estrito): busca (Grep/Glob) sem consulta recente ao mapa é SEMPRE barrada, com a instrução.
+// A consulta é um comando de terminal (Bash), que nunca é bloqueado: não há como ficar preso.
 // Consultar o mapa (graphify query/path/explain) libera por 20 minutos. Sem mapa, nunca barra.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -23,17 +24,24 @@ const glob = { hook_event_name: 'PreToolUse', tool_name: 'Glob', tool_input: { p
 const bash = cmd => ({ hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: cmd } });
 const decisao = r => (r.stdout.trim() ? JSON.parse(r.stdout).hookSpecificOutput : null);
 
-test('1ª busca ampla sem consulta recente é barrada uma vez, dizendo o comando a rodar', () => {
+test('busca ampla sem consulta recente é barrada, dizendo o comando a rodar', () => {
   const d = projeto();
   const o = decisao(rodar(d, grep));
   assert.equal(o.permissionDecision, 'deny');
   assert.match(o.permissionDecisionReason, /graphify query/);
 });
 
-test('a 2ª busca logo depois passa (barra só uma vez, nunca trava o trabalho)', () => {
+test('continua barrando até consultar o mapa (modo estrito)', () => {
   const d = projeto();
   rodar(d, grep);
-  assert.equal(rodar(d, glob).stdout.trim(), '');
+  assert.equal(decisao(rodar(d, glob)).permissionDecision, 'deny');
+  assert.equal(decisao(rodar(d, grep)).permissionDecision, 'deny');
+});
+
+test('o arquivo graphify-out/.sem-trava desliga a trava (saída de emergência)', () => {
+  const d = projeto();
+  writeFileSync(join(d, 'graphify-out', '.sem-trava'), '');
+  assert.equal(rodar(d, grep).stdout.trim(), '');
 });
 
 test('consultar o mapa (query, path ou explain) libera e fica registrado', () => {
@@ -58,7 +66,8 @@ test('sem mapa construído nunca barra', () => {
 
 test('depois de 20 minutos sem consultar, barra de novo', () => {
   const d = projeto();
-  rodar(d, grep);
+  rodar(d, bash('graphify query "x"'), 'mark');
+  assert.equal(rodar(d, grep).stdout.trim(), '');
   const velho = new Date(Date.now() - 21 * 60 * 1000);
   utimesSync(join(d, 'graphify-out', '.consultado'), velho, velho);
   assert.equal(decisao(rodar(d, grep)).permissionDecision, 'deny');
