@@ -92,7 +92,7 @@ footer{font-size:13px;color:var(--muted)}
   <header style="display:flex;flex-direction:column;gap:10px">
     <p class="meta">Atualizado em 21/10/2026, tarde (horário de Brasília)</p>
     <h1>Faro 2.0: onde estamos</h1>
-    <p class="lead">App do motorista de aplicativo: mostra o lucro de verdade do dia. Só funciona instalado no celular. 7 dias grátis, depois R$ 22,99 por mês.</p>
+    <p class="lead">App do motorista de aplicativo: mostra o lucro de verdade do dia. Só funciona instalado no celular. 7 dias de teste, depois R$ 22,99 por mês. O beta já nasce pago: não existe fase grátis.</p>
     <nav class="tabs" aria-label="Seções">
       <a href="#etapas">Etapas</a><a href="#voce">O que depende de você</a><a href="#cegos">Pontos cegos</a><a href="#fluxo">Como trabalhamos</a><a href="#dicionario">Dicionário</a>
     </nav>
@@ -100,16 +100,16 @@ footer{font-size:13px;color:var(--muted)}
 
   <section class="resume" aria-label="Resumo">
     <h2>Em uma frase</h2>
-    <p>O app novo está pronto e testado no computador. Para poder vender, faltam publicar o link de prévia, testar em celular de verdade, testar a assinatura e escrever os textos legais.</p>
-    <div class="bar" role="img" aria-label="9 etapas prontas, 1 em andamento, 6 dependem de você ou ainda faltam">
-      <i class="b-ok" style="width:56%"></i><i class="b-doing" style="width:6%"></i><i class="b-you" style="width:38%"></i>
+    <p>O app novo está pronto e testado no computador, mas ainda não existe link para abrir no celular: o Worker da Cloudflare está só com "Hello world". Como o beta já é pago, a cobrança só liga quando tudo isto estiver pronto: termos, privacidade, suporte, excluir conta, aviso de fim do teste, segredos do Stripe, teste da assinatura, Stripe real conferido e tela de assinatura revisada.</p>
+    <div class="bar" role="img" aria-label="7 etapas prontas, 3 em andamento, 7 dependem de você ou ainda faltam">
+      <i class="b-ok" style="width:41%"></i><i class="b-doing" style="width:18%"></i><i class="b-you" style="width:41%"></i>
     </div>
     <div class="legend">
-      <span><i class="dot" style="background:var(--ok)"></i><b class="num">9</b> prontas</span>
-      <span><i class="dot" style="background:var(--doing)"></i><b class="num">1</b> em andamento</span>
-      <span><i class="dot" style="background:var(--you)"></i><b class="num">6</b> faltam ou esperam você</span>
+      <span><i class="dot" style="background:var(--ok)"></i><b class="num">7</b> prontas</span>
+      <span><i class="dot" style="background:var(--doing)"></i><b class="num">3</b> em andamento</span>
+      <span><i class="dot" style="background:var(--you)"></i><b class="num">7</b> faltam ou esperam você</span>
     </div>
-    <p class="meta">Números de hoje: 276 testes automáticos passando · nenhum problema grave de segurança aberto · banco de dados real atualizado · cobrança desligada de propósito.</p>
+    <p class="meta">Hoje: nenhum alerta real de segurança alto · banco de dados real atualizado e funções do servidor publicadas · cobrança desligada até os itens acima ficarem prontos. O estado completo está em STATUS.md, no repositório.</p>
   </section>
 
   <section id="etapas" style="display:flex;flex-direction:column;gap:14px">
@@ -124,19 +124,21 @@ footer{font-size:13px;color:var(--muted)}
       <li class="step" data-s="ok"><h3>Telas novas no lugar das antigas</h3><span class="tag t-ok">Pronto</span><p>Todas as telas do seu design funcionam com dados de verdade. O app antigo foi apagado.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/22">Tarefa 22</a></span></li>
       <li class="step" data-s="ok"><h3>Cálculo do lucro, contas e metas</h3><span class="tag t-ok">Pronto</span><p>Datas reais, o dia de trabalho vira às 04:00, dinheiro aceito do jeito brasileiro (1.200,50) e histórico que não muda sozinho.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/23">Tarefa 23</a></span></li>
       <li class="step" data-s="ok"><h3>Conta e nuvem</h3><span class="tag t-ok">Pronto</span><p>Entrar, sair, guardar na nuvem e resolver conflito entre aparelhos sem apagar dados de ninguém.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/24">Tarefa 24</a></span></li>
-      <li class="step" data-s="ok"><h3>Segurança do servidor</h3><span class="tag t-ok">Pronto</span><p>Regras do banco aplicadas no banco real (estava vazio, sem risco). Falta só você cadastrar os segredos do Stripe.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/25">Tarefa 25</a></span></li>
-      <li class="step" data-s="ok"><h3>Instalar o app e usar sem internet</h3><span class="tag t-ok">Pronto</span><p>Tela "Instalar o Faro" (Android e iPhone) bloqueia o uso fora do app instalado. Funciona offline. Provado só em navegador de teste.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/28">Tarefa 28</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/35">Tarefa 35</a></span></li>
-      <li class="step" data-s="ok"><h3>Tela Conta</h3><span class="tag t-ok">Pronto</span><p>Entrar, criar conta, conflito de dados, backup e status da assinatura.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/27">Tarefa 27</a></span></li>
+      <li class="step" data-s="ok"><h3>Segurança do servidor</h3><span class="tag t-ok">Pronto</span><p>Regras do banco aplicadas no banco real e funções do servidor publicadas. Falta só você cadastrar os segredos do Stripe.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/25">Tarefa 25</a></span></li>
+      <li class="step" data-s="doing"><h3>Instalar o app e usar sem internet</h3><span class="tag t-doing">Parcial</span><p>Tela "Instalar o Faro" (Android e iPhone) bloqueia o uso fora do app instalado. Provado só em navegador de teste; falta conferir em celular de verdade.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/28">Tarefa 28</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/35">Tarefa 35</a></span></li>
+      <li class="step" data-s="doing"><h3>Tela Conta</h3><span class="tag t-doing">Parcial</span><p>Entrar, criar conta, conflito de dados e status funcionam. Falta assinar e o backup completos.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/27">Tarefa 27</a></span></li>
       <li class="step" data-s="ok"><h3>Revisões e correções</h3><span class="tag t-ok">Pronto</span><p>Revisão como motorista, como crítico e como dono do produto. Palavras do motorista, botões repetidos removidos, letras maiores.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/37">Tarefa 37</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/38">Tarefa 38</a></span></li>
       <li class="step" data-s="ok"><h3>Testes de ataque</h3><span class="tag t-ok">Pronto</span><p>57 ataques nossos e 2 varreduras do Strix. Nada grave. Custo estimado das varreduras: US$ 2,27.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/30">Tarefa 30</a></span></li>
       <li class="step" data-s="ok"><h3>Limpeza do app antigo e documentação</h3><span class="tag t-ok">Pronto</span><p>12 mil linhas antigas apagadas. Documentos e decisões escritos em português.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/29">Tarefa 29</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/32">Tarefa 32</a></span></li>
       <li class="step" data-s="doing"><h3>Acabamento visual</h3><span class="tag t-doing">Em andamento</span><p>Textos cortados, contraste, foco de teclado, movimento reduzido. Um agente está terminando.</p></li>
-      <li class="step" data-s="you"><h3>Link de prévia no ar (Cloudflare)</h3><span class="tag t-you">Depende de você</span><p>O Worker existe na sua conta, mas não consigo ver se está ligado ao repositório. Sem isso, não há link para abrir no celular.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/33">Tarefa 33</a></span></li>
+      <li class="step" data-s="you"><h3>Link de prévia no ar (Cloudflare)</h3><span class="tag t-you">Depende de você</span><p>O Worker faroapp1 existe na sua conta, mas o código nele é só "Hello world". Para ter link: Cloudflare > Workers > faroapp1 > Settings > Builds, ligar o repositório, branch claude/faro-2-0, comando de build node scripts/build-app.mjs.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/33">Tarefa 33</a></span></li>
       <li class="step" data-s="you"><h3>Testar no Android e no iPhone de verdade</h3><span class="tag t-you">Depende de você</span><p>Só vale depois do link de prévia. Instalar, usar, ficar sem internet.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/35">Tarefa 35</a></span></li>
       <li class="step" data-s="you"><h3>Decidir: fechar o dia em 1 tela ou em 3</h3><span class="tag t-you">Decisão sua</span><p>O motorista de teste pediu 1 tela. Não mudei seu desenho sem você ver.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/37">Tarefa 37</a></span></li>
-      <li class="step" data-s="todo"><h3>Assinatura de ponta a ponta no Stripe</h3><span class="tag t-todo">Falta</span><p>Cartão de teste, 7 dias grátis, cupom RATAO, cancelar. Precisa dos segredos cadastrados primeiro.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/34">Tarefa 34</a></span></li>
-      <li class="step" data-s="todo"><h3>Termos, privacidade, suporte, excluir conta, aviso do fim do teste</h3><span class="tag t-todo">Falta</span><p>Obrigatório antes de cobrar. Eu escrevo o rascunho, você revisa.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/36">Tarefa 36</a></span></li>
-      <li class="step" data-s="todo"><h3>Abrir a venda</h3><span class="tag t-todo">Falta</span><p>Pedir a junção do trabalho à versão principal, ligar a cobrança e publicar. Só com tudo acima verde.</p></li>
+      <li class="step" data-s="todo"><h3>Assinatura de ponta a ponta no Stripe</h3><span class="tag t-todo">Falta</span><p>Cartão de teste, 7 dias de teste com cobrança no dia 8, cupom RATAO, cancelar. Precisa dos segredos cadastrados primeiro.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/34">Tarefa 34</a></span></li>
+      <li class="step" data-s="todo"><h3>Termos, privacidade, suporte, excluir conta, aviso do fim do teste</h3><span class="tag t-todo">Falta</span><p>Obrigatório antes de cobrar (direito de arrependimento de 7 dias e LGPD). Eu escrevo o rascunho, você revisa.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/36">Tarefa 36</a></span></li>
+      <li class="step" data-s="todo"><h3>Conferir o Stripe em modo real e revisar a tela de assinatura</h3><span class="tag t-todo">Falta</span><p>Até agora só o modo de teste foi lido. O cupom RATAO ainda não tem trava de uso.</p></li>
+      <li class="step" data-s="todo"><h3>Lembretes que enviam aviso</h3><span class="tag t-todo">Falta</span><p>A tela existe, mas nada envia aviso ao celular. Construir os avisos ou esconder a tela.</p></li>
+      <li class="step" data-s="todo"><h3>Abrir o beta pago</h3><span class="tag t-todo">Falta</span><p>Ligar a cobrança e publicar, só com todos os itens acima prontos. Não existe beta grátis.</p></li>
     </ol>
   </section>
 
@@ -144,9 +146,9 @@ footer{font-size:13px;color:var(--muted)}
     <h2>O que depende de você</h2>
     <p class="lead">Estas tarefas estão no seu Todoist, no projeto Faro 2.0, com horário. O que eu faço fica só no GitHub.</p>
     <div class="cards">
-      <div class="card"><h3>Hoje</h3><p>Conferir o gasto real da IA · ligar o Worker da Cloudflare ao repositório · decidir fechar o dia em 1 tela · cadastrar os segredos do Stripe.</p></div>
-      <div class="card"><h3>Esta semana</h3><p>Testar no Android e no iPhone · testar a assinatura · travas do cupom RATAO · aprovar termos e privacidade · conferir o Stripe em modo real.</p></div>
-      <div class="card"><h3>Depois</h3><p>Abrir a junção do trabalho, apagar as branches antigas, ligar a cobrança e decidir como medir o uso.</p></div>
+      <div class="card"><h3>Hoje</h3><p>Conferir o gasto real da IA · ligar o repositório ao Worker da Cloudflare · decidir fechar o dia em 1 tela · cadastrar os segredos do Stripe.</p></div>
+      <div class="card"><h3>Esta semana</h3><p>Testar no Android e no iPhone · testar a assinatura · travas do cupom RATAO · aprovar termos e privacidade · conferir o Stripe em modo real · revisar a tela de assinatura.</p></div>
+      <div class="card"><h3>Depois</h3><p>Apagar as branches antigas (página Branches do GitHub; as cópias "legado" já existem), abrir a junção do trabalho, ligar a cobrança na abertura e decidir como medir o uso.</p></div>
     </div>
   </section>
 
@@ -157,7 +159,7 @@ footer{font-size:13px;color:var(--muted)}
       <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>E-mails de cadastro</h3><p>O Supabase, no padrão, manda pouquíssimos e-mails por hora. Com alguns cadastros seguidos, a confirmação de e-mail para de chegar.</p><p class="fix"><b>Fazer:</b> configurar um serviço de e-mail próprio antes de vender.</p></div>
       <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Endereço definitivo do app</h3><p>O app instalado e os dados do aparelho ficam presos ao endereço. Se o endereço mudar depois, todo mundo perde a instalação e os dados locais.</p><p class="fix"><b>Fazer:</b> escolher o endereço próprio (ex.: faro.app.br) antes do primeiro usuário.</p></div>
       <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Lembretes que não chegam</h3><p>A tela de Lembretes existe, mas nada envia aviso ao celular. O motorista acha que será avisado e não será.</p><p class="fix"><b>Fazer:</b> construir os avisos ou esconder a tela até existirem. Decisão sua.</p></div>
-      <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Motorista sem cartão de crédito</h3><p>O teste grátis exige cartão. Muitos motoristas só têm débito ou Pix, e vão desistir antes de entrar.</p><p class="fix"><b>Fazer:</b> medir a desistência e avaliar Pix ou débito.</p></div>
+      <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Motorista sem cartão de crédito</h3><p>O teste de 7 dias exige cartão. Muitos motoristas só têm débito ou Pix, e vão desistir antes de entrar.</p><p class="fix"><b>Fazer:</b> medir a desistência e avaliar Pix ou débito.</p></div>
       <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>Plano do Supabase</h3><p>O plano grátis pausa o projeto quando fica sem uso e não faz cópia diária. Para dados financeiros, isso é arriscado.</p><p class="fix"><b>Fazer:</b> confirmar o plano pago e ligar as cópias de segurança.</p></div>
       <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>iPhone pode apagar dados</h3><p>O Safari apaga dados de sites que ficam sem uso. Instalado na tela inicial é mais seguro, mas quem não criar conta pode perder tudo.</p><p class="fix"><b>Fazer:</b> incentivar criar conta e lembrar do backup.</p></div>
       <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>Nunca testamos com um banco real e 2 pessoas</h3><p>Nossos testes usam um banco de mentira. A prova de que uma pessoa não vê os dados da outra foi feita lendo as regras do banco real, não usando duas contas.</p><p class="fix"><b>Fazer:</b> criar um projeto Supabase só de teste.</p></div>
@@ -170,7 +172,7 @@ footer{font-size:13px;color:var(--muted)}
   <section id="fluxo" style="display:flex;flex-direction:column;gap:14px">
     <h2>Como trabalhamos</h2>
     <ul class="flow">
-      <li><b>Uma fonte para cada coisa.</b> GitHub guarda o que eu faço. O Todoist guarda só o que depende de você. Este painel é um retrato dos dois, sem verdade própria.</li>
+      <li><b>Uma fonte para cada coisa.</b> O arquivo STATUS.md do repositório guarda o estado do projeto. GitHub guarda o que eu faço. O Todoist guarda só o que depende de você. Este painel é um retrato dos dois, sem verdade própria.</li>
       <li><b>Atualização barata.</b> Só atualizo o painel e o Todoist no fim de cada etapa ou quando você pedir. Uma atualização custa poucos centavos de IA. Nada de conferir de tempos em tempos.</li>
       <li><b>Antes de atualizar</b> faço uma consulta ao Todoist para ver o que você marcou como feito e ajusto o painel.</li>
       <li><b>Nenhuma etapa fecha sem prova:</b> teste que falhou antes e passou depois, ou evidência guardada em <i>docs/evidence/faro-2-0</i>.</li>

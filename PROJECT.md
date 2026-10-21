@@ -39,4 +39,4 @@ src/ui/view.gen.js ──► React (src/ui) ──► esbuild ──► _site/ (
 | `specs/active/faro-2-0/` | plano e tarefas |
 
 ## Decisões
-Ver `docs/decisions/`: estado v2 sem migração · interface compilada sem eval · dia vira às 04:00 · Cloudflare com preview igual à produção · só funciona instalado. Também: CSP estrita (`script-src 'self'`). Varredura de segurança: `scripts/security/strix-scan.sh` (custo cerca de US$ 1,4 por scan).
+Ver `docs/decisions/`: estado v2 sem migração · interface compilada sem eval · dia vira às 04:00 · Cloudflare com preview igual à produção · só funciona instalado · beta pago desde o primeiro dia. Também: CSP estrita (`script-src 'self'`). Varredura de segurança: `scripts/security/strix-scan.sh` (custo cerca de US$ 1,4 por scan).

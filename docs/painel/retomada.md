@@ -1,12 +1,20 @@
 # Retomada do Faro 2.0 (leia isto primeiro após compactar a conversa)
 
-**Objetivo:** app do motorista (lucro de verdade), só instalado, 7 dias grátis, R$ 22,99/mês. Interface nova ligada ao Supabase e ao Stripe. Sem nada do app antigo.
-**Onde está o trabalho:** branch `claude/faro-2-0` no GitHub (viluadmcontas2-dot/FAROAPP1). Tarefa mãe: issue 21 e filhas. Painel: https://claude.ai/artifact/DCK5CYRBnmQVcdhgLAJaio (fonte: `docs/painel/painel-faro-2-0.html`). Tarefas do dono: Todoist, projeto "Faro 2.0" (fica FORA de PROJETOS, nos favoritos, por decisão do dono).
-**Estado:** 9 de 16 etapas prontas; 276 testes passando; banco real atualizado (vazio, sem usuários); funções do servidor publicadas; cobrança DESLIGADA de propósito.
-**Falta:** acabamento visual (agente terminando); link de prévia na Cloudflare (dono confere o painel); testes em Android/iPhone reais; segredos do Stripe no Supabase (dono cadastra, nunca no chat); assinatura de ponta a ponta; termos, privacidade, suporte, excluir conta, aviso do fim do teste; decisão "fechar o dia em 1 tela ou 3".
-**Decisões do dono:** estado v2 sem migrar o antigo; dia vira às 04:00; Cloudflare (sem Vercel); só funciona instalado; Strix autorizado com chave `MEU_APP_CLAUDE_KEY`, modelo barato, ~US$ 1,1 por scan; aplicar no banco real autorizado (feito).
-**Regras de trabalho:** falar com o dono em português simples e ensinar os termos; nunca citar código de commit, citar o nome do que foi feito; idempotência; teste antes do código; modelos baratos nos agentes; atualizar painel e Todoist só em marcos; nada de segredos no chat nem no repositório.
-**Armadilhas já vistas:** a ferramenta do Supabase estoura em 60 s com migrations grandes (aplicar em lotes de ≤3 comandos); o usuário das migrations não é dono de `auth.users`; `npm run check` leva ~3 min (rodar em segundo plano).
-**Plano da semana (Todoist, máx. 3 tarefas por dia):** 21/10 prévia na Cloudflare e decisão do fechar dia; 22/10 segredos Stripe e testes Android/iPhone; 23/10 assinatura, cupom, lembretes; 26/10 domínio, e-mail próprio, termos; 27/10 excluir conta, plano Supabase, suporte; 28/10 Stripe real, quem não tem cartão, convidar 5 a 10 motoristas; 29/10 COMEÇA O BETA (grátis, cobrança desligada); 05/11 avaliar (meta: 6 de 10 fecham o dia 3 dias seguidos); 06/11 juntar à versão principal e ligar a cobrança se tudo verde.
-**Sessão:** janela de 1 milhão de tokens; compactar perto de 270 mil, em fronteira de etapa. Strix só em marcos. Marketing e produto: sessão separada, trocando informação por arquivos em `docs/produto/` e `docs/marketing/`.
-**Mapa do código:** `graphify-out/graph.json` reconstruído sobre o app novo (37 arquivos). Usar `graphify query` antes de ler arquivos grandes.
+**Estado:** leia `STATUS.md`. É a única fonte; aqui não repito números.
+**Objetivo:** app do motorista (lucro de verdade), só instalado, 7 dias de teste com cartão na entrada, R$ 22,99/mês. Beta PAGO desde o primeiro dia (decisão `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`). Nada do app antigo.
+**Onde:** branch `claude/faro-2-0` (viluadmcontas2-dot/FAROAPP1), tarefa mãe issue 21. Painel: https://claude.ai/artifact/DCK5CYRBnmQVcdhgLAJaio (fonte `docs/painel/painel-faro-2-0.html`). Tarefas do dono: Todoist, projeto "Faro 2.0".
+**Hospedagem:** Cloudflare. O Worker `faroapp1` ainda tem só "Hello world"; não existe link do app. O dono liga o repositório em Workers > faroapp1 > Settings > Builds (branch `claude/faro-2-0`, build `node scripts/build-app.mjs`, saída `_site`).
+**Caminho crítico:** a cobrança liga na abertura, só com tudo pronto: termos, privacidade, suporte, excluir minha conta, aviso de fim do teste, segredos do Stripe no Supabase, teste ponta a ponta no Stripe de teste, conferência do Stripe real, tela de assinatura revisada.
+**Decisões do dono:** estado v2 sem migrar o antigo; dia vira às 04:00; Cloudflare; só funciona instalado; beta pago; segurança já varrida (nossos ataques e Strix).
+**Regras de trabalho:** português simples; citar o nome do que foi feito, nunca código de versão; idempotência; teste antes do código; atualizar painel e Todoist só em marcos; nenhum segredo no chat nem no repositório.
+**Armadilhas:** a ferramenta do Supabase estoura em 60 s com migrations grandes (aplicar em lotes de até 3 comandos); o usuário das migrations não é dono de `auth.users`; `npm run check` leva vários minutos (rodar em segundo plano).
+**Plano da semana (Todoist, no máximo 3 tarefas por dia):** as datas dependem da lista do caminho crítico, não de uma data fixa de início.
+- 21/10: ligar o repositório ao Worker (link de prévia); decidir fechar o dia em 1 tela ou 3.
+- 22/10: segredos do Stripe no Supabase; testar no Android e no iPhone.
+- 23/10: assinatura de ponta a ponta no Stripe de teste; cupom; Lembretes.
+- 26/10: domínio e e-mail próprio; rascunho de termos e privacidade.
+- 27/10: excluir conta, aviso de fim do teste, suporte, plano do Supabase.
+- 28/10: conferir o Stripe real; revisar a tela de assinatura.
+- Abertura: só quando todos os itens do caminho crítico estiverem prontos. Aí liga a cobrança e convida os primeiros assinantes (meta de avaliação: 6 de 10 fecham o dia 3 dias seguidos).
+**Sessão:** compactar em fronteira de etapa. Strix só em marcos. Marketing e produto em sessão separada, trocando arquivos em `docs/produto/` e `docs/marketing/`.
+**Mapa do código:** `graphify query` antes de ler arquivos grandes.
