@@ -15,7 +15,6 @@ command -v strix >/dev/null || uv tool install strix-agent || pip install strix-
 # Imagem fica no ghcr.io (Docker Hub da 429 aqui). Idempotente: so baixa se faltar.
 IMG=ghcr.io/usestrix/strix-sandbox:1.3.0
 docker image inspect "$IMG" >/dev/null 2>&1 || docker pull "$IMG"
-mkdir -p strix_runs; cd strix_runs
 ARGS=(-n -m "${STRIX_MODE:-quick}" --max-turns "${STRIX_MAX_TURNS:-40}" --max-budget "${STRIX_MAX_BUDGET_USD:-1}" -t "$URL")
 [ -n "$CODE" ] && ARGS+=(-t "$(cd "$CODE" && pwd)")
 exec strix "${ARGS[@]}"
