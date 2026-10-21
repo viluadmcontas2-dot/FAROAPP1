@@ -10,6 +10,14 @@ export const carFixName = vehicle => (vehicle === 'alugado' ? 'Aluguel' : vehicl
 export const UNIT_WORD = { L: 'litro', 'm³': 'm³', kWh: 'kWh' };
 export const MAX_CHOICES = 7; // fontes de renda e categorias de gasto: acima disso some o "Nova"
 
+// nomes lidos pelo leitor de tela nos botões que só têm ícone (seletores de ícone e de cor)
+export const ICON_NAME = {
+  'ph-shopping-bag': 'Sacola', 'ph-drop-half': 'Gota', 'ph-cookie': 'Biscoito', 'ph-coffee': 'Café', 'ph-beer-bottle': 'Garrafa', 'ph-gift': 'Presente', 'ph-package': 'Pacote', 'ph-storefront': 'Loja',
+  'ph-receipt': 'Recibo', 'ph-traffic-sign': 'Placa', 'ph-device-mobile': 'Celular', 'ph-first-aid-kit': 'Saúde', 'ph-t-shirt': 'Roupa', 'ph-ticket': 'Ingresso', 'ph-car-battery': 'Bateria',
+  'ph-lightbulb': 'Lâmpada', 'ph-drop': 'Água', 'ph-wifi-high': 'Internet', 'ph-credit-card': 'Cartão', 'ph-barcode': 'Boleto', 'ph-house-line': 'Casa', 'ph-graduation-cap': 'Estudo', 'ph-heartbeat': 'Saúde',
+};
+export const COLOR_NAME = { '#F2B544': 'Dourado', '#4FC3F7': 'Azul claro', '#5B95FF': 'Azul', '#B36BFF': 'Roxo', '#FF8F6B': 'Laranja', '#3DDC97': 'Verde', '#FF6B9A': 'Rosa' };
+export const iconAria = ic => `Ícone ${ICON_NAME[ic] || ic.replace('ph-', '').replace(/-/g, ' ')}`;
 export const ICON_IN = ['ph-shopping-bag', 'ph-drop-half', 'ph-cookie', 'ph-coffee', 'ph-beer-bottle', 'ph-gift', 'ph-package', 'ph-storefront'];
 export const ICON_OUT = ['ph-receipt', 'ph-coffee', 'ph-traffic-sign', 'ph-device-mobile', 'ph-first-aid-kit', 'ph-t-shirt', 'ph-ticket', 'ph-car-battery'];
 export const BILL_ICONS = ['ph-lightbulb', 'ph-drop', 'ph-wifi-high', 'ph-credit-card', 'ph-barcode', 'ph-house-line', 'ph-graduation-cap', 'ph-heartbeat'];
@@ -26,4 +34,4 @@ export const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 export const logoStyle = key => ({ logoUrl: LOGO[key] ? `url("${LOGO[key]}")` : 'none', imgD: LOGO[key] ? 'block' : 'none', icoD: LOGO[key] ? 'none' : 'flex' });
 export const sel = (t, on) => ({ border: on ? t.accent : t.line2, bg: on ? t.accentSoft : t.surface, color: on ? t.accent : t.ink });
 export const segOpt = (t, label, on, onClick) => ({ label, bg: on ? t.surface : 'transparent', color: on ? t.ink : t.muted, onClick });
-export const stepper = (label, value, minus, plus, sub = '') => ({ label, value, minus, plus, sub });
+export const stepper = (label, value, minus, plus, sub = '') => ({ label, value, minus, plus, sub, minusAria: `Diminuir: ${label}`, plusAria: `Aumentar: ${label}` });

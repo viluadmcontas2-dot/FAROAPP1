@@ -6,7 +6,7 @@ import { fmt, R, parseMoney } from '../core/money.js';
 import { monthName, WD_LONG, MONTHS, parseISO, weekday, addDays } from '../core/dates.js';
 import { FUEL, SRC_CAT, XP, ENERGIES, RIDE_KEYS, FUEL_CAT } from '../core/catalog.js';
 import { LOGO } from './theme.js';
-import { plural, PRICE_LINE, carFixName, ICON_IN, ICON_OUT, BILL_ICONS, BILL_COLORS, BILL_PRESETS, BILL_CAT_LABELS, ENERGY_LABELS, VEHICLE_LABELS, DAYS_WEEK_OPTIONS, MAX_CHOICES, logoStyle, sel, segOpt, stepper } from './kit.js';
+import { plural, PRICE_LINE, carFixName, ICON_IN, ICON_OUT, BILL_ICONS, BILL_COLORS, COLOR_NAME, iconAria, BILL_PRESETS, BILL_CAT_LABELS, ENERGY_LABELS, VEHICLE_LABELS, DAYS_WEEK_OPTIONS, MAX_CHOICES, logoStyle, sel, segOpt, stepper } from './kit.js';
 
 export const energyWord = app => (app.energy === 'eletrico' ? 'Recarga' : 'Combustível');
 const KM_MAX_DIGITS = 4, MONEY_MAX_DIGITS = 7;
@@ -154,7 +154,7 @@ export function closeVals(k) {
     dayChips: dayOptions(today, date).map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.gold : t.ink, onClick: () => setCl(newCloseDraft(app, d)) })),
     askTitle: `Quanto entrou ${when}?`, kmLabel: `Km rodados ${when}`,
     s0: cs.step === 0, s1: cs.step === 1, s2: false, s3: cs.step === 2, keypad: cs.step < 2,
-    exit: () => (cs.step === 1 ? setCl({ step: 0, err: null }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x',
+    exit: () => (cs.step === 1 ? setCl({ step: 0, err: null }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x', exitAria: cs.step === 1 ? 'Voltar' : 'Fechar',
     dots: [0, 1, 2].map(i => ({ w: i === cs.step ? '22px' : '7px', bg: i <= cs.step ? t.gold : t.line2 })),
     plats: app.sources.map(x => ({
       name: x.name, id: 'faro-p-' + x.k, ...logoStyle(x.k), icon: x.icon || 'ph-duotone ph-hand-coins', sub: RIDE_KEYS.includes(x.k) ? '' : 'fora do R$/km', subD: RIDE_KEYS.includes(x.k) ? 'none' : 'block', val: cf[x.k] || '',
@@ -163,7 +163,7 @@ export function closeVals(k) {
     err0: err && err.where === 'p' ? err.text : '',
     add: {
       title: 'Nova fonte de renda', ph: 'Ex.: Vendas no carro', name: cs.newName || '', icon: 'ph-duotone ' + iconNew, onName: e => setCl({ newName: e.target.value }),
-      iconOpts: ICON_IN.map(ic => ({ icon: 'ph-duotone ' + ic, border: iconNew === ic ? t.accent : t.line, bg: iconNew === ic ? t.accentSoft : 'transparent', onClick: () => setCl({ newIcon: ic }) })),
+      iconOpts: ICON_IN.map(ic => ({ icon: 'ph-duotone ' + ic, aria: iconAria(ic), on: iconNew === ic, border: iconNew === ic ? t.accent : t.line, bg: iconNew === ic ? t.accentSoft : 'transparent', onClick: () => setCl({ newIcon: ic }) })),
       cancel: () => setCl({ adding: false }), op: (cs.newName || '').trim() ? '1' : '.4',
       confirm: () => k.addSource((cs.newName || '').trim(), iconNew, () => setCl({ adding: false })),
     },
@@ -230,7 +230,7 @@ export function sheetVals(k) {
 
   const add = {
     title: ss.type === 'in' ? 'Nova fonte de renda' : 'Nova categoria de gasto', ph: ss.type === 'in' ? 'Ex.: Vendas no carro' : 'Ex.: Celular, multa…', name: ss.newName || '', icon: 'ph-duotone ' + curIc, onName: e => setSh({ newName: e.target.value }),
-    iconOpts: iconSet.map(ic => ({ icon: 'ph-duotone ' + ic, border: curIc === ic ? t.accent : t.line, bg: curIc === ic ? t.accentSoft : 'transparent', onClick: () => setSh({ newIcon: ic }) })),
+    iconOpts: iconSet.map(ic => ({ icon: 'ph-duotone ' + ic, aria: iconAria(ic), on: curIc === ic, border: curIc === ic ? t.accent : t.line, bg: curIc === ic ? t.accentSoft : 'transparent', onClick: () => setSh({ newIcon: ic }) })),
     cancel: () => setSh({ adding: false }), op: (ss.newName || '').trim() ? '1' : '.4',
     confirm: () => {
       const name = (ss.newName || '').trim();
@@ -242,8 +242,8 @@ export function sheetVals(k) {
   const nb = {
     name: nbS.name, icon: 'ph-fill ' + nbS.icon, color: nbS.color, amount: R(amt, 2), amtColor: amt > 0 ? t.ink : t.muted, onName: e => setNb({ name: e.target.value }),
     presets: BILL_PRESETS.map(([name, icon, color, catKey]) => ({ name, icon: 'ph-fill ' + icon, onClick: () => setNb({ name, icon, color, cat: catKey }) })),
-    icons: BILL_ICONS.map(ic => ({ icon: 'ph-fill ' + ic, border: nbS.icon === ic ? t.accent : t.line, bg: nbS.icon === ic ? t.accentSoft : 'transparent', onClick: () => setNb({ icon: ic }) })),
-    colors: BILL_COLORS.map(c => ({ c, border: nbS.color === c ? `3px solid ${t.ink}` : '3px solid transparent', onClick: () => setNb({ color: c }) })),
+    icons: BILL_ICONS.map(ic => ({ icon: 'ph-fill ' + ic, aria: iconAria(ic), on: nbS.icon === ic, border: nbS.icon === ic ? t.accent : t.line, bg: nbS.icon === ic ? t.accentSoft : 'transparent', onClick: () => setNb({ icon: ic }) })),
+    colors: BILL_COLORS.map(c => ({ c, aria: `Cor ${COLOR_NAME[c] || c}`, on: nbS.color === c, border: nbS.color === c ? `3px solid ${t.ink}` : '3px solid transparent', onClick: () => setNb({ color: c }) })),
     cats: BILL_CAT_LABELS.map(([key, label]) => ({ label, bg: nbS.cat === key ? t.surface : 'transparent', color: nbS.cat === key ? t.ink : t.muted, onClick: () => setNb({ cat: key }) })),
     due: nbS.due, dMinus: () => setNb({ due: Math.max(1, nbS.due - 1) }), dPlus: () => setNb({ due: Math.min(31, nbS.due + 1) }),
   };
@@ -256,7 +256,7 @@ export function sheetVals(k) {
 
   // folhas de ajuste (plano e carro): cada toque já grava e o resumo "ao vivo" recalcula
   const blocks = [], B = {
-    seg: (label, opts) => blocks.push({ isSeg: true, label, opts }), step: (label, sub, value, minus, plus) => blocks.push({ isStep: true, label, sub, value, minus, plus }),
+    seg: (label, opts) => blocks.push({ isSeg: true, label, opts }), step: (label, sub, value, minus, plus) => blocks.push({ isStep: true, label, sub, value, minus, plus, minusAria: `Diminuir: ${label}`, plusAria: `Aumentar: ${label}` }),
     chips: (label, opts) => blocks.push({ isChips: true, label, opts }), note: text => blocks.push({ isNote: true, text }),
   };
   const money = (field, dv) => () => k.act({ type: 'plan/set', payload: { [field]: Math.max(0, app[field] + dv) } });

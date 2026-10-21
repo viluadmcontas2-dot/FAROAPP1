@@ -100,7 +100,7 @@ export function homeVals(k) {
   const carFixLabel = app.vehicle === 'alugado' ? 'Aluguel do carro · parte do dia' : app.vehicle === 'financiado' ? 'Parcela e seguro · parte do dia' : 'Seguro · parte do dia';
   const wf = {
     title: partial ? 'Do que entrou ao lucro (estimativa)' : 'Do que entrou ao lucro',
-    exps: todayExps.map(x => ({ cat: x.cat, icon: x.icon, time: x.time, value: '− ' + R(x.v, 2), note: x.cat === 'Combustível' ? 'só mede o consumo, não desconta' : '', noteD: x.cat === 'Combustível' ? 'block' : 'none', vc: x.cat === 'Combustível' ? t.muted : t.ink, onEdit: () => k.openSheet('out', { digits: String(Math.round(x.v * 100)), cat: x.cat, editId: x.id }), onDel: () => k.removeEntry(x.id) })),
+    exps: todayExps.map(x => ({ cat: x.cat, icon: x.icon, time: x.time, value: '− ' + R(x.v, 2), note: x.cat === 'Combustível' ? 'só mede o consumo, não desconta' : '', noteD: x.cat === 'Combustível' ? 'block' : 'none', vc: x.cat === 'Combustível' ? t.muted : t.ink, editAria: `Editar gasto: ${x.cat}`, delAria: `Excluir gasto: ${x.cat}`, onEdit: () => k.openSheet('out', { digits: String(Math.round(x.v * 100)), cat: x.cat, editId: x.id }), onDel: () => k.removeEntry(x.id) })),
     hasExps: P === 'dia' && todayExps.length > 0, noExps: P === 'dia' && !todayExps.length, addExp: () => k.openSheet('out'),
     you: view.g > 0 ? `você fica com ${Math.max(0, Math.round(view.lucro / base * 100))}% do que entrou` : '',
     open: !!ui.wfOpen, toggle: () => k.set({ wfOpen: !ui.wfOpen }), toggleLabel: ui.wfOpen ? 'Esconder detalhes' : (P === 'dia' ? 'Ver detalhes do dia' : 'Ver a conta'), toggleIcon: ui.wfOpen ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down',

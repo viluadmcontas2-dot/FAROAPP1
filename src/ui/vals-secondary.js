@@ -22,7 +22,7 @@ export function billsVals(k) {
     title: `${monthName(today).replace(/^./, c => c.toUpperCase())} · carro e vida`, total: R(total, 2), paid: R(paidTotal, 2), left: R(total - paidTotal, 2), w: (paidTotal / Math.max(1, total) * 100) + '%',
     filters: [['todas', 'Todas'], ...BILL_CAT_LABELS].map(([key, label]) => { const on = filter === key; return { label, v: R(sumOf(occ.filter(o => key === 'todas' || o.cat === key))), bg: on ? '#fff' : 'rgba(255,255,255,.08)', color: on ? '#0D1530' : '#fff', border: on ? '#fff' : 'rgba(255,255,255,.16)', onClick: () => k.set({ billFilter: key }) }; }),
     pending: pending.map(o => ({ name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `${st.when(o)} · ${o.rec}`, sc: st.color(o), line: o.date < today ? t.negLine : t.line, onPay: () => k.payBill(o.oid) })),
-    paidList: paid.map((o, i) => ({ name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `pago · dia ${o.d}`, sep: i === paid.length - 1 ? 'transparent' : t.line, onUndo: () => k.unpayBill(o.oid) })),
+    paidList: paid.map((o, i) => ({ undoAria: `Desfazer pagamento: ${o.name}`, name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `pago · dia ${o.d}`, sep: i === paid.length - 1 ? 'transparent' : t.line, onUndo: () => k.unpayBill(o.oid) })),
   };
 }
 
