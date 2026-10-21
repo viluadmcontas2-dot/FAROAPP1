@@ -1,0 +1,218 @@
+<title>Painel Faro 2.0</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;600;700&display=swap">
+<style>
+/* Layout: uma coluna de leitura; etapas como lista com selo de estado; cada bloco abre com a pergunta que responde. */
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --ink:#0E1630; --muted:#56607A; --line:#D9DFEA;
+  --accent:#0F6E6B; --accent-soft:#DDF1EF;
+  --ok:#0B7A4B; --ok-soft:#DCF3E7;
+  --doing:#1D4FD8; --doing-soft:#E1E9FD;
+  --you:#8A5200; --you-soft:#FDEBCB;
+  --todo:#4A5470; --todo-soft:#E6EAF2;
+  --risk:#A3262B; --risk-soft:#FBE3E3;
+  --font-display:'Bricolage Grotesque',system-ui,sans-serif;
+  --font-body:'Manrope',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#080B14; --surface:#10152A; --ink:#EEF0F6; --muted:#9AA3BC; --line:#222A44;
+  --accent:#4FD1C5; --accent-soft:#0E2F33;
+  --ok:#4ADE9A; --ok-soft:#0E2E22;
+  --doing:#8FB0FF; --doing-soft:#162450;
+  --you:#F2B544; --you-soft:#352508;
+  --todo:#A8B1CA; --todo-soft:#1B2240;
+  --risk:#FF8A8E; --risk-soft:#3A1519; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#080B14; --surface:#10152A; --ink:#EEF0F6; --muted:#9AA3BC; --line:#222A44;
+  --accent:#4FD1C5; --accent-soft:#0E2F33;
+  --ok:#4ADE9A; --ok-soft:#0E2E22;
+  --doing:#8FB0FF; --doing-soft:#162450;
+  --you:#F2B544; --you-soft:#352508;
+  --todo:#A8B1CA; --todo-soft:#1B2240;
+  --risk:#FF8A8E; --risk-soft:#3A1519; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(30px,7vw,44px);font-weight:800}
+h2{font-size:24px;font-weight:800}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.lead{color:var(--muted);max-width:60ch}
+.meta{font-size:13px;color:var(--muted)}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap}
+nav.tabs a{padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);text-decoration:none;color:var(--ink);font-weight:600;font-size:14px;min-height:44px;display:inline-flex;align-items:center}
+.resume{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.bar{height:14px;border-radius:999px;background:var(--todo-soft);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .b-ok{background:var(--ok)}.bar .b-doing{background:var(--doing)}.bar .b-you{background:var(--you)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters button{font:inherit;font-weight:600;font-size:14px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start}
+.step[hidden]{display:none}
+.step h3{grid-column:1}
+.step p{grid-column:1/-1;color:var(--muted);font-size:15px}
+.step .links{grid-column:1/-1;font-size:14px}
+.tag{font-size:12.5px;font-weight:700;letter-spacing:.02em;padding:5px 10px;border-radius:999px;white-space:nowrap}
+.t-ok{background:var(--ok-soft);color:var(--ok)}
+.t-doing{background:var(--doing-soft);color:var(--doing)}
+.t-you{background:var(--you-soft);color:var(--you)}
+.t-todo{background:var(--todo-soft);color:var(--todo)}
+.t-risk{background:var(--risk-soft);color:var(--risk)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.cards>*{min-width:0}
+.card p{color:var(--muted);font-size:15px}
+.card .fix{color:var(--ink);font-size:14.5px}
+.num{font-variant-numeric:tabular-nums}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 16px}
+details+details{margin-top:8px}
+summary{cursor:pointer;font-weight:700;min-height:48px;display:flex;align-items:center}
+details p{color:var(--muted);padding-bottom:14px;font-size:15px}
+.flow{display:grid;gap:10px}
+.flow li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;list-style:none}
+.flow{margin:0;padding:0}
+.flow b{font-family:var(--font-display)}
+footer{font-size:13px;color:var(--muted)}
+@media (max-width:480px){.step{grid-template-columns:1fr}.step .tag{justify-self:start;grid-row:2}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s ease}}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <p class="meta">Atualizado em 21/10/2026, tarde (horário de Brasília)</p>
+    <h1>Faro 2.0: onde estamos</h1>
+    <p class="lead">App do motorista de aplicativo: mostra o lucro de verdade do dia. Só funciona instalado no celular. 7 dias grátis, depois R$ 22,99 por mês.</p>
+    <nav class="tabs" aria-label="Seções">
+      <a href="#etapas">Etapas</a><a href="#voce">O que depende de você</a><a href="#cegos">Pontos cegos</a><a href="#fluxo">Como trabalhamos</a><a href="#dicionario">Dicionário</a>
+    </nav>
+  </header>
+
+  <section class="resume" aria-label="Resumo">
+    <h2>Em uma frase</h2>
+    <p>O app novo está pronto e testado no computador. Para poder vender, faltam publicar o link de prévia, testar em celular de verdade, testar a assinatura e escrever os textos legais.</p>
+    <div class="bar" role="img" aria-label="9 etapas prontas, 1 em andamento, 6 dependem de você ou ainda faltam">
+      <i class="b-ok" style="width:56%"></i><i class="b-doing" style="width:6%"></i><i class="b-you" style="width:38%"></i>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--ok)"></i><b class="num">9</b> prontas</span>
+      <span><i class="dot" style="background:var(--doing)"></i><b class="num">1</b> em andamento</span>
+      <span><i class="dot" style="background:var(--you)"></i><b class="num">6</b> faltam ou esperam você</span>
+    </div>
+    <p class="meta">Números de hoje: 276 testes automáticos passando · nenhum problema grave de segurança aberto · banco de dados real atualizado · cobrança desligada de propósito.</p>
+  </section>
+
+  <section id="etapas" style="display:flex;flex-direction:column;gap:14px">
+    <h2>Todas as etapas</h2>
+    <div class="filters" role="group" aria-label="Filtrar etapas">
+      <button type="button" data-f="all" aria-pressed="true">Todas</button>
+      <button type="button" data-f="you" aria-pressed="false">Dependem de você</button>
+      <button type="button" data-f="todo" aria-pressed="false">Faltam</button>
+      <button type="button" data-f="ok" aria-pressed="false">Prontas</button>
+    </div>
+    <ol class="steps" id="steps">
+      <li class="step" data-s="ok"><h3>Telas novas no lugar das antigas</h3><span class="tag t-ok">Pronto</span><p>Todas as telas do seu design funcionam com dados de verdade. O app antigo foi apagado.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/22">Tarefa 22</a></span></li>
+      <li class="step" data-s="ok"><h3>Cálculo do lucro, contas e metas</h3><span class="tag t-ok">Pronto</span><p>Datas reais, o dia de trabalho vira às 04:00, dinheiro aceito do jeito brasileiro (1.200,50) e histórico que não muda sozinho.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/23">Tarefa 23</a></span></li>
+      <li class="step" data-s="ok"><h3>Conta e nuvem</h3><span class="tag t-ok">Pronto</span><p>Entrar, sair, guardar na nuvem e resolver conflito entre aparelhos sem apagar dados de ninguém.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/24">Tarefa 24</a></span></li>
+      <li class="step" data-s="ok"><h3>Segurança do servidor</h3><span class="tag t-ok">Pronto</span><p>Regras do banco aplicadas no banco real (estava vazio, sem risco). Falta só você cadastrar os segredos do Stripe.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/25">Tarefa 25</a></span></li>
+      <li class="step" data-s="ok"><h3>Instalar o app e usar sem internet</h3><span class="tag t-ok">Pronto</span><p>Tela "Instalar o Faro" (Android e iPhone) bloqueia o uso fora do app instalado. Funciona offline. Provado só em navegador de teste.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/28">Tarefa 28</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/35">Tarefa 35</a></span></li>
+      <li class="step" data-s="ok"><h3>Tela Conta</h3><span class="tag t-ok">Pronto</span><p>Entrar, criar conta, conflito de dados, backup e status da assinatura.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/27">Tarefa 27</a></span></li>
+      <li class="step" data-s="ok"><h3>Revisões e correções</h3><span class="tag t-ok">Pronto</span><p>Revisão como motorista, como crítico e como dono do produto. Palavras do motorista, botões repetidos removidos, letras maiores.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/37">Tarefa 37</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/38">Tarefa 38</a></span></li>
+      <li class="step" data-s="ok"><h3>Testes de ataque</h3><span class="tag t-ok">Pronto</span><p>57 ataques nossos e 2 varreduras do Strix. Nada grave. Custo estimado das varreduras: US$ 2,27.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/30">Tarefa 30</a></span></li>
+      <li class="step" data-s="ok"><h3>Limpeza do app antigo e documentação</h3><span class="tag t-ok">Pronto</span><p>12 mil linhas antigas apagadas. Documentos e decisões escritos em português.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/29">Tarefa 29</a> · <a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/32">Tarefa 32</a></span></li>
+      <li class="step" data-s="doing"><h3>Acabamento visual</h3><span class="tag t-doing">Em andamento</span><p>Textos cortados, contraste, foco de teclado, movimento reduzido. Um agente está terminando.</p></li>
+      <li class="step" data-s="you"><h3>Link de prévia no ar (Cloudflare)</h3><span class="tag t-you">Depende de você</span><p>O Worker existe na sua conta, mas não consigo ver se está ligado ao repositório. Sem isso, não há link para abrir no celular.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/33">Tarefa 33</a></span></li>
+      <li class="step" data-s="you"><h3>Testar no Android e no iPhone de verdade</h3><span class="tag t-you">Depende de você</span><p>Só vale depois do link de prévia. Instalar, usar, ficar sem internet.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/35">Tarefa 35</a></span></li>
+      <li class="step" data-s="you"><h3>Decidir: fechar o dia em 1 tela ou em 3</h3><span class="tag t-you">Decisão sua</span><p>O motorista de teste pediu 1 tela. Não mudei seu desenho sem você ver.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/37">Tarefa 37</a></span></li>
+      <li class="step" data-s="todo"><h3>Assinatura de ponta a ponta no Stripe</h3><span class="tag t-todo">Falta</span><p>Cartão de teste, 7 dias grátis, cupom RATAO, cancelar. Precisa dos segredos cadastrados primeiro.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/34">Tarefa 34</a></span></li>
+      <li class="step" data-s="todo"><h3>Termos, privacidade, suporte, excluir conta, aviso do fim do teste</h3><span class="tag t-todo">Falta</span><p>Obrigatório antes de cobrar. Eu escrevo o rascunho, você revisa.</p><span class="links"><a href="https://github.com/viluadmcontas2-dot/FAROAPP1/issues/36">Tarefa 36</a></span></li>
+      <li class="step" data-s="todo"><h3>Abrir a venda</h3><span class="tag t-todo">Falta</span><p>Pedir a junção do trabalho à versão principal, ligar a cobrança e publicar. Só com tudo acima verde.</p></li>
+    </ol>
+  </section>
+
+  <section id="voce" style="display:flex;flex-direction:column;gap:14px">
+    <h2>O que depende de você</h2>
+    <p class="lead">Estas tarefas estão no seu Todoist, no projeto Faro 2.0, com horário. O que eu faço fica só no GitHub.</p>
+    <div class="cards">
+      <div class="card"><h3>Hoje</h3><p>Conferir o gasto real da IA · ligar o Worker da Cloudflare ao repositório · decidir fechar o dia em 1 tela · cadastrar os segredos do Stripe.</p></div>
+      <div class="card"><h3>Esta semana</h3><p>Testar no Android e no iPhone · testar a assinatura · travas do cupom RATAO · aprovar termos e privacidade · conferir o Stripe em modo real.</p></div>
+      <div class="card"><h3>Depois</h3><p>Abrir a junção do trabalho, apagar as branches antigas, ligar a cobrança e decidir como medir o uso.</p></div>
+    </div>
+  </section>
+
+  <section id="cegos" style="display:flex;flex-direction:column;gap:14px">
+    <h2>Pontos cegos</h2>
+    <p class="lead">Coisas que ainda não apareceram, mas que podem custar caro se descobrirmos tarde. Ordenadas por impacto.</p>
+    <div class="cards">
+      <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>E-mails de cadastro</h3><p>O Supabase, no padrão, manda pouquíssimos e-mails por hora. Com alguns cadastros seguidos, a confirmação de e-mail para de chegar.</p><p class="fix"><b>Fazer:</b> configurar um serviço de e-mail próprio antes de vender.</p></div>
+      <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Endereço definitivo do app</h3><p>O app instalado e os dados do aparelho ficam presos ao endereço. Se o endereço mudar depois, todo mundo perde a instalação e os dados locais.</p><p class="fix"><b>Fazer:</b> escolher o endereço próprio (ex.: faro.app.br) antes do primeiro usuário.</p></div>
+      <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Lembretes que não chegam</h3><p>A tela de Lembretes existe, mas nada envia aviso ao celular. O motorista acha que será avisado e não será.</p><p class="fix"><b>Fazer:</b> construir os avisos ou esconder a tela até existirem. Decisão sua.</p></div>
+      <div class="card"><span class="tag t-risk" style="align-self:flex-start">Alto</span><h3>Motorista sem cartão de crédito</h3><p>O teste grátis exige cartão. Muitos motoristas só têm débito ou Pix, e vão desistir antes de entrar.</p><p class="fix"><b>Fazer:</b> medir a desistência e avaliar Pix ou débito.</p></div>
+      <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>Plano do Supabase</h3><p>O plano grátis pausa o projeto quando fica sem uso e não faz cópia diária. Para dados financeiros, isso é arriscado.</p><p class="fix"><b>Fazer:</b> confirmar o plano pago e ligar as cópias de segurança.</p></div>
+      <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>iPhone pode apagar dados</h3><p>O Safari apaga dados de sites que ficam sem uso. Instalado na tela inicial é mais seguro, mas quem não criar conta pode perder tudo.</p><p class="fix"><b>Fazer:</b> incentivar criar conta e lembrar do backup.</p></div>
+      <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>Nunca testamos com um banco real e 2 pessoas</h3><p>Nossos testes usam um banco de mentira. A prova de que uma pessoa não vê os dados da outra foi feita lendo as regras do banco real, não usando duas contas.</p><p class="fix"><b>Fazer:</b> criar um projeto Supabase só de teste.</p></div>
+      <div class="card"><span class="tag t-you" style="align-self:flex-start">Médio</span><h3>Sem alarme se algo quebrar</h3><p>Se o app der erro na mão de um motorista, ninguém é avisado.</p><p class="fix"><b>Fazer:</b> registrar erros sem dados pessoais e avisar quando o site cair.</p></div>
+      <div class="card"><span class="tag t-todo" style="align-self:flex-start">Baixo</span><h3>Nota fiscal e conta do Stripe</h3><p>Cobrança recorrente no Brasil tem regra fiscal. Confirmar quem é o titular da conta Stripe real e como emitir nota.</p></div>
+      <div class="card"><span class="tag t-todo" style="align-self:flex-start">Baixo</span><h3>Suporte</h3><p>Quem atende o motorista e por qual canal (WhatsApp?), e em quanto tempo.</p></div>
+    </div>
+  </section>
+
+  <section id="fluxo" style="display:flex;flex-direction:column;gap:14px">
+    <h2>Como trabalhamos</h2>
+    <ul class="flow">
+      <li><b>Uma fonte para cada coisa.</b> GitHub guarda o que eu faço. O Todoist guarda só o que depende de você. Este painel é um retrato dos dois, sem verdade própria.</li>
+      <li><b>Atualização barata.</b> Só atualizo o painel e o Todoist no fim de cada etapa ou quando você pedir. Uma atualização custa poucos centavos de IA. Nada de conferir de tempos em tempos.</li>
+      <li><b>Antes de atualizar</b> faço uma consulta ao Todoist para ver o que você marcou como feito e ajusto o painel.</li>
+      <li><b>Nenhuma etapa fecha sem prova:</b> teste que falhou antes e passou depois, ou evidência guardada em <i>docs/evidence/faro-2-0</i>.</li>
+      <li><b>Equipe de agentes:</b> modelos baratos (Haiku) leem e revisam; modelos médios (Sonnet) programam. Cada um recebe uma tarefa pequena, com os arquivos que pode mexer.</li>
+      <li><b>Nada vai ao ar sem seu ok:</b> preço, cobrança e publicação são decisões suas.</li>
+    </ul>
+  </section>
+
+  <section id="dicionario" style="display:flex;flex-direction:column;gap:6px">
+    <h2>Dicionário do projeto</h2>
+    <p class="lead" style="margin-bottom:8px">Os termos que eu uso, em português simples. Toque para abrir.</p>
+    <details><summary>Commit (também chamado de "versão salva")</summary><p>Uma foto do projeto num momento, guardada com um nome. Dá para voltar a qualquer foto. Aquele código de letras e números que eu citava é só o "número de série" da foto. Daqui para frente, falo pelo nome.</p></details>
+    <details><summary>Branch (uma "cópia paralela de trabalho")</summary><p>Uma linha de trabalho separada da versão principal. A nossa se chama <b>claude/faro-2-0</b>. Assim, nada quebra a versão principal enquanto construímos.</p></details>
+    <details><summary>Pull request, ou PR (um "pedido de junção")</summary><p>O pedido para juntar a cópia paralela à versão principal. Antes de juntar, as verificações automáticas rodam e você pode revisar.</p></details>
+    <details><summary>Migration (as "instruções de obra" do banco)</summary><p>Arquivo que diz exatamente o que mudar no banco de dados: criar tabela, proibir alguém de escrever num lugar. É como a planta de uma reforma: qualquer pessoa confere o que foi feito.</p></details>
+    <details><summary>Deploy / publicar</summary><p>Colocar uma versão no ar para as pessoas usarem. "Prévia" é o mesmo app, num link de teste. Aqui, a prévia e a produção são idênticas.</p></details>
+    <details><summary>PWA (app instalável feito de site)</summary><p>Um site que se instala na tela inicial do celular, abre em tela cheia e funciona sem internet. Não passa pela loja de aplicativos.</p></details>
+    <details><summary>Segurança do banco (RLS)</summary><p>Regra dentro do banco que só deixa cada pessoa ver e mudar os próprios dados, mesmo que alguém tente burlar o app.</p></details>
+    <details><summary>Edge Function (função do servidor)</summary><p>Um pequeno programa que roda na nuvem. Aqui, ele cria a assinatura, abre o portal do cliente, recebe o aviso do Stripe e exclui a conta.</p></details>
+    <details><summary>CSP (política de segurança do navegador)</summary><p>Uma lista do que o app pode carregar. Se um invasor tentar colocar código de outro site, o navegador recusa.</p></details>
+    <details><summary>Idempotente</summary><p>Rodar duas vezes dá o mesmo resultado que rodar uma. Evita cobrar duas vezes, gravar duas vezes, quebrar ao repetir.</p></details>
+    <details><summary>Strix</summary><p>Um programa de IA que tenta invadir o nosso app, como um hacker, para achar falhas antes dos outros.</p></details>
+    <details><summary>Token</summary><p>A unidade com que a IA cobra. Quanto mais texto lido e escrito, mais tokens. Por isso usamos modelos baratos nas tarefas simples.</p></details>
+  </section>
+
+  <footer>Fonte: GitHub, projeto FAROAPP1, tarefa mãe 21 · Todoist, projeto Faro 2.0. Este painel é atualizado em marcos, não em tempo real.</footer>
+</div>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('.filters button'), steps=document.querySelectorAll('#steps .step');
+  var KEY='faro-painel-filtro';
+  function apply(f){
+    steps.forEach(function(s){
+      var st=s.getAttribute('data-s'); var show=f==='all'||st===f||(f==='todo'&&st==='doing');
+      s.hidden=!show;
+    });
+    btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-f')===f?'true':'false')});
+    try{localStorage.setItem(KEY,f)}catch(e){}
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-f'))})});
+  var saved='all'; try{saved=localStorage.getItem(KEY)||'all'}catch(e){}
+  apply(saved);
+})();
+</script>

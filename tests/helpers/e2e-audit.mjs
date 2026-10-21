@@ -26,6 +26,9 @@ export const auditClipping = page => page.evaluate(() => {
   for (const e of document.body.querySelectorAll('div')) {
     if (getComputedStyle(e).zIndex !== '41' || !shown(e)) continue;
     if (e.scrollHeight > e.clientHeight + 1) out.push(`conteúdo da folha estoura a altura (${e.scrollHeight}>${e.clientHeight})`);
+    // em tela de 800 px ou mais de altura a lista da folha cabe inteira: nenhum chip/faixa fica meio escondido atrás do teclado
+    const inner = e.querySelector('.fscroll');
+    if (inner && innerHeight >= 800 && inner.scrollHeight > inner.clientHeight + 1) out.push(`lista da folha rola em tela alta (${inner.scrollHeight}>${inner.clientHeight}): algo fica escondido atrás do teclado`);
     const pad = e.getBoundingClientRect();
     for (const c of e.querySelectorAll('button,input')) { if (c.closest('.hscroll') || c.closest('.fscroll')) continue; const r = c.getBoundingClientRect(); if (r.width && (r.bottom > pad.bottom + 1 || r.right > pad.right + 1 || r.left < pad.left - 1)) out.push(`controle fora da folha: ${label(c)}`); }
   }

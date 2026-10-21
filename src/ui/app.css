@@ -417,7 +417,7 @@ button,[role=button]{min-height:44px;min-width:44px}
 .ficons>button{height:44px}
 @media (max-width:460px){.ficons{grid-template-columns:repeat(4,1fr)}}
 /* tela baixa (celular pequeno): a folha de lançamento aperta espaçamentos para o último chip aparecer inteiro */
-@media (max-height:760px){.fsheet{gap:6px!important}.famt{font-size:42px!important}}
+@media (max-height:860px){.fsheet{gap:6px!important}.famt{font-size:42px!important}}
 /* horas do dia: 7 botões de 44 px numa linha, ou 4 + 3 em tela estreita */
 .fhours{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 @media (max-width:380px){.fhours{grid-template-columns:repeat(4,1fr)}}
