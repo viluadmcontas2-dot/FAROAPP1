@@ -3,7 +3,7 @@
 O estado real está em `STATUS.md` (fonte única). Aqui fica só a ordem de trabalho.
 
 **Meta:** o app roda só com a interface nova, ligada a login, nuvem e assinatura reais, sem nenhum código do app antigo, e abre já como beta pago.
-**Branch:** `claude/faro-2-0` · **Tarefa mãe:** issue #21 · **Evidência:** `docs/evidence/faro-2-0/`
+**Branch:** `claude/faro-2-0-beta-pago` · **Tarefa mãe:** issue #21 · **Evidência:** `docs/evidence/faro-2-0/`
 **Regras:** tudo idempotente (rodar duas vezes dá o mesmo resultado); tarefa só fecha com teste e evidência; sem prova, "não provado". A cobrança só liga quando a lista de pré-requisitos do `STATUS.md` estiver pronta.
 
 ## Tarefas

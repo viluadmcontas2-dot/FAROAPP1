@@ -1,7 +1,7 @@
 # Estado do Faro 2.0
 
 Esta é a ÚNICA fonte do estado. Os outros documentos (retomada, painel, sprint) apontam para cá e não repetem números.
-Atualizado em 21/10/2026. Branch `claude/faro-2-0`. Tarefa mãe no GitHub: #21 (as tarefas filhas lá estão desatualizadas; vale este arquivo).
+Atualizado em 21/10/2026. Branch `claude/faro-2-0-beta-pago`. Tarefa mãe no GitHub: #21 (as tarefas filhas lá estão desatualizadas; vale este arquivo).
 
 ## Pronto, com prova
 - Interface do design compilada para produção, sem `eval` (testes de compilação e de segurança do navegador).
@@ -26,7 +26,7 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0`. Tarefa mãe no GitHub: #21 (
 - Acabamento visual final.
 
 ## Bloqueado pelo dono
-- **Link do app:** https://faroapp1.hugovitorslipknot.workers.dev — aberto ao público (o Cloudflare Access foi desligado em 21/10). Ligado ao GitHub: cada commit na branch `claude/faro-2-0` (fora docs/specs/.md) é construído e publicado sozinho pelo Cloudflare Workers Builds; build de teste passou. Falta conferir em celular real (#28, #33). O Claude controla a Cloudflare pelo conector oficial (API completa), sem token colado.
+- **Link do app:** https://faroapp1.hugovitorslipknot.workers.dev — aberto ao público (o Cloudflare Access foi desligado em 21/10). Ligado ao GitHub: cada commit na branch `claude/faro-2-0-beta-pago` (fora docs/specs/.md) é construído e publicado sozinho pelo Cloudflare Workers Builds; build de teste passou. Falta conferir em celular real (#28, #33). O Claude controla a Cloudflare pelo conector oficial (API completa), sem token colado.
 - **Decisão:** fechar o dia em 1 tela ou em 3.
 - **Segredos do Stripe** no Supabase (o dono cadastra; nunca no chat).
 - **Branches antigas:** foram copiadas para nomes `legado/...`; os nomes antigos continuam existindo porque o ambiente não apaga branch. O dono apaga na página Branches do GitHub. Os pedidos de junção rascunho antigos foram fechados. A branch `claude/hopeful-feynman-51q8b1` está inteira dentro desta; nada se perde.

@@ -3,10 +3,10 @@
 Leia nesta ordem: `README.md` → `PROJECT.md` → `STATUS.md` → `specs/active/faro-2-0/sprint.md` → issue #21 e filhas.
 
 ## Regras
-1. **Repositório remoto é a verdade.** Branch `claude/faro-2-0`; trabalho commitado e enviado, não acumulado local.
+1. **Repositório remoto é a verdade.** Branch `claude/faro-2-0-beta-pago`; trabalho commitado e enviado, não acumulado local.
 2. **Idempotência.** Todo script, build, migration e função pode rodar duas vezes com o mesmo resultado.
 3. **Teste antes do código** (RED, depois GREEN). Só diga "feito" com a saída do teste. `npm run check` e `npm run build` precisam estar verdes antes de PR.
-4. **Publicação.** O CI do GitHub só verifica em pull request e nunca publica. A Cloudflare (Workers Builds) publica sozinha cada commit da branch `claude/faro-2-0` no Worker `faroapp1` (decisão do dono, fase de prévia). Antes de cobrar clientes de verdade, trocar a branch observada para `main` (uma mudança só, pelo conector da Cloudflare).
+4. **Publicação.** O CI do GitHub só verifica em pull request e nunca publica. A Cloudflare (Workers Builds) publica sozinha cada commit da branch `claude/faro-2-0-beta-pago` no Worker `faroapp1` (decisão do dono, fase de prévia). Antes de cobrar clientes de verdade, trocar a branch observada para `main` (uma mudança só, pelo conector da Cloudflare).
 5. **Cobrança desligada** até termos, privacidade, suporte, exclusão de conta, aviso de fim do teste e teste ponta a ponta existirem (`governance/constitution.md`).
 6. **Sem legado.** Nada do app antigo volta; `design/` é só referência.
 7. **Segredos nunca no repositório.** IDs do Stripe: `docs/evidence/faro-2-0/stripe-cupom-e-preco.md`.

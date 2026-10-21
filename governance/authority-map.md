@@ -2,7 +2,7 @@
 
 | Assunto | Fonte de verdade |
 |---------|------------------|
-| Código, testes, regras | este repositório (branch `claude/faro-2-0`) |
+| Código, testes, regras | este repositório (branch `claude/faro-2-0-beta-pago`) |
 | Tarefas e prioridade | issue #21 e filhas; `specs/active/faro-2-0/sprint.md` |
 | Estado atual | `STATUS.md` |
 | Por que foi decidido | `docs/decisions/` |

@@ -71,7 +71,11 @@
       "Bash(git push origin --delete wu/faro-wu-002-vercel-commercial)",
       "Bash(git push origin --delete wu/faro-wu-002b-product-hardening)",
       "Bash(git push origin --delete ccr-35eb8125-a4zjh3)",
-      "Bash(git push origin --delete archive/pre-repo-first-lineages-20260830)"
+      "Bash(git push origin --delete archive/pre-repo-first-lineages-20260830)",
+      "Bash(git pull -q --rebase origin claude/faro-2-0-beta-pago)",
+      "Bash(git pull --rebase origin claude/faro-2-0-beta-pago)",
+      "Bash(git push -u origin claude/faro-2-0-beta-pago)",
+      "Bash(git push -q -u origin claude/faro-2-0-beta-pago)"
     ]
   }
 }
