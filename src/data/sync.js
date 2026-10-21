@@ -220,13 +220,17 @@ export const createSync = ({
     clearTimerNow(); epoch += 1;
     const owner = read(OWNER_KEY);
     uid = user.id;
-    if (owner && owner !== user.id) {
-      // Dados locais pertencem a outra conta: nunca sobem. Troca pelo que for desta conta.
-      stashIfDirty(owner);
-      const stash = readJson(STASH_PREFIX + user.id);
+    const stash = readJson(STASH_PREFIX + user.id);
+    if (owner && owner !== user.id) stashIfDirty(owner); // dados locais são de outra conta: nunca sobem
+    if (stash) {
+      // Pendência guardada desta conta (saiu com dados não enviados): volta ao aparelho e sobe para ela.
       suppress = true;
-      try { store.replaceState(stash || null); } finally { suppress = false; }
-      if (stash) { drop(STASH_PREFIX + user.id); setMeta(user.id, { ...getMeta(user.id), dirty: true, lastMutationId: randomId() }); }
+      try { store.replaceState(stash); } finally { suppress = false; }
+      drop(STASH_PREFIX + user.id);
+      setMeta(user.id, { ...getMeta(user.id), dirty: true, lastMutationId: randomId() });
+    } else if (owner && owner !== user.id) {
+      suppress = true;
+      try { store.replaceState(null); } finally { suppress = false; }
     } else if (!owner) {
       const m = getMeta(user.id);
       if (!m.linked && hasData(store.getSnapshot())) setMeta(user.id, { ...m, dirty: true, lastMutationId: m.lastMutationId || randomId() });

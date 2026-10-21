@@ -1,4 +1,4 @@
-# FARO-WU-004 — Nova interface + backend ligado (plano)
+# Faro 2.0 — app novo, plano
 
 Objetivo: trocar TODA a interface antiga (app.js + 25 camadas faro-*.js + Tailwind) pela interface do design
 "Driver Finance App Prototype" e ligá-la ao backend existente (Supabase auth/sync/assinatura + Stripe).

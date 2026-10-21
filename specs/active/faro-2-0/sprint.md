@@ -1,33 +1,40 @@
-# Sprint — FARO-WU-004 Nova interface + backend ligado
+# Faro 2.0 — tarefas em ordem de prioridade
 
-**Meta (1 frase):** o app roda só com a interface do design novo, ligada a login, sincronização e assinatura reais, sem código legado e com testes de ataque passando.
-**Datas:** 2026-10-21 → 2026-10-22 | **Equipe:** dono + agentes (subagent-driven) | **Rastro:** 1 Issue por história, evidência em `docs/evidence/WU-004/`.
-**Regra:** nenhuma história fecha sem teste RED→GREEN e linha de evidência. Mudança remota (migration/deploy/Stripe) só com ok do dono.
+**Meta:** o app roda só com a interface nova, ligada a login, nuvem e assinatura reais, sem nenhum código do app antigo, e passa nos testes de ataque.
+**Branch:** `claude/faro-2-0` · **Épico:** issue #21 · **Evidência:** `docs/evidence/faro-2-0/<tarefa>.md`
+**Regras:** tudo idempotente (rodar duas vezes dá o mesmo resultado); nome do arquivo e da tarefa diz o que faz; tarefa só fecha com teste e evidência; cobrança fica desligada até o teste ponta a ponta passar.
 
-| ID | P | História | Dono | Depende | Evidência de pronto |
-|----|---|----------|------|---------|---------------------|
-| S1 | P0 | Compilar template do design em React puro (sem eval), build esbuild, fontes/ícones locais | Agente A | — | teste do compilador + bundle sem `eval/new Function` |
-| S2 | P0 | Núcleo `src/core` (datas reais, estado v2, cálculo, ações) com paridade ao protótipo | Agente B | — | `node --test tests/core-*` |
-| S3 | P0 | Store local + persistência + backup | Agente B | S2 | idem |
-| S4 | P0 | Cliente backend: auth, sync com revisão/conflito, assinatura | Agente C | — | `node --test tests/backend-*` |
-| S5 | P0 | Revisão de segurança servidor: RLS, grants, Edge Functions, migration `faro_save_state` | Agente C | — | achados + SQL de teste (aplicar = decisão do dono) |
-| S6 | P0 | Integração: UI ligada ao store e ao backend (todas as telas do design) | integração | S1,S3,S4 | teste E2E Playwright fluxo onboarding→fechar dia→conta |
-| S7 | P0 | Tela Conta (login, nuvem, assinatura, backup) no padrão visual do design | integração | S4,S6 | E2E + captura |
-| S8 | P1 | PWA: manifest, service worker novo, CSP estrita, ícones | integração | S6 | auditoria do build |
-| S9 | P1 | Poda: remover legado (app.js, 25 camadas faro-*.js, Tailwind, testes e build antigos) | poda | S6,S7,S8 | `git diff --stat` + build/check verdes |
-| S10 | P1 | Segurança: ataque (XSS, import malicioso, RLS cruzada, webhook forjado, CSP, segredos) + advisors Supabase | segurança | S6,S9 | relatório `docs/evidence/WU-004/seguranca.md` |
-| S11 | P1 | Strix (varredura com IA) — BLOQUEADO: exige chave de IA paga | dono | S10 | decisão do dono |
-| S12 | P2 | Docs: STATUS.md, PROJECT.md, AGENTS.md, ADRs, verification-policy atualizados | integração | S9 | docs sem referência ao legado |
+## Tarefas (ordem de execução)
+| # | Tarefa | Issue | Estado | Depende de |
+|---|--------|-------|--------|-----------|
+| 1 | Interface: design vira código de produção, sem eval | #22 | feito (11 testes) | — |
+| 2 | Servidor: segurança do banco e funções (migration `faro_save_state`) | #25 | escrito e testado local (28 testes + SQL); aplicar no remoto no fim | — |
+| 3 | Conta e nuvem: login, sincronização, conflito | #24 | feito (28 testes) | 2 |
+| 4 | Núcleo: lucro, contas, metas, datas reais, armazenamento local | #23 | em andamento | — |
+| 5 | Ligar todas as telas do design aos dados e à nuvem (tela cheia, sem moldura de celular) | #26 | a fazer | 1, 3, 4 |
+| 6 | Tela Conta: entrar, nuvem, assinar, backup | #27 | a fazer | 3, 5 |
+| 7 | App instalável, offline, CSP estrita | #28 | a fazer | 5 |
+| 8 | Limpeza: apagar tudo do app antigo | #29 | a fazer | 5, 6, 7 |
+| 9 | Segurança: ataques reais contra app e banco | #30 | a fazer | 8 |
+| 10 | Assinatura Stripe de ponta a ponta (modo teste) | #34 | a fazer | 6, 2 aplicada |
+| 11 | Publicar prévia na Vercel e conferir | #33 | a fazer | 8, 9 |
+| 12 | Documentação: estado, decisões, regras | #32 | a fazer | 8 |
+| — | Varredura Strix (chave de IA paga, não autorizada) | #31 | bloqueada | 9 |
+
+## Decisões registradas
+- Estado v2 (`schema_version = 2`); dados do app antigo não migram.
+- O servidor só aceita salvar estado pela função `faro_save_state` (revisão atômica, tamanho máximo 512 KB, replay idempotente).
+- Interface compilada em build; nenhum `eval`/`new Function` em produção.
+- Objetos do banco remoto fora do repo (`faro_billing_settings`, `faro_trials_used`, `faro_has_access`, `faro_my_trial_ends_at`) entram no repo ou saem do remoto na tarefa 2.
 
 ## Riscos
 | Risco | Mitigação |
 |-------|-----------|
-| Design diverge do modelo de dados (dia fixo no mock) | S2 migra para datas ISO + teste de paridade |
-| Perder dados v1 de testadores | decisão registrada: v1 ignorado (billing off); dono confirma |
-| Migration remota quebrar produção | só arquivo no repo; aplicar com ok do dono |
-| Billing ligado por engano | `billingEnabled=false` mantido, teste cobre |
+| Aplicar migration quebra o app antigo publicado | app antigo sai de cena; aplicar só quando a interface nova usar `faro_save_state` |
+| Perda de dados no sync | revisão atômica + conflito exposto + teste de troca de conta |
+| Cobrança ligada por engano | `billingEnabled=false` coberto por teste |
 
-## Definition of Done
-- [ ] Teste do bloco verde (evidência colada na Issue)
-- [ ] Sem referência a código legado
-- [ ] Doc atualizada e Issue fechada com link do commit
+## Definição de pronto
+- [ ] Teste do bloco verde, saída colada na evidência
+- [ ] Sem referência ao app antigo
+- [ ] Issue fechada com link do commit
