@@ -96,5 +96,5 @@ test('vercel.json e _headers (Cloudflare) trazem os mesmos cabecalhos', () => {
 });
 test('wrangler.jsonc minimo', () => {
   const w = read('wrangler.jsonc');
-  assert.match(w, /"name": "faro"/); assert.match(w, /"directory": "\.\/_site"/); assert.match(w, /single-page-application/);
+  assert.match(w, /"name": "faroapp1"/); assert.match(w, /"directory": "\.\/_site"/); assert.match(w, /single-page-application/);
 });

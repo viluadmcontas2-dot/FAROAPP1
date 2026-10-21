@@ -1,10 +1,12 @@
 {
-  // Cloudflare Workers Static Assets. Preview = producao. Sem deploy automatico.
+  // Cloudflare Workers Static Assets. Preview e produção usam o MESMO build e os MESMOS cabeçalhos (_site/_headers).
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "faro",
+  "name": "faroapp1",
   "compatibility_date": "2025-01-01",
+  "build": { "command": "node scripts/build-app.mjs" },
   "assets": {
     "directory": "./_site",
     "not_found_handling": "single-page-application"
-  }
+  },
+  "observability": { "enabled": true }
 }
