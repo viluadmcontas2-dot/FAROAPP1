@@ -9,7 +9,7 @@ import { reduce } from '../src/core/actions.js';
 import { todayISO } from '../src/core/dates.js';
 import { browserAvailable, buildSite, serve, launch, prepareShots, cleanup, watchErrors } from './helpers/e2e-app.mjs';
 import { seedState, seedPage, click, button, hasText, bodyText } from './helpers/e2e-ui.mjs';
-import { auditClipping, auditContrast, auditNames, auditFocus, auditMotion, auditScrollEnd } from './helpers/e2e-audit.mjs';
+import { auditClipping, auditContrast, auditNames, auditFocus, auditMotion, auditScrollEnd, settle } from './helpers/e2e-audit.mjs';
 
 const skip = browserAvailable() ? false : 'Chromium ou Playwright não encontrados (veja tests/helpers/e2e-app.mjs)';
 const VIEWPORTS = [{ name: 'android-pequeno', width: 360, height: 740 }, { name: 'celular', width: 390, height: 844 }, { name: 'tela-larga', width: 1280, height: 800 }];
@@ -55,17 +55,21 @@ async function open(vp, state, { reducedMotion } = {}) {
 function auditor(page, problems, vp, tag) {
   const shots = prepareShots();
   return async (name, { contrast = true, focus = false, end = false, shot = false } = {}) => {
-    await page.waitForTimeout(650); // animações de entrada
+    await page.waitForTimeout(150);
+    await settle(page); // termina as animações de entrada para medir o estado final
     const add = (kind, list) => list.forEach(m => problems.push(`[${name}] ${kind}: ${m}`));
-    add('corte', await auditClipping(page));
-    add('nome', await auditNames(page));
-    if (contrast) add('contraste', await auditContrast(page));
-    if (end) add('fim da lista', await auditScrollEnd(page));
+    const t0 = Date.now(), lap = {};
+    const timed = async (key, fn) => { const t = Date.now(); const r = await fn(); lap[key] = Date.now() - t; return r; };
+    add('corte', await timed('corte', () => auditClipping(page)));
+    add('nome', await timed('nome', () => auditNames(page)));
+    if (contrast) add('contraste', await timed('contraste', () => auditContrast(page)));
+    if (end) add('fim da lista', await timed('fim', () => auditScrollEnd(page)));
     if (shot) await page.screenshot({ path: `${shots}/${vp.name}-${tag}-acab-${name}.png` });
     if (focus) {
-      const r = await auditFocus(page);
+      const r = await timed('foco', () => auditFocus(page));
       add('foco', r.problems);
     }
+    if (process.env.FARO_AUDIT_TIMING) console.log(name, Date.now() - t0, JSON.stringify(lap));
     await page.evaluate(() => { const sc = document.querySelector('.fscroll'); if (sc) sc.scrollTop = 0; });
   };
 }

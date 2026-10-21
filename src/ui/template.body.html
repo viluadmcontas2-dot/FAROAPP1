@@ -3,7 +3,7 @@
 <div style="position:relative;width:100%;max-width:560px;height:100%;margin:0 auto;overflow:hidden">
 
 
-<div class="fscroll" aria-hidden="{{ bgHidden }}" ref="{{ scRef }}" sc-camel-on-scroll="{{ onScroll }}" style="position:absolute;inset:0;overflow-y:auto;scroll-padding-bottom:150px;scrollbar-width:none;scroll-behavior:smooth">
+<div class="fscroll" aria-hidden="{{ bgHidden }}" inert="{{ bgInert }}" ref="{{ scRef }}" sc-camel-on-scroll="{{ onScroll }}" style="position:absolute;inset:0;padding-bottom:{{ introPad }};overflow-y:auto;scroll-padding-bottom:150px;scrollbar-width:none;scroll-behavior:smooth">
 
 <sc-if value="{{ isOnb }}" hint-placeholder-val="{{ false }}">
 <sc-if value="{{ onb.s0 }}" hint-placeholder-val="{{ false }}">
@@ -72,8 +72,8 @@
 <sc-if value="{{ onb.s3 }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;flex-direction:column;gap:8px">
 <sc-for list="{{ onb.bills }}" as="b" hint-placeholder-count="6">
-<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:20px;background:{{ t.surface }};border:1px solid {{ t.line }};opacity:{{ b.op }};transition:opacity .2s">
-<span style="width:40px;height:40px;border-radius:13px;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px"><i class="{{ b.icon }}"></i></span>
+<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:20px;background:{{ t.surface }};border:1px solid {{ t.line }}">
+<span style="width:40px;height:40px;border-radius:13px;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:{{ b.op }};transition:opacity .2s"><i class="{{ b.icon }}"></i></span>
 <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:700">{{ b.name }}</span><span style="font-size:14px;color:{{ t.muted }}">{{ b.sub }}</span></span>
 <span style="font-size:14px;font-weight:700;white-space:nowrap">{{ b.value }}</span>
 <button sc-camel-on-click="{{ b.onToggle }}" aria-label="{{ b.name }}" style="width:60px;height:44px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none"><span style="position:relative;display:block;width:46px;height:28px;border-radius:14px;background:{{ b.trk }}"><span style="position:absolute;top:3px;left:{{ b.knob }};width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 2px 6px rgba(0,0,0,.25)"></span></span></button>
@@ -86,7 +86,7 @@
 <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:{{ t.surface }};border:1px solid {{ t.line }}">
 <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;color:{{ t.muted }};font-weight:600">{{ st.label }}</span><span style="font-family:'Bricolage Grotesque';font-size:24px;font-weight:700;letter-spacing:-.5px">{{ st.value }}</span></span>
 <button sc-camel-on-click="{{ st.minus }}" aria-label="{{ st.minusAria }}" style="width:42px;height:42px;border-radius:50%;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-minus"></i></button>
-<button sc-camel-on-click="{{ st.plus }}" aria-label="{{ st.plusAria }}" style="width:42px;height:42px;border-radius:50%;border:none;background:{{ t.accent }};color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-plus"></i></button>
+<button sc-camel-on-click="{{ st.plus }}" aria-label="{{ st.plusAria }}" style="width:42px;height:42px;border-radius:50%;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-plus"></i></button>
 </div>
 </sc-for>
 <sc-if value="{{ onb.s2 }}" hint-placeholder-val="{{ false }}">
@@ -338,9 +338,9 @@
 <sc-if value="{{ cl.adding }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:20px;background:{{ t.surface2 }}">
 <span style="font-size:14px;font-weight:800">{{ cl.add.title }}</span>
-<div style="display:flex;align-items:center;gap:10px"><span style="width:44px;height:44px;flex:none;border-radius:14px;background:{{ t.accent }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px"><i class="{{ cl.add.icon }}"></i></span><input value="{{ cl.add.name }}" sc-camel-on-change="{{ cl.add.onName }}" placeholder="{{ cl.add.ph }}" aria-label="{{ cl.add.ph }}" style="flex:1;min-width:0;height:44px;border-radius:14px;border:1.5px solid {{ t.accent }};background:{{ t.surface }};color:{{ t.ink }};padding:0 14px;font-size:15px;font-weight:700"></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:44px;height:44px;flex:none;border-radius:14px;background:{{ t.accent }};color:{{ t.accentInk }};display:flex;align-items:center;justify-content:center;font-size:22px"><i class="{{ cl.add.icon }}"></i></span><input value="{{ cl.add.name }}" sc-camel-on-change="{{ cl.add.onName }}" placeholder="{{ cl.add.ph }}" aria-label="{{ cl.add.ph }}" style="flex:1;min-width:0;height:44px;border-radius:14px;border:1.5px solid {{ t.accent }};background:{{ t.surface }};color:{{ t.ink }};padding:0 14px;font-size:15px;font-weight:700"></div>
 <div class="ficons"><sc-for list="{{ cl.add.iconOpts }}" as="i" hint-placeholder-count="8"><button sc-camel-on-click="{{ i.onClick }}" aria-label="{{ i.aria }}" aria-pressed="{{ i.on }}" style="border-radius:11px;border:1.5px solid {{ i.border }};background:{{ i.bg }};color:{{ t.ink }};font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"><i class="{{ i.icon }}"></i></button></sc-for></div>
-<div style="display:flex;gap:8px"><button sc-camel-on-click="{{ cl.add.cancel }}" style="height:42px;padding:0 16px;border-radius:21px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Cancelar</button><button sc-camel-on-click="{{ cl.add.confirm }}" style="flex:1;height:42px;border-radius:21px;border:none;background:{{ t.accent }};color:#fff;font-size:14px;font-weight:800;cursor:pointer;opacity:{{ cl.add.op }}">Adicionar</button></div>
+<div style="display:flex;gap:8px"><button sc-camel-on-click="{{ cl.add.cancel }}" style="height:42px;padding:0 16px;border-radius:21px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Cancelar</button><button sc-camel-on-click="{{ cl.add.confirm }}" aria-disabled="{{ cl.add.off }}" style="flex:1;height:42px;border-radius:21px;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:14px;font-weight:800;cursor:pointer;opacity:{{ cl.add.op }}">Adicionar</button></div>
 </div>
 </sc-if>
 <sc-if value="{{ cl.canAdd }}" hint-placeholder-val="{{ true }}">
@@ -364,7 +364,7 @@
 </div>
 <div style="display:flex;flex-direction:column;gap:8px">
 <span style="font-size:14px;font-weight:700;color:{{ t.muted }};padding:0 4px;display:flex;justify-content:space-between">Horas online<span style="font-weight:600;font-size:14px">{{ cl.hoursNote }}</span></span>
-<div style="display:flex;gap:6px"><sc-for list="{{ cl.hours }}" as="h" hint-placeholder-count="7"><button sc-camel-on-click="{{ h.onClick }}" style="flex:1;height:40px;border-radius:13px;border:1.5px solid {{ h.border }};background:{{ h.bg }};color:{{ h.color }};font-size:14px;font-weight:800;cursor:pointer">{{ h.label }}</button></sc-for></div>
+<div class="fhours"><sc-for list="{{ cl.hours }}" as="h" hint-placeholder-count="7"><button sc-camel-on-click="{{ h.onClick }}" style="height:44px;border-radius:13px;border:1.5px solid {{ h.border }};background:{{ h.bg }};color:{{ h.color }};font-size:14px;font-weight:800;cursor:pointer">{{ h.label }}</button></sc-for></div>
 </div>
 <div style="display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:18px;background:{{ t.surface }};border:1px solid {{ t.line }}">
 <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">Lucro deste dia</span><span style="font-family:'Bricolage Grotesque';font-size:24px;font-weight:700;color:{{ cl.prevColor }}">{{ cl.preview }}</span></span>
@@ -416,6 +416,7 @@
 </div><div style="position:absolute;top:0;right:0;bottom:0;width:56px;pointer-events:none;background:none;display:flex;align-items:center;justify-content:flex-end;padding-right:12px"><i class="ph-bold ph-caret-right" style="font-size:14px;color:#fff;animation:fnudge 1.6s ease-in-out infinite"></i></div></div>
 </div>
 <div style="padding:16px 18px calc(130px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px">
+<sc-if value="{{ bl.hasPending }}" hint-placeholder-val="{{ true }}">
 <span style="font-size:16px;font-weight:800;padding:0 4px">A pagar</span>
 <sc-for list="{{ bl.pending }}" as="b" hint-placeholder-count="4">
 <div style="background:{{ t.surface }};border:1px solid {{ b.line }};border-radius:22px;padding:12px 14px 12px 12px;display:flex;align-items:center;gap:12px">
@@ -424,6 +425,11 @@
 <span style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:14px;font-weight:800">{{ b.value }}</span><button sc-camel-on-click="{{ b.onPay }}" style="min-height:48px;padding:0 20px;border-radius:24px;border:none;background:{{ t.pos }};color:{{ t.posInk }};font-size:16px;font-weight:800;cursor:pointer">Paguei</button></span>
 </div>
 </sc-for>
+</sc-if>
+<sc-if value="{{ bl.allPaid }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:22px;background:{{ t.surface }};border:1px solid {{ t.line }}"><span style="width:40px;height:40px;flex:none;border-radius:14px;background:{{ t.pos }};color:{{ t.posInk }};display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ph-bold ph-check"></i></span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:800">Tudo pago por aqui</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">Nada pendente neste filtro.</span></span></div>
+</sc-if>
+<sc-if value="{{ bl.hasPaid }}" hint-placeholder-val="{{ false }}">
 <span style="font-size:16px;font-weight:800;padding:8px 4px 0">Pagas</span>
 <div style="background:{{ t.surface }};border:1px solid {{ t.line }};border-radius:22px;padding:4px 14px">
 <sc-for list="{{ bl.paidList }}" as="b" hint-placeholder-count="4">
@@ -435,6 +441,15 @@
 </div>
 </sc-for>
 </div>
+</sc-if>
+<sc-if value="{{ bl.empty }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:32px 22px;border-radius:26px;border:1.5px dashed {{ t.line2 }};text-align:center">
+<span style="width:52px;height:52px;border-radius:18px;background:{{ t.accentSoft }};color:{{ t.accent }};display:flex;align-items:center;justify-content:center;font-size:26px"><i class="ph-fill ph-receipt"></i></span>
+<span style="font-size:17px;font-weight:800">{{ bl.emptyTitle }}</span>
+<span style="font-size:14px;line-height:1.45;color:{{ t.muted }};font-weight:600;text-wrap:pretty">Adicione uma conta e o Faro avisa 2 dias antes do vencimento.</span>
+<button sc-camel-on-click="{{ openNewBill }}" style="min-height:52px;padding:0 24px;border-radius:26px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;margin-top:6px"><i class="ph-bold ph-plus"></i>Adicionar conta</button>
+</div>
+</sc-if>
 </div>
 </sc-if>
 
@@ -490,6 +505,14 @@
 <div style="display:flex;flex-direction:column;gap:6px"><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.12)"><div style="height:100%;width:{{ game.xpW }};border-radius:3px;background:{{ t.gold }}"></div></div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;opacity:.75"><span>{{ game.xp }} pontos</span><span>{{ game.nextLv }}</span></div></div>
 </div>
 <div style="padding:16px 18px calc(130px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px">
+<sc-if value="{{ game.empty }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:18px;border-radius:26px;background:{{ t.goldSoft }};border:1px solid {{ t.line }}">
+<span style="width:44px;height:44px;border-radius:14px;background:{{ t.gold }};color:{{ t.goldInk }};display:flex;align-items:center;justify-content:center;font-size:22px"><i class="ph-fill ph-flag-checkered"></i></span>
+<span style="font-size:17px;font-weight:800">Sua Jornada começa no primeiro dia fechado</span>
+<span style="font-size:14px;line-height:1.45;color:{{ t.muted }};font-weight:600;text-wrap:pretty">Leva 30 segundos. Depois disso a nota, a sequência e o nível passam a crescer sozinhos.</span>
+<button sc-camel-on-click="{{ game.onFirst }}" style="min-height:52px;padding:0 24px;border-radius:26px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;margin-top:4px"><i class="ph-bold ph-flag-checkered"></i>Fechar meu primeiro dia</button>
+</div>
+</sc-if>
 <div style="background:{{ t.surface }};border:1px solid {{ t.line }};border-radius:26px;padding:18px;display:flex;flex-direction:column;gap:14px">
 <span style="font-size:16px;font-weight:800">O que compõe sua nota</span>
 <sc-for list="{{ idx.pillars }}" as="p" hint-placeholder-count="4">
@@ -514,8 +537,8 @@
 <div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 4px 0"><span style="font-size:16px;font-weight:800">Conquistas</span><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">{{ badgeCount }}</span></div>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
 <sc-for list="{{ badges }}" as="b" hint-placeholder-count="6">
-<div style="padding:14px 8px;border-radius:20px;background:{{ t.surface }};border:1px solid {{ t.line }};display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;opacity:{{ b.op }}">
-<span style="width:46px;height:46px;border-radius:50%;background:{{ b.bg }};color:{{ b.color }};display:flex;align-items:center;justify-content:center;font-size:23px"><i class="{{ b.icon }}"></i></span>
+<div style="padding:14px 8px;border-radius:20px;background:{{ t.surface }};border:1px solid {{ t.line }};display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+<span style="width:46px;height:46px;border-radius:50%;background:{{ b.bg }};color:{{ b.color }};display:flex;align-items:center;justify-content:center;font-size:23px;opacity:{{ b.op }}"><i class="{{ b.icon }}"></i></span>
 <span style="font-size:14px;font-weight:800;line-height:1.2">{{ b.name }}</span>
 <span style="font-size:14px;font-weight:600;color:{{ t.muted }};line-height:1.25">{{ b.sub }}</span>
 </div>
@@ -660,7 +683,7 @@
 <span style="font-size:15px;font-weight:800">Backup dos seus dados</span>
 <span style="font-size:14px;line-height:1.45;color:{{ t.muted }}">Salve um arquivo com tudo do Faro. Restaurar troca os dados deste aparelho pelos do arquivo.</span>
 <div style="display:flex;gap:10px">
-<button sc-camel-on-click="{{ conta.exportBackup }}" style="flex:1;min-height:52px;border-radius:26px;border:none;background:{{ t.accent }};color:#fff;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px"><i class="ph-bold ph-arrow-down-left"></i>Salvar backup</button>
+<button sc-camel-on-click="{{ conta.exportBackup }}" style="flex:1;min-height:52px;border-radius:26px;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px"><i class="ph-bold ph-arrow-down-left"></i>Salvar backup</button>
 <label style="flex:1;min-height:52px;border-radius:26px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px"><i class="ph-bold ph-arrow-up-right"></i>Restaurar backup<input type="file" accept="application/json,.json" aria-label="Escolher arquivo de backup" sc-camel-on-change="{{ conta.onFile }}" style="display:none"></label>
 </div>
 <sc-if value="{{ conta.msg }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size:14px;font-weight:700;color:{{ conta.msgColor }};text-wrap:pretty">{{ conta.msg }}</span></sc-if>
@@ -699,7 +722,7 @@
 </div>
 
 <sc-if value="{{ intro.show }}" hint-placeholder-val="{{ false }}">
-<div style="position:absolute;left:16px;right:16px;bottom:calc(106px + env(safe-area-inset-bottom,0px));z-index:22;padding:14px 14px 14px 16px;border-radius:22px;background:#0B1020;color:#fff;box-shadow:0 18px 40px -12px rgba(0,0,0,.55);display:flex;gap:12px;align-items:flex-start;animation:ftoast .35s">
+<div ref="{{ introRef }}" style="position:absolute;left:16px;right:16px;bottom:calc(106px + env(safe-area-inset-bottom,0px));z-index:22;padding:14px 14px 14px 16px;border-radius:22px;background:#0B1020;color:#fff;box-shadow:0 18px 40px -12px rgba(0,0,0,.55);display:flex;gap:12px;align-items:flex-start;animation:fintro .35s">
 <span style="width:36px;height:36px;flex:none;border-radius:12px;background:{{ t.gold }};color:{{ t.goldInk }};display:flex;align-items:center;justify-content:center;font-size:19px"><i class="{{ intro.icon }}"></i></span>
 <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:800">{{ intro.title }}</span><span style="font-size:14px;line-height:1.45;opacity:.85;text-wrap:pretty">{{ intro.text }}</span></span>
 <button sc-camel-on-click="{{ intro.ok }}" style="min-height:44px;padding:0 16px;border-radius:22px;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:14px;font-weight:800;cursor:pointer;flex:none">Entendi</button>
@@ -716,7 +739,7 @@
 
 <sc-if value="{{ sh.open }}" hint-placeholder-val="{{ false }}">
 <div sc-camel-on-click="{{ sh.close }}" style="position:absolute;inset:0;background:rgba(4,6,14,.6);z-index:40;animation:ffade .25s"></div>
-<div style="position:absolute;left:0;right:0;bottom:0;height:min(752px,calc(100% - 20px - env(safe-area-inset-top,0px)));z-index:41;background:{{ t.surface }};border-radius:36px 36px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;animation:fsheet .35s cubic-bezier(.2,.8,.2,1)">
+<div inert="{{ shInert }}" style="position:absolute;left:0;right:0;bottom:0;height:min(752px,calc(100% - 20px - env(safe-area-inset-top,0px)));z-index:41;background:{{ t.surface }};border-radius:36px 36px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;animation:fsheet .35s cubic-bezier(.2,.8,.2,1)">
 <div style="width:40px;height:5px;border-radius:3px;background:{{ t.line2 }};align-self:center"></div>
 <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:'Bricolage Grotesque';font-size:22px;font-weight:700;letter-spacing:-.5px">{{ sh.title }}</span><button sc-camel-on-click="{{ sh.close }}" aria-label="Fechar" style="width:38px;height:38px;border-radius:50%;border:none;background:{{ t.surface2 }};color:{{ t.ink }};font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="ph-bold ph-x"></i></button></div>
 
@@ -726,6 +749,7 @@
 <input value="{{ nb.name }}" sc-camel-on-change="{{ nb.onName }}" placeholder="Nome da conta" aria-label="Nome da conta" style="flex:1;min-width:0;border:none;background:transparent;color:{{ t.ink }};font-size:17px;font-weight:800">
 <span style="font-family:'Bricolage Grotesque';font-size:20px;font-weight:700;color:{{ nb.amtColor }}">{{ nb.amount }}</span>
 </div>
+<div class="fscroll" style="flex:0 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;margin:0 -18px;padding:0 18px;display:flex;flex-direction:column;gap:8px">
 <div style="position:relative;margin:0 -18px"><div class="hscroll" style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 44px 0 18px;scroll-snap-type:x proximity">
 <sc-for list="{{ nb.presets }}" as="p" hint-placeholder-count="8"><button sc-camel-on-click="{{ p.onClick }}" style="flex:none;height:34px;padding:0 12px;border-radius:17px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap"><i class="{{ p.icon }}"></i>{{ p.name }}</button></sc-for>
 </div><div style="position:absolute;top:0;right:0;bottom:0;width:56px;pointer-events:none;background:linear-gradient(90deg,transparent,{{ t.hsFade }} 70%);display:flex;align-items:center;justify-content:flex-end;padding-right:12px"><i class="ph-bold ph-caret-right" style="font-size:14px;color:{{ t.hsArrow }};animation:fnudge 1.6s ease-in-out infinite"></i></div></div>
@@ -733,9 +757,10 @@
 <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between">
 <sc-for list="{{ nb.colors }}" as="c" hint-placeholder-count="7"><button sc-camel-on-click="{{ c.onClick }}" aria-label="{{ c.aria }}" aria-pressed="{{ c.on }}" style="width:44px;height:44px;border:none;background:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center"><span style="width:30px;height:30px;border-radius:50%;border:{{ c.border }};background:{{ c.c }}"></span></button></sc-for>
 </div>
-<div style="display:flex;gap:8px">
-<div style="flex:1;display:flex;padding:3px;border-radius:14px;background:{{ t.surface2 }}"><sc-for list="{{ nb.cats }}" as="f" hint-placeholder-count="4"><button sc-camel-on-click="{{ f.onClick }}" style="flex:1;height:34px;border:none;border-radius:11px;background:{{ f.bg }};color:{{ f.color }};font-size:14px;font-weight:800;cursor:pointer">{{ f.label }}</button></sc-for></div>
-<div style="display:flex;align-items:center;gap:4px;padding:0 4px;border-radius:14px;background:{{ t.surface2 }}"><button sc-camel-on-click="{{ nb.dMinus }}" aria-label="Diminuir dia do vencimento" style="width:44px;height:44px;border:none;background:none;color:{{ t.ink }};cursor:pointer"><i class="ph-bold ph-minus"></i></button><span style="font-size:14px;font-weight:800;white-space:nowrap">dia {{ nb.due }}</span><button sc-camel-on-click="{{ nb.dPlus }}" aria-label="Aumentar dia do vencimento" style="width:44px;height:44px;border:none;background:none;color:{{ t.ink }};cursor:pointer"><i class="ph-bold ph-plus"></i></button></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<div style="flex:1 1 220px;display:flex;padding:3px;border-radius:14px;background:{{ t.surface2 }}"><sc-for list="{{ nb.cats }}" as="f" hint-placeholder-count="4"><button sc-camel-on-click="{{ f.onClick }}" style="flex:1;height:34px;border:none;border-radius:11px;background:{{ f.bg }};color:{{ f.color }};font-size:14px;font-weight:800;cursor:pointer">{{ f.label }}</button></sc-for></div>
+<div style="display:flex;align-items:center;gap:4px;padding:0 4px;border-radius:14px;background:{{ t.surface2 }};margin-left:auto"><button sc-camel-on-click="{{ nb.dMinus }}" aria-label="Diminuir dia do vencimento" style="width:44px;height:44px;border:none;background:none;color:{{ t.ink }};cursor:pointer"><i class="ph-bold ph-minus"></i></button><span style="font-size:14px;font-weight:800;white-space:nowrap">dia {{ nb.due }}</span><button sc-camel-on-click="{{ nb.dPlus }}" aria-label="Aumentar dia do vencimento" style="width:44px;height:44px;border:none;background:none;color:{{ t.ink }};cursor:pointer"><i class="ph-bold ph-plus"></i></button></div>
+</div>
 </div>
 </sc-if>
 
@@ -743,15 +768,16 @@
 <div style="display:flex;padding:4px;border-radius:20px;background:{{ t.surface2 }}"><sc-for list="{{ sh.tabs }}" as="p" hint-placeholder-count="2"><button sc-camel-on-click="{{ p.onClick }}" style="flex:1;height:40px;border:none;border-radius:16px;background:{{ p.bg }};color:{{ p.color }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s"><i class="{{ p.icon }}"></i>{{ p.label }}</button></sc-for></div>
 <div role="group" aria-label="Qual dia?" style="display:flex;gap:8px"><sc-for list="{{ sh.dayChips }}" as="d" hint-placeholder-count="2"><button sc-camel-on-click="{{ d.onClick }}" aria-pressed="{{ d.pressed }}" style="flex:1;min-height:44px;border-radius:22px;border:1.5px solid {{ d.border }};background:{{ d.bg }};color:{{ d.color }};font-size:14px;font-weight:800;cursor:pointer">{{ d.label }}</button></sc-for></div>
 <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px 0">
-<div style="display:flex;align-items:baseline;letter-spacing:-1.5px;color:{{ t.ink }}"><span style="font-size:20px;margin-right:6px;letter-spacing:0;color:{{ t.muted }}">R$</span><span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;opacity:.28;font-variant-numeric:tabular-nums">{{ sh.amtDim }}</span><span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums">{{ sh.amtLit }}</span></div>
+<div style="display:flex;align-items:baseline;letter-spacing:-1.5px;color:{{ t.ink }}"><span style="font-size:20px;margin-right:6px;letter-spacing:0;color:{{ t.muted }}">R$</span><span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;opacity:.5;font-variant-numeric:tabular-nums">{{ sh.amtDim }}</span><span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums">{{ sh.amtLit }}</span></div>
 <span style="font-size:14px;color:{{ t.muted }};font-weight:600;text-align:center">{{ sh.hint }}</span>
 </div>
+<div class="fscroll" style="flex:0 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;margin:0 -18px;padding:0 18px;display:flex;flex-direction:column;gap:8px">
 <sc-if value="{{ sh.adding }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:20px;background:{{ t.surface2 }}">
 <span style="font-size:14px;font-weight:800">{{ sh.add.title }}</span>
-<div style="display:flex;align-items:center;gap:10px"><span style="width:44px;height:44px;flex:none;border-radius:14px;background:{{ t.accent }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px"><i class="{{ sh.add.icon }}"></i></span><input value="{{ sh.add.name }}" sc-camel-on-change="{{ sh.add.onName }}" placeholder="{{ sh.add.ph }}" aria-label="{{ sh.add.ph }}" style="flex:1;min-width:0;height:44px;border-radius:14px;border:1.5px solid {{ t.accent }};background:{{ t.surface }};color:{{ t.ink }};padding:0 14px;font-size:15px;font-weight:700"></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:44px;height:44px;flex:none;border-radius:14px;background:{{ t.accent }};color:{{ t.accentInk }};display:flex;align-items:center;justify-content:center;font-size:22px"><i class="{{ sh.add.icon }}"></i></span><input value="{{ sh.add.name }}" sc-camel-on-change="{{ sh.add.onName }}" placeholder="{{ sh.add.ph }}" aria-label="{{ sh.add.ph }}" style="flex:1;min-width:0;height:44px;border-radius:14px;border:1.5px solid {{ t.accent }};background:{{ t.surface }};color:{{ t.ink }};padding:0 14px;font-size:15px;font-weight:700"></div>
 <div class="ficons"><sc-for list="{{ sh.add.iconOpts }}" as="i" hint-placeholder-count="8"><button sc-camel-on-click="{{ i.onClick }}" aria-label="{{ i.aria }}" aria-pressed="{{ i.on }}" style="border-radius:11px;border:1.5px solid {{ i.border }};background:{{ i.bg }};color:{{ t.ink }};font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"><i class="{{ i.icon }}"></i></button></sc-for></div>
-<div style="display:flex;gap:8px"><button sc-camel-on-click="{{ sh.add.cancel }}" style="height:42px;padding:0 16px;border-radius:21px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Cancelar</button><button sc-camel-on-click="{{ sh.add.confirm }}" style="flex:1;height:42px;border-radius:21px;border:none;background:{{ t.accent }};color:#fff;font-size:14px;font-weight:800;cursor:pointer;opacity:{{ sh.add.op }}">Adicionar</button></div>
+<div style="display:flex;gap:8px"><button sc-camel-on-click="{{ sh.add.cancel }}" style="height:42px;padding:0 16px;border-radius:21px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Cancelar</button><button sc-camel-on-click="{{ sh.add.confirm }}" aria-disabled="{{ sh.add.off }}" style="flex:1;height:42px;border-radius:21px;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:14px;font-weight:800;cursor:pointer;opacity:{{ sh.add.op }}">Adicionar</button></div>
 </div>
 </sc-if>
 <sc-if value="{{ sh.notAdding }}" hint-placeholder-val="{{ true }}">
@@ -767,6 +793,7 @@
 </div>
 </sc-if>
 </sc-if>
+</div>
 </sc-if>
 <sc-if value="{{ sh.isSet }}" hint-placeholder-val="{{ false }}">
 <div style="flex:none;border-radius:22px;padding:14px 16px;background:{{ t.heroBg }};color:#fff;display:flex;flex-direction:column;gap:10px">
@@ -778,7 +805,7 @@
 <div class="fscroll" style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:12px;padding-bottom:6px">
 <sc-for list="{{ sh.blocks }}" as="b" hint-placeholder-count="5">
 <sc-if value="{{ b.isSeg }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:7px;flex:none"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">{{ b.label }}</span><div style="display:flex;padding:4px;border-radius:16px;background:{{ t.surface2 }}"><sc-for list="{{ b.opts }}" as="o" hint-placeholder-count="3"><button sc-camel-on-click="{{ o.onClick }}" style="flex:1;height:38px;border:none;border-radius:12px;background:{{ o.bg }};color:{{ o.color }};font-size:14px;font-weight:800;cursor:pointer;transition:all .2s">{{ o.label }}</button></sc-for></div></div></sc-if>
-<sc-if value="{{ b.isStep }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:{{ t.surface2 }};flex:none"><span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;color:{{ t.muted }};font-weight:700">{{ b.label }}</span><span style="font-family:'Bricolage Grotesque';font-size:21px;font-weight:700;letter-spacing:-.4px">{{ b.value }}</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">{{ b.sub }}</span></span><button sc-camel-on-click="{{ b.minus }}" aria-label="{{ b.minusAria }}" style="width:40px;height:40px;border-radius:50%;border:1px solid {{ t.line2 }};background:{{ t.surface }};color:{{ t.ink }};font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-minus"></i></button><button sc-camel-on-click="{{ b.plus }}" aria-label="{{ b.plusAria }}" style="width:40px;height:40px;border-radius:50%;border:none;background:{{ t.accent }};color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-plus"></i></button></div></sc-if>
+<sc-if value="{{ b.isStep }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:{{ t.surface2 }};flex:none"><span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;color:{{ t.muted }};font-weight:700">{{ b.label }}</span><span style="font-family:'Bricolage Grotesque';font-size:21px;font-weight:700;letter-spacing:-.4px">{{ b.value }}</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">{{ b.sub }}</span></span><button sc-camel-on-click="{{ b.minus }}" aria-label="{{ b.minusAria }}" style="width:40px;height:40px;border-radius:50%;border:1px solid {{ t.line2 }};background:{{ t.surface }};color:{{ t.ink }};font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-minus"></i></button><button sc-camel-on-click="{{ b.plus }}" aria-label="{{ b.plusAria }}" style="width:40px;height:40px;border-radius:50%;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ph-bold ph-plus"></i></button></div></sc-if>
 <sc-if value="{{ b.isChips }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:7px;flex:none"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">{{ b.label }}</span><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px"><sc-for list="{{ b.opts }}" as="o" hint-placeholder-count="6"><button sc-camel-on-click="{{ o.onClick }}" style="height:60px;border-radius:16px;border:1.5px solid {{ o.border }};background:{{ o.bg }};color:{{ o.color }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:800"><i class="{{ o.icon }}" style="font-size:22px"></i>{{ o.label }}</button></sc-for></div></div></sc-if>
 <sc-if value="{{ b.isNote }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:{{ t.goldSoft }};font-size:14px;line-height:1.45;flex:none"><i class="ph-fill ph-lightbulb" style="color:{{ t.gold }};font-size:17px;margin-top:1px"></i><span style="text-wrap:pretty">{{ b.text }}</span></div></sc-if>
 </sc-for>
@@ -786,11 +813,11 @@
 <button sc-camel-on-click="{{ sh.close }}" style="height:56px;flex:none;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ph-bold ph-check"></i>Pronto, meta atualizada</button>
 </sc-if>
 <sc-if value="{{ sh.showPad }}" hint-placeholder-val="{{ true }}">
-<div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(44px,1fr);gap:6px;min-height:0">
+<div style="flex:1 0 auto;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(44px,1fr);gap:6px">
 <sc-for list="{{ keys }}" as="k" hint-placeholder-count="12"><button sc-camel-on-click="{{ k.onClick }}" aria-label="{{ k.aria }}" style="border:none;border-radius:16px;background:{{ t.surface2 }};color:{{ t.ink }};font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center" style-active="opacity:.6"><i class="{{ k.icon }}"></i>{{ k.label }}</button></sc-for>
 </div>
 <sc-if value="{{ sh.editing }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ sh.del }}" style="height:40px;flex:none;border-radius:20px;border:1px solid {{ t.negLine }};background:{{ t.negSoft }};color:{{ t.neg }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ph-bold ph-trash"></i>Excluir este gasto</button></sc-if>
-<button sc-camel-on-click="{{ sh.save }}" style="height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;opacity:{{ sh.op }};display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s"><i class="ph-bold ph-check"></i>{{ sh.saveLabel }}</button>
+<button sc-camel-on-click="{{ sh.save }}" aria-disabled="{{ sh.off }}" style="height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;opacity:{{ sh.op }};display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s"><i class="ph-bold ph-check"></i>{{ sh.saveLabel }}</button>
 </sc-if>
 </div>
 </sc-if>

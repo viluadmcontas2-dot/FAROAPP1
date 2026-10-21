@@ -59,7 +59,7 @@ export function onboardingVals(k) {
 
   const vehicles = [['dono', 'Quitado, sem parcela', 'ph-duotone ph-key'], ['financiado', 'Parcela todo mês', 'ph-duotone ph-bank'], ['alugado', 'Aluguel semanal para locadora', 'ph-duotone ph-car-profile']].map(([key, sub, icon]) => {
     const on = ob.vehicle === key;
-    return { label: VEHICLE_LABELS[key], sub, icon, border: on ? t.accent : t.line, bg: on ? t.accentSoft : t.surface, iconBg: on ? t.accent : t.surface2, iconColor: on ? '#fff' : t.accent, check: on ? 'ph-fill ph-check-circle' : 'ph ph-circle', onClick: () => patchOb({ vehicle: key }) };
+    return { label: VEHICLE_LABELS[key], sub, icon, border: on ? t.accent : t.line, bg: on ? t.accentSoft : t.surface, iconBg: on ? t.accent : t.surface2, iconColor: on ? t.accentInk : t.accent, check: on ? 'ph-fill ph-check-circle' : 'ph ph-circle', onClick: () => patchOb({ vehicle: key }) };
   });
 
   const pdg = Math.max(1, C.planDailyGross), pkm = pdg / C.revKm;
@@ -75,7 +75,7 @@ export function onboardingVals(k) {
     pitch: [{ icon: 'ph-duotone ph-scales', text: 'Quanto entrou e lucro de verdade, cada um no seu lugar' }, { icon: 'ph-duotone ph-house-line', text: 'Contas do carro e da casa no mesmo lugar' }, { icon: 'ph-duotone ph-bell-ringing', text: 'Lembretes de contas e manutenção na hora certa' }],
     dots: [1, 2, 3, 4, 5, 6].map(i => ({ bg: i <= os ? t.accent : t.line2 })),
     next: () => (os < 6 ? k.set({ onbStep: os + 1 }) : k.finishOnboarding()), back: () => k.set({ onbStep: Math.max(0, os - 1) }),
-    cta: cta ? 'Entrar no Faro' : 'Continuar', priceLine: ui.access && ui.access.billing ? `${PRICE_LINE} · cancele quando quiser` : PRICE_LINE, ctaBg: cta ? t.gold : t.accent, ctaInk: cta ? t.goldInk : '#fff',
+    cta: cta ? 'Entrar no Faro' : 'Continuar', priceLine: ui.access && ui.access.billing ? `${PRICE_LINE} · cancele quando quiser` : PRICE_LINE, ctaBg: cta ? t.gold : t.accent, ctaInk: cta ? t.goldInk : t.accentInk,
     vehicles,
     energies: ENERGIES.map(key => ({ label: ENERGY_LABELS[key][0], icon: ENERGY_LABELS[key][1], ...sel(t, ob.energy === key), onClick: () => patchOb({ energy: key }) })),
     isFlex: ob.energy === 'flex',
@@ -84,7 +84,7 @@ export function onboardingVals(k) {
     energyKm: R(C.fuelKm, 2) + '/km',
     bills: lifeBills.map(b => ({ name: b.name, icon: 'ph-fill ' + b.icon, color: b.color, sub: billRhythm(b), value: R(b.v, b.v % 1 ? 2 : 0), op: b.on ? '1' : '.5', trk: b.on ? t.accent : t.line2, knob: b.on ? '21px' : '3px', onToggle: () => patchOb({ bills: { ...ob.bills, [b.id]: { ...ob.bills[b.id], on: !b.on } } }) })),
     steppers,
-    dayTabs: DAYS_WEEK_OPTIONS.map(n => ({ label: n + ' dias', bg: ob.daysWeek === n ? t.accent : 'transparent', color: ob.daysWeek === n ? '#fff' : t.muted, onClick: () => patchOb({ daysWeek: n }) })),
+    dayTabs: DAYS_WEEK_OPTIONS.map(n => ({ label: n + ' dias', bg: ob.daysWeek === n ? t.accent : 'transparent', color: ob.daysWeek === n ? t.accentInk : t.muted, onClick: () => patchOb({ daysWeek: n }) })),
     dailyGross: fmt(pdg, 0), planChips: [{ label: 'Rodar', value: `≈ ${Math.round(pkm)} km` }, { label: 'Online', value: `≈ ${fmt(pkm / 23, 0)} h` }, { label: 'Dias no mês', value: String(C.planned) }],
     split: [...per.map(([label, v, color]) => ({ label, v: fmt(v, 0), w: v + '%', color })), { label: 'Sobra pra você', v: fmt(left, 0), w: left + '%', color: t.pos }],
   };
@@ -164,7 +164,7 @@ export function closeVals(k) {
     add: {
       title: 'Nova fonte de renda', ph: 'Ex.: Vendas no carro', name: cs.newName || '', icon: 'ph-duotone ' + iconNew, onName: e => setCl({ newName: e.target.value }),
       iconOpts: ICON_IN.map(ic => ({ icon: 'ph-duotone ' + ic, aria: iconAria(ic), on: iconNew === ic, border: iconNew === ic ? t.accent : t.line, bg: iconNew === ic ? t.accentSoft : 'transparent', onClick: () => setCl({ newIcon: ic }) })),
-      cancel: () => setCl({ adding: false }), op: (cs.newName || '').trim() ? '1' : '.4',
+      cancel: () => setCl({ adding: false }), op: (cs.newName || '').trim() ? '1' : '.4', off: !(cs.newName || '').trim(),
       confirm: () => k.addSource((cs.newName || '').trim(), iconNew, () => setCl({ adding: false })),
     },
     adding: !!cs.adding, canAdd: !cs.adding && app.sources.length < MAX_CHOICES, startAdd: () => setCl({ adding: true, newName: '', newIcon: ICON_IN[0] }),
@@ -231,7 +231,7 @@ export function sheetVals(k) {
   const add = {
     title: ss.type === 'in' ? 'Nova fonte de renda' : 'Nova categoria de gasto', ph: ss.type === 'in' ? 'Ex.: Vendas no carro' : 'Ex.: Celular, multa…', name: ss.newName || '', icon: 'ph-duotone ' + curIc, onName: e => setSh({ newName: e.target.value }),
     iconOpts: iconSet.map(ic => ({ icon: 'ph-duotone ' + ic, aria: iconAria(ic), on: curIc === ic, border: curIc === ic ? t.accent : t.line, bg: curIc === ic ? t.accentSoft : 'transparent', onClick: () => setSh({ newIcon: ic }) })),
-    cancel: () => setSh({ adding: false }), op: (ss.newName || '').trim() ? '1' : '.4',
+    cancel: () => setSh({ adding: false }), op: (ss.newName || '').trim() ? '1' : '.4', off: !(ss.newName || '').trim(),
     confirm: () => {
       const name = (ss.newName || '').trim();
       if (ss.type === 'in') k.addSource(name, curIc, key => setSh({ adding: false, plat: key }));
@@ -306,7 +306,7 @@ export function sheetVals(k) {
     strip, hasStrip: strip.length > 0, stripLabel: `Já anotados ${when} · toque para corrigir`,
     editing: !!ss.editId && ss.type === 'out', del: () => k.removeEntry(ss.editId),
     dayChips: ss.editId ? [] : [[today, 'Hoje'], [addDays(today, -1), 'Ontem']].map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.gold : t.ink, onClick: () => setSh({ date: d }) })),
-    title, tabs, chips, hint, saveLabel, int: '', cents: '', centsOp: '1', centsPh: '', amtDim, amtLit, amtColor: amt > 0 ? t.ink : t.muted, op: amt > 0 ? '1' : '.4',
+    title, tabs, chips, hint, saveLabel, int: '', cents: '', centsOp: '1', centsPh: '', amtDim, amtLit, amtColor: amt > 0 ? t.ink : t.muted, op: amt > 0 ? '1' : '.4', off: !(amt > 0),
     close: () => setSh({ open: false, adding: false }), save,
   };
   return { sh, nb };

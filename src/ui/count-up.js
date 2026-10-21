@@ -11,6 +11,8 @@ export default function CountUp({ value }) {
   React.useEffect(() => {
     const from = last.current, to = value;
     if (from === to) return undefined;
+    // quem pede menos movimento vê o número novo de uma vez, sem contar
+    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) { last.current = to; setShown(to); return undefined; }
     const t0 = performance.now();
     let raf;
     const step = now => {

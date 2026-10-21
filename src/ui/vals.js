@@ -124,7 +124,7 @@ export function homeVals(k) {
   const seen = app.seen;
   const guideSteps = [['Feche seu primeiro dia', '30 segundos: apps, km e pronto', C.todayClosed, () => (C.todayClosed ? null : k.openClose())], ['Confira suas contas', 'marque o que já pagou', !!seen.bills, () => k.go('bills')], ['Veja seu plano do mês', 'quanto ganhar por dia', !!seen.plan, () => k.go('plan')], ['Conheça sua Jornada', 'sequência, nível e sua nota', !!seen.journey, () => k.go('journey')]];
   const doneSteps = guideSteps.filter(x => x[2]).length;
-  const guide = { show: app.guide && doneSteps < 4 && P === 'dia', count: `${doneSteps} de 4 feitos`, dismiss: () => k.act({ type: 'guide/dismiss' }), steps: guideSteps.map(([title, sub, ok, fn], i) => ({ title, sub, onClick: fn, n: ok ? '' : String(i + 1), icon: ok ? 'ph-bold ph-check' : '', bg: ok ? t.pos : t.accent, color: ok ? t.posInk : '#fff', op: ok ? '.6' : '1' })) };
+  const guide = { show: app.guide && doneSteps < 4 && P === 'dia', count: `${doneSteps} de 4 feitos`, dismiss: () => k.act({ type: 'guide/dismiss' }), steps: guideSteps.map(([title, sub, ok, fn], i) => ({ title, sub, onClick: fn, n: ok ? '' : String(i + 1), icon: ok ? 'ph-bold ph-check' : '', bg: ok ? t.pos : t.accent, color: ok ? t.posInk : t.accentInk, op: ok ? '.6' : '1' })) };
 
   return { periods, h, actions, yday, isDia: P === 'dia', notDia: P !== 'dia', isSemana: P === 'semana', isMes: P === 'mes', dg, alert, nextBills, wk, weekBars, mo, wf, metrics, plats, platTotal: R(view.g, 2), showPlats: P !== 'dia', tip, lifeCard, guide };
 }

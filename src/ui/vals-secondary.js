@@ -21,6 +21,8 @@ export function billsVals(k) {
   return {
     title: `${monthName(today).replace(/^./, c => c.toUpperCase())} · carro e vida`, total: R(total, 2), paid: R(paidTotal, 2), left: R(total - paidTotal, 2), w: (paidTotal / Math.max(1, total) * 100) + '%',
     filters: [['todas', 'Todas'], ...BILL_CAT_LABELS].map(([key, label]) => { const on = filter === key; return { label, v: R(sumOf(occ.filter(o => key === 'todas' || o.cat === key))), bg: on ? '#fff' : 'rgba(255,255,255,.08)', color: on ? '#0D1530' : '#fff', border: on ? '#fff' : 'rgba(255,255,255,.16)', onClick: () => k.set({ billFilter: key }) }; }),
+    hasPending: pending.length > 0, hasPaid: paid.length > 0, allPaid: pending.length === 0 && paid.length > 0, empty: pending.length === 0 && paid.length === 0,
+    emptyTitle: filter === 'todas' ? 'Nenhuma conta ainda' : `Nenhuma conta em ${(BILL_CAT_LABELS.find(([key]) => key === filter) || [filter, filter])[1]}`,
     pending: pending.map(o => ({ name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `${st.when(o)} · ${o.rec}`, sc: st.color(o), line: o.date < today ? t.negLine : t.line, onPay: () => k.payBill(o.oid) })),
     paidList: paid.map((o, i) => ({ undoAria: `Desfazer pagamento: ${o.name}`, name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `pago · dia ${o.d}`, sep: i === paid.length - 1 ? 'transparent' : t.line, onUndo: () => k.unpayBill(o.oid) })),
   };
@@ -82,7 +84,7 @@ export function journeyVals(k) {
   const { best: bestDay, bestKm } = recordsOf(C);
   const list = badgesOf(app, C, occ, k.streakNow);
   return {
-    game: { streakLabel: plural(k.streakNow, 'dia', 'dias'), streakRun: k.streakNow === 1 ? '1 dia seguido' : `${k.streakNow} dias seguidos`, streak: k.streakNow, bestStreak: best, level: lv.level, levelName: lv.name, xp: app.xp, xpW: lv.pct + '%', nextLv: lv.next ? `${lv.toNext} pontos para ${lv.next}` : '' },
+    game: { empty: !Object.values(app.recs || {}).some(r => r && r.closed), onFirst: () => k.openClose(), streakLabel: plural(k.streakNow, 'dia', 'dias'), streakRun: k.streakNow === 1 ? '1 dia seguido' : `${k.streakNow} dias seguidos`, streak: k.streakNow, bestStreak: best, level: lv.level, levelName: lv.name, xp: app.xp, xpW: lv.pct + '%', nextLv: lv.next ? `${lv.toNext} pontos para ${lv.next}` : '' },
     idx: { score: idx.score, label: idx.label, next: idx.next, pillars: idx.pillars.map(p => ({ icon: PILLAR_VIEW[p.key][0], color: t[PILLAR_VIEW[p.key][1]], label: p.label, score: p.score, hint: p.hint, w: p.score + '%' })) },
     records: [
       { icon: 'ph-fill ph-trophy', v: bestDay ? R(bestDay.lucro) : '—', l: bestDay ? `melhor dia · ${bestDay.d} ${MONTHS[Number(bestDay.date.slice(5, 7)) - 1].slice(0, 3)}` : 'melhor dia' },

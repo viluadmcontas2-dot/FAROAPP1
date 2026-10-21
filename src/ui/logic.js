@@ -35,6 +35,7 @@ const INTRO = {
 };
 const IMPORT_ERRORS = { formato: 'Esse arquivo não é um backup do Faro.', tamanho: 'O arquivo é grande demais para ser um backup.', json: 'Não consegui ler o arquivo.', versao: 'Esse backup é de outra versão do Faro.' };
 
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const readCloud = cloud => ({
   configured: !!(cloud && cloud.backend && cloud.backend.configured),
   user: cloud && cloud.backend ? cloud.backend.getUser() : null,
@@ -48,12 +49,13 @@ export default class App extends React.Component {
     const app = this.store.getState();
     this.state = {
       app, screen: 'home', prev: 'home', onbStep: 0, ob: newOnboardingDraft(app), period: 'dia', billFilter: 'todas', wfOpen: false,
-      cl: newCloseDraft(app, todayISO()), ask: null, sh: NEW_SHEET, nb: NEW_BILL, toast: null, more: false, cloud: readCloud(props.cloud), contaMsg: null, ct: newContaState(props.cloud),
+      cl: newCloseDraft(app, todayISO()), ask: null, sh: NEW_SHEET, nb: NEW_BILL, toast: null, more: false, introH: 0, cloud: readCloud(props.cloud), contaMsg: null, ct: newContaState(props.cloud),
     };
   }
 
   conta = contaActions(this);
   scRef = React.createRef();
+  introRef = React.createRef();
   guards = new Set();
 
   componentDidMount() {
@@ -94,6 +96,9 @@ export default class App extends React.Component {
     if (!el) return;
     const more = el.scrollHeight - el.clientHeight - el.scrollTop > SCROLL_HINT_MIN_PX;
     if (more !== this.state.more) this.setState({ more });
+    // a dica de 1ª visita ocupa espaço: a lista ganha esse tanto no fim e o último item nunca fica coberto
+    const introH = this.introRef.current ? this.introRef.current.offsetHeight : 0;
+    if (introH !== this.state.introH) this.setState({ introH });
   }
 
   // conta/nuvem mudou: relê o estado e, se trocou de usuário, confere a assinatura de novo
@@ -130,6 +135,7 @@ export default class App extends React.Component {
     if (SCREEN_NAV.includes(screen) && !this.store.getState().seen[screen]) this.act({ type: 'seen/mark', payload: { screen } });
     this.setState(st => ({ screen, prev: st.screen }));
   };
+  openNewBill = () => this.setState(st => ({ sh: { ...st.sh, open: true, type: 'bill', digits: '', editId: null, adding: false }, nb: NEW_BILL }));
   openSheet = (type, extra) => this.patch('sh', { open: true, type, digits: '', editId: null, adding: false, date: this.today(), ...extra });
   closeSheet = () => this.patch('sh', { open: false, adding: false, editId: null, digits: '' });
   // `date`: o dia a fechar (hoje por padrão; "Fechar ontem" passa o dia anterior)
@@ -293,7 +299,7 @@ export default class App extends React.Component {
     const pend = occ.filter(o => !o.paid).sort((a, b) => a.date.localeCompare(b.date));
     const k = {
       app, C, t, ui, today, occ, pend, idx: indexFaro(app, C, occ), streakNow: streakOf(app, today), cloud: ui.cloud,
-      cloudApi: this.props.cloud, conta: this.conta, version: this.props.version || '', calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary, showError: this.showError,
+      cloudApi: this.props.cloud, conta: this.conta, version: this.props.version || '', calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openNewBill: this.openNewBill, openSummary: this.openSummary, showError: this.showError,
       closeDay: this.closeDay, payBill: this.payBill, unpayBill: this.unpayBill, saveEntry: this.saveEntry, removeEntry: this.removeEntry, createBill: this.createBill,
       addSource: this.addSource, addExpenseCategory: this.addExpenseCategory, finishOnboarding: this.finishOnboarding, exportBackup: this.exportBackup, importBackupFile: this.importBackupFile,
     };
@@ -313,11 +319,11 @@ export default class App extends React.Component {
       skipOnb: () => this.go('conta'), goPlan: () => this.go('plan'), goBills: () => this.go('bills'), goJourney: () => this.go('journey'), goRemind: () => this.go('remind'), goConta: () => this.go('conta'),
       back: () => this.set({ screen: ui.prev && ui.prev !== screen ? ui.prev : 'journey' }),
       editCar: () => this.openSheet('car'),
-      openNewBill: () => this.setState(st => ({ sh: { ...st.sh, open: true, type: 'bill', digits: '', editId: null, adding: false }, nb: NEW_BILL })),
+      openNewBill: this.openNewBill,
       fab: { label: C.todayClosed ? 'Resumo' : 'Fechar dia', onClick: () => (C.todayClosed ? this.openSummary() : this.openClose()) },
-      ask: ui.ask ? { show: true, ...ui.ask } : { show: false }, bgHidden: sheetOpen || !!ui.ask ? 'true' : 'false',
+      ask: ui.ask ? { show: true, ...ui.ask } : { show: false }, bgHidden: sheetOpen || !!ui.ask ? 'true' : 'false', bgInert: sheetOpen || !!ui.ask ? '' : undefined, shInert: ui.ask ? '' : undefined,
       ...homeVals(k), pl: planVals(k), bl: billsVals(k), rm: remindVals(k), car: carVals(k), ...journeyVals(k), conta: contaVals(k), cl: closeVals(k), keys: keypadVals(k), ...sheets,
-      toast: ui.toast, intro,
+      toast: ui.toast, intro, introRef: this.introRef, introPad: intro.show ? Math.max(0, ui.introH - 12) + 'px' : '0px',
       scRef: this.scRef, onScroll: () => this.checkScroll(),
       scrollHint: ui.more && SCREEN_NAV.includes(screen) && !sheetOpen && !intro.show ? this.scrollHint(t) : null,
       navL: [navItem('home', 'ph-house', 'Início'), navItem('plan', 'ph-target', 'Plano')], navR: [navItem('bills', 'ph-receipt', 'Contas'), navItem('car', 'ph-car-profile', 'Carro')],
@@ -326,6 +332,6 @@ export default class App extends React.Component {
 
   scrollHint(t) {
     const style = { position: 'absolute', left: '50%', bottom: 'calc(110px + env(safe-area-inset-bottom, 0px))', zIndex: 21, height: 44, padding: '0 16px', borderRadius: 22, border: `1px solid ${t.line2}`, background: t.nav, color: t.muted, fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', animation: 'fbob 1.8s ease-in-out infinite', backdropFilter: 'blur(12px)', fontFamily: 'inherit', boxShadow: '0 8px 20px -10px rgba(0,0,0,.4)' };
-    return React.createElement('button', { onClick: () => this.scRef.current && this.scRef.current.scrollBy({ top: 380, behavior: 'smooth' }), style }, React.createElement('i', { className: 'ph-bold ph-caret-down' }), 'role para ver mais');
+    return React.createElement('button', { onClick: () => this.scRef.current && this.scRef.current.scrollBy({ top: 380, behavior: reducedMotion() ? 'auto' : 'smooth' }), style }, React.createElement('i', { className: 'ph-bold ph-caret-down' }), 'role para ver mais');
   }
 }

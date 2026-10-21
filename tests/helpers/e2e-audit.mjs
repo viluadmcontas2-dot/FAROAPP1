@@ -1,6 +1,9 @@
 // Auditorias de acabamento no navegador real: texto cortado, contraste, foco, nomes de botões, teclado numérico,
 // movimento reduzido e fim da rolagem. Cada função roda dentro da página (autocontida) e devolve a lista de problemas.
 
+// Termina de uma vez as animações em andamento (o Chromium sem tela só avança quadro a quadro) para ler o estado final.
+export const settle = page => page.evaluate(() => { for (const a of document.getAnimations()) { try { a.finish(); } catch { /* animação infinita */ } } });
+
 // Texto cortado (overflow:hidden / ellipsis) e rolagem horizontal da página.
 export const auditClipping = page => page.evaluate(() => {
   const out = [];
@@ -17,7 +20,14 @@ export const auditClipping = page => page.evaluate(() => {
     if (hasText && hidesX && e.scrollWidth > e.clientWidth + 1) out.push(`texto cortado na largura (${e.scrollWidth}>${e.clientWidth}): ${label(e)}`);
     if (hasText && hidesY && e.scrollHeight > e.clientHeight + 1) out.push(`texto cortado na altura (${e.scrollHeight}>${e.clientHeight}): ${label(e)}`);
     // rolagem horizontal escondida em quem não é faixa de propósito (.hscroll)
-    if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && !e.classList.contains('hscroll') && e.scrollWidth > e.clientWidth + 1) out.push(`rolagem horizontal inesperada: ${label(e)}`);
+    if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && !e.classList.contains('hscroll') && e.scrollWidth > e.clientWidth + 1) out.push(`rolagem horizontal inesperada (${e.scrollWidth}>${e.clientWidth}): ${label(e)} ${(e.getAttribute('style') || '').slice(0, 90)}`);
+  }
+  // folha de baixo (z-index 41): o conteúdo cabe na altura dela, sem teclado/botão por cima de outro
+  for (const e of document.body.querySelectorAll('div')) {
+    if (getComputedStyle(e).zIndex !== '41' || !shown(e)) continue;
+    if (e.scrollHeight > e.clientHeight + 1) out.push(`conteúdo da folha estoura a altura (${e.scrollHeight}>${e.clientHeight})`);
+    const pad = e.getBoundingClientRect();
+    for (const c of e.querySelectorAll('button,input')) { if (c.closest('.hscroll') || c.closest('.fscroll')) continue; const r = c.getBoundingClientRect(); if (r.width && (r.bottom > pad.bottom + 1 || r.right > pad.right + 1 || r.left < pad.left - 1)) out.push(`controle fora da folha: ${label(c)}`); }
   }
   // texto que sai da tela (fora de faixas roláveis de propósito)
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -54,7 +64,8 @@ export async function auditContrast(page, min = 4.5) {
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
       if (!n.textContent.trim()) continue;
       const el = n.parentElement;
-      if (!el || seen.has(el) || el.closest('svg') || el.closest('[disabled],[aria-disabled=true]')) continue;
+      if (!el || seen.has(el) || el.closest('svg') || el.closest('[disabled],[aria-disabled=true],[aria-hidden=true],[inert]')) continue;
+      if (el.textContent.trim() === 'Λ' || /^F\s*Λ\s*RO$/.test(el.textContent.replace(/\s+/g, ' ').trim())) continue; // logotipo não tem regra de contraste (WCAG 1.4.3)
       const cs = getComputedStyle(el);
       const range = document.createRange(); range.selectNodeContents(n);
       const rect = range.getBoundingClientRect();
@@ -91,7 +102,7 @@ export async function auditContrast(page, min = 4.5) {
   const pixelBgs = new Map();
   if (sampled.length) {
     // folha de estilo construída (a CSP do app proíbe <style> inline, mas aceita esta)
-    await page.evaluate(() => { const sh = new CSSStyleSheet(); sh.replaceSync('*{color:transparent!important;text-shadow:none!important;caret-color:transparent!important}'); window.__noText = sh; document.adoptedStyleSheets = [...document.adoptedStyleSheets, sh]; });
+    await page.evaluate(() => { const sh = new CSSStyleSheet(); sh.replaceSync('*{color:transparent!important;text-shadow:none!important;caret-color:transparent!important}'); window.__noText = sh; document.adoptedStyleSheets = [...document.adoptedStyleSheets, sh]; void document.body.offsetHeight; for (const a of document.getAnimations()) { try { a.finish(); } catch { /* infinita */ } } });
     {
       const png = await page.screenshot();
       await page.evaluate(() => { document.adoptedStyleSheets = document.adoptedStyleSheets.filter(x => x !== window.__noText); });
@@ -134,7 +145,7 @@ export const auditNames = page => page.evaluate(() => {
     if (e.getAttribute('title')) return e.getAttribute('title');
     return '';
   };
-  const where = e => `${e.tagName.toLowerCase()}${e.type ? `[${e.type}]` : ''} ${(e.getAttribute('class') || '').slice(0, 20)} ${(e.outerHTML.match(/ph-[a-z-]+/) || [''])[0]}`.trim();
+  const where = e => e.outerHTML.replace(/ style="[^"]*"/g, '').slice(0, 110);
   for (const e of document.body.querySelectorAll('button,a[href],[role=button],input:not([type=hidden]),select,textarea')) {
     if (!shown(e) && !(e.tagName === 'INPUT' && e.type === 'file')) continue;
     if (!nameOf(e)) out.push(`sem nome acessível: ${where(e)}`);
@@ -207,7 +218,9 @@ export const auditMotion = page => page.evaluate(() => {
 // Rola a tela até o fim e confere que o último elemento com conteúdo está inteiro acima da barra (e da dica).
 export async function auditScrollEnd(page) {
   await page.evaluate(() => { const sc = document.querySelector('.fscroll'); sc.style.scrollBehavior = 'auto'; sc.scrollTop = sc.scrollHeight; });
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(200);
+  await settle(page);
+  await page.getByText('role para ver mais').waitFor({ state: 'detached', timeout: 1500 }).catch(() => {});
   return page.evaluate(() => {
     const sc = document.querySelector('.fscroll');
     const nav = [...document.querySelectorAll('button')].find(b => /^\s*[-]*\s*Início\s*$/.test(b.innerText) || /Início/.test(b.innerText));
