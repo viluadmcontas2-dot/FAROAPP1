@@ -211,3 +211,41 @@ test('toda transicao devolve estado normalizado e nao muta o anterior', () => {
     assert.deepEqual(normalizeState(s), s);
   }
 });
+
+// ---- Conta semanal: due é dia da semana (0..6); mensal é dia do mês (1..31)
+test('bill/create semanal guarda o dia da semana; mensal limita a 1..31', () => {
+  const mk = (p, id) => run(fresh(), 'bill/create', { name: 'Conta ' + id, v: 50, ...p }, ctx({ id })).bills.find(b => b.id === 'u' + id);
+  assert.equal(mk({ rec: 'semanal', due: 3 }, 'w3').due, 3);
+  assert.equal(mk({ rec: 'semanal', due: 0 }, 'w0').due, 0); // domingo e valido
+  assert.equal(mk({ rec: 'semanal', due: 6 }, 'w6').due, 6);
+  assert.equal(mk({ rec: 'semanal', due: 10 }, 'w10').due, 6); // fora de 0..6 limita a sabado (nunca vira dia do mes)
+  assert.equal(mk({ rec: 'semanal', due: -2 }, 'wn').due, 0);
+  assert.equal(mk({ rec: 'semanal' }, 'wd').due, 1); // sem dia: segunda
+  assert.equal(mk({ rec: 'mensal', due: 0 }, 'm0').due, 1); // dia 0 do mes nao existe
+  assert.equal(mk({ rec: 'mensal', due: 31 }, 'm31').due, 31);
+  assert.equal(mk({ rec: 'mensal', due: 99 }, 'm99').due, 31);
+  assert.equal(mk({ due: 10 }, 'mm').due, 10); // rec padrao e mensal
+});
+
+test('bill/update limita o dia pela recorrencia da conta (semanal 0..6, mensal 1..31)', () => {
+  let s = run(fresh(), 'bill/create', { name: 'Feira', v: 80, rec: 'semanal', due: 2 }, ctx({ id: 'sw' }));
+  s = run(freeze(s), 'bill/update', { id: 'usw', due: 5 });
+  assert.equal(s.bills.find(b => b.id === 'usw').due, 5);
+  s = run(freeze(s), 'bill/update', { id: 'usw', due: 10 });
+  assert.equal(s.bills.find(b => b.id === 'usw').due, 6);
+  const keep = s.bills.find(b => b.id === 'usw').due;
+  s = run(freeze(s), 'bill/update', { id: 'usw', due: 'lixo' });
+  assert.equal(s.bills.find(b => b.id === 'usw').due, keep); // valor invalido nao muda o dia
+  s = run(freeze(s), 'bill/create', { name: 'Luz2', v: 80, rec: 'mensal', due: 10 }, ctx({ id: 'mm' }));
+  s = run(freeze(s), 'bill/update', { id: 'umm', due: 0 });
+  assert.equal(s.bills.find(b => b.id === 'umm').due, 1);
+  s = run(freeze(s), 'bill/update', { id: 'umm', due: 45 });
+  assert.equal(s.bills.find(b => b.id === 'umm').due, 31);
+});
+
+test('bill/update de conta semanal para o dia 4 cai na quarta (ocorrencias), nunca no dia do mes', () => {
+  let s = run(fresh(), 'bill/create', { name: 'Feira', v: 80, rec: 'semanal', due: 6 }, ctx({ id: 'sw' }));
+  s = run(freeze(s), 'bill/update', { id: 'usw', due: 3 });
+  const dates = occ(s, TODAY).filter(o => o.id === 'usw').map(o => o.date);
+  assert.ok(dates.length >= 2 && dates.every(d => new Date(d + 'T00:00:00Z').getUTCDay() === 3), dates.join());
+});

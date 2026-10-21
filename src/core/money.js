@@ -3,15 +3,28 @@ export const MAX_MONEY = 1e9;
 
 export const round2 = n => Math.round((Number.isFinite(n) ? n : 0) * 100 + 1e-7 * Math.sign(n)) / 100;
 
-// Aceita "1.234,56", "R$ 12,5", "12.5", numero. Sempre >= 0 e <= MAX_MONEY (o sinal e descartado).
+// Parser unico de dinheiro digitado (pt-BR). Aceita "1.234,56", "R$ 12,5", "12.5", "1,234.56", numero.
+// Sempre >= 0 e <= MAX_MONEY (sinal descartado), nunca NaN. Regras:
+//  1. Tem virgula E ponto: o ULTIMO separador e o decimal; o outro e milhar ("1.200,50" e "1,234.56" = 1200,5 e 1234,56).
+//  2. So virgula: uma virgula = decimal ("12,5"); varias = milhar ("1,234,567").
+//  3. So ponto: varios pontos = milhar se todos os grupos tem 3 digitos; um ponto = milhar se o grupo depois tem
+//     EXATAMENTE 3 digitos e a parte antes nao e "0" ("1.200" = 1200, "0.500" = 0,5); senao decimal ("12.5" = 12,5).
+const toNumber = x => {
+  const n = parseFloat(x);
+  return Number.isFinite(n) ? Math.min(MAX_MONEY, round2(n)) : 0;
+};
 export function parseMoney(v) {
   if (typeof v === 'number') return Number.isFinite(v) ? Math.min(MAX_MONEY, round2(Math.abs(v))) : 0;
   if (typeof v !== 'string' || !v) return 0;
-  let x = v.slice(0, 40).replace(/[^\d,.]/g, '');
-  if (x.includes(',')) x = x.replace(/\./g, '').replace(',', '.');
-  else if (/^\d{1,3}(\.\d{3})+$/.test(x)) x = x.replace(/\./g, ''); // "1.234" = mil duzentos e trinta e quatro
-  const n = parseFloat(x);
-  return Number.isFinite(n) ? Math.min(MAX_MONEY, round2(n)) : 0;
+  const x = v.slice(0, 40).replace(/[^\d,.]/g, '');
+  const lastC = x.lastIndexOf(','), lastD = x.lastIndexOf('.');
+  const dec = (s, at) => s.slice(0, at).replace(/[.,]/g, '') + '.' + s.slice(at + 1).replace(/[.,]/g, '');
+  if (lastC >= 0 && lastD >= 0) return toNumber(dec(x, Math.max(lastC, lastD)));
+  if (lastC >= 0) return toNumber(x.indexOf(',') === lastC ? dec(x, lastC) : x.replace(/,/g, ''));
+  if (lastD < 0) return toNumber(x);
+  const groups = x.split('.');
+  const thousands = groups[0] !== '0' && groups[0] !== '' && groups.slice(1).every(g => g.length === 3);
+  return toNumber(thousands ? x.replace(/\./g, '') : dec(x, lastD));
 }
 
 export function fmt(n, d = 2) {

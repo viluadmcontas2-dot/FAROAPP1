@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createBackend } from '../src/data/backend.js';
 import { createSync } from '../src/data/sync.js';
+import { defaultState } from '../src/core/state.js';
 import { makeServer, makeFakeCreateClient, memStorage, GOOD } from './backend-helpers.mjs';
 
 // Relógio/timers manuais: tick() executa os timers vencidos.
@@ -13,11 +14,11 @@ const makeStore = (initial = null) => {
     edit: patch => { state = { ...(state || { schema_version: 2 }), ...patch }; subs.forEach(f => f()); }, get: () => state };
 };
 
-const rig = async ({ server = makeServer(), storage = memStorage(), initial = null, device = 'dev-A' } = {}) => {
+const rig = async ({ server = makeServer(), storage = memStorage(), initial = null, device = 'dev-A', hasData = s => Boolean(s && Object.keys(s).length > 1) } = {}) => {
   [['a@x.com', 'ua'], ['b@x.com', 'ub']].forEach(([e, id]) => server.users.set(e, { id, password: 'senha-forte-1', confirmed: true }));
   const backend = createBackend({ config: GOOD, createClient: makeFakeCreateClient(server), storage, randomId: () => device, redirectTo: () => 'https://app/' });
   const store = makeStore(initial); const timers = makeTimers(); let n = 0;
-  const sync = createSync({ backend, store, storage, hasData: s => Boolean(s && Object.keys(s).length > 1), randomId: () => `${device}-m${++n}`, random: () => 0.5, ...timers });
+  const sync = createSync({ backend, store, storage, ...(hasData ? { hasData } : {}), randomId: () => `${device}-m${++n}`, random: () => 0.5, ...timers });
   sync.start();
   const login = async who => { await backend.signIn({ email: `${who}@x.com`, password: 'senha-forte-1' }); await timers.fire(); };
   return { server, storage, backend, store, timers, sync, login };
@@ -138,4 +139,47 @@ test('flush(): sinaliza se ainda há dado só neste aparelho antes de sair', asy
   assert.deepEqual(await r.sync.flush(), { clean: true });
   r.store.edit({ a: 3 }); r.server.down = true;
   assert.deepEqual(await r.sync.flush(), { clean: false });
+});
+
+// ---- Achado 1: aparelho novo (estado de fábrica) nunca vira conflito nem apaga a nuvem. hasData PADRÃO (sem injeção).
+const defaultHas = null; // null = usa o hasData PADRÃO do sync
+const cloudRow = state => ({ schema_version: 2, revision: 7, state, device_id: 'B', last_mutation_id: 'mb', server_updated_at: 't' });
+const cloudState = () => ({ ...defaultState(), xp: 900, onboarded: true });
+
+test('hasData padrão: estado de fábrica não conta como dado; estado com uso conta', async () => {
+  const server = makeServer(); server.states.set('ua', cloudRow(cloudState()));
+  const r = await rig({ server, initial: defaultState(), hasData: defaultHas }); await r.login('a');
+  assert.equal(r.sync.getStatus().status, 'synced'); // sem conflito
+  assert.equal(r.store.get().xp, 900); // puxou a nuvem sem perguntar
+  assert.equal(server.rpcCalls, 0); assert.equal(server.states.get('ua').state.xp, 900); // nuvem intacta
+});
+
+test('aparelho novo com estado null/{} também puxa a nuvem (não é dado)', async () => {
+  for (const initial of [null, {}, { schemaVersion: 2 }]) {
+    const server = makeServer(); server.states.set('ua', cloudRow(cloudState()));
+    const r = await rig({ server, initial, hasData: defaultHas }); await r.login('a');
+    assert.equal(r.sync.getStatus().status, 'synced', JSON.stringify(initial)); assert.equal(r.store.get().xp, 900); assert.equal(server.rpcCalls, 0);
+  }
+});
+
+test('usarEsteAparelho com aparelho vazio NÃO apaga a nuvem (puxa a nuvem)', async () => {
+  const server = makeServer(); server.states.set('ua', cloudRow(cloudState()));
+  const r = await rig({ server, initial: { ...defaultState(), xp: 5 }, hasData: defaultHas }); await r.login('a');
+  assert.equal(r.sync.getStatus().status, 'conflict'); // local TEM dado real e diverge
+  r.store.replaceState(defaultState()); // aparelho ficou vazio (ex.: limpou) enquanto o conflito estava aberto
+  await r.sync.usarEsteAparelho();
+  assert.equal(server.states.get('ua').state.xp, 900); assert.equal(server.rpcCalls, 0);
+  assert.equal(r.store.get().xp, 900);
+});
+
+test('local com dado real + nuvem com dado diferente continua em conflito', async () => {
+  const server = makeServer(); server.states.set('ua', cloudRow(cloudState()));
+  const r = await rig({ server, initial: { ...defaultState(), xp: 5, onboarded: true }, hasData: defaultHas }); await r.login('a');
+  assert.equal(r.sync.getStatus().status, 'conflict'); assert.equal(server.rpcCalls, 0);
+});
+
+test('local com dado real + nuvem só com estado de fábrica: sobe o local (sem conflito)', async () => {
+  const server = makeServer(); server.states.set('ua', cloudRow(defaultState()));
+  const r = await rig({ server, initial: { ...defaultState(), xp: 5 }, hasData: defaultHas }); await r.login('a');
+  assert.equal(r.sync.getStatus().status, 'synced'); assert.equal(server.states.get('ua').state.xp, 5);
 });

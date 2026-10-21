@@ -2,22 +2,34 @@
 //
 // Injeção: backend {getClient,getUser,deviceId,onAuthChange}, store {getSnapshot,replaceState,subscribe}.
 //   store.replaceState(state|null): troca o estado local; null = voltar ao estado vazio de fábrica.
-//   hasData(state): true se há dados do usuário (padrão: objeto com alguma chave).
+//   hasData(state): true se há dados REAIS do usuário (padrão: hasUserData; estado vazio/de fábrica não conta).
 // Estado exposto por getStatus(): { status, local?, remote?, lastSyncedAt, error, retryInMs }
 //   status: 'idle' (sem conta) | 'synced' | 'pending' | 'syncing' | 'offline' | 'error' | 'conflict'
 // Conflito: { status:'conflict', local, remote } -> resolver com usarEsteAparelho() ou usarNuvem().
 // Regras de segurança de dados: dados locais nunca sobem para outra conta (dono local = usuário vinculado).
+
+import { defaultState, normalizeState } from '../core/state.js';
 
 const META_PREFIX = 'faro-sync-meta-v2:';
 const STASH_PREFIX = 'faro-sync-stash-v2:';
 const OWNER_KEY = 'faro-sync-owner-v2';
 const PERMANENT = new Set(['22023', '54000', '28000']);
 
+// "Tem dado" = o usuário usou o app. Objeto vazio, lixo ou estado de fábrica NÃO contam (aparelho novo não pode virar conflito).
+const FACTORY = JSON.stringify(defaultState());
+export const hasUserData = s => {
+  if (!s || typeof s !== 'object' || Array.isArray(s) || !Object.keys(s).length) return false;
+  try {
+    const n = JSON.stringify(normalizeState(s));
+    return n !== FACTORY && n !== JSON.stringify(normalizeState({ schemaVersion: s.schemaVersion })); // só a versão = vazio
+  } catch { return false; }
+};
+
 const same = (a, b) => { try { return JSON.stringify(a) === JSON.stringify(b); } catch { return false; } };
 
 export const createSync = ({
   backend, store, storage = null,
-  hasData = s => Boolean(s && typeof s === 'object' && Object.keys(s).length),
+  hasData = hasUserData,
   now = () => Date.now(),
   randomId = () => globalThis.crypto?.randomUUID?.() || `m-${now()}-${Math.random().toString(36).slice(2)}`,
   setTimer = (fn, ms) => setTimeout(fn, ms),
@@ -244,6 +256,8 @@ export const createSync = ({
   const resolve = async choice => {
     if (st.status !== 'conflict' || !uid) return getStatus();
     const u = uid; const remote = st.remote;
+    // Aparelho sem dado real nunca sobe por cima da nuvem: "usar este aparelho" vira "usar a nuvem".
+    if (choice === 'local' && !hasData(store.getSnapshot())) choice = 'cloud';
     if (choice === 'cloud') {
       applyRemote(u, { state: remote.state, revision: remote.revision, server_updated_at: remote.serverUpdatedAt });
       markSynced(u, remote.revision, remote.serverUpdatedAt);

@@ -178,3 +178,78 @@ test('backup malicioso importa so o que e valido', () => {
   assert.equal({}.x, undefined);
   assert.ok(store.getState().bills.length >= 2);
 });
+
+// ---- Achado 2: duas abas. O evento `storage` reconcilia por revisão (a mais nova vence), sem eco.
+const twoTabs = () => {
+  const storage = fakeStorage();
+  const mkTab = id => {
+    const timers = fakeTimers();
+    let handler = null; let k = 0;
+    const persister = createPersister({ storage, setTimer: timers.setTimer, clearTimer: timers.clearTimer });
+    const store = createStore({ persister, now: () => NOW, genId: () => id + ++k, autoFlush: false, watchStorage: fn => { handler = fn; } });
+    return { store, timers, persister, emit: e => handler && handler(e) };
+  };
+  return { storage, a: mkTab('a'), b: mkTab('b') };
+};
+const evt = (storage, key = STORAGE_KEY) => ({ key, newValue: storage.getItem(key) });
+
+test('aba B recebe o storage da aba A: estado novo, assinantes avisados, sem regravar (sem eco)', () => {
+  const { storage, a, b } = twoTabs();
+  let notified = 0; b.store.subscribe(() => notified++);
+  a.store.dispatch(CLOSE); a.persister.flush();
+  const writes = []; const orig = storage.setItem; storage.setItem = (k, v) => { writes.push(k); orig(k, v); };
+  b.emit(evt(storage));
+  assert.deepEqual(b.store.getState(), a.store.getState());
+  assert.equal(b.store.getMeta().revision, a.store.getMeta().revision);
+  assert.equal(notified, 1);
+  assert.equal(b.timers.pending(), false); b.store.flush(); assert.deepEqual(writes, []); // não gravou nada de volta
+});
+
+test('revisão igual ou mais antiga no evento é ignorada (nunca sobrescreve com estado velho)', () => {
+  const { storage, a, b } = twoTabs();
+  a.store.dispatch(CLOSE); a.persister.flush();
+  const old = evt(storage); // rev 1
+  b.store.dispatch(CLOSE); b.store.dispatch({ type: 'entry/add', payload: { kind: 'out', cat: 'Comida', amount: 10 } }); // B reconcilia com o disco (rev 1) antes de agir: fica em rev 3
+  const mine = b.store.getState();
+  b.emit(old);
+  assert.equal(b.store.getState(), mine); assert.equal(b.store.getMeta().revision, 3);
+  b.emit(evt(storage)); assert.equal(b.store.getState(), mine); // storage está na rev 1 < 3
+});
+
+test('evento de outra chave, apagado, lixo ou versão errada é ignorado', () => {
+  const { storage, a, b } = twoTabs();
+  a.store.dispatch(CLOSE); a.persister.flush();
+  const before = b.store.getState();
+  const good = storage.getItem(STORAGE_KEY);
+  for (const e of [{ key: 'outra', newValue: good }, { key: STORAGE_KEY, newValue: null }, { key: null, newValue: null }, { key: STORAGE_KEY, newValue: '{lixo' },
+    { key: STORAGE_KEY, newValue: JSON.stringify({ rev: 9, state: { schemaVersion: 1 } }) }, { key: STORAGE_KEY, newValue: JSON.stringify({ rev: 'x', state: defaultState() }) },
+    { key: STORAGE_KEY, newValue: JSON.stringify([1]) }, undefined, null, {}])
+    b.emit(e);
+  assert.equal(b.store.getState(), before); assert.equal(b.store.getMeta().revision, 0);
+});
+
+test('depois de adotar a aba A, uma ação na aba B parte do estado novo (não apaga o que A salvou)', () => {
+  const { storage, a, b } = twoTabs();
+  a.store.dispatch(CLOSE); a.persister.flush();
+  b.emit(evt(storage));
+  b.store.dispatch({ type: 'entry/add', payload: { kind: 'out', cat: 'Comida', amount: 10 } }); b.store.flush();
+  const saved = JSON.parse(storage.getItem(STORAGE_KEY));
+  assert.equal(saved.rev, 2);
+  assert.equal(Object.values(saved.state.recs).filter(r => r.closed).length, 1); // o fechamento da aba A continua lá
+  assert.equal(saved.state.exps.length, 1);
+});
+
+test('evento perdido: dispatch na aba antiga recarrega o storage antes de agir', () => {
+  const { storage, a, b } = twoTabs();
+  a.store.dispatch(CLOSE); a.persister.flush(); // B nunca recebeu o evento
+  b.store.dispatch({ type: 'entry/add', payload: { kind: 'out', cat: 'Comida', amount: 10 } }); b.store.flush();
+  const saved = JSON.parse(storage.getItem(STORAGE_KEY));
+  assert.equal(Object.values(saved.state.recs).filter(r => r.closed).length, 1);
+  assert.equal(saved.state.exps.length, 1); assert.equal(saved.rev, 2);
+});
+
+test('replaceState/importBackup continuam funcionando com o store vigiando storage', () => {
+  const { a } = twoTabs();
+  assert.equal(a.store.replaceState(null), true);
+  assert.ok(a.store.getMeta().revision >= 1);
+});

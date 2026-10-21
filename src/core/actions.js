@@ -18,6 +18,9 @@ const withRec = (s, date, fn) => ({ ...s, recs: { ...s.recs, [date]: fn({ ...emp
 const addXp = (s, n) => ({ ...s, xp: s.xp + n });
 const countsAsExpense = cat => cat !== FUEL_CAT;
 
+// Dia da conta: semanal = dia da semana (0 dom .. 6 sab); mensal = dia do mes (1..31). Fora da faixa limita; lixo usa `def`.
+const dueOf = (rec, v, def) => (rec === 'semanal' ? Math.round(num(v, 0, 6, def)) : Math.round(num(v, 1, 31, def)));
+
 const H = {
   // Onboarding: aplica as escolhas de uma vez (o normalizeState final garante tipos e limites).
   'onboarding/complete'(s, p, ctx) {
@@ -126,9 +129,10 @@ const H = {
     const name = str(p.name, LIMITS.name);
     const v = money(p.v);
     if (!name || v < 0.01 || s.bills.length >= LIMITS.bills) return s;
+    const rec = pick(p.rec, ['mensal', 'semanal'], 'mensal');
     const bill = {
       id: 'u' + ctx.id, name, icon: iconOf(p.icon, 'ph-receipt'), color: p.color, cat: pick(p.cat, BILL_CATS, 'pessoal'),
-      v, rec: pick(p.rec, ['mensal', 'semanal'], 'mensal'), due: Math.round(num(p.due, 0, 31, 1)), on: true, user: true, start: ctx.today,
+      v, rec, due: dueOf(rec, p.due, 1), on: true, user: true, start: ctx.today,
     };
     return { ...s, bills: [...s.bills, bill] };
   },
@@ -138,7 +142,7 @@ const H = {
     const u = { ...b };
     if (has(p, 'name')) u.name = str(p.name, LIMITS.name, b.name);
     if (has(p, 'v')) u.v = money(p.v) || b.v;
-    if (has(p, 'due')) u.due = p.due;
+    if (has(p, 'due')) u.due = dueOf(b.rec, p.due, b.due);
     if (has(p, 'cat')) u.cat = pick(p.cat, BILL_CATS, b.cat);
     if (has(p, 'icon')) u.icon = iconOf(p.icon, b.icon);
     if (has(p, 'color')) u.color = p.color;

@@ -151,3 +151,13 @@ test('aceita estado valido completo sem perder dados', () => {
   const n = normalizeState(s);
   assert.deepEqual(n, s);
 });
+
+test('normalizeState: conta semanal limita due a 0..6; mensal a 1..31 (por recorrencia)', () => {
+  const mk = (rec, due) => normalizeState({ schemaVersion: 2, bills: [{ id: 'x', name: 'X', v: 10, rec, due }] }).bills.find(b => b.id === 'x').due;
+  assert.equal(mk('semanal', 3), 3);
+  assert.equal(mk('semanal', 0), 0);
+  assert.equal(mk('semanal', 10), 6);
+  assert.equal(mk('mensal', 10), 10);
+  assert.equal(mk('mensal', 0), 1);
+  assert.equal(mk('mensal', 40), 31);
+});

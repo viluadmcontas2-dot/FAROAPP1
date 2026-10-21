@@ -96,7 +96,7 @@ export const billRhythm = b => (b.rec === 'semanal' ? `toda ${WD_LONG[b.due]}` :
 export const newCloseDraft = (app, today) => {
   const rec = app.recs[today], f = { km: '' };
   for (const x of app.sources) { const v = rec && rec.p[x.k]; f[x.k] = v ? v.toFixed(2).replace('.', ',') : ''; }
-  return { step: 0, focus: app.sources[0].k, f, h: 9, adding: false, newName: '', newIcon: '', kmEst: false, hEst: false, hTouched: false };
+  return { step: 0, f, h: 9, adding: false, newName: '', newIcon: '', kmEst: false, hEst: false, hTouched: false };
 };
 
 const dateLabel = today => {
@@ -124,14 +124,14 @@ export function closeVals(k) {
   const goNext = () => {
     if (cs.step === 0) {
       if (gross <= 0) return;
-      setCl({ step: 1, focus: 'km', kmEst: !cf.km, f: { ...cf, km: cf.km || String(estKm) }, h: cs.hTouched ? cs.h : Math.max(6, Math.min(12, Math.round(rideGross / C.perH))), hEst: !cs.hTouched });
+      setCl({ step: 1, kmEst: !cf.km, f: { ...cf, km: cf.km || String(estKm) }, h: cs.hTouched ? cs.h : Math.max(6, Math.min(12, Math.round(rideGross / C.perH))), hEst: !cs.hTouched });
     } else k.closeDay({ p: amounts, km, h: cs.h });
   };
 
   return {
     dateLabel: dateLabel(today),
     s0: cs.step === 0, s1: cs.step === 1, s2: false, s3: cs.step === 2, keypad: cs.step < 2,
-    exit: () => (cs.step === 1 ? setCl({ step: 0, focus: app.sources[0].k }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x',
+    exit: () => (cs.step === 1 ? setCl({ step: 0 }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x',
     dots: [0, 1, 2].map(i => ({ w: i === cs.step ? '22px' : '7px', bg: i <= cs.step ? t.gold : t.line2 })),
     plats: app.sources.map(x => ({
       name: x.name, ...logoStyle(x.k), icon: x.icon || 'ph-duotone ph-hand-coins', sub: RIDE_KEYS.includes(x.k) ? '' : 'fora do R$/km', subD: RIDE_KEYS.includes(x.k) ? 'none' : 'block', val: cf[x.k] || '',
@@ -141,7 +141,7 @@ export function closeVals(k) {
       title: 'Nova fonte de renda', ph: 'Ex.: Vendas no carro', name: cs.newName || '', icon: 'ph-duotone ' + iconNew, onName: e => setCl({ newName: e.target.value }),
       iconOpts: ICON_IN.map(ic => ({ icon: 'ph-duotone ' + ic, border: iconNew === ic ? t.accent : t.line, bg: iconNew === ic ? t.accentSoft : 'transparent', onClick: () => setCl({ newIcon: ic }) })),
       cancel: () => setCl({ adding: false }), op: (cs.newName || '').trim() ? '1' : '.4',
-      confirm: () => k.addSource((cs.newName || '').trim(), iconNew, key => setCl({ adding: false, focus: key })),
+      confirm: () => k.addSource((cs.newName || '').trim(), iconNew, () => setCl({ adding: false })),
     },
     adding: !!cs.adding, canAdd: !cs.adding && app.sources.length < MAX_CHOICES, startAdd: () => setCl({ adding: true, newName: '', newIcon: ICON_IN[0] }),
     kmVal: cf.km || '', onKm: e => setCl({ kmEst: false, f: { ...cf, km: e.target.value.replace(/\D/g, '').slice(0, KM_MAX_DIGITS) } }),
@@ -161,17 +161,12 @@ export function closeVals(k) {
   };
 }
 
-// ---------------------------------------------------------------- teclado numérico (folhas e fechamento)
+// ---------------------------------------------------------------- teclado numérico das folhas (valor em centavos)
 export function keypadVals(k) {
-  const { ui } = k, ss = ui.sh, cs = ui.cl;
-  const press = key => {
-    if (ss.open) { k.patch('sh', { digits: nextDigits(ss.digits, key, MONEY_MAX_DIGITS) }); return; }
-    const field = cs.focus;
-    k.patch('cl', { f: { ...cs.f, [field]: nextDigits(cs.f[field] || '', key, field === 'km' ? KM_MAX_DIGITS : MONEY_MAX_DIGITS) } });
-  };
+  const press = key => k.patch('sh', { digits: nextDigits(k.ui.sh.digits, key) });
   return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(key => ({ label: key === 'del' ? '' : key, icon: key === 'del' ? 'ph-bold ph-backspace' : '', onClick: () => press(key) }));
 }
-const nextDigits = (cur, key, max) => (key === 'del' ? String(cur).slice(0, -1) : (String(cur) + key).replace(/^0+/, '').slice(0, max));
+const nextDigits = (cur, key) => (key === 'del' ? String(cur).slice(0, -1) : (String(cur) + key).replace(/^0+/, '').slice(0, MONEY_MAX_DIGITS));
 
 // ---------------------------------------------------------------- folhas: lançar ganho/gasto, nova conta, plano, carro
 export function sheetVals(k) {

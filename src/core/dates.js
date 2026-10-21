@@ -38,5 +38,11 @@ export const leadingBlanks = iso => mondayIndex(monthKey(iso) + '-01');
 export const weekDates = iso => { const s = addDays(iso, -mondayIndex(iso)); return Array.from({ length: 7 }, (_, i) => addDays(s, i)); };
 
 // Data/hora LOCAIS do aparelho (o motorista pensa no dia dele, nao em UTC).
-export const todayISO = (dt = new Date()) => toISO(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
+// Dia de trabalho: so vira as 04:00 locais. Sabado 00:40 ainda e "sabado" (quem roda a noite fecha o dia depois da meia-noite).
+export const DAY_ROLLOVER_HOUR = 4;
+export const todayISO = (dt = new Date()) => {
+  // So componentes locais: sem UTC e sem somar milissegundos (nao quebra na troca de horario de verao).
+  const d = dt.getHours() < DAY_ROLLOVER_HOUR ? new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - 1, 12) : dt;
+  return toISO(d.getFullYear(), d.getMonth() + 1, d.getDate());
+};
 export const hhmm = (dt = new Date()) => `${p2(dt.getHours())}:${p2(dt.getMinutes())}`;

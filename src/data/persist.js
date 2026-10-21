@@ -32,6 +32,7 @@ export function createPersister({ key = STORAGE_KEY, storage = defaultStorage(),
       }
     },
     save,
+    hasPending: () => pending !== null, // ha gravacao nossa ainda nao feita: o disco esta mais velho que a memoria
     // Agenda a gravacao (debounce); o resultado de cada gravacao vai para onResult.
     schedule(getBlob, onResult) {
       pending = { getBlob, onResult };
