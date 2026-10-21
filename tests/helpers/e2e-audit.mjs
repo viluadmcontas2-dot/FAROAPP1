@@ -32,60 +32,95 @@ export const auditClipping = page => page.evaluate(() => {
   return out;
 });
 
-// Contraste WCAG: cor de texto computada (com opacidade de quem está acima) contra o fundo composto dos ancestrais.
-// Fundo em degradê: vale o pior caso entre as cores do degradê.
-export const auditContrast = (page, min = 4.5) => page.evaluate(min => {
-  const out = [];
-  const parse = s => { const m = /rgba?\(([^)]+)\)/.exec(s); if (!m) return null; const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
-  const over = (top, bottom) => { const a = top.a + bottom.a * (1 - top.a); return a === 0 ? { r: 0, g: 0, b: 0, a: 0 } : { r: (top.r * top.a + bottom.r * bottom.a * (1 - top.a)) / a, g: (top.g * top.a + bottom.g * bottom.a * (1 - top.a)) / a, b: (top.b * top.a + bottom.b * bottom.a * (1 - top.a)) / a, a }; };
+// Contraste WCAG: cor de texto computada (com a opacidade de quem está acima) contra o fundo.
+// Fundo liso: composto dos ancestrais. Fundo em degradê: lê os pixels reais atrás do texto (captura com o texto transparente).
+// Desativado de verdade (disabled / aria-disabled) fica de fora, como na regra da WCAG.
+const decoders = new WeakMap();
+async function decoderPage(page) {
+  const ctx = page.context();
+  if (!decoders.has(ctx)) decoders.set(ctx, await ctx.newPage());
+  return decoders.get(ctx);
+}
+
+export async function auditContrast(page, min = 4.5) {
+  const items = await page.evaluate(min => {
+    const out = [];
+    const parse = s => { const m = /rgba?\(([^)]+)\)/.exec(s); if (!m) return null; const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
+    const over = (top, bottom) => { const a = top.a + bottom.a * (1 - top.a); return a === 0 ? { r: 0, g: 0, b: 0, a: 0 } : { r: (top.r * top.a + bottom.r * bottom.a * (1 - top.a)) / a, g: (top.g * top.a + bottom.g * bottom.a * (1 - top.a)) / a, b: (top.b * top.a + bottom.b * bottom.a * (1 - top.a)) / a, a }; };
+    const opacityOf = el => { let o = 1; for (let e = el; e; e = e.parentElement) o *= Number(getComputedStyle(e).opacity); return o; };
+    const label = e => `${e.tagName.toLowerCase()}"${(e.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 36)}"`;
+    const seen = new Set();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (!n.textContent.trim()) continue;
+      const el = n.parentElement;
+      if (!el || seen.has(el) || el.closest('svg') || el.closest('[disabled],[aria-disabled=true]')) continue;
+      const cs = getComputedStyle(el);
+      const range = document.createRange(); range.selectNodeContents(n);
+      const rect = range.getBoundingClientRect();
+      if (cs.visibility === 'hidden' || cs.display === 'none' || !rect.width || !rect.height) continue;
+      if (/\bph(-\w+)?\b/.test(el.className)) continue; // ícone de fonte, não texto
+      seen.add(el);
+      const fg = parse(cs.color); if (!fg) continue;
+      const size = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700;
+      // fundos possíveis: cada camada lisa compõe sobre as de baixo; degradê vira lista de cores (pior caso) e marca `grad`
+      let bgs = [{ r: 255, g: 255, b: 255, a: 1 }], grad = false;
+      const chain = []; for (let e = el; e; e = e.parentElement) chain.push(e);
+      for (const e of chain.reverse()) {
+        const c = getComputedStyle(e);
+        const color = parse(c.backgroundColor);
+        if (color && color.a > 0) bgs = bgs.map(b => over(color, b));
+        if (c.backgroundImage && /gradient/.test(c.backgroundImage)) {
+          grad = true;
+          const stops = [...c.backgroundImage.matchAll(/rgba?\([^)]+\)/g)].map(m => parse(m[0])).filter(Boolean);
+          if (stops.length) bgs = stops.flatMap(top => bgs.map(b => over(top, b))).slice(0, 80);
+        }
+      }
+      const inView = rect.top >= 0 && rect.bottom <= innerHeight && rect.left >= 0 && rect.right <= innerWidth;
+      out.push({ i: out.length, label: label(el), color: cs.color, o: opacityOf(el), fg, need: size >= 24 || (size >= 18.66 && bold) ? 3 : min, bgs: bgs.map(b => over({ ...b, a: 1 }, { r: 255, g: 255, b: 255, a: 1 })), grad, inView, rect: { x: rect.x, y: rect.y, w: rect.width, h: rect.height } });
+    }
+    return out;
+  }, min);
+
   const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
   const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
-  // possíveis fundos (lista, por causa do degradê) atrás do elemento
-  const backdrops = el => {
-    const chain = []; for (let e = el; e; e = e.parentElement) chain.push(e);
-    let bgs = [{ r: 255, g: 255, b: 255, a: 1 }];
-    for (const e of chain.reverse()) {
-      const cs = getComputedStyle(e);
-      const layers = [];
-      const color = parse(cs.backgroundColor); if (color && color.a > 0) layers.push([color]);
-      const img = cs.backgroundImage;
-      if (img && img !== 'none' && /gradient/.test(img)) {
-        const stops = [...img.matchAll(/rgba?\([^)]+\)/g)].map(m => parse(m[0])).filter(Boolean);
-        if (stops.length) layers.push(stops);
-      }
-      for (const layer of layers) bgs = layer.flatMap(top => bgs.map(b => over(top, b)));
-      if (bgs.length > 60) bgs = bgs.slice(0, 60);
+  const blend = (fg, o, bg) => { const a = fg.a * o; return { r: fg.r * a + bg.r * (1 - a), g: fg.g * a + bg.g * (1 - a), b: fg.b * a + bg.b * (1 - a) }; };
+
+  // pixels reais atrás dos textos em degradê que estão à vista
+  const sampled = items.filter(x => x.grad && x.inView);
+  const pixelBgs = new Map();
+  if (sampled.length) {
+    // folha de estilo construída (a CSP do app proíbe <style> inline, mas aceita esta)
+    await page.evaluate(() => { const sh = new CSSStyleSheet(); sh.replaceSync('*{color:transparent!important;text-shadow:none!important;caret-color:transparent!important}'); window.__noText = sh; document.adoptedStyleSheets = [...document.adoptedStyleSheets, sh]; });
+    {
+      const png = await page.screenshot();
+      await page.evaluate(() => { document.adoptedStyleSheets = document.adoptedStyleSheets.filter(x => x !== window.__noText); });
+      const dec = await decoderPage(page);
+      const dpr = await page.evaluate(() => devicePixelRatio);
+      const px = await dec.evaluate(async ([b64, rects, dpr]) => {
+        const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
+        const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+        const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0);
+        return rects.map(r => {
+          const pts = [];
+          for (let i = 0; i < 8; i++) for (let j = 0; j < 3; j++) pts.push([r.x + (r.w * (i + 0.5)) / 8, r.y + (r.h * (j + 0.5)) / 3]);
+          return pts.map(([x, y]) => { const d = g.getImageData(Math.min(img.width - 1, Math.max(0, Math.round(x * dpr))), Math.min(img.height - 1, Math.max(0, Math.round(y * dpr))), 1, 1).data; return { r: d[0], g: d[1], b: d[2] }; });
+        });
+      }, [png.toString('base64'), sampled.map(s => s.rect), dpr]);
+      sampled.forEach((s, k) => pixelBgs.set(s.i, px[k]));
     }
-    return bgs;
-  };
-  const opacityOf = el => { let o = 1; for (let e = el; e; e = e.parentElement) o *= Number(getComputedStyle(e).opacity); return o; };
-  const label = e => `${e.tagName.toLowerCase()}"${(e.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 36)}"`;
-  const seen = new Set();
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-    if (!n.textContent.trim()) continue;
-    const el = n.parentElement;
-    if (!el || seen.has(el) || el.closest('svg') || el.closest('[disabled]')) continue;
-    const cs = getComputedStyle(el), r = el.getBoundingClientRect();
-    if (cs.visibility === 'hidden' || cs.display === 'none' || !r.width || !r.height) continue;
-    if (el.classList.contains('ph') || /\bph(-\w+)?\b/.test(el.className)) continue; // ícone de fonte, não texto
-    seen.add(el);
-    const fg = parse(cs.color); if (!fg) continue;
-    const o = opacityOf(el);
-    const size = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700;
-    const need = size >= 24 || (size >= 18.66 && bold) ? 3 : min;
+  }
+
+  const out = [];
+  for (const x of items) {
+    const bgs = pixelBgs.get(x.i) || x.bgs;
     let worst = Infinity;
-    for (const bg of backdrops(el)) {
-      const solid = over({ ...bg, a: 1 }, { r: 255, g: 255, b: 255, a: 1 });
-      const text = over({ ...fg, a: fg.a * o }, solid);
-      worst = Math.min(worst, ratio(text, solid));
-    }
-    if (worst < need) out.push(`contraste ${worst.toFixed(2)} < ${need}: ${label(el)} cor ${cs.color} opacidade ${o}`);
+    for (const bg of bgs) worst = Math.min(worst, ratio(blend(x.fg, x.o, bg), bg));
+    if (worst < x.need) out.push(`contraste ${worst.toFixed(2)} < ${x.need}: ${x.label} cor ${x.color} opacidade ${x.o}${pixelBgs.has(x.i) ? ' (fundo lido dos pixels)' : ''}`);
   }
   return out;
-}, min);
+}
 
-const GLYPHS = /[-\s]/g;
 // Botões só-ícone sem nome, campos sem nome e teclado numérico errado.
 export const auditNames = page => page.evaluate(() => {
   const out = [];
@@ -126,6 +161,7 @@ export async function auditFocus(page, { maxStops = 60, scope } = {}) {
   for (let i = 0; i < maxStops; i++) {
     await page.keyboard.press('Tab');
     const info = await page.evaluate(() => {
+      for (const a of document.getAnimations()) { try { a.finish(); } catch { /* animação infinita */ } } // o anel de foco tem transição: lê o estado final
       const e = document.activeElement;
       if (!e || e === document.body) return null;
       const cs = getComputedStyle(e), r = e.getBoundingClientRect();

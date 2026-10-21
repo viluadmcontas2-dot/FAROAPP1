@@ -189,7 +189,7 @@ export function closeVals(k) {
 // ---------------------------------------------------------------- teclado numérico das folhas (valor em centavos)
 export function keypadVals(k) {
   const press = key => k.patch('sh', { digits: nextDigits(k.ui.sh.digits, key) });
-  return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(key => ({ label: key === 'del' ? '' : key, icon: key === 'del' ? 'ph-bold ph-backspace' : '', onClick: () => press(key) }));
+  return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', 'del'].map(key => ({ label: key === 'del' ? '' : key, icon: key === 'del' ? 'ph-bold ph-backspace' : '', aria: key === 'del' ? 'Apagar' : null, onClick: () => press(key) }));
 }
 const nextDigits = (cur, key) => (key === 'del' ? String(cur).slice(0, -1) : (String(cur) + key).replace(/^0+/, '').slice(0, MONEY_MAX_DIGITS));
 

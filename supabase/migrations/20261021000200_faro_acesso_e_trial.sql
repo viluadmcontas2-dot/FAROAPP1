@@ -92,10 +92,20 @@ create policy "FARO assinatura ler propria" on public.faro_subscriptions for sel
 using ((select public.faro_is_real_user()) and (select auth.uid()) = user_id);
 
 -- Remove o trial sem cartao do remoto (divergencia 1).
-drop trigger if exists faro_grant_trial_on_signup on auth.users;
-drop trigger if exists faro_grant_trial_on_email_confirmed on auth.users;
-drop function if exists public.faro_on_auth_user_created();
-drop function if exists public.faro_on_auth_email_confirmed();
+-- Os gatilhos ficam em auth.users, tabela do supabase_auth_admin: o papel que aplica migracoes NAO e dono
+-- dela e nao consegue apagar gatilhos la. Entao as funcoes dos gatilhos viram no-op (so existem no remoto;
+-- num banco novo nao existem e nada e criado). Quem quiser, apaga os dois gatilhos vazios no SQL Editor.
+do $$
+begin
+  if to_regprocedure('public.faro_on_auth_user_created()') is not null then
+    create or replace function public.faro_on_auth_user_created()
+    returns trigger language plpgsql set search_path = '' as 'begin return new; end';
+  end if;
+  if to_regprocedure('public.faro_on_auth_email_confirmed()') is not null then
+    create or replace function public.faro_on_auth_email_confirmed()
+    returns trigger language plpgsql set search_path = '' as 'begin return new; end';
+  end if;
+end $$;
 drop function if exists public.faro_grant_trial(text);
 
 -- Direito de acesso ---------------------------------------------------------------------------

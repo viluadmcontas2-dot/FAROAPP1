@@ -787,7 +787,7 @@
 </sc-if>
 <sc-if value="{{ sh.showPad }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(46px,1fr);gap:6px;min-height:0">
-<sc-for list="{{ keys }}" as="k" hint-placeholder-count="12"><button sc-camel-on-click="{{ k.onClick }}" style="border:none;border-radius:16px;background:{{ t.surface2 }};color:{{ t.ink }};font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center" style-active="opacity:.6"><i class="{{ k.icon }}"></i>{{ k.label }}</button></sc-for>
+<sc-for list="{{ keys }}" as="k" hint-placeholder-count="12"><button sc-camel-on-click="{{ k.onClick }}" aria-label="{{ k.aria }}" style="border:none;border-radius:16px;background:{{ t.surface2 }};color:{{ t.ink }};font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center" style-active="opacity:.6"><i class="{{ k.icon }}"></i>{{ k.label }}</button></sc-for>
 </div>
 <sc-if value="{{ sh.editing }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ sh.del }}" style="height:40px;flex:none;border-radius:20px;border:1px solid {{ t.negLine }};background:{{ t.negSoft }};color:{{ t.neg }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ph-bold ph-trash"></i>Excluir este gasto</button></sc-if>
 <button sc-camel-on-click="{{ sh.save }}" style="height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;opacity:{{ sh.op }};display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s"><i class="ph-bold ph-check"></i>{{ sh.saveLabel }}</button>

@@ -67,5 +67,6 @@ test('migração faro_acesso_e_trial: idempotente, search_path vazio, acesso só
   assert.doesNotMatch(sql.replace(/^--.*$/gm, ''), /create (or replace )?function [^;]*(?<!set )search_path = '[^']/);
   const fns = sql.match(/create or replace function[\s\S]*?\$\$;?/g) || [];
   for (const f of fns) assert.match(f, /set search_path = ''/);
-  assert.match(sql, /enable row level security/); assert.match(sql, /drop trigger if exists faro_grant_trial_on_signup/);
+  assert.match(sql, /enable row level security/); assert.doesNotMatch(sql, /drop trigger[^;]*on auth\.users/i, 'o papel das migracoes nao e dono de auth.users: nao pode apagar gatilhos la');
+  assert.match(sql, /faro_on_auth_user_created/); assert.match(sql, /return new/);
 });
