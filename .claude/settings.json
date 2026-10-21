@@ -1,10 +1,71 @@
 {
   "hooks": {
     "PreToolUse": [
-      { "matcher": "Grep|Glob", "hooks": [ { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/graphify-gate.sh\"" } ] }
+      {
+        "matcher": "Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/graphify-gate.sh\""
+          }
+        ]
+      }
     ],
     "PostToolUse": [
-      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/graphify-gate.sh\" mark" } ] }
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/graphify-gate.sh\" mark"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "mcp__github__issue_read",
+      "mcp__github__list_issues",
+      "mcp__github__list_branches",
+      "mcp__github__list_pull_requests",
+      "mcp__github__pull_request_read",
+      "mcp__github__search_repositories",
+      "mcp__github__get_file_contents",
+      "mcp__github__list_commits",
+      "mcp__Cloude_Flare__search",
+      "mcp__Cloude_Flare__whoami",
+      "mcp__Cloudflare_Developer_Platform__workers_list",
+      "mcp__Cloudflare_Developer_Platform__workers_get_worker",
+      "mcp__Cloudflare_Developer_Platform__workers_get_worker_code",
+      "mcp__Cloudflare_Developer_Platform__search_cloudflare_documentation",
+      "mcp__Cloudflare_Developer_Platform__r2_buckets_list",
+      "mcp__Stripe__stripe_api_read",
+      "mcp__Stripe__stripe_api_search",
+      "mcp__Stripe__stripe_api_details",
+      "mcp__Stripe__list_available_accounts_or_orgs",
+      "mcp__Todoist__find-projects",
+      "mcp__Todoist__find-tasks",
+      "mcp__Todoist__user-info",
+      "mcp__Todoist__get-overview",
+      "mcp__Todoist__fetch",
+      "mcp__Supabase__list_migrations",
+      "mcp__Supabase__list_tables",
+      "mcp__Supabase__list_edge_functions",
+      "mcp__Supabase__get_advisors",
+      "Bash(graphify query *)",
+      "Bash(graphify path *)",
+      "Bash(graphify explain *)",
+      "Bash(node scripts/build-app.mjs)",
+      "Bash(npm run check)",
+      "Bash(npm run build)",
+      "Bash(git add *)",
+      "Bash(git fetch *)",
+      "Bash(git pull -q --rebase origin claude/faro-2-0)",
+      "Bash(git pull --rebase origin claude/faro-2-0)",
+      "Bash(git push -u origin claude/faro-2-0)",
+      "Bash(git push -q -u origin claude/faro-2-0)",
+      "Bash(npx --yes wrangler@4 deploy)"
     ]
   }
 }
