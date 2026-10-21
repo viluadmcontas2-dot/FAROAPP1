@@ -169,7 +169,7 @@ async function walk(page, visit) {
     await click(page, nav); await hasText(page, wanted); await visit(name); await dismiss();
   }
   await click(page, 'Início');
-  await click(page, 'Lembretes'); await hasText(page, 'avisos nos próximos 7 dias'); await visit('lembretes'); await click(page, 'Voltar');
+  await click(page, 'Agenda'); await hasText(page, 'nos próximos 7 dias'); await visit('lembretes'); await click(page, 'Voltar');
   await click(page, /Jornada/); await hasText(page, 'Sua nota'); await visit('jornada'); await dismiss();
   await click(page, /^[\s\uE000-\uF8FF]*Conta/); await hasText(page, 'Seus dados'); await visit('conta'); await click(page, 'Voltar'); await click(page, 'Voltar');
   await click(page, 'Resumo'); await hasText(page, 'Lucro de verdade'); await visit('resumo');
@@ -237,8 +237,11 @@ test('uma dica por vez, dispensável e que não volta', { skip }, async () => {
   await page.waitForTimeout(500);
   assert.equal(await button(page, 'Entendi').count(), 0, 'dica que já saiu da tela não volta');
   await click(page, 'Início');
-  await click(page, 'Lembretes'); await hasText(page, 'avisos nos próximos 7 dias');
-  assert.equal(await button(page, 'Entendi').count(), 0, 'Lembretes não repete o título numa faixa');
+  await click(page, 'Agenda'); await hasText(page, 'nos próximos 7 dias');
+  assert.equal(await button(page, 'Entendi').count(), 0, 'Agenda não repete o título numa faixa');
+  const agendaTexto = await bodyText(page);
+  assert.doesNotMatch(agendaTexto, /Lembretes|Quando te avisar|não precisa lembrar|às 2[0-2]h|às 19h|às 09/i, 'a Agenda não promete aviso que o app não envia');
+  assert.match(agendaTexto, /não envia aviso|dentro do app/i, 'a Agenda diz o que de fato faz');
   assert.deepEqual(errors, []);
   await context.close();
 });

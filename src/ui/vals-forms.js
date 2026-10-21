@@ -72,7 +72,7 @@ export function onboardingVals(k) {
     apps, appsNote: `${ob.sources.length} de ${MAX_CHOICES} fontes. Vende algo no carro? Crie a fonte "Vendas no carro" no fechamento do dia.`,
     s0: os === 0, inner: os > 0, sApps: os === 1, s1: os === 2, s2: os === 3, s3: os === 4, s4: os === 5, s5: os === 6, count: `${os}/6`,
     kicker: texts[os] && texts[os][0], title: texts[os] && texts[os][1], sub: texts[os] && texts[os][2],
-    pitch: [{ icon: 'ph-duotone ph-scales', text: 'Quanto entrou e lucro de verdade, cada um no seu lugar' }, { icon: 'ph-duotone ph-house-line', text: 'Contas do carro e da casa no mesmo lugar' }, { icon: 'ph-duotone ph-bell-ringing', text: 'Lembretes de contas e manutenção na hora certa' }],
+    pitch: [{ icon: 'ph-duotone ph-scales', text: 'Quanto entrou e lucro de verdade, cada um no seu lugar' }, { icon: 'ph-duotone ph-house-line', text: 'Contas do carro e da casa no mesmo lugar' }, { icon: 'ph-duotone ph-bell-ringing', text: 'Agenda das suas contas sempre à mão' }],
     dots: [1, 2, 3, 4, 5, 6].map(i => ({ bg: i <= os ? t.accent : t.line2 })),
     next: () => (os < 6 ? k.set({ onbStep: os + 1 }) : k.finishOnboarding()), back: () => k.set({ onbStep: Math.max(0, os - 1) }),
     cta: cta ? 'Entrar no Faro' : 'Continuar', priceLine: ui.access && ui.access.billing ? `${PRICE_LINE} · cancele quando quiser` : PRICE_LINE, ctaBg: cta ? t.gold : t.accent, ctaInk: cta ? t.goldInk : t.accentInk,

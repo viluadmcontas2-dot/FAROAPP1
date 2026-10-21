@@ -124,7 +124,7 @@ for (const vp of VIEWPORTS) for (const theme of THEMES) {
     await click(page, /Pronto/); await page.waitForTimeout(300);
 
     // --- Lembretes, Jornada (dica), Conta
-    await click(page, 'Início'); await click(page, 'Lembretes'); await hasText(page, 'avisos nos próximos 7 dias');
+    await click(page, 'Início'); await click(page, 'Agenda'); await hasText(page, 'nos próximos 7 dias');
     await check('lembretes', { end: true, focus: true, shot: shotHere });
     await click(page, 'Voltar');
     await click(page, /dias?\s*Jornada/); await hasText(page, 'Sua nota');
@@ -243,7 +243,7 @@ for (const vp of VIEWPORTS) {
     await click(page, 'Fechar');
     await click(page, 'Contas'); await visit('contas');
     await click(page, 'Plano'); await visit('plano');
-    await click(page, 'Início'); await click(page, 'Lembretes'); await visit('lembretes');
+    await click(page, 'Início'); await click(page, 'Agenda'); await visit('lembretes');
     await context.close();
     assert.deepEqual(bad, [], `movimento sem respeitar prefers-reduced-motion:\n${bad.join('\n')}`);
   });

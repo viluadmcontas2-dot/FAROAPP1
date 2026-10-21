@@ -2,7 +2,7 @@
 
 Escopo: app construído (`_site/`) servido com os cabeçalhos reais de `_site/_headers`, Postgres temporário (stub do auth + todas as migrações), Supabase falso por rota interceptada no Chromium, leitura estática das Edge Functions. Nada foi enviado ao Supabase, Stripe ou Cloudflare reais. Do Supabase real só foram lidos `get_advisors` (security) e `list_tables`.
 
-Reexecutar tudo: `node --test tests/seguranca-*.test.mjs` (57 testes: 50 passam, 3 falham por falha real, 4 são `todo` de decisão ou endurecimento).
+Reexecutar tudo: `node --test tests/seguranca-*.test.mjs` (58 testes, todos passam; conferido em 21/10/2026). O Strix, autorizado pelo dono, rodou 2 varreduras: ver `strix-faro-2-0.md`.
 
 ## Resultado por ataque
 
@@ -44,7 +44,7 @@ Reexecutar tudo: `node --test tests/seguranca-*.test.mjs` (57 testes: 50 passam,
 Reprodução: entrar como A (nuvem com dados), sair da conta. `localStorage["faro-sync-stash-v2:<uid>"]` guarda o estado inteiro (finanças, nomes). Vale também ao sair offline.
 Causa: `stashIfDirty` em `src/data/sync.js` grava a cópia quando há dado, mesmo sem pendência. E `handleSignIn` só usa essa cópia se `meta.dirty`, então a cópia limpa nunca é usada.
 Correção mínima: em `stashIfDirty`, `if (!getMeta(owner).dirty) return;`. Se houver pendência, avisar na saída (já há o `confirm`) ou cifrar.
-Testes que falham até corrigir: `3.4` e `4.2` (`tests/seguranca-sw-estado.test.mjs`).
+Correções M1 e B1 já feitas: os testes `3.4` e `4.2` (`tests/seguranca-sw-estado.test.mjs`) agora passam.
 
 **B1. Baixa. Sem teto de aparelhos de push por usuário.**
 Reprodução: como usuário logado, `insert into faro_push_devices select ... from generate_series(1,500)` passa (cada linha até 8 KB, `device_id` livre).
@@ -66,5 +66,5 @@ Teste que falha: `5.11` (`tests/seguranca-banco.test.mjs`).
 
 ## Observações
 
-- Os testes de ataque entram no `npm run check` e no CI. Os 3 que falham deixam o CI vermelho até as correções M1 e B1. Os de navegador e banco pulam sozinhos sem Chromium ou Postgres.
+- Os testes de ataque entram no `npm run check` e no CI. Os de navegador e banco pulam sozinhos sem Chromium ou Postgres.
 - Fora de escopo e não testável aqui: o Deno executando as funções, CORS real do `@supabase/server`, rate limits do GoTrue e a política de senha e confirmação de e-mail no painel do Supabase.

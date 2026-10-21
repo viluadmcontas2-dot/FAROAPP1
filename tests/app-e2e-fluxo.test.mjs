@@ -155,9 +155,9 @@ for (const vp of VIEWPORTS) {
       if (name !== 'Contas') await shot(name.toLowerCase());
     }
     await click(page, 'Início');
-    await click(page, 'Lembretes');
-    await hasText(page, 'avisos nos próximos 7 dias');
-    await noBrokenNumbers('Lembretes');
+    await click(page, 'Agenda');
+    await hasText(page, 'nos próximos 7 dias');
+    await noBrokenNumbers('Agenda');
     assert.doesNotMatch(await page.evaluate(() => document.body.innerText), /Troca de óleo/, 'sem manutenção inventada');
     await shot('lembretes');
     await click(page, 'Voltar');

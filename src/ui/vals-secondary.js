@@ -37,12 +37,12 @@ export function remindVals(k) {
   const first = items[0];
   const perDaySave = Math.max(0, M.sobra / Math.max(1, M.n) * 0.15), goal = C.life + C.carFixed;
   const months = perDaySave > 0 ? goal / (perDaySave * C.planned) : 0;
-  const prefs = [['close', 'Fechar o dia', 'todo dia de pista às 22h', 'ph-duotone ph-flag-checkered'], ['bills', 'Contas', '2 dias antes do vencimento', 'ph-duotone ph-receipt'],
-    ...(app.vehicle === 'dono' ? [] : [['rent', app.vehicle === 'alugado' ? 'Aluguel do carro' : 'Parcela do carro', 'na véspera, às 20h', 'ph-duotone ph-car-profile']]),
-    ['week', 'Resumo da semana', 'domingo às 19h', 'ph-duotone ph-chart-bar']];
+  const prefs = [['close', 'Fechar o dia', 'dia de pista ainda aberto', 'ph-duotone ph-flag-checkered'], ['bills', 'Contas', 'contas a vencer e atrasadas', 'ph-duotone ph-receipt'],
+    ...(app.vehicle === 'dono' ? [] : [['rent', app.vehicle === 'alugado' ? 'Aluguel do carro' : 'Parcela do carro', 'perto do vencimento', 'ph-duotone ph-car-profile']]),
+    ['week', 'Resumo da semana', 'no fim da semana', 'ph-duotone ph-chart-bar']];
   return {
-    count: items.length, summary: `${plural(items.length, 'aviso', 'avisos')} nos próximos 7 dias`, badgeD: items.length ? 'flex' : 'none',
-    next: first ? { icon: first.icon, title: first.title, sub: first.sub, when: `${dayWord(first.date).toLowerCase()}${first.time ? ' às ' + first.time : ''}` } : { icon: 'ph-fill ph-check', when: '—', title: 'Tudo em dia', sub: '' },
+    count: items.length, summary: `${plural(items.length, 'item', 'itens')} nos próximos 7 dias`, badgeD: items.length ? 'flex' : 'none',
+    next: first ? { icon: first.icon, title: first.title, sub: first.sub, when: `${dayWord(first.date).toLowerCase()}` } : { icon: 'ph-fill ph-check', when: '—', title: 'Tudo em dia', sub: '' },
     items: items.map((x, i) => ({ ...x, color: tone(x), day: dayWord(x.date), dnum: dayOfMonth(x.date), dc: x.date === today ? t.goldText : t.muted, sep: i === items.length - 1 ? 'transparent' : t.line })),
     resGoal: R(goal),
     resText: perDaySave > 0 ? `Guardando ${R(perDaySave)} por dia de pista (15% da sua sobra média), você junta um mês de contas em cerca de ${fmt(months, 0)} meses. O Faro sugere o valor em cada fechamento.` : 'Feche alguns dias de pista e o Faro sugere quanto guardar por dia para juntar um mês das suas contas.',

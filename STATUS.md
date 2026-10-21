@@ -11,7 +11,7 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0`. Tarefa mãe no GitHub: #21 (
 - Telas ligadas aos dados e à nuvem, com fluxo de ponta a ponta (testes `app-e2e-fluxo`, `app-conta-e2e`).
 - Tela "Instalar o Faro" (Android e iPhone) e bloqueio fora do app instalado (testes `app-instalacao-*`). Provado só em navegador de teste, não em aparelho real.
 - App antigo apagado; hospedagem Cloudflare; CI só em pull request, sem deploy automático (teste `governanca-faro-2-0`).
-- Segurança: 57 testes de ataque nossos e 2 varreduras do Strix, nenhum alerta real alto (`docs/evidence/faro-2-0/seguranca.md` e `strix-faro-2-0.md`).
+- Segurança: 58 testes de ataque nossos e 2 varreduras do Strix, nenhum alerta real alto (`docs/evidence/faro-2-0/seguranca.md` e `strix-faro-2-0.md`).
 - Documentação e decisões em português (`docs/decisions/`).
 
 ## Parcial
@@ -22,7 +22,7 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0`. Tarefa mãe no GitHub: #21 (
 - Assinatura Stripe de ponta a ponta no modo de teste.
 - Termos de uso, privacidade, suporte, excluir minha conta, aviso de fim do teste.
 - Prévia na Cloudflare (ver "Bloqueado pelo dono").
-- Lembretes: a tela existe, mas nada envia aviso ao celular. Construir ou esconder a tela.
+- Lembretes: resolvido — a tela virou "Agenda" (só dentro do app, sem prometer aviso ao celular). Ver ADR 0007.
 - Acabamento visual final.
 
 ## Bloqueado pelo dono
