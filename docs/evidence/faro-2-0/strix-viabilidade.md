@@ -9,23 +9,22 @@ Resultado: PARCIAL. Instalacao e imagem sandbox OK. Scan fim a fim NAO executado
   `docker pull ghcr.io/usestrix/strix-sandbox:1.3.0` (1,44 GB comprimido, 5,9 GB em disco).
 - CLI tem `--max-turns N`, `--max-budget USD`, `-m quick|standard|deep`, `-n` (nao interativo).
 
-## Bloqueio (depende do dono)
-- Ambiente tem `ANTHROPIC_BASE_URL=https://api.anthropic.com` e NAO tem `ANTHROPIC_API_KEY`.
-- Teste de 1 token com x-api-key dummy: HTTP 401 `invalid x-api-key`. O proxy NAO autentica sozinho. Parei conforme instrucao.
-- Existe a variavel `MEU_APP_CLAUDE_KEY` (nao usei: finalidade incerta, preciso de ok do dono).
-- Nenhum gasto de API ate aqui (US$0).
+## Teste fim a fim (chave `MEU_APP_CLAUDE_KEY` exportada como `LLM_API_KEY` so no processo)
+- Chave validada: 1 token ao claude-haiku-5-5 -> HTTP 200.
+- Alvo: servidor node local (porta 3999) refletindo `?q=` sem escape. Scan: modo quick, 25 turnos, teto US$0,50, host `host.docker.internal`.
+- Achou: "Reflected XSS in search query parameter q on GET /" (medium). Funciona.
+- Terminou com status `failed` apos ~3,6 min: erro da API "Invalid `signature` in `thinking` block" (blocos de raciocinio do haiku-5-5 via LiteLLM). Relatorio de achados ja tinha sido gerado.
+- Uso: 70 requisicoes, 7,15M tokens de entrada (6,75M de cache lido, 0,40M de cache gravado), 43,8k de saida.
+- Custo estimado (preco do haiku NAO confirmado; assumido US$1/M entrada, US$5/M saida, cache lido 0,1x, gravado 1,25x): ~US$1,4 por scan quick. O teto `--max-budget` NAO segurou: o prompt de sistema tem ~86k tokens por requisicao.
+- Sem vazamento: grep da chave em strix_runs, scripts, docs e log = 0 ocorrencias.
 
-## Configuracao
+## Pendencias / sugestoes
+- Corrigir o erro de thinking: testar `STRIX_REASONING_EFFORT=low` (ou outro modelo, ex. sonnet) antes de depender do scan.
+- Conferir custo real no painel de uso da Anthropic.
+- Script corrigido para rodar da raiz (saida em `./strix_runs/<run>`); a primeira execucao gerou `strix_runs/strix_runs/` aninhado (ignorado pelo git).
+
+## Comando final
 ```
-export STRIX_LLM=anthropic/claude-haiku-5-5
-export LLM_API_KEY=<chave Anthropic>      # so no ambiente, nunca em arquivo
-# LLM_API_BASE so se usar outra rota
-scripts/security/strix-scan.sh http://localhost:3000 ./pasta-codigo
+export LLM_API_KEY="$MEU_APP_CLAUDE_KEY"   # so no ambiente
+STRIX_MAX_BUDGET_USD=0.50 STRIX_MAX_TURNS=25 scripts/security/strix-scan.sh http://host.docker.internal:3999 [pasta_codigo]
 ```
-Teto padrao: 40 turnos, US$1, modo quick. Saida em `strix_runs/` (no .gitignore).
-
-## Custo
-Nao medido. Estimativa (nao comprovada): modo quick com Haiku, algumas dezenas de turnos: centavos a poucos dolares; o teto `--max-budget` limita.
-
-## Proximo passo
-Dono fornece chave Anthropic (ou autoriza usar MEU_APP_CLAUDE_KEY) -> rodar o scan de teste contra um servidor node local com XSS.
