@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decide, isApiHost, isCacheableResponse } from '../src/pwa/sw-policy.js';
+import { decide, isApiHost, isCacheableResponse, plainResponse } from '../src/pwa/sw-policy.js';
 
 const O = 'https://faro.example';
 test('nunca cacheia hosts de API (Supabase/Stripe)', () => {
@@ -26,4 +26,15 @@ test('so respostas publicas e simples entram no cache', () => {
   assert.ok(!isCacheableResponse(r({ status: 404 })));
   assert.ok(!isCacheableResponse(r({ status: 200 }, 'cors')));
   assert.ok(!isCacheableResponse(r({ status: 200, headers: { 'cache-control': 'private, max-age=0' } })));
+});
+
+test('plainResponse tira a marca de "redirecionada" (o Chrome recusa isso em navegacao)', async () => {
+  const redirecionada = Object.defineProperty(new Response('<html>ok</html>', { status: 200, headers: { 'content-type': 'text/html' } }), 'redirected', { value: true });
+  const limpa = plainResponse(redirecionada);
+  assert.equal(limpa.redirected, false);
+  assert.equal(limpa.status, 200);
+  assert.equal(limpa.headers.get('content-type'), 'text/html');
+  assert.equal(await limpa.text(), '<html>ok</html>');
+  const normal = new Response('x');
+  assert.equal(plainResponse(normal), normal, 'resposta normal passa sem copia');
 });

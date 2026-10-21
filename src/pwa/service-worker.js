@@ -1,6 +1,6 @@
 // Service worker do Faro 2.0. Empacotado por scripts/build-app.mjs (esbuild, iife) em _site/sw.js.
 // __SW_VERSION__ e __SW_PRECACHE__ sao trocados no build (versao = hash do conteudo do build).
-import { decide, isCacheableResponse } from './sw-policy.js';
+import { decide, isCacheableResponse, plainResponse } from './sw-policy.js';
 
 const VERSION = __SW_VERSION__;
 const PRECACHE = __SW_PRECACHE__; // caminhos relativos ao scope, ex.: "app.js"
@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
     await Promise.all(PRECACHE.map(async (p) => {
       const res = await fetch(new Request(scopeUrl(p), { cache: 'reload' }));
       if (!isCacheableResponse(res)) throw new Error(`pre-cache falhou: ${p}`);
-      await cache.put(scopeUrl(p), res);
+      await cache.put(scopeUrl(p), plainResponse(res));
     }));
     // sem skipWaiting aqui: a atualizacao so assume quando o app pedir (mensagem SKIP_WAITING)
   })());
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
     const cache = await caches.open(CACHE);
     if (kind === 'navigate') {
       const hit = await cache.match(INDEX());
-      if (hit) return hit;
+      if (hit) return plainResponse(hit);
       try { return await fetch(req); } catch { return new Response('Sem conexão.', { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' } }); }
     }
     const url = new URL(req.url); url.search = '';

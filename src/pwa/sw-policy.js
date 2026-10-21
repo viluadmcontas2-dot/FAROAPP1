@@ -39,3 +39,12 @@ export function isCacheableResponse(res) {
   if (/\bprivate\b/.test(cc)) return false;
   return true;
 }
+
+/**
+ * O Cloudflare redireciona /index.html para /. O fetch segue o redirecionamento e a resposta chega marcada como
+ * "redirected"; o Chrome recusa essa marca numa navegacao (ERR_FAILED na segunda abertura). Copia sem a marca.
+ */
+export function plainResponse(res) {
+  if (!res || !res.redirected) return res;
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers });
+}

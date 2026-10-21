@@ -16,12 +16,13 @@ const EXE = process.env.FARO_CHROMIUM || '/opt/pw-browsers/chromium';
 const skip = !chromium || !existsSync(EXE) ? 'Playwright/chromium indisponivel' : false;
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.woff2': 'font/woff2', '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
-function serve(dir) {
+function serve(dir, { redirectIndex = false } = {}) {
   // mesmos cabecalhos que o Cloudflare aplica: vem do _site/_headers gerado no build
   const headers = parseHeaders(readFileSync(join(dir, '_headers'), 'utf8'));
   return new Promise((res) => {
     const srv = http.createServer((req, rsp) => {
       const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+      if (redirectIndex && path === '/index.html') { rsp.writeHead(307, { location: '/' }); return rsp.end(); }
       let file = join(dir, normalize(path));
       if (statSync(dir).isDirectory() && existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
       if (!file.startsWith(dir) || !existsSync(file)) { rsp.writeHead(404); return rsp.end('nao encontrado'); }
@@ -72,5 +73,31 @@ test('instalavel e offline com CSP estrita', { skip, timeout: 120000 }, async ()
     await page.waitForFunction(() => document.getElementById('root')?.children.length > 0, null, { timeout: 15000 });
     assert.deepEqual(await page.evaluate(() => window.__csp), [], 'violacao de CSP offline');
     assert.deepEqual(problems, []);
+  } finally { await browser.close(); srv.close(); }
+});
+
+// Regressao real (21/10): o Cloudflare redireciona /index.html para / (307). O SW guardava essa resposta
+// "redirecionada" e o Chrome recusa usa-la numa navegacao: a SEGUNDA abertura do app dava ERR_FAILED.
+test('segunda abertura com o SW ativo funciona mesmo quando /index.html redireciona', { skip, timeout: 120000 }, async () => {
+  const dir = buildTo();
+  const srv = await serve(dir, { redirectIndex: true });
+  const url = `http://127.0.0.1:${srv.address().port}/`;
+  const browser = await chromium.launch({ executablePath: EXE, args: ['--no-sandbox'] });
+  try {
+    const ctx = await browser.newContext({ serviceWorkers: 'allow' });
+    await ctx.addInitScript(forceStandalone);
+    const page = await ctx.newPage();
+    await page.goto(url, { waitUntil: 'load' });
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.register('sw.js', { scope: './', updateViaCache: 'none' });
+      await navigator.serviceWorker.ready;
+      if (!navigator.serviceWorker.controller) await new Promise((r) => { navigator.serviceWorker.addEventListener('controllerchange', r); setTimeout(r, 4000); });
+    });
+    const resp = await page.goto(url + '?abrir=1', { waitUntil: 'load' }); // lancaria net::ERR_FAILED antes da correcao
+    assert.ok(resp && resp.ok());
+    await page.waitForFunction(() => document.getElementById('root')?.children.length > 0, null, { timeout: 15000 });
+    await ctx.setOffline(true);
+    await page.goto(url + '?offline=1', { waitUntil: 'load' });
+    await page.waitForFunction(() => document.getElementById('root')?.children.length > 0, null, { timeout: 15000 });
   } finally { await browser.close(); srv.close(); }
 });
