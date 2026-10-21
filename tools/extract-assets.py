@@ -67,7 +67,7 @@ for fam, cls in weights:
     opts = subset.Options(); opts.flavor = 'woff2'; opts.layout_features = []; opts.glyph_names = False
     opts.notdef_outline = True; opts.name_IDs = []; opts.hinting = False
     sub = subset.Subsetter(opts); sub.populate(unicodes=[c for v in codes.values() for c in v]); sub.subset(font)
-    font.recalcTimestamp = False; font['head'].modified = font['head'].created = 0   # saida identica a cada rodada (sem data/hora)
+    font.recalcTimestamp = False; font['head'].modified = font['head'].created = 3786825600   # saida identica a cada rodada (sem data/hora)
     out = io.BytesIO(); font.flavor = 'woff2'; font.save(out); data = out.getvalue()
     h = hashlib.sha256(data).hexdigest()[:8]; name = f"phosphor-{cls[3:] or 'regular'}.{h}.woff2"
     (root / 'assets/fonts' / name).write_bytes(data); written.add(name)
