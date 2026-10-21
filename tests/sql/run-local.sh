@@ -11,5 +11,6 @@ P="psql -v ON_ERROR_STOP=1 -q -h $D -p $PORT -U postgres -d postgres"
 RUN "$P -f tests/sql/stub-auth.sql"
 for f in supabase/migrations/*.sql; do RUN "$P -f $f"; done
 RUN "$P -f supabase/migrations/20261021000200_faro_acesso_e_trial.sql"  # reaplicar: idempotente
+RUN "$P -f supabase/migrations/20261021000300_faro_endurecimento.sql"  # reaplicar: idempotente
 RUN "$P -f tests/sql/acesso-trial.test.sql"
 RUN "$P -f tests/sql/rls.test.sql"

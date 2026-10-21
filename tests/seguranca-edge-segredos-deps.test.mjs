@@ -19,7 +19,8 @@ const checkout = fn('criar-checkout-faro'), portal = fn('abrir-portal-faro'), we
 test('6.1 webhook: assinatura obrigatoria sobre o corpo CRU, metodo POST, corpo limitado, fail-closed sem segredo', () => {
   assert.match(webhook, /req\.method !== 'POST'[\s\S]{0,120}405/, 'metodo errado nao devolve 405');
   assert.match(webhook, /constructEventAsync\(\s*rawBody\s*,\s*signature\s*,\s*webhookSecret\s*\)/, 'assinatura nao e verificada sobre o corpo cru');
-  assert.match(webhook, /await req\.text\(\)/, 'o corpo deve ser lido como texto cru ANTES de qualquer JSON.parse');
+  assert.match(webhook, /const rawBody = body\.text;/, 'o corpo deve ser lido como texto cru (via readTextLimited) ANTES de qualquer JSON.parse');
+  assert.ok(webhook.indexOf('readTextLimited(req') > 0 && webhook.indexOf('readTextLimited(req') < webhook.indexOf('constructEventAsync'), 'corpo lido (com limite) antes de verificar');
   assert.doesNotMatch(webhook, /req\.json\(\)|JSON\.parse\(rawBody\)/, 'o corpo nao pode ser interpretado antes da verificacao');
   const verifyAt = webhook.indexOf('constructEventAsync'); const objAt = webhook.indexOf('event.data.object');
   assert.ok(verifyAt > 0 && objAt > verifyAt, 'o evento so pode ser usado depois da verificacao');
@@ -38,9 +39,66 @@ test('6.2 webhook: evento duplicado/replay/evento velho tratados no BANCO (RPC a
   assert.match(read('supabase/migrations/20261021000200_faro_acesso_e_trial.sql'), /p_event_created < v_current\.last_event_created[\s\S]{0,40}'stale'/);
 });
 
-test('6.3 webhook: o limite de 1 MB so olha o Content-Length (corpo em chunked nao e limitado pelo codigo)', { todo: 'BAIXA: sem Content-Length (Transfer-Encoding: chunked) o corpo e lido inteiro por req.text(); o limite real vem da plataforma Supabase/Cloudflare' }, () => {
-  // correcao minima: ler o corpo com limite (stream com contador) ou recusar quando content-length estiver ausente
-  assert.match(webhook, /rawBody\.length\s*>|byteLength\s*>|getReader\(\)/, 'nao ha limite sobre o corpo realmente lido (so o cabecalho Content-Length, que pode faltar)');
+test('6.3 webhook: o limite de 1 MB vale sobre os bytes REALMENTE lidos (stream), com ou sem Content-Length (chunked)', async () => {
+  assert.match(webhook, /readTextLimited\(req, MAX_BODY_BYTES\)/, 'o webhook deve ler o corpo pelo leitor com limite');
+  assert.match(webhook, /MAX_BODY_BYTES = 1_000_000/);
+  assert.doesNotMatch(webhook, /await req\.(text|json|arrayBuffer)\(\)/, 'leitura sem limite do corpo');
+  const http = read('supabase/functions/_shared/faro-http.js');
+  assert.match(http, /getReader\(\)/); assert.match(http, /total > maxBytes/);
+  // comportamento real (Request/stream do Node, mesmo contrato do Deno)
+  const { readTextLimited } = await import('../supabase/functions/_shared/faro-http.js');
+  const chunked = (n, chunk = 64 * 1024) => {
+    let sent = 0;
+    const stream = new ReadableStream({ pull(c) { if (sent >= n) return c.close(); const k = Math.min(chunk, n - sent); sent += k; c.enqueue(new Uint8Array(k).fill(97)); } });
+    return { req: new Request('http://x/', { method: 'POST', body: stream, duplex: 'half' }), sent: () => sent };
+  };
+  const mk = text => new Request('http://x/', { method: 'POST', body: text });
+  assert.deepEqual(await readTextLimited(mk('{"a":"\u00e7"}'), 1000), { ok: true, text: '{"a":"\u00e7"}' }, 'corpo pequeno (utf-8) deve voltar identico');
+  assert.deepEqual(await readTextLimited(new Request('http://x/', { method: 'POST' }), 10), { ok: true, text: '' });
+  assert.equal((await readTextLimited(mk('x'.repeat(1001)), 1000)).ok, false, 'corpo de 1001 bytes passou o limite de 1000');
+  assert.equal((await readTextLimited(mk('x'.repeat(1000)), 1000)).ok, true, 'exatamente no limite deve passar');
+  const grande = chunked(5_000_000);
+  assert.equal(grande.req.headers.get('content-length'), null, 'o teste precisa ser sem Content-Length');
+  assert.equal((await readTextLimited(grande.req, 1_000_000)).ok, false, 'corpo chunked de 5 MB passou');
+  assert.ok(grande.sent() < 2_000_000, `leu ${grande.sent()} bytes antes de desistir (deveria cancelar logo apos o limite)`);
+  assert.equal((await readTextLimited(chunked(900_000).req, 1_000_000)).ok, true, 'corpo chunked legitimo de 900 KB barrado');
+  // Content-Length mentiroso para menos nao burla: vale o que chega
+  const mentiroso = new Request('http://x/', { method: 'POST', body: 'x'.repeat(2000), headers: { 'content-length': '10' } });
+  assert.equal((await readTextLimited(mentiroso, 1000)).ok, false);
+});
+
+test('6.7 excluir-conta-faro (trazida do remoto, revisada): usuario real autenticado, confirmacao explicita, Stripe antes do usuario, falha fecha', () => {
+  const del = fn('excluir-conta-faro');
+  assert.match(del, /withSupabase\(\{ auth: 'user' \}/, 'exclusao sem autenticacao de usuario');
+  assert.match(del, /req\.method !== 'POST'[\s\S]{0,60}405/);
+  assert.match(del, /ctx\.userClaims\?\.sub/, 'o usuario vem do JWT validado');
+  assert.doesNotMatch(del, /body\??\.(user_id|userId|id|email)|searchParams|url\.search|req\.url/, 'usuario alvo vindo do cliente');
+  assert.match(del, /is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao exclui por aqui');
+  assert.match(del, /confirmation !== 'EXCLUIR'[\s\S]{0,80}400/, 'sem confirmacao explicita nao apaga');
+  assert.match(del, /readTextLimited\(req, MAX_BODY_BYTES\)/, 'corpo com limite real');
+  assert.doesNotMatch(del, /await req\.(text|json|arrayBuffer)\(\)/);
+  // usa so o id do JWT e o service role (supabaseAdmin) para apagar
+  assert.match(del, /auth\.admin\.deleteUser\(userId\)/);
+  assert.match(del, /faro_begin_account_deletion', \{ p_user_id: userId \}/, 'marca a exclusao (bloqueia novo checkout) antes de tudo');
+  assert.match(del, /\.eq\('user_id', userId\)/, 'assinatura lida e a do PROPRIO usuario');
+  // ordem: begin -> Stripe (expira checkout, cancela assinatura) -> deleteUser
+  const at = k => del.indexOf(k);
+  assert.ok(at('faro_begin_account_deletion') < at('checkout.sessions.expire') && at('checkout.sessions.expire') < at('subscriptions.cancel') && at('subscriptions.cancel') < at('deleteUser'), 'ordem errada: o usuario so pode ser apagado depois do Stripe');
+  // falha do Stripe = conta mantida (502) e nunca chega ao deleteUser; sem segredo do Stripe tambem fecha
+  assert.match(del, /catch \(stripeError\)[\s\S]{0,400}Sua conta foi mantida[\s\S]{0,40}502/, 'falha do Stripe deve manter a conta');
+  assert.match(del, /needsStripe && !stripeSecret[\s\S]{0,160}503/, 'sem STRIPE_SECRET_KEY e com assinatura/checkout deve falhar fechado');
+  assert.match(del, /openSession/, 'checkout aberto sem cliente tambem precisa do Stripe (senao poderia ser pago apos a exclusao)');
+  assert.match(del, /prorate: false, invoice_now: false/, 'cancelar sem gerar cobranca final');
+  // segredos e logs
+  assert.doesNotMatch(del, /console\.(log|info|warn|error)\([^)]*(email|userId|customer|data\b|body|raw)/i, 'log com dado pessoal');
+  assert.doesNotMatch(del, /sk_(live|test)_|whsec_/, 'segredo no codigo');
+  assert.match(del, /npm:stripe@\d+\.\d+\.\d+/); assert.match(del, /npm:@supabase\/server@\d+\.\d+\.\d+/, 'versoes fixas');
+  assert.match(del, /configured\(\)[\s\S]{0,80}503/, 'sem configuracao responde 503');
+  // registrada no config.toml com a mesma politica das outras (verify_jwt=false: a autenticacao e o withSupabase)
+  assert.match(read('supabase/config.toml'), /\[functions\.excluir-conta-faro\]\s*\nverify_jwt = false/);
+  // o banco apaga tudo do usuario em cascata (e o livro de trial usado guarda so hash de e-mail)
+  const mig = read('supabase/migrations/20260814173000_faro_commercial_foundation.sql');
+  assert.equal((mig.match(/references auth\.users\(id\) on delete cascade/g) || []).length >= 4, true, 'tabelas do usuario sem on delete cascade');
 });
 
 test('6.4 webhook: nunca confia em campos do evento sem assinatura; usuario vem do Stripe assinado, nao de query/header', () => {
@@ -215,9 +273,11 @@ test('9.1 paywall no cliente: decideAccess so libera com assinatura valida; sem 
   assert.equal(hasEntitlement({ status: 'active', currentPeriodEnd: null }, now), true, 'sem data de fim vale (periodValid) - o servidor so grava data real');
 });
 
-test('9.2 o que o SERVIDOR garante (banco): ver tests/seguranca-banco.test.mjs 5.7/5.10 (nao concede) e 9.1 todo (nao exige para gravar na nuvem)', () => {
-  const sql = read('supabase/migrations/20261021000100_faro_save_state_rpc.sql');
-  assert.doesNotMatch(sql, /faro_has_access/, 'SE este teste falhar, faro_save_state passou a exigir direito: remova o todo 9.1 do teste de banco');
+test('9.2 o que o SERVIDOR garante (banco): faro_save_state exige direito so quando enforce_paywall (9.1 no teste de banco) e e idempotente', () => {
+  const sql = read('supabase/migrations/20261021000300_faro_endurecimento.sql');
+  assert.match(sql, /faro_has_access\(v_uid\)[\s\S]{0,200}sem_direito/, 'faro_save_state deve exigir faro_has_access (sem_direito)');
+  assert.match(sql, /muitas_gravacoes/, 'faro_save_state deve limitar a frequencia');
+  assert.match(sql, /create or replace function public\.faro_save_state/i);
 });
 
 test('9.3 enumeracao de contas: signUp devolve a mesma resposta para e-mail novo e ja cadastrado; reset idem; erros de login iguais', async () => {

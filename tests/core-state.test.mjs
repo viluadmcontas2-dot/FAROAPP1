@@ -161,3 +161,12 @@ test('normalizeState: conta semanal limita due a 0..6; mensal a 1..31 (por recor
   assert.equal(mk('mensal', 0), 1);
   assert.equal(mk('mensal', 40), 31);
 });
+
+test('icon() so aceita classes Phosphor reais; o resto cai no padrao', () => {
+  const com = ic => { const s = clone(defaultState()); s.bills[3].icon = ic; return normalizeState(s).bills[3].icon; };
+  const PADRAO = 'ph-receipt';
+  for (const ok of ['ph-fork-knife', 'ph-duotone ph-receipt', 'ph-fill ph-vault', 'ph-bold ph-x', 'ph ph-car-battery', 'ph-gas-pump']) assert.equal(com(ok), ok, ok);
+  assert.equal(com('  ph-duotone ph-receipt '), 'ph-duotone ph-receipt');
+  for (const ruim of ['fscroll', 'hscroll', 'foo', 'ph-', 'ph--x', 'ph-X', 'PH-x', 'ph-x onclick', 'ph-a b', 'ph-x  ph-y', 'ph-x\tph-y', 'ph_x', '-ph-x', 'ph-x-', 'ph-fork-knife fscroll',
+    'x ph-fork-knife', 'ph-x" onclick="alert(1)', '', ' ', 123, null, undefined, {}, 'ph-' + 'a'.repeat(80)]) assert.equal(com(ruim), PADRAO, String(ruim));
+});

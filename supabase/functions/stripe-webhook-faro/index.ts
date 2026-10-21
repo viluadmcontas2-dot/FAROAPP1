@@ -5,9 +5,11 @@ import {
   subscriptionIdFrom,
   subscriptionPeriodEnd
 } from '../_shared/faro-billing.js';
+import { readTextLimited } from '../_shared/faro-http.js';
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
+const MAX_BODY_BYTES = 1_000_000;
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
 // Atualizam a assinatura (status 'trialing' inclusive, via normalizedStatus).
@@ -22,12 +24,14 @@ const SUBSCRIPTION_REFRESH_EVENTS = new Set([
 export default {
   fetch: withSupabase({ auth: 'none' }, async (req, ctx) => {
     if (req.method !== 'POST') return new Response('Método não permitido', { status: 405, headers: { Allow: 'POST' } });
-    if (Number(req.headers.get('content-length') || 0) > 1_000_000) return new Response('Corpo grande demais', { status: 413 });
     if (!stripeSecret || !webhookSecret) return json({ error: 'Webhook ainda não configurado.' }, 503);
 
     const stripe = new Stripe(stripeSecret);
     const signature = req.headers.get('stripe-signature') || '';
-    const rawBody = await req.text();
+    // Limite REAL de 1 MB sobre os bytes lidos (stream com contador), valendo também sem Content-Length (chunked).
+    const body = await readTextLimited(req, MAX_BODY_BYTES);
+    if (!body.ok) return new Response('Corpo grande demais', { status: 413 });
+    const rawBody = body.text;
     let event: Stripe.Event;
 
     try {

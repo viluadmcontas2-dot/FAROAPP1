@@ -153,32 +153,81 @@ test('5.10 faro_has_access: nao escala (so responde por si mesmo) e respeita enf
   } finally { pg.raw(`update public.faro_billing_settings set enforce_paywall=false`); }
 });
 
-test('9.1 (decisao do dono) com enforce_paywall=true o SERVIDOR deveria recusar gravar na nuvem quem nao tem direito', { skip, todo: 'DECISAO DO DONO: faro_save_state e as tabelas nao chamam faro_has_access; so o cliente bloqueia' }, () => {
+test('9.1 com enforce_paywall=true o SERVIDOR recusa gravar na nuvem quem nao tem direito (sem_direito); com false nada muda', { skip }, () => {
+  const save = (u, rev, m) => pg.user(u, `select public.faro_save_state(${rev}, '{"schema_version":2,"gratis":1}', 'da', '${m}')`);
+  // paywall desligado (padrao de hoje): ninguem e barrado
+  assert.equal(pg.raw(`select enforce_paywall from public.faro_billing_settings`).out, 'f');
+  pg.raw(`delete from public.faro_state where user_id='${UA}'`);
+  assert.match(save(UA, 0, 'paywall-off').out, /"ok": true/, 'com paywall desligado a gravacao deveria passar');
+  pg.raw(`delete from public.faro_state where user_id='${UA}'`);
   pg.raw(`update public.faro_billing_settings set enforce_paywall=true`);
   try {
-    const r = pg.user(UA, `select public.faro_save_state(0, '{"schema_version":2,"gratis":1}', 'da', 'paywall-1')`);
-    assert.ok(!r.ok || !/"ok": true/.test(r.out), 'a nuvem gravou para quem nao tem assinatura (paywall so no cliente)');
-  } finally { pg.raw(`update public.faro_billing_settings set enforce_paywall=false; delete from public.faro_state where user_id='${UA}'`); }
+    const r = save(UA, 0, 'paywall-1');
+    assert.ok(!r.ok && /sem_direito/.test(r.err), `sem assinatura deveria dar sem_direito: ${r.err || r.out}`);
+    assert.equal(pg.raw(`select count(*) from public.faro_state where user_id='${UA}'`).out, '0', 'a nuvem gravou para quem nao tem assinatura');
+    // quem tem assinatura ativa (B) segue gravando; o servidor so recusa, nao apaga nada
+    const antes = pg.raw(`select revision from public.faro_state where user_id='${UB}'`).out;
+    assert.match(save(UB, antes, 'paywall-b').out, /"ok": true/, 'assinante ativo foi barrado');
+    // assinatura vencida: barrado e o estado que ja estava na nuvem permanece intacto
+    pg.raw(`update public.faro_subscriptions set current_period_end = now() - interval '1 second' where user_id='${UB}'`);
+    const rev = pg.raw(`select revision from public.faro_state where user_id='${UB}'`).out;
+    const r2 = save(UB, rev, 'paywall-venc');
+    assert.ok(!r2.ok && /sem_direito/.test(r2.err), 'assinatura vencida gravou');
+    assert.equal(pg.raw(`select revision from public.faro_state where user_id='${UB}'`).out, rev, 'o servidor alterou o estado ao recusar');
+    assert.match(pg.raw(`select state->>'gratis' from public.faro_state where user_id='${UB}'`).out, /1/, 'estado de B foi apagado ao recusar');
+  } finally {
+    pg.raw(`update public.faro_billing_settings set enforce_paywall=false; update public.faro_subscriptions set current_period_end = now()+interval '30 days' where user_id='${UB}'; delete from public.faro_state where user_id='${UA}'`);
+  }
 });
 
 test('5.11 aparelhos de push: limites por linha valem e UM usuario nao pode criar linhas sem teto', { skip }, () => {
   assert.ok(!pg.user(UA, `insert into public.faro_push_devices(user_id,device_id,subscription) values ('${UA}','big', jsonb_build_object('k',repeat('x',9000)))`).ok, 'subscription > 8 KB aceita');
   assert.ok(!pg.user(UA, `insert into public.faro_push_devices(user_id,device_id) values ('${UA}',repeat('d',129))`).ok, 'device_id > 128 aceito');
   assert.ok(!pg.user(UA, `insert into public.faro_push_devices(user_id,device_id,platform) values ('${UA}','p','desktop')`).ok, 'plataforma invalida aceita');
-  // FALHA REAL (baixa): nao ha teto de aparelhos por usuario -> 500 linhas de ate 8 KB cada, sem limite
+  // teto por usuario: 500 linhas de uma vez sao recusadas por inteiro
   const r = pg.user(UA, `insert into public.faro_push_devices(user_id,device_id,subscription) select '${UA}','farm-'||i, jsonb_build_object('p',repeat('x',2000)) from generate_series(1,500) i`);
   const n = Number(pg.raw(`select count(*) from public.faro_push_devices where user_id='${UA}'`).out);
   assert.ok(!r.ok || n <= 20, `usuario criou ${n} aparelhos (sem teto por usuario)`);
+  assert.ok(!r.ok && /limite de 10 aparelhos/i.test(r.err), `erro deveria ser claro: ${r.err}`);
+  // 10 passam; o 11o e recusado com mensagem clara; re-registrar um aparelho existente (upsert) segue valendo
+  pg.raw(`delete from public.faro_push_devices where user_id='${UA}'`);
+  for (let i = 1; i <= 10; i++) assert.ok(pg.user(UA, `insert into public.faro_push_devices(user_id,device_id) values ('${UA}','ok-${i}')`).ok, `aparelho ${i} recusado`);
+  const o = pg.user(UA, `insert into public.faro_push_devices(user_id,device_id) values ('${UA}','ok-11')`);
+  assert.ok(!o.ok && /limite de 10 aparelhos/i.test(o.err), `11o aparelho aceito/erro obscuro: ${o.err}`);
+  assert.ok(pg.user(UA, `insert into public.faro_push_devices(user_id,device_id,subscription) values ('${UA}','ok-3','{"endpoint":"https://push/novo"}') on conflict (user_id,device_id) do update set subscription=excluded.subscription`).ok, 'upsert de aparelho existente barrado no teto');
+  assert.equal(pg.raw(`select count(*) from public.faro_push_devices where user_id='${UA}'`).out, '10');
+  // o teto e por usuario: B (que ja tem 1) nao e afetado pelo teto de A
+  assert.ok(pg.user(UB, `insert into public.faro_push_devices(user_id,device_id) values ('${UB}','b-2')`).ok);
+  // apagar um libera vaga
+  assert.ok(pg.user(UA, `delete from public.faro_push_devices where device_id='ok-1'`).ok);
+  assert.ok(pg.user(UA, `insert into public.faro_push_devices(user_id,device_id) values ('${UA}','ok-11')`).ok, 'apagar um aparelho nao liberou vaga');
+  pg.raw(`delete from public.faro_push_devices where user_id='${UA}' or device_id='b-2'`);
 });
 
-test('5.12 faro_save_state sem limite de frequencia (decisao do dono)', { skip, todo: 'DECISAO DO DONO: sem rate limit por usuario (faro_state_rate_limit do remoto ficou fora do repo)' }, () => {
-  pg.user(UB, `select public.faro_save_state(0,'{"schema_version":2}','d','r0')`);
-  let accepted = 0;
-  for (let i = 1; i <= 30; i++) {
-    const rev = Number(pg.raw(`select revision from public.faro_state where user_id='${UB}'`).out);
-    if (/"ok": true/.test(pg.user(UB, `select public.faro_save_state(${rev}, '{"schema_version":2,"i":${i}}', 'd', 'r${i}')`).out)) accepted++;
+test('5.12 faro_save_state tem limite de frequencia (60 por minuto por usuario, muitas_gravacoes); replay idempotente nao conta', { skip }, () => {
+  pg.raw(`delete from public.faro_state where user_id='${UC}'; delete from public.faro_state_write_log where user_id='${UC}'`);
+  const save = (rev, m, st = '{"schema_version":2}') => pg.user(UC, `select public.faro_save_state(${rev}, '${st}', 'd', '${m}')`);
+  const rev = () => Number(pg.raw(`select revision from public.faro_state where user_id='${UC}'`).out || 0);
+  let accepted = 0, barrada = null;
+  for (let i = 0; i < 70; i++) {
+    const r = save(rev(), `r${i}`, `{"schema_version":2,"i":${i}}`);
+    if (/"ok": true/.test(r.out)) accepted++; else { barrada = r; break; }
   }
-  assert.ok(accepted < 30, `${accepted}/30 gravacoes seguidas aceitas sem nenhum limite de frequencia`);
+  assert.equal(accepted, 60, `${accepted} gravacoes seguidas aceitas (esperado exatamente 60 por minuto)`);
+  assert.ok(barrada && !barrada.ok && /muitas_gravacoes/.test(barrada.err), `a barrada deveria ser muitas_gravacoes: ${barrada && (barrada.err || barrada.out)}`);
+  // replay da ULTIMA mutacao ja gravada continua respondendo ok mesmo com o limite estourado (nao conta, nao e barrado)
+  const ultima = `r${accepted - 1}`;
+  assert.match(save(rev() - 1, ultima, `{"schema_version":2,"i":${accepted - 1}}`).out, /"replay": true/, 'replay idempotente foi barrado pelo limite');
+  // o limite e por usuario: A segue gravando
+  assert.match(pg.user(UA, `select public.faro_save_state(0,'{"schema_version":2}','da','a-1')`).out, /"ok": true/, 'o limite de C afetou A');
+  pg.raw(`delete from public.faro_state where user_id='${UA}'`);
+  // a janela reinicia depois de 1 minuto
+  pg.raw(`update public.faro_state_write_log set window_start = now() - interval '61 seconds' where user_id='${UC}'`);
+  assert.match(save(rev(), 'depois-da-janela').out, /"ok": true/, 'janela nao reiniciou');
+  // o cliente nao enxerga nem mexe no contador
+  assert.ok(denied(pg.user(UC, `select * from public.faro_state_write_log`)), 'cliente leu o contador');
+  assert.ok(denied(pg.user(UC, `update public.faro_state_write_log set n=0`)), 'cliente zerou o contador');
+  pg.raw(`delete from public.faro_state where user_id='${UC}'`);
 });
 
 test('9.2 trial: e-mail normalizado (gmail com ponto/+alias) e historico sobrevive a exclusao da conta', { skip }, () => {

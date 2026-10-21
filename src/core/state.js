@@ -34,7 +34,14 @@ export function str(v, max, def = '') {
 // Ids/chaves viram propriedade de objeto: so [a-z0-9_-] e nunca nomes que mexem no prototipo.
 const key = (v, re = /^[A-Za-z0-9_-]{1,40}$/) => (typeof v === 'string' && re.test(v) && !DANGEROUS.has(v) ? v : '');
 const SRC_KEY = /^[a-z0-9_]{1,24}$/;
-const icon = (v, def = '') => { const s = typeof v === 'string' ? v.slice(0, LIMITS.icon) : ''; return /^[a-z0-9 -]+$/.test(s) ? s.trim() : def; };
+// Icone: so classes Phosphor reais (ph, ph-fill, ph-bold, ph-duotone, ph-<nome-kebab>), cada token validado, separados por 1 espaco.
+const PH_TOKEN = /^ph(-[a-z0-9]+)*$/;
+const icon = (v, def = '') => {
+  if (typeof v !== 'string') return def;
+  const s = v.trim();
+  if (!s || s.length > LIMITS.icon) return def;
+  return s.split(' ').every(t => PH_TOKEN.test(t)) ? s : def;
+};
 const color = (v, def) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : def);
 const list = (v, max, fromEnd = false) => (Array.isArray(v) ? (fromEnd ? v.slice(-max) : v.slice(0, max)) : []);
 const entries = (v, max = 20000) => (isObj(v) ? Object.keys(v).slice(0, max) : []);
