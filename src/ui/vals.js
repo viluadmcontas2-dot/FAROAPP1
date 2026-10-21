@@ -2,8 +2,7 @@
 // Tudo vem do estado real (k.app) e do calc (k.C); botões só despacham ações do núcleo por k.act.
 import React from 'react';
 import { fmt, R, splitMoney } from '../core/money.js';
-import { diffDays, dayOfMonth, monthName } from '../core/dates.js';
-import { weekDates, WD_SHORT } from '../core/dates.js';
+import { diffDays, dayOfMonth, monthName, addDays, weekday, weekDates, WD_SHORT, WD_LONG } from '../core/dates.js';
 import { activeBills } from '../core/calc.js';
 import { sourceColor } from './theme.js';
 import { logoStyle, segOpt, plural, DAYS_WEEK_OPTIONS } from './kit.js';
@@ -31,16 +30,16 @@ export function homeVals(k) {
   const [hi, hc] = splitMoney(view.lucro);
   const carCost = view.en + view.we + view.car + view.ex;
   const badge = {
-    dia: C.todayClosed ? ['Lucro líquido de hoje', 'ph-bold ph-check', `Dia fechado · ${view.km} km`] : ['Lucro líquido estimado', 'ph-bold ph-clock', 'Feche o dia para o valor real'],
-    semana: ['Lucro líquido da semana', 'ph-bold ph-calendar', `${view.n} de ${app.daysWeek} dias · seg ${dayOfMonth(week[0])} a dom ${dayOfMonth(week[6])}`],
-    mes: [`Lucro líquido de ${monthName(today)}`, 'ph-bold ph-trend-up', `${plural(view.n, 'dia rodado', 'dias rodados')} · ${C.rem} pela frente`],
+    dia: C.todayClosed ? ['Lucro de verdade de hoje', 'ph-bold ph-check', `Dia fechado · ${view.km} km`] : ['Lucro de verdade até agora', 'ph-bold ph-clock', 'Feche o dia para o valor real'],
+    semana: ['Lucro de verdade da semana', 'ph-bold ph-calendar', `${view.n} de ${app.daysWeek} dias · seg ${dayOfMonth(week[0])} a dom ${dayOfMonth(week[6])}`],
+    mes: [`Lucro de verdade de ${monthName(today)}`, 'ph-bold ph-trend-up', `${plural(view.n, 'dia rodado', 'dias rodados')} · ${C.rem} pela frente`],
   }[P];
-  const h = { num: React.createElement(CountUp, { value: +view.lucro.toFixed(2) }), label: badge[0], int: hi, cents: hc, badgeIcon: badge[1], badge: badge[2], chips: [{ icon: 'ph-bold ph-arrow-down-left', color: '#5EE6A8', label: 'Bruto', value: R(view.g) }, { icon: 'ph-bold ph-arrow-up-right', color: '#FF9A9A', label: 'Carro', value: R(carCost) }, { icon: 'ph-fill ph-wallet', color: t.gold, label: 'Sobra', value: R(view.sobra) }] };
+  const h = { num: React.createElement(CountUp, { value: +view.lucro.toFixed(2) }), label: badge[0], int: hi, cents: hc, badgeIcon: badge[1], badge: badge[2], chips: [{ icon: 'ph-bold ph-arrow-down-left', color: '#5EE6A8', label: 'Quanto entrou', value: R(view.g) }, { icon: 'ph-bold ph-arrow-up-right', color: '#FF9A9A', label: 'Carro', value: R(carCost) }, { icon: 'ph-fill ph-wallet', color: t.gold, label: 'Sobra', value: R(view.sobra) }] };
   const periods = [['dia', 'Hoje'], ['semana', 'Semana'], ['mes', 'Mês']].map(([key, label]) => ({ label, bg: P === key ? '#fff' : 'transparent', color: P === key ? '#0D1530' : '#fff', onClick: () => k.set({ period: key }) }));
   const glass = 'rgba(255,255,255,.12)';
   const action = (label, icon, onClick, color) => ({ label, icon, onClick, bg: glass, border: 'transparent', color });
-  const actions = [action('Ganho', 'ph-bold ph-arrow-down-left', () => k.openSheet('in'), '#5EE6A8'), action('Gasto', 'ph-bold ph-arrow-up-right', () => k.openSheet('out'), '#FF9A9A'),
-    C.todayClosed ? action('Resumo', 'ph-fill ph-check-circle', k.openSummary, t.gold) : action('Fechar dia', 'ph-fill ph-flag-checkered', k.openClose, t.gold)];
+  // fechar o dia (ou ver o resumo) tem uma porta só: o botão central da barra de baixo
+  const actions = [action('Anotar ganho', 'ph-bold ph-arrow-down-left', () => k.openSheet('in'), '#5EE6A8'), action('Anotar gasto', 'ph-bold ph-arrow-up-right', () => k.openSheet('out'), '#FF9A9A')];
 
   const dayLucro = C.targetFor(today), goalG = (dayLucro + C.carShare) / C.ckm * C.revKm, kmG = goalG / C.revKm;
   const tg = todayNum ? todayNum.g : 0, gp = Math.min(100, Math.round(tg / Math.max(1, goalG) * 100));
@@ -54,8 +53,17 @@ export function homeVals(k) {
   const overdue = k.pend.filter(o => o.date < today);
   const status = billStatus(today, t);
   const late = overdue[0], lateDays = late ? diffDays(late.date, today) : 0;
-  const alert = { show: !!late, title: late ? `${late.name} venceu ${lateDays === 1 ? 'ontem' : 'há ' + lateDays + ' dias'}` : '', sub: late ? `${R(late.v, 2)} · toque se já pagou` : '', onClick: late ? () => k.payBill(late.oid) : null };
+  const alert = { show: !!late, title: late ? `${late.name} venceu ${lateDays === 1 ? 'ontem' : 'há ' + lateDays + ' dias'}` : '', sub: late ? R(late.v, 2) : '', onClick: late ? () => k.payBill(late.oid) : null };
   const nextBills = k.pend.filter(o => o.date >= today).slice(0, 3).map(o => ({ name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: status.when(o), sc: status.color(o), onPay: () => k.payBill(o.oid) }));
+
+  // ontem ficou aberto? (dia de pista, sem fechamento, e o motorista já usa o Faro: tem dia fechado ou algo anotado ontem)
+  const yd = addDays(today, -1), ydRec = app.recs[yd], ydTotal = ydRec ? Object.values(ydRec.p).reduce((a, b) => a + (b || 0), 0) : 0;
+  const usedBefore = ydTotal > 0 || Object.values(app.recs).some(r => r && r.closed);
+  const yday = {
+    show: P === 'dia' && isWorkDay(app, yd) && !(ydRec && ydRec.closed) && usedBefore,
+    text: ydTotal > 0 ? `Ontem ficou aberto: ${R(ydTotal)} anotados. Feche para ele entrar na sua meta.` : `Ontem ficou aberto (${WD_LONG[weekday(yd)]}). Feche para ele entrar na sua meta.`,
+    onClose: () => k.openClose(yd),
+  };
 
   const rentB = app.bills.find(b => b.id === 'aluguel-carro');
   const rentCovered = weekClosed.lucro + weekClosed.car; // o que sobrou do bruto antes do rateio do carro
@@ -82,8 +90,8 @@ export function homeVals(k) {
   const mg = Math.max(1, M.g);
   const mo = {
     title: `Meta de ${monthName(today)}`, pct: mp, dash: `${ring * mp / 100} ${ring}`, of: `${R(M.lucro)} de ${R(C.target)}`,
-    pace: M.n ? (ahead ? `No ritmo · projeção ${R(C.proj)}` : `Atrás · projeção ${R(C.proj)}`) : 'Feche um dia para ver o ritmo', paceColor: ahead || !M.n ? t.pos : t.gold, gross: R(M.g),
-    split: [[word, M.en, t.accent], ['Carro e desgaste', M.car + M.we, t.cW], ['Gastos na rua', M.ex, t.cF], ['Lucro líquido', Math.max(0, M.lucro), t.pos]].map(([label, v, color]) => ({ label, v: R(v), w: (v / mg * 100) + '%', color })),
+    pace: M.n ? (ahead ? `No ritmo, você chega a ${R(C.proj)}` : `Atrás do ritmo, você chega a ${R(C.proj)}`) : 'Feche um dia para ver o ritmo', paceColor: ahead || !M.n ? t.pos : t.gold, gross: R(M.g),
+    split: [[word, M.en, t.accent], ['Carro e desgaste', M.car + M.we, t.cW], ['Gastos na rua', M.ex, t.cF], ['Lucro de verdade', Math.max(0, M.lucro), t.pos]].map(([label, v, color]) => ({ label, v: R(v), w: (v / mg * 100) + '%', color })),
   };
 
   const base = Math.max(1, view.g), costT = view.en + view.we + view.car + view.ex, profitT = Math.max(0, view.lucro);
@@ -91,14 +99,14 @@ export function homeVals(k) {
   const partial = P === 'dia' && !C.todayClosed;
   const carFixLabel = app.vehicle === 'alugado' ? 'Aluguel do carro · parte do dia' : app.vehicle === 'financiado' ? 'Parcela e seguro · parte do dia' : 'Seguro · parte do dia';
   const wf = {
-    title: partial ? 'Do bruto ao lucro (estimativa)' : 'Do bruto ao lucro',
+    title: partial ? 'Do que entrou ao lucro (estimativa)' : 'Do que entrou ao lucro',
     exps: todayExps.map(x => ({ cat: x.cat, icon: x.icon, time: x.time, value: '− ' + R(x.v, 2), note: x.cat === 'Combustível' ? 'só mede o consumo, não desconta' : '', noteD: x.cat === 'Combustível' ? 'block' : 'none', vc: x.cat === 'Combustível' ? t.muted : t.ink, onEdit: () => k.openSheet('out', { digits: String(Math.round(x.v * 100)), cat: x.cat, editId: x.id }), onDel: () => k.removeEntry(x.id) })),
     hasExps: P === 'dia' && todayExps.length > 0, noExps: P === 'dia' && !todayExps.length, addExp: () => k.openSheet('out'),
-    you: view.g > 0 ? `você fica com ${Math.max(0, Math.round(view.lucro / base * 100))}% do bruto` : '',
+    you: view.g > 0 ? `você fica com ${Math.max(0, Math.round(view.lucro / base * 100))}% do que entrou` : '',
     open: !!ui.wfOpen, toggle: () => k.set({ wfOpen: !ui.wfOpen }), toggleLabel: ui.wfOpen ? 'Esconder detalhes' : (P === 'dia' ? 'Ver detalhes do dia' : 'Ver a conta'), toggleIcon: ui.wfOpen ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down',
     bar: [[costT, t.neg], [profitT, t.pos]].map(([v, color]) => ({ w: (v / base * 100) + '%', color })),
-    keys: [{ label: 'Bruto', value: R(view.g), color: t.line2, vc: t.ink }, { label: 'Custos', value: R(costT), color: t.neg, vc: t.ink }, { label: partial ? 'Lucro estimado' : 'Lucro líquido', value: R(view.lucro), color: t.pos, vc: view.lucro >= 0 ? t.pos : t.neg }],
-    rows: [{ label: 'Bruto dos apps', icon: 'ph-fill ph-arrow-circle-down', color: t.ink, value: R(view.g, 2), vc: t.ink, fw: '700' }, { label: `${word} · ${R(C.fuelKm, 2)}/km`, icon: 'ph-fill ph-gas-pump', color: t.accent, value: '− ' + R(view.en, 2), vc: t.ink, fw: '600' }, { label: `Desgaste · ${R(app.wear, 2)}/km`, icon: 'ph-fill ph-wrench', color: t.cW, value: '− ' + R(view.we, 2), vc: t.ink, fw: '600' }, { label: carFixLabel, icon: 'ph-fill ph-car-profile', color: t.cF, value: '− ' + R(view.car, 2), vc: t.ink, fw: '600' }, { label: P === 'dia' ? 'Gastos lançados hoje' : 'Gastos lançados', icon: 'ph-fill ph-receipt', color: t.cF, value: '− ' + R(view.ex, 2), vc: t.ink, fw: '600' }, { label: 'Lucro líquido', icon: 'ph-fill ph-check-circle', color: t.pos, value: R(view.lucro, 2), vc: view.lucro >= 0 ? t.pos : t.neg, fw: '800' }],
+    keys: [{ label: 'Quanto entrou', value: R(view.g), color: t.line2, vc: t.ink }, { label: 'Gastos', value: R(costT), color: t.neg, vc: t.ink }, { label: partial ? 'Lucro estimado' : 'Lucro de verdade', value: R(view.lucro), color: t.pos, vc: view.lucro >= 0 ? t.pos : t.neg }],
+    rows: [{ label: 'Quanto entrou dos apps', icon: 'ph-fill ph-arrow-circle-down', color: t.ink, value: R(view.g, 2), vc: t.ink, fw: '700' }, { label: `${word} · ${R(C.fuelKm, 2)}/km`, icon: 'ph-fill ph-gas-pump', color: t.accent, value: '− ' + R(view.en, 2), vc: t.ink, fw: '600' }, { label: `Desgaste · ${R(app.wear, 2)}/km`, icon: 'ph-fill ph-wrench', color: t.cW, value: '− ' + R(view.we, 2), vc: t.ink, fw: '600' }, { label: carFixLabel, icon: 'ph-fill ph-car-profile', color: t.cF, value: '− ' + R(view.car, 2), vc: t.ink, fw: '600' }, { label: P === 'dia' ? 'Gastos anotados hoje' : 'Gastos anotados', icon: 'ph-fill ph-receipt', color: t.cF, value: '− ' + R(view.ex, 2), vc: t.ink, fw: '600' }, { label: 'Lucro de verdade', icon: 'ph-fill ph-check-circle', color: t.pos, value: R(view.lucro, 2), vc: view.lucro >= 0 ? t.pos : t.neg, fw: '800' }],
   };
   const lifeCard = { lucro: R(M.lucro), contas: '− ' + R(M.life), livre: R(M.sobra), livreColor: M.sobra >= 0 ? t.pos : t.neg, note: M.sobra >= 0 ? 'É isso que fica pra guardar e pra viver. O Faro sugere quanto separar em cada fechamento.' : 'As contas do mês ainda passam do lucro. Os dias que faltam vão cobrir a diferença.' };
 
@@ -114,11 +122,11 @@ export function homeVals(k) {
   const tip = tipOf(P, { rentLeft, hasOverdue: overdue.length > 0, closedCount: C.closedDays.length, bestKmRec: bestKm, avgLucroKm: M.km ? M.lucro / M.km : 0 });
 
   const seen = app.seen;
-  const guideSteps = [['Feche seu primeiro dia', '30 segundos: apps, km e pronto', C.todayClosed, () => (C.todayClosed ? null : k.openClose())], ['Confira suas contas', 'marque o que já pagou', !!seen.bills, () => k.go('bills')], ['Veja seu plano do mês', 'quanto faturar por dia', !!seen.plan, () => k.go('plan')], ['Conheça sua Jornada', 'sequência, nível e Índice Faro', !!seen.journey, () => k.go('journey')]];
+  const guideSteps = [['Feche seu primeiro dia', '30 segundos: apps, km e pronto', C.todayClosed, () => (C.todayClosed ? null : k.openClose())], ['Confira suas contas', 'marque o que já pagou', !!seen.bills, () => k.go('bills')], ['Veja seu plano do mês', 'quanto ganhar por dia', !!seen.plan, () => k.go('plan')], ['Conheça sua Jornada', 'sequência, nível e sua nota', !!seen.journey, () => k.go('journey')]];
   const doneSteps = guideSteps.filter(x => x[2]).length;
   const guide = { show: app.guide && doneSteps < 4 && P === 'dia', count: `${doneSteps} de 4 feitos`, dismiss: () => k.act({ type: 'guide/dismiss' }), steps: guideSteps.map(([title, sub, ok, fn], i) => ({ title, sub, onClick: fn, n: ok ? '' : String(i + 1), icon: ok ? 'ph-bold ph-check' : '', bg: ok ? t.pos : t.accent, color: ok ? t.posInk : '#fff', op: ok ? '.6' : '1' })) };
 
-  return { periods, h, actions, isDia: P === 'dia', notDia: P !== 'dia', isSemana: P === 'semana', isMes: P === 'mes', dg, alert, nextBills, wk, weekBars, mo, wf, metrics, plats, platTotal: R(view.g, 2), showPlats: P !== 'dia', tip, lifeCard, guide };
+  return { periods, h, actions, yday, isDia: P === 'dia', notDia: P !== 'dia', isSemana: P === 'semana', isMes: P === 'mes', dg, alert, nextBills, wk, weekBars, mo, wf, metrics, plats, platTotal: R(view.g, 2), showPlats: P !== 'dia', tip, lifeCard, guide };
 }
 
 // ---------------------------------------------------------------- plano
@@ -140,22 +148,22 @@ export function planVals(k) {
   return {
     title: `Plano de ${monthName(today)}`, edit,
     stack: [
-      { icon: 'ph-fill ph-house-line', color: t.cL, label: 'Contas da casa e pessoais', sub: `${lifeCount} contas · toque para ver`, value: R(C.life), onClick: () => k.set({ screen: 'bills', billFilter: 'todas', prev: 'plan' }), caret: 'ph-bold ph-caret-right' },
-      { icon: 'ph-fill ph-vault', color: t.pos, label: 'Guardar', sub: 'você escolhe', value: R(app.save), onClick: edit, caret: 'ph-bold ph-pencil-simple' },
-      { icon: 'ph-fill ph-smiley', color: t.gold, label: 'Pra gastar com você', sub: 'você escolhe', value: R(app.spend), onClick: edit, caret: 'ph-bold ph-pencil-simple' },
+      { icon: 'ph-fill ph-house-line', color: t.cL, label: 'Contas da casa e pessoais', sub: `${lifeCount} contas · toque para ver`, value: R(C.life), onClick: () => k.set({ screen: 'bills', billFilter: 'todas', prev: 'plan' }), caret: 'ph-bold ph-caret-right', link: true, plain: false },
+      { icon: 'ph-fill ph-vault', color: t.pos, label: 'Guardar', sub: 'você escolhe', value: R(app.save), link: false, plain: true },
+      { icon: 'ph-fill ph-smiley', color: t.gold, label: 'Pra gastar com você', sub: 'você escolhe', value: R(app.spend), link: false, plain: true },
     ],
     rhythm: [
-      { icon: 'ph-fill ph-path', label: 'Ganho médio por km', sub: app.revKmMode === 'manual' ? 'definido por você' : C.learnDays ? `aprendido de ${C.learnDays} dias` : 'estimativa inicial · aprende ao fechar dias', value: R(C.revKm, 2), onClick: edit },
-      { icon: 'ph-fill ph-coins', label: 'Custo por km do carro', sub: 'combustível, desgaste e carro fixo · em Carro', value: R(C.fuelKm + app.wear + carFixedPerKm(C), 2), onClick: () => k.go('car') },
-      { icon: 'ph-fill ph-calendar', label: 'Dias de pista', sub: `${C.rem} dias até o fim do mês`, value: `${app.daysWeek}/sem`, onClick: edit },
+      { icon: 'ph-fill ph-path', label: 'Ganho médio por km', sub: app.revKmMode === 'manual' ? 'definido por você' : C.learnDays ? `aprendido de ${C.learnDays} dias` : 'estimativa inicial · aprende ao fechar dias', value: R(C.revKm, 2), link: false, plain: true },
+      { icon: 'ph-fill ph-coins', label: 'Custo por km do carro', sub: 'combustível, desgaste e carro fixo · em Carro', value: R(C.fuelKm + app.wear + carFixedPerKm(C), 2), onClick: () => k.go('car'), link: true, plain: false },
+      { icon: 'ph-fill ph-calendar', label: 'Dias de pista', sub: `${C.rem} dias até o fim do mês`, value: `${app.daysWeek}/sem`, link: false, plain: true },
     ],
     dash: `${ring * mp / 100} ${ring}`, paceBg: ahead ? 'rgba(61,220,151,.2)' : 'rgba(233,176,75,.2)', paceInk: ahead ? '#7FF0BE' : '#FFD77A', paceIcon: ahead ? 'ph-bold ph-check' : 'ph-bold ph-warning',
     steppers: [
       { label: 'Guardar por mês', value: R(app.save), minus: () => k.act({ type: 'plan/set', payload: { save: Math.max(0, app.save - 100) } }), plus: () => k.act({ type: 'plan/set', payload: { save: app.save + 100 } }) },
       { label: 'Pra gastar com você', value: R(app.spend), minus: () => k.act({ type: 'plan/set', payload: { spend: Math.max(0, app.spend - 100) } }), plus: () => k.act({ type: 'plan/set', payload: { spend: app.spend + 100 } }) },
     ],
-    need: [{ icon: 'ph-bold ph-arrow-down-left', label: 'Faturar por dia', value: R(C.dailyGross) }, { icon: 'ph-bold ph-path', label: 'Rodar por dia', value: `${Math.round(C.dailyGross / C.revKm)} km` }, { icon: 'ph-bold ph-calendar', label: 'Dias restantes', value: String(C.rem) }, { icon: 'ph-bold ph-steering-wheel', label: 'Lucro por dia', value: R(C.dailyLucro) }],
-    explain: C.rem ? `Faltam ${R(C.need)} de lucro líquido. Dividindo pelos ${C.rem} dias de pista que sobram, cada dia precisa render ${R(C.dailyLucro)} depois do carro. Fechou um dia, o número se ajusta.` : 'Não há mais dias de pista neste mês. A meta do próximo mês começa no dia 1.',
+    need: [{ icon: 'ph-bold ph-arrow-down-left', label: 'Quanto ganhar por dia', value: R(C.dailyGross) }, { icon: 'ph-bold ph-path', label: 'Rodar por dia', value: `${Math.round(C.dailyGross / C.revKm)} km` }, { icon: 'ph-bold ph-calendar', label: 'Dias restantes', value: String(C.rem) }, { icon: 'ph-bold ph-steering-wheel', label: 'Lucro por dia', value: R(C.dailyLucro) }],
+    explain: C.rem ? `Faltam ${R(C.need)} de lucro de verdade. Dividindo pelos ${C.rem} dias de pista que sobram, cada dia precisa render ${R(C.dailyLucro)} depois do carro. Fechou um dia, o número se ajusta.` : 'Não há mais dias de pista neste mês. A meta do próximo mês começa no dia 1.',
     dayTabs: DAYS_WEEK_OPTIONS.map(n => segOpt(t, n + '×/sem', app.daysWeek === n, () => k.act({ type: 'plan/set', payload: { daysWeek: n } }))),
     wd: ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'], cal: cells,
   };

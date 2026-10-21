@@ -25,6 +25,7 @@ test.after(async () => {
 async function open(state, { name = 'x', shots = false } = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
   await context.addInitScript(() => { delete Object.getPrototypeOf(navigator).serviceWorker; });
+  context.setDefaultTimeout(6000);
   if (state) await seedPage(context, state);
   const page = await context.newPage();
   const errors = watchErrors(page);
@@ -51,6 +52,7 @@ test('erros do núcleo viram conversa: dia vazio, km vazio e valor improvável',
   await page.locator('input[placeholder="0,00"]').first().fill('99999,99');
   await click(page, 'Informar km e horas');
   // km vazio: mensagem no campo e foco nele
+  await page.locator('#faro-km').fill('');
   await click(page, 'Fechar o dia');
   await hasText(page, 'Informe os km rodados');
   assert.equal(await focusedId(page), 'faro-km', 'o foco vai para o campo de km');
@@ -65,6 +67,8 @@ test('erros do núcleo viram conversa: dia vazio, km vazio e valor improvável',
   await page.waitForFunction(() => !document.body.innerText.includes('Esse valor está certo?'));
   await flushed(page);
   assert.ok(!((await savedState(page)).recs[today()] || {}).closed, 'Corrigir não grava nada');
+  assert.equal(await focusedId(page), 'faro-p-uber', 'Corrigir leva ao campo do valor');
+  await click(page, 'Informar km e horas');
   await click(page, 'Fechar o dia');
   await hasText(page, 'Esse valor está certo?');
   await click(page, 'Sim, confirmar');
@@ -167,7 +171,7 @@ async function walk(page, visit) {
   await click(page, 'Início');
   await click(page, 'Lembretes'); await hasText(page, 'avisos nos próximos 7 dias'); await visit('lembretes'); await click(page, 'Voltar');
   await click(page, /Jornada/); await hasText(page, 'Sua nota'); await visit('jornada'); await dismiss();
-  await click(page, /^\s*Conta/); await hasText(page, 'Seus dados'); await visit('conta'); await click(page, 'Voltar'); await click(page, 'Voltar');
+  await click(page, /^[\s\uE000-\uF8FF]*Conta/); await hasText(page, 'Seus dados'); await visit('conta'); await click(page, 'Voltar'); await click(page, 'Voltar');
   await click(page, 'Resumo'); await hasText(page, 'Lucro de verdade'); await visit('resumo');
   await click(page, 'Voltar ao início');
 }
@@ -213,7 +217,7 @@ test('uma porta por ação: sem botões nem faixas repetidos', { skip }, async (
   // Plano: um caminho só para editar
   await click(b.page, 'Plano'); await hasText(b.page, 'Quanto ganhar por dia');
   assert.equal(await button(b.page, 'Editar plano').count(), 1);
-  assert.equal(await b.page.locator('button i.ph-pencil-simple').count(), 0, 'sem lápis repetido nas linhas do plano');
+  assert.equal(await b.page.locator('button i.ph-pencil-simple').count(), 1, 'só o lápis do Editar plano, sem lápis repetido nas linhas');
   // Contas: sem faixa "toque em Paguei"
   await click(b.page, 'Contas'); await hasText(b.page, 'A pagar');
   assert.doesNotMatch(await bodyText(b.page), /toque em .?Paguei/i);
@@ -246,7 +250,7 @@ test('legibilidade de rua: texto >= 14 px, alvos >= 44 px, Paguei grande, rótul
   const scan = async name => {
     await page.waitForTimeout(450);
     const found = await page.evaluate(() => {
-      const out = [], vis = el => { const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && r.bottom > 0 && r.top < innerHeight && parseFloat(cs.opacity) > 0.05; };
+      const out = [], vis = el => { const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && parseFloat(cs.opacity) > 0.05 && !el.closest('[aria-hidden=true]'); }; // a tela inteira, também o que está abaixo da dobra
       for (const el of document.querySelectorAll('body *')) {
         if (!vis(el)) continue;
         const own = [...el.childNodes].some(n => n.nodeType === 3 && /[\p{L}\p{N}]/u.test(n.textContent));
@@ -265,7 +269,7 @@ test('legibilidade de rua: texto >= 14 px, alvos >= 44 px, Paguei grande, rótul
   await walk(page, scan);
   // abrir folhas e o fechamento também
   await click(page, 'Anotar gasto'); await scan('folha-gasto'); await click(page, 'Fechar');
-  await click(page, 'Carro'); await click(page, 'Editar'); await scan('folha-carro'); await click(page, /^\s*Pronto/);
+  await click(page, 'Carro'); await click(page, 'Editar'); await scan('folha-carro'); await click(page, /^[\s\uE000-\uF8FF]*Pronto/);
   await click(page, 'Início');
   assert.deepEqual(problems, [], 'texto pequeno ou alvo de toque pequeno:\n' + problems.join('\n'));
 
@@ -301,6 +305,7 @@ test('legibilidade de rua: texto >= 14 px, alvos >= 44 px, Paguei grande, rótul
 test('confiança: preço e 7 dias grátis na 1ª tela; restaurar backup é secundário e avisa', { skip }, async () => {
   const { context, page, errors, shot } = await open(null, { name: 'confianca' });
   await hasText(page, 'Ver meu lucro de verdade');
+  const gold = await page.evaluate(() => getComputedStyle([...document.querySelectorAll('button')].find(b => /Ver meu lucro de verdade/.test(b.textContent))).backgroundColor);
   const first = await bodyText(page);
   assert.match(first, /Grátis por 7 dias · depois R\$ 22,99\/mês/);
   assert.equal(await button(page, /pagar|assinar|cartão/i).count(), 0, 'sem botão de pagar enquanto a assinatura não abre');
@@ -315,8 +320,8 @@ test('confiança: preço e 7 dias grátis na 1ª tela; restaurar backup é secun
     const save = [...document.querySelectorAll('button')].find(b => /Salvar backup/.test(b.textContent));
     return { restore: getComputedStyle(restore).backgroundColor, save: getComputedStyle(save).backgroundColor };
   });
+  assert.notEqual(colors.restore, gold, 'Restaurar não é mais o botão dourado principal');
   assert.notEqual(colors.restore, colors.save, 'Restaurar não tem o mesmo destaque de Salvar backup');
-  // dourado = cor do botão principal do onboarding (gold do tema)
   await shot('conta');
   assert.deepEqual(errors, []);
   await context.close();

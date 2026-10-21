@@ -2,6 +2,12 @@
 import { LOGO } from './theme.js';
 
 export const SCREEN_NAV = ['home', 'bills', 'remind', 'journey', 'plan', 'car'];
+// Preço combinado (a cobrança só abre quando a assinatura for ligada: ver data/access.js). Um lugar só para o texto.
+export const PRICE = 'R$ 22,99/mês';
+export const PRICE_LINE = `Grátis por 7 dias · depois ${PRICE}`;
+// nome do custo fixo do carro, na palavra do motorista
+export const carFixName = vehicle => (vehicle === 'alugado' ? 'Aluguel' : vehicle === 'financiado' ? 'Parcela' : 'Seguro');
+export const UNIT_WORD = { L: 'litro', 'm³': 'm³', kWh: 'kWh' };
 export const MAX_CHOICES = 7; // fontes de renda e categorias de gasto: acima disso some o "Nova"
 
 export const ICON_IN = ['ph-shopping-bag', 'ph-drop-half', 'ph-cookie', 'ph-coffee', 'ph-beer-bottle', 'ph-gift', 'ph-package', 'ph-storefront'];

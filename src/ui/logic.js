@@ -5,10 +5,10 @@
 import React from 'react';
 import { View } from './view.gen.js';
 import { getStore } from '../data/store.js';
-import { reduce } from '../core/actions.js';
+import { reduce, LIMITS_DAY } from '../core/actions.js';
 import { calc, occ as occOf, streak as streakOf } from '../core/calc.js';
-import { todayISO } from '../core/dates.js';
-import { R } from '../core/money.js';
+import { todayISO, addDays } from '../core/dates.js';
+import { R, fmt } from '../core/money.js';
 import { themeOf } from './theme.js';
 import { SCREEN_NAV } from './kit.js';
 import { indexFaro } from './derive.js';
@@ -16,22 +16,22 @@ import { homeVals, planVals } from './vals.js';
 import { billsVals, remindVals, carVals, journeyVals, contaVals } from './vals-secondary.js';
 import { decideAccess, isBlocked } from '../data/access.js';
 import { contaActions, newContaState } from './conta-actions.js';
-import { onboardingVals, closeVals, sheetVals, keypadVals, newOnboardingDraft, onboardingPayload, newCloseDraft } from './vals-forms.js';
+import { onboardingVals, closeVals, sheetVals, keypadVals, newOnboardingDraft, onboardingPayload, newCloseDraft, dayWord } from './vals-forms.js';
 
 const TOAST_MS = 2300;
 const GUARD_MS = 600; // janela em que um toque repetido na mesma ação é ignorado (duplo toque)
 const SCROLL_HINT_MIN_PX = 90;
 const ONBOARDING_SCREEN = 'onb';
 
-const NEW_SHEET = { open: false, type: 'in', digits: '', plat: 'uber', cat: 'Combustível', adding: false, newName: '', newIcon: '', editId: null };
+const NEW_SHEET = { open: false, type: 'in', date: null, digits: '', plat: 'uber', cat: 'Combustível', adding: false, newName: '', newIcon: '', editId: null };
 const NEW_BILL = { name: '', icon: 'ph-lightbulb', color: '#F2B544', cat: 'casa', due: 28 };
 
+// Uma dica por tela, uma por vez. Quem sai da tela sem tocar em "Entendi" também a dispensa: ela não volta.
 const INTRO = {
-  plan: ['ph-fill ph-target', 'Seu plano do mês', 'A meta nasce das suas contas. Edite quanto quer guardar e gastar; o resto o Faro calcula sozinho.'],
-  bills: ['ph-fill ph-receipt', 'Todas as contas num lugar só', 'Carro, casa e cartão. O Faro avisa 2 dias antes; quando pagar, toque em "Paguei".'],
-  car: ['ph-fill ph-car-profile', 'Quanto custa cada km', 'Combustível, desgaste e aluguel viram R$/km. Mudou algo no carro? Toque em Ajustar.'],
-  journey: ['ph-fill ph-fire', 'Sua Jornada', 'Cada dia fechado conta. Suba de nível e melhore seu Índice Faro com constância e lucro por km.'],
-  remind: ['ph-fill ph-bell-ringing', 'Você não precisa lembrar de nada', 'Escolha aqui o que o Faro te avisa e quando.'],
+  plan: ['ph-fill ph-target', 'Seu plano do mês', 'A meta nasce das suas contas. Escolha quanto quer guardar e gastar; o resto o Faro calcula sozinho.'],
+  bills: ['ph-fill ph-receipt', 'Todas as contas num lugar só', 'Carro, casa e cartão. O Faro avisa 2 dias antes do vencimento.'],
+  car: ['ph-fill ph-car-profile', 'Quanto custa cada km', 'Combustível, desgaste e aluguel viram o custo de cada km rodado.'],
+  journey: ['ph-fill ph-fire', 'Sua Jornada', 'Cada dia fechado conta. Suba de nível e melhore sua nota com dias fechados e lucro por km.'],
 };
 const IMPORT_ERRORS = { formato: 'Esse arquivo não é um backup do Faro.', tamanho: 'O arquivo é grande demais para ser um backup.', json: 'Não consegui ler o arquivo.', versao: 'Esse backup é de outra versão do Faro.' };
 
@@ -48,7 +48,7 @@ export default class App extends React.Component {
     const app = this.store.getState();
     this.state = {
       app, screen: 'home', prev: 'home', onbStep: 0, ob: newOnboardingDraft(app), period: 'dia', billFilter: 'todas', wfOpen: false,
-      cl: newCloseDraft(app, todayISO()), sh: NEW_SHEET, nb: NEW_BILL, toast: null, more: false, cloud: readCloud(props.cloud), contaMsg: null, ct: newContaState(props.cloud),
+      cl: newCloseDraft(app, todayISO()), ask: null, sh: NEW_SHEET, nb: NEW_BILL, toast: null, more: false, cloud: readCloud(props.cloud), contaMsg: null, ct: newContaState(props.cloud),
     };
   }
 
@@ -72,7 +72,10 @@ export default class App extends React.Component {
 
   componentDidUpdate() {
     if (this.lastScreen !== this.state.screen) {
+      const left = this.lastScreen;
       this.lastScreen = this.state.screen;
+      // saiu da tela sem dispensar a dica: ela não volta
+      if (left && INTRO[left] && !this.state.app.introSeen[left]) this.act({ type: 'intro/seen', payload: { screen: left } });
       if (this.scRef.current) this.scRef.current.scrollTop = 0;
     }
     this.checkScroll();
@@ -127,31 +130,79 @@ export default class App extends React.Component {
     if (SCREEN_NAV.includes(screen) && !this.store.getState().seen[screen]) this.act({ type: 'seen/mark', payload: { screen } });
     this.setState(st => ({ screen, prev: st.screen }));
   };
-  openSheet = (type, extra) => this.patch('sh', { open: true, type, digits: '', editId: null, adding: false, ...extra });
+  openSheet = (type, extra) => this.patch('sh', { open: true, type, digits: '', editId: null, adding: false, date: this.today(), ...extra });
   closeSheet = () => this.patch('sh', { open: false, adding: false, editId: null, digits: '' });
-  openClose = () => this.setState({ screen: 'close', cl: newCloseDraft(this.store.getState(), this.today()) });
+  // `date`: o dia a fechar (hoje por padrão; "Fechar ontem" passa o dia anterior)
+  openClose = date => this.setState({ screen: 'close', cl: newCloseDraft(this.store.getState(), typeof date === 'string' ? date : this.today()) });
   openSummary = () => this.setState({ screen: 'close', cl: { ...newCloseDraft(this.store.getState(), this.today()), step: 2 } });
+
+  focusId = id => setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 0);
+  // Despacha no núcleo com `dispatchEx`. Sem erro: `onOk(xp ganhos)`. Com erro: o motorista sempre recebe uma resposta
+  // (mensagem no campo, pergunta "esse valor está certo?" ou aviso), nunca um botão mudo. `info` ajuda a escrever a pergunta.
+  submit = (key, action, onOk, info = {}) => {
+    const before = this.store.getState().xp;
+    const { error } = this.store.dispatchEx(action);
+    if (!error) { onOk(this.store.getState().xp - before); return true; }
+    this.guards.delete(key); // quem erra pode corrigir e tentar de novo logo em seguida
+    this.showError(error, { key, action, onOk, info });
+    return false;
+  };
+  showError = (error, ctx = {}) => {
+    const cl = this.state.cl, when = dayWord(this.today(), cl.date || this.today());
+    if (error.error === 'dia_vazio') {
+      this.patch('cl', { step: 0, err: { where: 'p', text: `Lance quanto entrou ${when}` } });
+      this.focusId('faro-p-' + (this.store.getState().sources[0] || { k: 'uber' }).k);
+    } else if (error.error === 'km_invalido') {
+      this.patch('cl', { step: 1, err: { where: 'km', text: 'Informe os km rodados' } });
+      this.focusId('faro-km');
+    } else if (error.error === 'data_invalida') {
+      this.flash('Essa data não vale. Escolha hoje ou um dos últimos dias.');
+    } else if (error.error === 'valor_improvavel') this.askConfirm(error, ctx);
+  };
+  // "Esse valor está certo?": Sim, confirmar reenvia com confirmed:true; Corrigir leva ao campo do valor
+  askConfirm = (error, { key, action, onOk, info = {} }) => {
+    const p = action.payload || {}, campo = String(error.campo || ''), src = campo.startsWith('p.') ? campo.slice(2) : '';
+    const name = k => (this.store.getState().sources.find(x => x.k === k) || {}).name || k;
+    let text, fixStep = 0, fixId = src ? 'faro-p-' + src : null;
+    if (src) text = `${R(action.type === 'day/close' ? (p.p || {})[src] : info.amt, 2)} em ${name(src)}`;
+    else if (campo === 'bruto') text = `${R(action.type === 'day/close' ? Object.values(p.p || {}).reduce((a, b) => a + (+b || 0), 0) : info.amt, 2)} num dia só`;
+    else if (campo === 'km') { text = `${fmt(p.km, 0)} km num dia só`; fixStep = 1; fixId = 'faro-km'; }
+    else text = `${fmt(p.h, 0)} horas num dia só`;
+    const limit = campo === 'km' ? `${fmt(error.limite, 0)} km` : campo === 'h' ? `${error.limite} horas` : R(error.limite, 0);
+    const close = () => this.setState({ ask: null });
+    this.setState({ ask: {
+      title: 'Esse valor está certo?', text, sub: `É bem mais do que o normal para um dia (acima de ${limit}). Se estiver certo, confirme.`,
+      onYes: () => { close(); if (this.once(key)) this.submit(key, { ...action, payload: { ...p, confirmed: true } }, onOk, info); },
+      onFix: () => {
+        close();
+        if (action.type === 'day/close') { this.patch('cl', { step: fixStep, err: null }); if (fixId) this.focusId(fixId); }
+      },
+    } });
+  };
 
   closeDay = payload => {
     if (!this.once('close-day')) return;
-    const gain = this.act({ type: 'day/close', payload });
-    const rec = this.store.getState().recs[this.today()];
-    if (!rec || !rec.closed) return;
-    this.patch('cl', { step: 2 });
-    this.flash(gain ? `Dia fechado · +${gain} XP` : 'Dia atualizado');
+    const date = payload.date || this.today();
+    this.submit('close-day', { type: 'day/close', payload: { ...payload, date } }, gain => {
+      const rec = this.store.getState().recs[date];
+      if (!rec || !rec.closed) return;
+      this.patch('cl', { step: 2, err: null });
+      this.flash(gain ? `Dia fechado · +${gain} pontos` : 'Dia atualizado');
+    });
   };
   payBill = (oid, message) => {
     if (!this.once('pay:' + oid)) return;
     const gain = this.act({ type: 'bill/pay', payload: { oid } });
-    this.flash(message || (gain ? `Conta paga · +${gain} XP` : 'Conta paga'));
+    this.flash(message || (gain ? `Conta paga · +${gain} pontos` : 'Conta paga'));
   };
   unpayBill = oid => { if (this.once('unpay:' + oid)) this.act({ type: 'bill/unpay', payload: { oid } }); };
-  saveEntry = (action, message) => {
+  saveEntry = (action, message, info) => {
     if (!this.once('entry')) return;
-    this.act(action);
-    this.closeSheet();
-    this.setState({ screen: 'home', period: 'dia' });
-    this.flash(message);
+    this.submit('entry', action, () => {
+      this.closeSheet();
+      this.setState({ screen: 'home', period: 'dia' });
+      this.flash(message);
+    }, info);
   };
   removeEntry = id => {
     const old = this.store.getState().exps.find(e => e.id === id);
@@ -238,12 +289,11 @@ export default class App extends React.Component {
 
   buildVals(ui, app) {
     const today = this.today(), t = themeOf(app.theme), C = calc(app, today);
-    // contas que venceram antes de o motorista começar a usar o Faro não contam como atrasadas (as já pagas continuam)
-    const occ = occOf(app, today).filter(o => o.paid || !app.onboardedAt || o.date >= app.onboardedAt);
+    const occ = occOf(app, today); // o núcleo já grava `start` em cada conta: a tela não filtra mais
     const pend = occ.filter(o => !o.paid).sort((a, b) => a.date.localeCompare(b.date));
     const k = {
       app, C, t, ui, today, occ, pend, idx: indexFaro(app, C, occ), streakNow: streakOf(app, today), cloud: ui.cloud,
-      cloudApi: this.props.cloud, conta: this.conta, version: this.props.version || '', calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary,
+      cloudApi: this.props.cloud, conta: this.conta, version: this.props.version || '', calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary, showError: this.showError,
       closeDay: this.closeDay, payBill: this.payBill, unpayBill: this.unpayBill, saveEntry: this.saveEntry, removeEntry: this.removeEntry, createBill: this.createBill,
       addSource: this.addSource, addExpenseCategory: this.addExpenseCategory, finishOnboarding: this.finishOnboarding, exportBackup: this.exportBackup, importBackupFile: this.importBackupFile,
     };
@@ -264,7 +314,8 @@ export default class App extends React.Component {
       back: () => this.set({ screen: ui.prev && ui.prev !== screen ? ui.prev : 'journey' }),
       editCar: () => this.openSheet('car'),
       openNewBill: () => this.setState(st => ({ sh: { ...st.sh, open: true, type: 'bill', digits: '', editId: null, adding: false }, nb: NEW_BILL })),
-      fab: () => (C.todayClosed ? this.openSummary() : this.openClose()),
+      fab: { label: C.todayClosed ? 'Resumo' : 'Fechar dia', onClick: () => (C.todayClosed ? this.openSummary() : this.openClose()) },
+      ask: ui.ask ? { show: true, ...ui.ask } : { show: false }, bgHidden: sheetOpen || !!ui.ask ? 'true' : 'false',
       ...homeVals(k), pl: planVals(k), bl: billsVals(k), rm: remindVals(k), car: carVals(k), ...journeyVals(k), conta: contaVals(k), cl: closeVals(k), keys: keypadVals(k), ...sheets,
       toast: ui.toast, intro,
       scRef: this.scRef, onScroll: () => this.checkScroll(),
@@ -274,7 +325,7 @@ export default class App extends React.Component {
   }
 
   scrollHint(t) {
-    const style = { position: 'absolute', left: '50%', bottom: 'calc(102px + env(safe-area-inset-bottom, 0px))', zIndex: 21, height: 30, padding: '0 12px', borderRadius: 15, border: `1px solid ${t.line2}`, background: t.nav, color: t.muted, fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', animation: 'fbob 1.8s ease-in-out infinite', backdropFilter: 'blur(12px)', fontFamily: 'inherit', boxShadow: '0 8px 20px -10px rgba(0,0,0,.4)' };
+    const style = { position: 'absolute', left: '50%', bottom: 'calc(110px + env(safe-area-inset-bottom, 0px))', zIndex: 21, height: 44, padding: '0 16px', borderRadius: 22, border: `1px solid ${t.line2}`, background: t.nav, color: t.muted, fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', animation: 'fbob 1.8s ease-in-out infinite', backdropFilter: 'blur(12px)', fontFamily: 'inherit', boxShadow: '0 8px 20px -10px rgba(0,0,0,.4)' };
     return React.createElement('button', { onClick: () => this.scRef.current && this.scRef.current.scrollBy({ top: 380, behavior: 'smooth' }), style }, React.createElement('i', { className: 'ph-bold ph-caret-down' }), 'role para ver mais');
   }
 }

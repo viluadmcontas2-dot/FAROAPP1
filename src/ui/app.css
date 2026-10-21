@@ -407,3 +407,6 @@
 .ph-duotone.ph-wrench:before{content:"\e5d4"}.ph-duotone.ph-wrench:after{content:"\e5d5"}
 .ph-duotone.ph-x:before{content:"\e4f6"}.ph-duotone.ph-x:after{content:"\e4f7"}
 *{box-sizing:border-box}button,input{font-family:inherit}.fscroll::-webkit-scrollbar,.hscroll::-webkit-scrollbar{display:none}@keyframes ftoast{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes fsheet{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes ffade{from{opacity:0}to{opacity:1}}@keyframes fnudge{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}@keyframes fbob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,4px)}}@keyframes frise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes fpop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+/* alvos de toque de rua: no mínimo 44 x 44 px em todo botão */
+button,[role=button]{min-height:44px;min-width:44px}
+:focus-visible{outline:3px solid #F2B544;outline-offset:2px}

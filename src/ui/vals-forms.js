@@ -1,12 +1,12 @@
 // Valores do template para as telas de entrada de dados: onboarding, fechar o dia e as folhas (lançar/ajustar).
 // Cada função lê o estado real (k.app, k.C = calc) e despacha ações do núcleo (k.act); nada é calculado aqui.
-import { reduce } from '../core/actions.js';
+import { reduce, LIMITS_DAY } from '../core/actions.js';
 import { sepAmounts } from '../core/calc.js';
 import { fmt, R, parseMoney } from '../core/money.js';
-import { monthName, WD_LONG, MONTHS, parseISO, weekday } from '../core/dates.js';
+import { monthName, WD_LONG, MONTHS, parseISO, weekday, addDays } from '../core/dates.js';
 import { FUEL, SRC_CAT, XP, ENERGIES, RIDE_KEYS, FUEL_CAT } from '../core/catalog.js';
 import { LOGO } from './theme.js';
-import { plural, ICON_IN, ICON_OUT, BILL_ICONS, BILL_COLORS, BILL_PRESETS, BILL_CAT_LABELS, ENERGY_LABELS, VEHICLE_LABELS, DAYS_WEEK_OPTIONS, MAX_CHOICES, logoStyle, sel, segOpt, stepper } from './kit.js';
+import { plural, PRICE_LINE, carFixName, ICON_IN, ICON_OUT, BILL_ICONS, BILL_COLORS, BILL_PRESETS, BILL_CAT_LABELS, ENERGY_LABELS, VEHICLE_LABELS, DAYS_WEEK_OPTIONS, MAX_CHOICES, logoStyle, sel, segOpt, stepper } from './kit.js';
 
 export const energyWord = app => (app.energy === 'eletrico' ? 'Recarga' : 'Combustível');
 const KM_MAX_DIGITS = 4, MONEY_MAX_DIGITS = 7;
@@ -63,7 +63,7 @@ export function onboardingVals(k) {
   });
 
   const pdg = Math.max(1, C.planDailyGross), pkm = pdg / C.revKm;
-  const per = [[word, C.fuelKm / C.revKm * 100, t.accent], ['Desgaste', app.wear / C.revKm * 100, t.cW], ['Carro fixo', C.carShare / pdg * 100, t.cF], ['Contas da vida', C.lifeShare / pdg * 100, t.cL]];
+  const per = [[word, C.fuelKm / C.revKm * 100, t.accent], ['Desgaste', app.wear / C.revKm * 100, t.cW], [carFixName(app.vehicle), C.carShare / pdg * 100, t.cF], ['Contas da vida', C.lifeShare / pdg * 100, t.cL]];
   const left = Math.max(0, 100 - per.reduce((a, p) => a + p[1], 0));
   const lifeBills = app.bills.filter(b => b.cat !== 'carro');
   const cta = os === 6;
@@ -72,10 +72,10 @@ export function onboardingVals(k) {
     apps, appsNote: `${ob.sources.length} de ${MAX_CHOICES} fontes. Vende algo no carro? Crie a fonte "Vendas no carro" no fechamento do dia.`,
     s0: os === 0, inner: os > 0, sApps: os === 1, s1: os === 2, s2: os === 3, s3: os === 4, s4: os === 5, s5: os === 6, count: `${os}/6`,
     kicker: texts[os] && texts[os][0], title: texts[os] && texts[os][1], sub: texts[os] && texts[os][2],
-    pitch: [{ icon: 'ph-duotone ph-scales', text: 'Bruto e lucro líquido, separados de verdade' }, { icon: 'ph-duotone ph-house-line', text: 'Contas do carro e da casa no mesmo lugar' }, { icon: 'ph-duotone ph-bell-ringing', text: 'Lembretes de contas e manutenção na hora certa' }],
+    pitch: [{ icon: 'ph-duotone ph-scales', text: 'Quanto entrou e lucro de verdade, cada um no seu lugar' }, { icon: 'ph-duotone ph-house-line', text: 'Contas do carro e da casa no mesmo lugar' }, { icon: 'ph-duotone ph-bell-ringing', text: 'Lembretes de contas e manutenção na hora certa' }],
     dots: [1, 2, 3, 4, 5, 6].map(i => ({ bg: i <= os ? t.accent : t.line2 })),
     next: () => (os < 6 ? k.set({ onbStep: os + 1 }) : k.finishOnboarding()), back: () => k.set({ onbStep: Math.max(0, os - 1) }),
-    cta: cta ? 'Entrar no Faro' : 'Continuar', ctaBg: cta ? t.gold : t.accent, ctaInk: cta ? t.goldInk : '#fff',
+    cta: cta ? 'Entrar no Faro' : 'Continuar', priceLine: ui.access && ui.access.billing ? `${PRICE_LINE} · cancele quando quiser` : PRICE_LINE, ctaBg: cta ? t.gold : t.accent, ctaInk: cta ? t.goldInk : '#fff',
     vehicles,
     energies: ENERGIES.map(key => ({ label: ENERGY_LABELS[key][0], icon: ENERGY_LABELS[key][1], ...sel(t, ob.energy === key), onClick: () => patchOb({ energy: key }) })),
     isFlex: ob.energy === 'flex',
@@ -93,50 +93,74 @@ export function onboardingVals(k) {
 export const billRhythm = b => (b.rec === 'semanal' ? `toda ${WD_LONG[b.due]}` : `mensal · dia ${b.due}`);
 
 // ---------------------------------------------------------------- fechar o dia
-export const newCloseDraft = (app, today) => {
-  const rec = app.recs[today], f = { km: '' };
+// `date` = o dia que está sendo fechado (hoje, ontem ou anteontem). Vai SEMPRE no `day/close`.
+export const newCloseDraft = (app, date) => {
+  const rec = app.recs[date], f = { km: '' };
   for (const x of app.sources) { const v = rec && rec.p[x.k]; f[x.k] = v ? v.toFixed(2).replace('.', ',') : ''; }
-  return { step: 0, f, h: 9, adding: false, newName: '', newIcon: '', kmEst: false, hEst: false, hTouched: false };
+  return { step: 0, date, f, h: 9, adding: false, newName: '', newIcon: '', kmEst: false, hEst: false, hTouched: false, err: null };
 };
 
-const dateLabel = today => {
-  const { m, d } = parseISO(today), wd = WD_LONG[weekday(today)];
+const dateLabel = date => {
+  const { m, d } = parseISO(date), wd = WD_LONG[weekday(date)];
   return `${wd[0].toUpperCase()}${wd.slice(1)}, ${d} de ${MONTHS[m - 1]}`;
+};
+export const dayWord = (today, date) => (date === today ? 'hoje' : date === addDays(today, -1) ? 'ontem' : 'nesse dia');
+// os 3 últimos dias para escolher (mais o dia da tela, se a virada das 04:00 passou com ela aberta)
+export const dayOptions = (today, current) => {
+  const list = [[today, 'Hoje'], [addDays(today, -1), 'Ontem'], [addDays(today, -2), 'Anteontem']];
+  return list.some(([d]) => d === current) || !current ? list : [...list, [current, dateLabel(current)]];
 };
 // so as fontes de corrida entram no R$/km (gorjeta e venda ficam de fora)
 const rideOf = amounts => RIDE_KEYS.reduce((a, key) => a + (amounts[key] || 0), 0);
 
 export function closeVals(k) {
-  const { app, C, t, ui, today } = k, cs = ui.cl, cf = cs.f;
+  const { app, C, t, ui, today } = k, cs = ui.cl, cf = cs.f, date = cs.date || today;
   const setCl = o => k.patch('cl', o);
   const amounts = Object.fromEntries(app.sources.map(x => [x.k, parseMoney(cf[x.k])]));
   const gross = Object.values(amounts).reduce((a, b) => a + b, 0);
   const km = parseInt(cf.km || '0', 10) || 0;
   // prévia do lucro: aplica o fechamento a um estado de rascunho e lê o calc, sem gravar nada
-  const prev = km > 0 ? k.calcOf(reduce(app, { type: 'day/close', payload: { p: amounts, km, h: cs.h } }, { today })).num(today) : null;
-  const done = C.num(today) && C.num(today).closed ? C.num(today) : null;
-  const sep = sepAmounts(C, today);
-  const goal = C.targetFor(today);
-  const rideGross = rideOf(amounts), estKm = Math.round(rideGross / C.revKm);
-  const sepRows = [['Carro', app.vehicle === 'alugado' ? 'aluguel + desgaste do dia' : 'parcela/seguro + desgaste', 'ph-fill ph-car-profile', t.accent, sep.carro], ['Contas da casa', 'sua parte diária das contas', 'ph-fill ph-house-line', t.cW, sep.casa], ['Reserva', '15% da sobra · seu fôlego', 'ph-fill ph-lifebuoy', t.pos, sep.reserva], ['Livre pra você', 'pode gastar sem culpa', 'ph-fill ph-smiley', t.gold, sep.livre]].map(([label, sub, icon, color, v]) => ({ label, sub, icon, color, value: R(v) }));
+  const prev = km > 0 ? k.calcOf(reduce(app, { type: 'day/close', payload: { date, p: amounts, km, h: cs.h, confirmed: true } }, { today })).num(date) : null;
+  const done = C.num(date) && C.num(date).closed ? C.num(date) : null;
+  const sep = sepAmounts(C, date);
+  const goal = C.targetFor(date);
+  const rideGross = rideOf(amounts), estKm = Math.min(LIMITS_DAY.km, Math.round(rideGross / C.revKm));
   const iconNew = cs.newIcon || ICON_IN[0];
+  const when = dayWord(today, date);
+
+  // a conta do dia, com os mesmos números do calc: o que entrou menos cada custo = lucro de verdade
+  const row = (label, value, o = {}) => ({ label, value, lc: o.lc || t.muted, vc: o.vc || t.ink, fw: o.fw || '600' });
+  const conta = done ? [
+    row('Quanto entrou', R(done.g, 2), { lc: t.ink, fw: '800' }),
+    row(energyWord(app), '− ' + R(done.en, 2)), row('Desgaste do carro', '− ' + R(done.we, 2)),
+    row(`${carFixName(app.vehicle)} (parte do dia)`, '− ' + R(done.car, 2)), row('Gastos na rua', '− ' + R(done.ex, 2)),
+    row('Lucro de verdade', R(done.lucro, 2), { lc: t.ink, vc: done.lucro >= 0 ? t.pos : t.neg, fw: '800' }),
+  ] : [];
+  // a sugestão divide o lucro de verdade: contas da casa, reserva e livre somam o lucro (nunca mais que ele)
+  const casa = done ? Math.min(done.life, Math.max(0, done.lucro)) : 0;
+  const sepRows = [['Contas da casa', 'sua parte do dia', 'ph-fill ph-house-line', t.cW, casa], ['Reserva', '15% do que sobra · seu fôlego', 'ph-fill ph-lifebuoy', t.pos, sep.reserva], ['Livre pra você', 'pode gastar sem culpa', 'ph-fill ph-smiley', t.gold, sep.livre]].map(([label, sub, icon, color, v]) => ({ label, sub, icon, color, value: R(v, 2) }));
+  const short = done && done.lucro < done.life ? done.life - Math.max(0, done.lucro) : 0;
+  const err = cs.err || null;
 
   const goNext = () => {
     if (cs.step === 0) {
-      if (gross <= 0) return;
-      setCl({ step: 1, kmEst: !cf.km, f: { ...cf, km: cf.km || String(estKm) }, h: cs.hTouched ? cs.h : Math.max(6, Math.min(12, Math.round(rideGross / C.perH))), hEst: !cs.hTouched });
-    } else k.closeDay({ p: amounts, km, h: cs.h });
+      if (gross <= 0) { k.showError({ error: 'dia_vazio' }); return; }
+      setCl({ err: null, step: 1, kmEst: !cf.km, f: { ...cf, km: cf.km || String(estKm) }, h: cs.hTouched ? cs.h : Math.max(6, Math.min(12, Math.round(rideGross / C.perH))), hEst: !cs.hTouched });
+    } else k.closeDay({ date, p: amounts, km, h: cs.h });
   };
 
   return {
-    dateLabel: dateLabel(today),
+    dateLabel: dateLabel(date),
+    dayChips: dayOptions(today, date).map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.gold : t.ink, onClick: () => setCl(newCloseDraft(app, d)) })),
+    askTitle: `Quanto entrou ${when}?`, kmLabel: `Km rodados ${when}`,
     s0: cs.step === 0, s1: cs.step === 1, s2: false, s3: cs.step === 2, keypad: cs.step < 2,
-    exit: () => (cs.step === 1 ? setCl({ step: 0 }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x',
+    exit: () => (cs.step === 1 ? setCl({ step: 0, err: null }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x',
     dots: [0, 1, 2].map(i => ({ w: i === cs.step ? '22px' : '7px', bg: i <= cs.step ? t.gold : t.line2 })),
     plats: app.sources.map(x => ({
-      name: x.name, ...logoStyle(x.k), icon: x.icon || 'ph-duotone ph-hand-coins', sub: RIDE_KEYS.includes(x.k) ? '' : 'fora do R$/km', subD: RIDE_KEYS.includes(x.k) ? 'none' : 'block', val: cf[x.k] || '',
-      onChange: e => { const v = e.target.value.replace(/[^\d.,]/g, '').slice(0, 9); setCl({ f: { ...cf, [x.k]: v } }); },
+      name: x.name, id: 'faro-p-' + x.k, ...logoStyle(x.k), icon: x.icon || 'ph-duotone ph-hand-coins', sub: RIDE_KEYS.includes(x.k) ? '' : 'fora do R$/km', subD: RIDE_KEYS.includes(x.k) ? 'none' : 'block', val: cf[x.k] || '',
+      onChange: e => { const v = e.target.value.replace(/[^\d.,]/g, '').slice(0, 9); setCl({ err: null, f: { ...cf, [x.k]: v } }); },
     })),
+    err0: err && err.where === 'p' ? err.text : '',
     add: {
       title: 'Nova fonte de renda', ph: 'Ex.: Vendas no carro', name: cs.newName || '', icon: 'ph-duotone ' + iconNew, onName: e => setCl({ newName: e.target.value }),
       iconOpts: ICON_IN.map(ic => ({ icon: 'ph-duotone ' + ic, border: iconNew === ic ? t.accent : t.line, bg: iconNew === ic ? t.accentSoft : 'transparent', onClick: () => setCl({ newIcon: ic }) })),
@@ -144,19 +168,20 @@ export function closeVals(k) {
       confirm: () => k.addSource((cs.newName || '').trim(), iconNew, () => setCl({ adding: false })),
     },
     adding: !!cs.adding, canAdd: !cs.adding && app.sources.length < MAX_CHOICES, startAdd: () => setCl({ adding: true, newName: '', newIcon: ICON_IN[0] }),
-    kmVal: cf.km || '', onKm: e => setCl({ kmEst: false, f: { ...cf, km: e.target.value.replace(/\D/g, '').slice(0, KM_MAX_DIGITS) } }),
-    kmNote: cs.kmEst ? `Estimado pelo seu ganho médio de ${R(C.revKm, 2)}/km nos apps. Sabe o número exato? É só trocar.` : km > 0 ? `Hoje você ganhou ${R(rideGross / km, 2)} por km nos apps.` : 'Gorjetas e vendas não entram no cálculo por km.', kmTag: cs.kmEst ? 'estimado' : '',
+    kmVal: cf.km || '', onKm: e => setCl({ kmEst: false, err: null, f: { ...cf, km: e.target.value.replace(/\D/g, '').slice(0, KM_MAX_DIGITS) } }),
+    kmErr: err && err.where === 'km' ? err.text : '', kmBad: err && err.where === 'km' ? 'true' : 'false',
+    kmNote: cs.kmEst ? `Estimado pelo seu ganho médio de ${R(C.revKm, 2)}/km nos apps. Sabe o número exato? É só trocar.` : km > 0 ? `${when === 'hoje' ? 'Hoje' : 'Nesse dia'} você ganhou ${R(rideGross / km, 2)} por km nos apps.` : 'Gorjetas e vendas não entram no cálculo por km.', kmTag: cs.kmEst ? 'estimado' : '',
     estimate: () => { if (rideGross > 0) setCl({ f: { ...cf, km: String(estKm) } }); }, estLabel: rideGross > 0 ? `Não sei o km · usar ≈ ${estKm} km` : 'Não sei o km',
     gross: R(gross, 2), km: km + ' km',
     hours: [6, 7, 8, 9, 10, 11, 12].map(n => ({ label: n + 'h', ...sel(t, cs.h === n), onClick: () => setCl({ h: n, hTouched: true, hEst: false }) })),
     hoursNote: cs.hEst ? `estimado pelo seu ritmo de ${R(C.perH, 0)}/h nos apps` : '',
     preview: prev ? R(prev.lucro, 2) : '—', prevColor: prev ? (prev.lucro >= 0 ? t.pos : t.neg) : t.muted, prevSub: prev ? `${R(prev.lucro / km, 2)}/km · ${R(prev.lucro / cs.h, 2)}/h` : 'digite os km',
-    cta: cs.step === 0 ? 'Continuar' : 'Fechar o dia', op: (cs.step === 0 ? gross > 0 : km > 0) ? '1' : '.4', next: goNext,
-    sep: sepRows,
+    cta: cs.step === 0 ? 'Informar km e horas' : 'Fechar o dia', op: '1', next: goNext,
+    conta, sep: sepRows,
+    sepSub: short > 0 ? `Sua parte das contas da casa é ${R(done.life, 2)}; faltaram ${R(short, 2)} neste dia.` : 'Do lucro de verdade, é assim que ele se divide. Não precisa anotar nada.',
     net: done ? R(done.lucro, 2) : '', badge: done ? (done.lucro >= goal ? 'Meta do dia batida' : `${R(Math.max(0, goal - done.lucro))} abaixo da meta de ${R(goal)}`) : '',
-    stats: done ? [{ label: 'Lucro/km', value: R(done.lucro / done.km, 2) }, { label: 'Lucro/hora', value: R(done.lucro / done.h, 2) }, { label: 'Rodou', value: done.km + ' km' }] : [],
-    rows: done ? [{ label: 'Bruto', value: R(done.g, 2), vc: t.ink }, { label: `${energyWord(app)} + desgaste`, value: '− ' + R(done.en + done.we, 2), vc: t.ink }, { label: 'Carro fixo + gastos na rua', value: '− ' + R(done.car + done.ex, 2), vc: t.ink }, { label: 'Contas da vida', value: '− ' + R(done.life, 2), vc: t.ink }, { label: 'Sobra do dia', value: R(done.sobra, 2), vc: t.pos }] : [],
-    rewards: [{ icon: 'ph-fill ph-star-four', v: `+${XP.close} XP`, l: 'dia fechado' }, { icon: 'ph-fill ph-fire', v: plural(k.streakNow, 'dia', 'dias'), l: 'sequência' }, { icon: 'ph-fill ph-gauge', v: String(k.idx.score), l: 'Índice Faro' }],
+    stats: done ? [{ label: 'Lucro por km', value: R(done.lucro / done.km, 2) }, { label: 'Lucro por hora', value: R(done.lucro / done.h, 2) }, { label: 'Rodou', value: done.km + ' km' }] : [],
+    rewards: [{ icon: 'ph-fill ph-star-four', v: `+${XP.close} pontos`, l: 'dia fechado' }, { icon: 'ph-fill ph-fire', v: plural(k.streakNow, 'dia', 'dias'), l: 'sequência' }, { icon: 'ph-fill ph-gauge', v: String(k.idx.score), l: 'sua nota' }],
     toMonth: () => k.set({ screen: 'home', period: 'mes' }), done: () => k.set({ screen: 'home', period: 'dia' }),
   };
 }
@@ -183,25 +208,24 @@ export function sheetVals(k) {
   const plat = app.sources.some(x => x.k === ss.plat) ? ss.plat : app.sources[0].k;
   const cat = app.expCats.some(c => c.name === ss.cat) ? ss.cat : app.expCats[0].name;
   const adding = !!ss.adding, iconSet = ss.type === 'in' ? ICON_IN : ICON_OUT, curIc = ss.newIcon || iconSet[0];
-  const todayExps = app.exps.filter(e => e.date === today);
+  const date = ss.date || today, when = dayWord(today, date);
+  const dayExps = app.exps.filter(e => e.date === date);
   const tile = (label, on, onClick, icon, logoKey, dashed) => ({
     label, ...(logoKey && LOGO[logoKey] ? { logoUrl: `url("${LOGO[logoKey]}")`, imgD: 'block', icoD: 'none' } : { logoUrl: 'none', imgD: 'none', icoD: 'block' }), icon: icon || '',
     ic: on ? t.accent : (dashed ? t.muted : t.ink), bg: on ? t.accentSoft : 'transparent', border: on ? t.accent : t.line2, bs: dashed ? 'dashed' : 'solid', color: on ? t.accent : (dashed ? t.muted : t.ink), onClick,
   });
-  const payOption = o => ({ name: o.name, value: R(o.v, o.v % 1 ? 2 : 0), icon: 'ph-fill ' + o.icon, color: o.color, onClick: () => { k.payBill(o.oid, `${o.name} paga · fora da lista`); setSh({ open: false }); } });
-  const billOpts = k.pend.slice(0, 5).map(payOption);
 
   let chips = [], title = '', hint = '', tabs = [], saveLabel = '';
   const isMoney = ss.type === 'in' || ss.type === 'out';
   if (isMoney) {
-    title = ss.editId ? 'Editar gasto' : ss.type === 'in' ? 'Lançar ganho' : 'Lançar gasto';
+    title = ss.editId ? 'Corrigir gasto' : ss.type === 'in' ? 'O que entrou?' : 'O que saiu?';
     tabs = [['in', 'Ganho', 'ph-bold ph-arrow-down-left'], ['out', 'Gasto', 'ph-bold ph-arrow-up-right']].map(([key, label, icon]) => ({ label, icon, bg: ss.type === key ? t.surface : 'transparent', color: ss.type === key ? t.ink : t.muted, onClick: () => setSh({ type: key, adding: false }) }));
     const newTile = tile('Nova', false, () => setSh({ adding: true, newName: '', newIcon: iconSet[0] }), 'ph-bold ph-plus', null, true);
     if (ss.type === 'in') { chips = app.sources.map(x => tile(x.name, plat === x.k, () => setSh({ plat: x.k }), x.icon || 'ph-duotone ph-hand-coins', x.k)); if (app.sources.length < MAX_CHOICES) chips.push(newTile); }
     else { chips = app.expCats.map(c => tile(c.name, cat === c.name, () => setSh({ cat: c.name }), c.icon)); if (app.expCats.length < MAX_CHOICES) chips.push(newTile); }
     const src = app.sources.find(x => x.k === plat);
-    hint = ss.type === 'in' ? `Soma no bruto de hoje${src ? ' em ' + src.name : ''}. No fechamento é só conferir.` : cat === FUEL_CAT ? 'O Faro já desconta o combustível pelos km. Lançar o abastecimento só mede seu consumo real, sem cobrar duas vezes.' : 'Sai do lucro de hoje como gasto na rua.';
-    saveLabel = ss.editId ? 'Salvar alteração' : ss.type === 'in' ? 'Salvar ganho' : 'Salvar gasto';
+    hint = ss.type === 'in' ? `Soma no que entrou ${when}${src ? ' em ' + src.name : ''}. No fechamento é só conferir.` : cat === FUEL_CAT ? 'O combustível já é descontado pelos km. Anotar só mede seu consumo.' : `Sai do lucro de ${when} como gasto na rua.`;
+    saveLabel = ss.editId ? 'Salvar alteração' : ss.type === 'in' ? 'Anotar ganho' : 'Anotar gasto';
   } else if (ss.type === 'bill') { title = 'Nova conta'; saveLabel = 'Criar conta'; }
 
   const add = {
@@ -227,7 +251,7 @@ export function sheetVals(k) {
   const save = () => {
     if (amt <= 0) return;
     if (ss.type === 'bill') { if (nbS.name.trim()) k.createBill({ name: nbS.name.trim(), v: amt, icon: nbS.icon, color: nbS.color, cat: nbS.cat, due: nbS.due }); return; }
-    k.saveEntry(ss.editId ? { type: 'entry/edit', payload: { id: ss.editId, amount: amt, cat } } : { type: 'entry/add', payload: ss.type === 'in' ? { kind: 'in', plat, amount: amt } : { kind: 'out', cat, amount: amt } }, ss.editId ? 'Gasto atualizado' : `${ss.type === 'in' ? 'Ganho' : 'Gasto'} de ${R(amt, 2)} lançado`);
+    k.saveEntry(ss.editId ? { type: 'entry/edit', payload: { id: ss.editId, amount: amt, cat } } : { type: 'entry/add', payload: ss.type === 'in' ? { kind: 'in', plat, amount: amt, date } : { kind: 'out', cat, amount: amt, date } }, ss.editId ? 'Gasto atualizado' : `${ss.type === 'in' ? 'Ganho' : 'Gasto'} de ${R(amt, 2)} anotado${date === today ? '' : ' · ' + when}`, { what: ss.type === 'in' ? (app.sources.find(x => x.k === plat) || {}).name : null, amt });
   };
 
   // folhas de ajuste (plano e carro): cada toque já grava e o resumo "ao vivo" recalcula
@@ -270,18 +294,18 @@ export function sheetVals(k) {
   const isSet = ss.type === 'plan' || ss.type === 'car';
   const monthGross = C.planDailyGross * C.planned;
   const live = ss.type === 'plan'
-    ? [{ label: 'Meta bruta do mês', value: R(monthGross), color: '#fff' }, { label: 'Faturar por dia', value: R(C.dailyGross), color: t.gold }, { label: 'Lucro líquido', value: R(C.target), color: '#5EE6A8' }]
-    : [{ label: 'Custo por km', value: R(C.fuelKm + app.wear, 2), color: '#fff' }, { label: 'Faturar por dia', value: R(C.dailyGross), color: t.gold }, { label: 'Meta bruta do mês', value: R(monthGross), color: '#fff' }];
+    ? [{ label: 'Quanto precisa ganhar no mês', value: R(monthGross), color: '#fff' }, { label: 'Quanto ganhar por dia', value: R(C.dailyGross), color: t.gold }, { label: 'Lucro de verdade', value: R(C.target), color: '#5EE6A8' }]
+    : [{ label: 'Custo por km', value: R(C.fuelKm + app.wear, 2), color: '#fff' }, { label: 'Quanto ganhar por dia', value: R(C.dailyGross), color: t.gold }, { label: 'Quanto precisa ganhar no mês', value: R(monthGross), color: '#fff' }];
 
   const strip = ss.type === 'out' && !ss.editId && !adding ? [
-    ...todayExps.map(x => ({ label: `${x.cat} · ${R(x.v, x.v % 1 ? 2 : 0)}`, icon: x.icon, iconBg: t.surface2, iconColor: t.ink, bg: 'transparent', border: t.line2, tag: 'editar', tagIcon: 'ph-bold ph-pencil-simple', tagBg: t.surface2, tagColor: t.ink, onClick: () => setSh({ digits: String(Math.round(x.v * 100)), cat: x.cat, editId: x.id }) })),
-    ...billOpts.map(b => ({ label: `${b.name} · ${b.value}`, icon: b.icon, iconBg: b.color, iconColor: '#fff', bg: 'transparent', border: t.line2, tag: 'paguei', tagIcon: 'ph-bold ph-check', tagBg: t.pos, tagColor: t.posInk, onClick: b.onClick })),
+    ...dayExps.map(x => ({ label: `${x.cat} · ${R(x.v, x.v % 1 ? 2 : 0)}`, icon: x.icon, iconBg: t.surface2, iconColor: t.ink, bg: 'transparent', border: t.line2, tag: 'editar', tagIcon: 'ph-bold ph-pencil-simple', tagBg: t.surface2, tagColor: t.ink, onClick: () => setSh({ digits: String(Math.round(x.v * 100)), cat: x.cat, editId: x.id }) })),
   ] : [];
 
   const sh = {
     open: ss.open, isSet, live, liveTitle: 'ATUALIZA ENQUANTO VOCÊ AJUSTA', blocks, isBill: ss.type === 'bill', isMoney, adding, notAdding: !adding, showPad: !adding && !isSet, add,
-    bills: billOpts, hasBills: false, strip, hasStrip: strip.length > 0, stripLabel: todayExps.length ? 'Já lançados hoje (toque para editar) e contas a pagar' : 'Pagou uma conta fixa? Toque e ela sai da lista',
+    strip, hasStrip: strip.length > 0, stripLabel: `Já anotados ${when} · toque para corrigir`,
     editing: !!ss.editId && ss.type === 'out', del: () => k.removeEntry(ss.editId),
+    dayChips: ss.editId ? [] : [[today, 'Hoje'], [addDays(today, -1), 'Ontem']].map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.gold : t.ink, onClick: () => setSh({ date: d }) })),
     title, tabs, chips, hint, saveLabel, int: '', cents: '', centsOp: '1', centsPh: '', amtDim, amtLit, amtColor: amt > 0 ? t.ink : t.muted, op: amt > 0 ? '1' : '.4',
     close: () => setSh({ open: false, adding: false }), save,
   };

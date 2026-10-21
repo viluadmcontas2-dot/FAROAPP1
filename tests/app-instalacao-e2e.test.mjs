@@ -37,7 +37,7 @@ const open = async (opts, init) => {
 const text = page => page.evaluate(() => document.body.innerText);
 const appHidden = async page => {
   const body = await text(page);
-  assert.doesNotMatch(body, /Farejar meu lucro|Já uso o Faro|Lucro líquido/, 'fora do modo instalado o app não pode aparecer');
+  assert.doesNotMatch(body, /Ver meu lucro de verdade|Já uso o Faro|Lucro de verdade/, 'fora do modo instalado o app não pode aparecer');
   assert.equal(await page.evaluate(() => localStorage.getItem('faro-v2-state')), null, 'a tela de instalar não toca nos dados');
 };
 
@@ -105,7 +105,7 @@ test('instalado: standalone (Android) e navigator.standalone (iOS) abrem o app',
   for (const [opts, init] of [[{ viewport: PHONE, userAgent: UA.android }, forceStandalone],
     [{ viewport: PHONE, userAgent: UA.iphone }, () => Object.defineProperty(navigator, 'standalone', { value: true, configurable: true })]]) {
     const { context, page, errors } = await open(opts, init);
-    await page.waitForFunction(() => document.body.innerText.includes('Farejar meu lucro'));
+    await page.waitForFunction(() => document.body.innerText.includes('Ver meu lucro de verdade'));
     assert.doesNotMatch(await text(page), /Instalar o Faro|Instale o Faro/);
     assert.deepEqual(errors, []);
     await context.close();

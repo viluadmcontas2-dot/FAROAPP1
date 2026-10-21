@@ -127,6 +127,6 @@ export class InstallGate extends React.Component {
         h('div', { style: { height: 28 } }),
         c.install ? h('button', { onClick: this.install, style: btn }, 'Instalar o Faro') : null,
         c.copy ? h('button', { onClick: this.copy, style: { ...btn, background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,.3)' } }, this.state.copied ? 'Link copiado' : 'Copiar link') : null,
-        this.state.failed ? h('p', { role: 'alert', style: { margin: '14px 0 0', fontSize: 13, fontWeight: 700, color: t.gold } }, c.install ? 'Não deu para abrir a instalação. Use o menu do navegador e toque em Instalar app.' : 'Não deu para copiar. Copie o endereço na barra do navegador.') : null));
+        this.state.failed ? h('p', { role: 'alert', style: { margin: '14px 0 0', fontSize: 14, fontWeight: 700, color: t.gold } }, c.install ? 'Não deu para abrir a instalação. Use o menu do navegador e toque em Instalar app.' : 'Não deu para copiar. Copie o endereço na barra do navegador.') : null));
   }
 }

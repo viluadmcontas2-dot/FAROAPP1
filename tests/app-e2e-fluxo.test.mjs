@@ -62,7 +62,7 @@ for (const vp of VIEWPORTS) {
 
     // --- tela cheia, sem moldura de celular
     await page.goto(server.url);
-    await hasText(page, 'Farejar meu lucro');
+    await hasText(page, 'Ver meu lucro de verdade');
     const frame = await page.evaluate(() => {
       const app = document.querySelector('#root > div');
       const r = app.getBoundingClientRect();
@@ -75,7 +75,7 @@ for (const vp of VIEWPORTS) {
     await shot('onboarding-0');
 
     // --- onboarding completo (7 passos)
-    await click(page, /^Farejar meu lucro/);
+    await click(page, /^Ver meu lucro de verdade/);
     for (const [kicker, next] of [['Seus apps', 'Continuar'], ['Seu carro', 'Continuar'], ['Combustível', 'Continuar'], ['Sua vida', 'Continuar'], ['Meta', 'Continuar'], ['Pronto', 'Entrar no Faro']]) {
       await hasText(page, kicker.toUpperCase());
       await click(page, next);
@@ -83,7 +83,7 @@ for (const vp of VIEWPORTS) {
     await hasText(page, 'Seu Faro está pronto');
 
     // --- início vazio e honesto
-    await hasText(page, 'Lucro líquido estimado');
+    await hasText(page, 'Lucro de verdade até agora');
     const empty = await page.evaluate(() => document.body.innerText);
     assert.match(empty, /Primeiros passos no Faro/, 'tela vazia convida a agir');
     assert.match(empty, /0 de 4 feitos/);
@@ -91,41 +91,41 @@ for (const vp of VIEWPORTS) {
     await shot('home-vazia');
 
     // --- lançar ganhos e gasto
-    await click(page, 'Ganho');
+    await click(page, 'Anotar ganho');
     for (const d of ['1', '5', '0', '00']) await click(page, d);
-    await click(page, 'Salvar ganho');
-    await hasText(page, 'Ganho de R$ 150,00 lançado');
-    await click(page, 'Ganho');
+    await click(page, 'Anotar ganho');
+    await hasText(page, 'Ganho de R$ 150,00 anotado');
+    await click(page, 'Anotar ganho');
     await click(page, '99');
     for (const d of ['8', '0', '00']) await click(page, d);
-    await click(page, 'Salvar ganho');
-    await hasText(page, 'Ganho de R$ 80,00 lançado');
-    await click(page, 'Gasto');
+    await click(page, 'Anotar ganho');
+    await hasText(page, 'Ganho de R$ 80,00 anotado');
+    await click(page, 'Anotar gasto');
     await click(page, 'Alimentação');
     for (const d of ['2', '4', '00']) await click(page, d);
-    await click(page, 'Salvar gasto');
-    await hasText(page, 'Gasto de R$ 24,00 lançado');
+    await click(page, 'Anotar gasto');
+    await hasText(page, 'Gasto de R$ 24,00 anotado');
 
     // --- fechar o dia (3 passos)
     await click(page, 'Fechar dia');
     await hasText(page, 'Quanto entrou hoje?');
     assert.equal(await page.locator('input[placeholder="0,00"]').first().inputValue(), '150,00', 'o que foi lançado vem preenchido');
     await shot('fechar-dia-1');
-    await click(page, 'Continuar');
+    await click(page, 'Informar km e horas');
     await page.locator('input[placeholder="0"]').fill('100');
     await click(page, '9h');
     await shot('fechar-dia-2');
     await click(page, 'Fechar o dia');
-    await hasText(page, 'Dia fechado · lucro líquido');
+    await hasText(page, 'Dia fechado · lucro de verdade');
     await hasText(page, R(dayLucro, 2));
     await shot('fechar-dia-resumo');
 
     // --- lucro e meta conferidos contra o calc
-    await click(page, 'Concluir');
-    await hasText(page, 'Lucro líquido de hoje');
+    await click(page, 'Voltar ao início');
+    await hasText(page, 'Lucro de verdade de hoje');
     await heroShows(page, dayLucro);
     await click(page, 'Mês');
-    await hasText(page, `Lucro líquido de ${monthName(today)}`);
+    await hasText(page, `Lucro de verdade de ${monthName(today)}`);
     await hasText(page, `${R(C.month.lucro)} de ${R(C.target)}`);
     await shot('home-mes');
     await click(page, 'Hoje');
@@ -133,7 +133,7 @@ for (const vp of VIEWPORTS) {
 
     // --- reabrir o resumo e concluir de novo não rende XP em dobro
     await click(page, 'Resumo');
-    await click(page, 'Concluir');
+    await click(page, 'Voltar ao início');
     await flushed(page);
     const afterClose = await savedState(page);
     assert.equal(afterClose.xp, 40, 'fechar o dia rende 40 XP uma única vez');
@@ -142,13 +142,13 @@ for (const vp of VIEWPORTS) {
 
     // --- recarregar mantém tudo
     await page.reload();
-    await hasText(page, 'Lucro líquido de hoje');
+    await hasText(page, 'Lucro de verdade de hoje');
     await heroShows(page, dayLucro);
-    assert.doesNotMatch(await page.evaluate(() => document.body.innerText), /Farejar meu lucro/, 'não volta ao onboarding');
+    assert.doesNotMatch(await page.evaluate(() => document.body.innerText), /Ver meu lucro de verdade/, 'não volta ao onboarding');
     assert.deepEqual(await savedState(page), afterClose);
 
     // --- cada tela abre com números reais (nada de NaN, nada de dado inventado)
-    for (const [name, wanted] of [['Plano', 'Faturar por dia'], ['Carro', 'Cada km rodado custa'], ['Contas', 'Todas']]) {
+    for (const [name, wanted] of [['Plano', 'Quanto ganhar por dia'], ['Carro', 'Cada km rodado custa'], ['Contas', 'Todas']]) {
       await click(page, name);
       await hasText(page, wanted);
       await noBrokenNumbers(name);
@@ -173,7 +173,7 @@ for (const vp of VIEWPORTS) {
     // --- backup: exportar, mudar, importar
     await click(page, 'Início');
     await click(page, /dias?\s*Jornada/);
-    await hasText(page, 'Índice Faro');
+    await hasText(page, 'Sua nota');
     await shot('jornada');
     await dismissIntro(page);
     await click(page, /Conta\s*Nuvem/);

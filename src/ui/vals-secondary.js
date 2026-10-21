@@ -1,10 +1,10 @@
 // Valores do template para contas, lembretes, carro, jornada e conta (a segunda camada de telas).
 import { fmt, R } from '../core/money.js';
-import { addDays, weekday, WD_SHORT, MONTHS, dayOfMonth } from '../core/dates.js';
+import { addDays, weekday, WD_SHORT, MONTHS, dayOfMonth, monthName } from '../core/dates.js';
 import { FUEL } from '../core/catalog.js';
 import { level, calc } from '../core/calc.js';
 import { daysLeft } from '../data/access.js';
-import { BILL_CAT_LABELS, VEHICLE_LABELS, ENERGY_LABELS, plural } from './kit.js';
+import { BILL_CAT_LABELS, VEHICLE_LABELS, ENERGY_LABELS, plural, PRICE, carFixName, UNIT_WORD } from './kit.js';
 import { energyWord } from './vals-forms.js';
 import { billStatus } from './vals.js';
 import { records as recordsOf, badges as badgesOf, reminders as remindersOf, bestStreak, carFixedPerKm } from './derive.js';
@@ -19,7 +19,7 @@ export function billsVals(k) {
   const paid = occ.filter(o => o.paid && inFilter(o)).sort((a, b) => b.date.localeCompare(a.date));
   const total = sumOf(occ), paidTotal = sumOf(occ.filter(o => o.paid));
   return {
-    total: R(total, 2), paid: R(paidTotal, 2), left: R(total - paidTotal, 2), w: (paidTotal / Math.max(1, total) * 100) + '%',
+    title: `${monthName(today).replace(/^./, c => c.toUpperCase())} · carro e vida`, total: R(total, 2), paid: R(paidTotal, 2), left: R(total - paidTotal, 2), w: (paidTotal / Math.max(1, total) * 100) + '%',
     filters: [['todas', 'Todas'], ...BILL_CAT_LABELS].map(([key, label]) => { const on = filter === key; return { label, v: R(sumOf(occ.filter(o => key === 'todas' || o.cat === key))), bg: on ? '#fff' : 'rgba(255,255,255,.08)', color: on ? '#0D1530' : '#fff', border: on ? '#fff' : 'rgba(255,255,255,.16)', onClick: () => k.set({ billFilter: key }) }; }),
     pending: pending.map(o => ({ name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `${st.when(o)} · ${o.rec}`, sc: st.color(o), line: o.date < today ? t.negLine : t.line, onPay: () => k.payBill(o.oid) })),
     paidList: paid.map((o, i) => ({ name: o.name, icon: 'ph-fill ' + o.icon, color: o.color, value: R(o.v, 2), status: `pago · dia ${o.d}`, sep: i === paid.length - 1 ? 'transparent' : t.line, onUndo: () => k.unpayBill(o.oid) })),
@@ -53,7 +53,7 @@ export function carVals(k) {
   const { app, C, t } = k, F = C.F, word = energyWord(app);
   const bill = id => app.bills.find(b => b.id === id);
   const carPerKm = carFixedPerKm(C);
-  const perKm = [[word, C.fuelKm, t.accent], ['Desgaste', app.wear, t.cW], ['Carro fixo', carPerKm, t.cF]];
+  const perKm = [[word, C.fuelKm, t.accent], ['Desgaste', app.wear, t.cW], [`${carFixName(app.vehicle)} por km`, carPerKm, t.cF]];
   const costKm = perKm.reduce((a, p) => a + p[1], 0);
   const compare = ['gasolina', 'etanol', 'gnv'].map(key => ({ key, ...FUEL[key], ...app.fuel[key], perKm: app.fuel[key].price / app.fuel[key].eff }));
   const maxCost = Math.max(...compare.map(c => c.perKm)), cheapest = [...compare].sort((a, b) => a.perKm - b.perKm)[0];
@@ -62,7 +62,7 @@ export function carVals(k) {
   return {
     title: `Carro ${VEHICLE_LABELS[app.vehicle].toLowerCase()}`,
     rows: [
-      { icon: 'ph-fill ph-gas-pump', label: app.energy === 'flex' ? `Flex · mais ${FUEL[app.flexUse].label.toLowerCase()} · ${R(F.price, 2)}/${F.unit}` : `${F.label} · ${R(F.price, 2)}/${F.unit}`, sub: `rende ${fmt(F.eff, 1)} km/${F.unit}`, value: R(C.fuelKm, 2) + '/km' },
+      { icon: 'ph-fill ph-gas-pump', label: app.energy === 'flex' ? `Flex · mais ${FUEL[app.flexUse].label.toLowerCase()} · ${R(F.price, 2)}/${F.unit}` : `${F.label} · ${R(F.price, 2)}/${F.unit}`, sub: `faz ${fmt(F.eff, 1)} km por ${UNIT_WORD[F.unit] || F.unit}`, value: R(C.fuelKm, 2) + '/km' },
       { icon: 'ph-fill ph-wrench', label: 'Desgaste', sub: 'pneus, óleo, freios, revisões', value: R(app.wear, 2) + '/km' },
       { icon: 'ph-fill ph-car-profile', label: carRowLabel, sub: 'dividido pelos km do mês · fica em Contas', value: R(carPerKm, 2) + '/km' },
     ],
@@ -82,7 +82,7 @@ export function journeyVals(k) {
   const { best: bestDay, bestKm } = recordsOf(C);
   const list = badgesOf(app, C, occ, k.streakNow);
   return {
-    game: { streakLabel: plural(k.streakNow, 'dia', 'dias'), streakRun: k.streakNow === 1 ? '1 dia seguido' : `${k.streakNow} dias seguidos`, streak: k.streakNow, bestStreak: best, level: lv.level, levelName: lv.name, xp: app.xp, xpW: lv.pct + '%', nextLv: lv.next ? `${lv.toNext} XP para ${lv.next}` : '' },
+    game: { streakLabel: plural(k.streakNow, 'dia', 'dias'), streakRun: k.streakNow === 1 ? '1 dia seguido' : `${k.streakNow} dias seguidos`, streak: k.streakNow, bestStreak: best, level: lv.level, levelName: lv.name, xp: app.xp, xpW: lv.pct + '%', nextLv: lv.next ? `${lv.toNext} pontos para ${lv.next}` : '' },
     idx: { score: idx.score, label: idx.label, next: idx.next, pillars: idx.pillars.map(p => ({ icon: PILLAR_VIEW[p.key][0], color: t[PILLAR_VIEW[p.key][1]], label: p.label, score: p.score, hint: p.hint, w: p.score + '%' })) },
     records: [
       { icon: 'ph-fill ph-trophy', v: bestDay ? R(bestDay.lucro) : '—', l: bestDay ? `melhor dia · ${bestDay.d} ${MONTHS[Number(bestDay.date.slice(5, 7)) - 1].slice(0, 3)}` : 'melhor dia' },
@@ -96,7 +96,7 @@ export function journeyVals(k) {
 
 // ---------------------------------------------------------------- conta
 const CLOUD_TEXT = {
-  idle: ['ph-fill ph-info', 'Dados só neste aparelho', 'Entrar na conta guarda uma cópia na nuvem e leva seus dados para outros aparelhos.'],
+  idle: ['ph-fill ph-info', 'Entre para guardar na nuvem', 'Uma cópia na nuvem leva seus dados para outros aparelhos.'],
   synced: ['ph-fill ph-check-circle', 'Tudo salvo na nuvem', ''],
   pending: ['ph-fill ph-clock', 'Aguardando envio', 'As últimas mudanças sobem em instantes.'],
   syncing: ['ph-fill ph-clock', 'Enviando para a nuvem', ''],
@@ -131,7 +131,7 @@ const SUB_VIEW = (sub, now) => {
     case 'active': return { title: 'Assinatura ativa', sub: end ? (sub.cancelAtPeriodEnd ? `Termina em ${end}.` : `Renova em ${end}.`) : 'Tudo certo com a sua assinatura.', action: 'portal', label: 'Gerenciar assinatura' };
     case 'past_due': case 'unpaid': return { title: 'Pagamento pendente', sub: 'Atualize o pagamento para continuar usando o Faro.', action: 'portal', label: 'Atualizar pagamento' };
     case 'canceled': case 'paused': return { title: 'Assinatura cancelada', sub: 'Assine de novo para voltar a usar o Faro.', action: 'checkout', label: 'Assinar de novo' };
-    default: return { title: 'Sem assinatura', sub: 'Teste o Faro por 7 dias sem pagar. Cancele quando quiser.', action: 'checkout', label: 'Começar 7 dias grátis' };
+    default: return { title: 'Sem assinatura', sub: `Teste o Faro por 7 dias sem pagar, depois ${PRICE}. Cancele quando quiser.`, action: 'checkout', label: 'Começar 7 dias grátis' };
   }
 };
 
@@ -175,7 +175,7 @@ export function contaVals(k) {
   // assinatura
   const billing = access.billing;
   let subView;
-  if (!billing) subView = { title: 'Assinatura abre em breve', sub: 'Por enquanto o Faro está liberado para você usar sem pagar.', action: '', label: '' };
+  if (!billing) subView = { title: 'Assinatura abre em breve', sub: `Por enquanto o Faro está liberado para você usar sem pagar. Quando abrir: grátis por 7 dias, depois ${PRICE}.`, action: '', label: '' };
   else if (!user) subView = { title: 'Teste grátis por 7 dias', sub: 'Entre ou crie sua conta para começar o teste.', action: '', label: '' };
   else if (ct.sub === undefined) subView = { title: 'Conferindo sua assinatura…', sub: '', action: '', label: '' };
   else subView = SUB_VIEW(ct.sub, now);
@@ -191,6 +191,7 @@ export function contaVals(k) {
     auth, conflict, subscription,
     update: { show: !!ct.swApply, apply: conta.applyUpdate },
     version: k.version ? `Faro ${k.version}` : '',
+    localNote: user ? 'Seus dados também ficam salvos neste aparelho. Guarde um backup de vez em quando.' : 'Sem conta, seus dados ficam só neste aparelho. Guarde um backup de vez em quando.',
     exportBackup: k.exportBackup, onFile: e => k.importBackupFile(e.target),
     msg: msg ? msg.text : '', msgColor: msg && msg.ok ? t.pos : t.neg,
   };

@@ -101,12 +101,12 @@ test('app real renderiza onboarding e home a partir do store (sem dado de mentir
   const store = createStore({ persister: { load: () => null, schedule() {}, flush: () => true }, autoFlush: false });
   const broken = /\{\{|sc-if|sc-for|undefined|NaN/;
   const onboarding = renderToStaticMarkup(React.createElement(App, { store }));
-  assert.match(onboarding, /Farejar meu lucro/);
+  assert.match(onboarding, /Ver meu lucro de verdade/);
   assert.doesNotMatch(onboarding, broken);
   store.dispatch({ type: 'onboarding/complete', payload: {} });
   const home = renderToStaticMarkup(React.createElement(App, { store }));
   assert.ok(home.length > 2000, 'html renderizado muito curto');
-  assert.match(home, /Lucro líquido estimado/);
+  assert.match(home, /Lucro de verdade até agora/);
   assert.doesNotMatch(home, broken);
   assert.doesNotMatch(home, /9:41|Chevrolet|84\.320/, 'sem moldura nem dado de mentira do protótipo');
 });

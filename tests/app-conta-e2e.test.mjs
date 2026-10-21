@@ -44,20 +44,20 @@ async function open(vp, cfg = {}, { local = null } = {}) {
 }
 const USERS = { 'motorista@faro.app': { id: 'id-1', password: 'senha-forte-1', confirmed: true } };
 const redirects = page => page.evaluate(() => window.__redirects);
-const goConta = async page => { await button(page, 'Jornada').or(page.getByRole('button', { name: /Jornada/ })).first().click(); await page.getByRole('button', { name: /Nuvem, backup e assinatura/ }).click(); await hasText(page, 'Backup dos seus dados'); };
+const goConta = async page => { await button(page, 'Jornada').or(page.getByRole('button', { name: /Jornada/ })).first().click(); const dica = button(page, 'Entendi'); if (await dica.count()) await dica.first().click(); await page.getByRole('button', { name: /Nuvem, backup e assinatura/ }).click(); await hasText(page, 'Backup dos seus dados'); };
 const fill = async (page, email, senha) => { await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(senha); };
 
 for (const vp of VIEWPORTS) {
   test(`criar conta, entrar e sair · assinatura "em breve" com cobrança desligada · ${vp.name}`, { skip }, async () => {
     const { context, page, errors, shot } = await open(vp, { users: { 'motorista@faro.app': { id: 'id-1', password: 'senha-forte-1', confirmed: false } } });
-    await hasText(page, 'Farejar meu lucro');
+    await hasText(page, 'Ver meu lucro de verdade');
     await button(page, 'Já uso o Faro · Entrar').click(); // abre a tela Conta direto do onboarding
     await hasText(page, 'Entrar na conta');
     const body = await text(page);
     assert.match(body, /Assinatura abre em breve/);
     assert.equal(await button(page, 'Começar 7 dias grátis').count(), 0, 'sem botão de assinatura enquanto a cobrança está desligada');
     assert.match(body, /Faro 9\.9\.9/, 'mostra a versão do app');
-    assert.match(body, /Dados só neste aparelho/);
+    assert.match(body, /Sem conta, seus dados ficam só neste aparelho/);
     await shot('entrar');
 
     // erro diz o que fazer
@@ -111,7 +111,7 @@ for (const vp of VIEWPORTS) {
     await button(page, 'Sair da conta').click();
     await hasText(page, 'Você saiu da conta');
     await hasText(page, 'Entrar na conta');
-    assert.match(await text(page), /Dados só neste aparelho/);
+    assert.match(await text(page), /Sem conta, seus dados ficam só neste aparelho/);
     assert.deepEqual(errors, [], errors.join('\n'));
     await context.close();
   });
@@ -120,7 +120,7 @@ for (const vp of VIEWPORTS) {
     const remote = onboarded; // a nuvem tem outros dados que este aparelho
     const cfg = { users: USERS, states: { 'id-1': { schema_version: 2, revision: 3, state: remote, device_id: 'outro', last_mutation_id: 'm0', server_updated_at: '2026-10-20T15:30:00Z' } } };
     const { context, page, errors, shot } = await open(vp, cfg, { local: withDay });
-    await hasText(page, 'Lucro líquido de hoje');
+    await hasText(page, 'Lucro de verdade de hoje');
     await goConta(page);
     await fill(page, 'motorista@faro.app', 'senha-forte-1');
     await button(page, 'Entrar').click();
@@ -161,7 +161,7 @@ test('conflito: manter a nuvem troca os dados deste aparelho', { skip }, async (
   const remote = reduce(onboarded, { type: 'entry/add', payload: { kind: 'in', plat: 'n99', amount: 80 } }, ctx);
   const cfg = { users: USERS, states: { 'id-1': { schema_version: 2, revision: 7, state: remote, device_id: 'outro', last_mutation_id: 'm0', server_updated_at: '2026-10-20T15:30:00Z' } } };
   const { context, page, errors } = await open(VIEWPORTS[0], cfg, { local: withDay });
-  await hasText(page, 'Lucro líquido de hoje');
+  await hasText(page, 'Lucro de verdade de hoje');
   await goConta(page);
   await fill(page, 'motorista@faro.app', 'senha-forte-1');
   await button(page, 'Entrar').click();
@@ -182,7 +182,7 @@ test('cobrança ligada: sem sessão só aparece a tela Conta (paywall), sem apag
   const { context, page, errors, shot } = await open(VIEWPORTS[0], { billing: true, users: USERS, invoke: { 'criar-checkout-faro': { url: 'https://checkout.stripe.com/c/pay/cs_test_falso' }, 'abrir-portal-faro': { url: 'https://billing.stripe.com/p/session/falso' } } }, { local: onboarded });
   await hasText(page, 'Entre ou crie sua conta para usar o Faro');
   assert.equal(await page.getByRole('button', { name: 'Voltar' }).count(), 0, 'sem botão de voltar no paywall');
-  assert.doesNotMatch(await text(page), /Lucro líquido|Início|Plano/, 'o app não aparece');
+  assert.doesNotMatch(await text(page), /Lucro de verdade|Início|Plano/, 'o app não aparece');
   await shot('paywall-entrar');
 
   // entra, mas ainda sem assinatura: vê a oferta e continua bloqueado
@@ -190,7 +190,7 @@ test('cobrança ligada: sem sessão só aparece a tela Conta (paywall), sem apag
   await button(page, 'Entrar').click();
   await hasText(page, 'Sem assinatura');
   assert.match(await text(page), /Comece o teste grátis para usar o Faro/);
-  assert.doesNotMatch(await text(page), /Lucro líquido/);
+  assert.doesNotMatch(await text(page), /Lucro de verdade/);
   await shot('paywall-assinar');
   await button(page, 'Começar 7 dias grátis').click();
   await page.waitForFunction(() => window.__redirects.length === 1);
@@ -230,7 +230,7 @@ test('cobrança ligada: pagamento pendente bloqueia e pede "Atualizar pagamento"
     await button(page, 'Entrar').click();
     await hasText(page, intro);
     await button(page, label).waitFor();
-    assert.doesNotMatch(await text(page), /Lucro líquido/, `${status}: o app fica bloqueado`);
+    assert.doesNotMatch(await text(page), /Lucro de verdade/, `${status}: o app fica bloqueado`);
     assert.deepEqual(errors, []);
     await context.close();
   }
@@ -255,6 +255,6 @@ test('o app só abre instalado, mesmo com a cobrança desligada (sem atalho)', {
   const page = await context.newPage();
   await page.goto(server.url + '?dev=1');
   await hasText(page, 'O Faro é um app de celular');
-  assert.doesNotMatch(await text(page), /Farejar meu lucro/);
+  assert.doesNotMatch(await text(page), /Ver meu lucro de verdade/);
   await context.browser().close();
 });
