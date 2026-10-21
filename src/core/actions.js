@@ -1,6 +1,6 @@
 // Transicoes PURAS do estado: reduce(state, {type, payload}, ctx) => novo estado.
 // ctx = { today: 'AAAA-MM-DD', now: ms, id: string unico por acao }. Nunca muta `state`; devolve o MESMO objeto quando nada muda.
-import { isISO, hhmm } from './dates.js';
+import { isISO, hhmm, todayISO } from './dates.js';
 import { parseMoney, round2 } from './money.js';
 import { calc, sepAmounts } from './calc.js';
 import { normalizeState, num, str, LIMITS } from './state.js';
@@ -205,9 +205,8 @@ export function reduce(state, action, ctx = {}) {
   const now = num(ctx.now, 0, 8.64e15, Date.now());
   const c = {
     now, id: typeof ctx.id === 'string' && /^[A-Za-z0-9_-]{1,30}$/.test(ctx.id) ? ctx.id : now.toString(36),
-    today: isISO(ctx.today) ? ctx.today : null,
+    today: isISO(ctx.today) ? ctx.today : todayISO(new Date(now)),
   };
-  if (!c.today) return state;
   const next = H[action.type](state, isObj(action.payload) ? action.payload : {}, c);
   return next === state ? state : normalizeState(next);
 }
