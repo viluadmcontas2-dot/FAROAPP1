@@ -93,7 +93,10 @@ export function contaActions(app) {
       try { await backend.signOut(); app.setState({ contaMsg: null }); app.flash('Você saiu da conta'); } catch (err) { say(false, (err && err.message) || 'Não deu para sair agora. Tente de novo.'); }
     },
 
-    askResolve: choice => setCt({ confirm: choice }),
+    askResolve: choice => {
+      setCt({ confirm: choice });
+      setTimeout(() => { const el = document.querySelector('[role="alertdialog"]'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 60);
+    },
     cancelResolve: () => setCt({ confirm: null }),
     async doResolve() {
       const { sync } = cloud();

@@ -1,6 +1,6 @@
 // Transicoes PURAS do estado: reduce(state, {type, payload}, ctx) => novo estado.
 // ctx = { today: 'AAAA-MM-DD', now: ms, id: string unico por acao }. Nunca muta `state`; devolve o MESMO objeto quando nada muda.
-import { isISO, hhmm, todayISO } from './dates.js';
+import { isISO, hhmm, todayISO, addDays } from './dates.js';
 import { parseMoney, round2 } from './money.js';
 import { calc, sepAmounts } from './calc.js';
 import { normalizeState, num, str, LIMITS } from './state.js';
@@ -13,7 +13,17 @@ const oid = /^([A-Za-z0-9_-]{1,40}):(\d{4}-\d{2}-\d{2})$/;
 const emptyRec = () => ({ p: {}, km: 0, h: 0, exp: 0, closed: false });
 const money = v => parseMoney(typeof v === 'number' || typeof v === 'string' ? v : 0);
 const iconOf = (v, fallback) => (typeof v === 'string' && /^[a-z0-9-]{1,40}$/.test(v) ? v : fallback);
-const dateOf = (p, ctx) => (isObj(p) && isISO(p.date) ? p.date : ctx.today);
+// Erro estruturado de uma acao: o estado nao muda e a tela decide (ex.: pedir confirmacao).
+class ActionError extends Error { constructor(e) { super(e.error); this.e = e; } }
+const fail = e => { throw new ActionError(e); };
+export const LIMITS_DAY = { app: 5000, gross: 8000, km: 1500, kmHard: 3000, h: 24, backDays: 35 };
+// Data do lancamento: sem `date` = dia de trabalho de hoje; com `date`, ISO, <= hoje e ate 35 dias atras.
+const dateOf = (p, ctx) => {
+  if (!isObj(p) || p.date === undefined || p.date === null || p.date === '') return ctx.today;
+  if (!isISO(p.date) || p.date > ctx.today || p.date < addDays(ctx.today, -LIMITS_DAY.backDays)) fail({ error: 'data_invalida', campo: 'date' });
+  return p.date;
+};
+const improbable = (campo, limite) => fail({ error: 'valor_improvavel', campo, limite });
 const withRec = (s, date, fn) => ({ ...s, recs: { ...s.recs, [date]: fn({ ...emptyRec(), ...s.recs[date], p: { ...(s.recs[date] && s.recs[date].p) } }) } });
 const addXp = (s, n) => ({ ...s, xp: s.xp + n });
 const countsAsExpense = cat => cat !== FUEL_CAT;
@@ -24,7 +34,7 @@ const dueOf = (rec, v, def) => (rec === 'semanal' ? Math.round(num(v, 0, 6, def)
 const H = {
   // Onboarding: aplica as escolhas de uma vez (o normalizeState final garante tipos e limites).
   'onboarding/complete'(s, p, ctx) {
-    const n = { ...s, onboarded: true, onboardedAt: ctx.today };
+    const n = { ...s, onboarded: true, onboardedAt: s.onboardedAt || ctx.today };
     n.vehicle = pick(p.vehicle, VEHICLES, s.vehicle);
     n.energy = pick(p.energy, ENERGIES, s.energy);
     n.flexUse = pick(p.flexUse, ['gasolina', 'etanol'], s.flexUse);
@@ -41,18 +51,37 @@ const H = {
         return u ? { ...b, ...(has(u, 'on') ? { on: u.on === true } : {}), ...(has(u, 'v') ? { v: u.v } : {}) } : b;
       });
     }
+    // Toda conta ativa passa a valer a partir do onboarding (a tela nao precisa filtrar por onboardedAt).
+    n.bills = n.bills.map(b => (b.on && !b.start ? { ...b, start: ctx.today } : b));
     return n;
   },
 
   'day/close'(s, p, ctx) {
     const date = dateOf(p, ctx);
-    const km = Math.round(num(p.km, 0, LIMITS.maxKm, 0));
-    if (km <= 0) return s;
+    const kmRaw = typeof p.km === 'string' && p.km.trim() !== '' ? Number(p.km) : p.km;
+    if (typeof kmRaw !== 'number' || !Number.isFinite(kmRaw) || Math.round(kmRaw) < 1) fail({ error: 'km_invalido', campo: 'km' });
+    const km = Math.round(kmRaw);
+    if (km > LIMITS_DAY.kmHard) improbable('km', LIMITS_DAY.kmHard);
+    const hRaw = typeof p.h === 'string' && p.h.trim() !== '' ? Number(p.h) : p.h;
+    if (typeof hRaw === 'number' && hRaw > LIMITS_DAY.h) improbable('h', LIMITS_DAY.h);
     const src = isObj(p.p) ? p.p : {};
     const rec = {};
     for (const x of s.sources) rec[x.k] = has(src, x.k) ? money(src[x.k]) : 0;
+    const gross = round2(Object.values(rec).reduce((a, b) => a + b, 0));
+    if (gross < 1) fail({ error: 'dia_vazio' });
+    if (p.confirmed !== true) {
+      for (const k of Object.keys(rec)) if (rec[k] > LIMITS_DAY.app) improbable('p.' + k, LIMITS_DAY.app);
+      if (gross > LIMITS_DAY.gross) improbable('bruto', LIMITS_DAY.gross);
+      if (km > LIMITS_DAY.km) improbable('km', LIMITS_DAY.km);
+    }
     const prev = s.recs[date];
-    const next = { ...(prev || {}), p: rec, km, h: round2(num(p.h, 1, 24, 9)), exp: (prev && prev.exp) || 0, closed: true };
+    // Historico imutavel: os custos usados ficam gravados no dia; reeditar o dia mantem o snapshot original.
+    let snap = prev && prev.snap;
+    if (!snap) {
+      const C = calc(s, date);
+      snap = { en: C.fuelKm, we: s.wear, car: C.carShare, life: C.lifeShare, rev: C.revKm };
+    }
+    const next = { ...(prev || {}), p: rec, km, h: round2(num(p.h, 1, 24, 9)), exp: (prev && prev.exp) || 0, closed: true, snap };
     const n = { ...s, recs: { ...s.recs, [date]: next } };
     return prev && prev.closed ? n : addXp(n, XP.close);
   },
@@ -78,10 +107,16 @@ const H = {
 
   'entry/add'(s, p, ctx) {
     const amt = money(p.amount);
-    if (amt < 0.01) return s;
     const date = dateOf(p, ctx);
+    if (amt < 0.01) return s;
     if (p.kind === 'in') {
       if (typeof p.plat !== 'string' || !s.sources.some(x => x.k === p.plat)) return s;
+      if (p.confirmed !== true) {
+        const cur = (s.recs[date] && s.recs[date].p) || {};
+        if (round2((cur[p.plat] || 0) + amt) > LIMITS_DAY.app) improbable('p.' + p.plat, LIMITS_DAY.app);
+        const gross = Object.values(cur).reduce((a, b) => a + (b || 0), 0) + amt;
+        if (round2(gross) > LIMITS_DAY.gross) improbable('bruto', LIMITS_DAY.gross);
+      }
       return withRec(s, date, r => ({ ...r, p: { ...r.p, [p.plat]: round2((r.p[p.plat] || 0) + amt) } }));
     }
     if (p.kind !== 'out') return s;
@@ -93,7 +128,8 @@ const H = {
     return countsAsExpense(cat) ? withRec(n, date, r => ({ ...r, exp: round2(r.exp + amt) })) : n;
   },
 
-  'entry/edit'(s, p) {
+  'entry/edit'(s, p, ctx) {
+    dateOf(p, ctx);
     const old = s.exps.find(e => e.id === p.id);
     const amt = money(p.amount);
     if (!old || amt < 0.01) return s;
@@ -105,7 +141,8 @@ const H = {
     return s.recs[old.date] ? withRec(n, old.date, r => ({ ...r, exp: Math.max(0, round2(r.exp + delta)) })) : n;
   },
 
-  'entry/remove'(s, p) {
+  'entry/remove'(s, p, ctx) {
+    dateOf(p, ctx);
     const old = s.exps.find(e => e.id === p.id);
     if (!old) return s;
     const n = { ...s, exps: s.exps.filter(e => e !== old) };
@@ -115,13 +152,14 @@ const H = {
   'bill/pay'(s, p) {
     const m = typeof p.oid === 'string' ? oid.exec(p.oid) : null;
     if (!m || !isISO(m[2]) || !s.bills.some(b => b.id === m[1]) || s.paid[p.oid]) return s;
-    return addXp({ ...s, paid: { ...s.paid, [p.oid]: 1 } }, XP.pay);
+    // paid[oid] = 0 guarda que o XP desta ocorrencia ja foi dado: pagar de novo nao rende XP.
+    const given = has(s.paid, p.oid);
+    const n = { ...s, paid: { ...s.paid, [p.oid]: 1 } };
+    return given ? n : addXp(n, XP.pay);
   },
   'bill/unpay'(s, p) {
-    if (typeof p.oid !== 'string' || !has(s.paid, p.oid)) return s;
-    const paid = { ...s.paid };
-    delete paid[p.oid];
-    return { ...s, paid };
+    if (typeof p.oid !== 'string' || !s.paid[p.oid]) return s;
+    return { ...s, paid: { ...s.paid, [p.oid]: 0 } };
   },
 
   // Conta nova vence a partir de hoje: um dia que ja passou neste mes so vale no mes seguinte.
@@ -204,7 +242,21 @@ const H = {
 
 export const ACTION_TYPES = Object.keys(H);
 
+// reduceEx: como `reduce`, mas devolve { state, error }. Em erro o estado e o MESMO objeto e `error` = { error, campo?, limite? }.
+export function reduceEx(state, action, ctx = {}) {
+  try {
+    return { state: reduceRaw(state, action, ctx), error: null };
+  } catch (e) {
+    if (e instanceof ActionError) return { state, error: e.e };
+    throw e;
+  }
+}
+
 export function reduce(state, action, ctx = {}) {
+  return reduceEx(state, action, ctx).state;
+}
+
+function reduceRaw(state, action, ctx = {}) {
   if (!isObj(action) || typeof action.type !== 'string' || !has(H, action.type)) return state;
   const now = num(ctx.now, 0, 8.64e15, Date.now());
   const c = {

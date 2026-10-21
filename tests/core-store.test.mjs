@@ -174,7 +174,7 @@ test('backup malicioso importa so o que e valido', () => {
   const { store } = mk();
   const evil = '{"app":"FARO","version":2,"data":{"schemaVersion":2,"xp":1e99,"__proto__":{"x":1},"recs":{"__proto__":{}},"bills":"x"}}';
   assert.deepEqual(store.importBackup(evil), { ok: true });
-  assert.equal(store.getState().xp, 1e7);
+  assert.equal(store.getState().xp, 1e5);
   assert.equal({}.x, undefined);
   assert.ok(store.getState().bills.length >= 2);
 });

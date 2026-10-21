@@ -34,7 +34,7 @@ export function indexFaro(app, C, occ) {
   const pillars = [
     { key: 'const', label: 'Constância', score: pct(closedSoFar / Math.max(1, workSoFar) * 100), hint: `${closedSoFar} de ${workSoFar} dias fechados no mês` },
     { key: 'km', label: 'Lucro líquido por km', score: pct(lkm / LUCRO_KM_REFERENCIA * 100), hint: C.month.km ? `${R(lkm, 2)}/km · referência ${R(LUCRO_KM_REFERENCIA, 2)}` : 'feche um dia para medir' },
-    { key: 'bills', label: 'Contas em dia', score: pct(paidOn / Math.max(1, due.length) * 100), hint: due.length - paidOn ? `${plural(due.length - paidOn, 'conta atrasada', 'contas atrasadas')}` : 'nenhuma atrasada' },
+    { key: 'bills', label: 'Contas em dia', score: due.length ? pct(paidOn / due.length * 100) : 100, hint: due.length - paidOn ? `${plural(due.length - paidOn, 'conta atrasada', 'contas atrasadas')}` : 'nenhuma atrasada' },
     { key: 'pace', label: 'Ritmo da meta', score: C.target > 0 ? pct(C.proj / C.target * 100) : 0, hint: C.target > 0 ? `projeção ${R(C.proj)} de ${R(C.target)}` : '' },
   ];
   const hasData = C.closedDays.length > 0;

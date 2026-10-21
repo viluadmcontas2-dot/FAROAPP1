@@ -10,7 +10,7 @@ import {
 export const SCHEMA_VERSION = 2;
 export const LIMITS = {
   maxMoney: 1e9, maxKm: 3000, name: 60, icon: 60, bills: 60, pots: 12, sources: 7, expCats: 12,
-  recs: 800, paid: 4000, exps: 3000, moves: 200, srcKeys: 12,
+  recs: 800, paid: 4000, maxXp: 1e5, exps: 3000, moves: 200, srcKeys: 12,
 };
 
 const DANGEROUS = new Set(['__proto__', 'constructor', 'prototype']);
@@ -88,6 +88,11 @@ function normRec(r) {
   }
   const o = { p, km: int(r.km, 0, LIMITS.maxKm, 0), h: round2(num(r.h, 0, 24, 0)), exp: money(r.exp), closed: r.closed === true };
   if (r.sep === true) o.sep = true;
+  // Snapshot dos custos usados no fechamento (historico imutavel): por km e por dia.
+  if (isObj(r.snap)) {
+    const q = (v, max) => Math.round(num(v, 0, max, 0) * 1e6) / 1e6;
+    o.snap = { en: q(r.snap.en, 1000), we: q(r.snap.we, 1000), car: q(r.snap.car, 1e7), life: q(r.snap.life, 1e7), rev: q(r.snap.rev, 1000) };
+  }
   return o;
 }
 
@@ -136,11 +141,11 @@ function normalize(input) {
   const paid = [];
   for (const k of entries(s.paid)) {
     const m = PAID_KEY.exec(k);
-    if (m && key(m[1]) && s.paid[k] && isISO(m[2])) paid.push(k);
+    if (m && key(m[1]) && (s.paid[k] === 0 || s.paid[k]) && isISO(m[2])) paid.push(k);
   }
   paid.sort((a, b) => b.split(':')[1].localeCompare(a.split(':')[1]));
   out.paid = {};
-  for (const k of paid.slice(0, LIMITS.paid)) out.paid[k] = 1;
+  for (const k of paid.slice(0, LIMITS.paid)) out.paid[k] = s.paid[k] ? 1 : 0; // 0 = desfeito (o XP ja foi dado)
 
   const days = entries(s.recs).filter(k => isISO(k) && isObj(s.recs[k])).sort().slice(-LIMITS.recs);
   out.recs = {};
@@ -201,7 +206,7 @@ function normalize(input) {
   }
   if (!out.expCats.length) out.expCats = d.expCats;
 
-  out.xp = int(s.xp, 0, 1e7, 0);
+  out.xp = int(s.xp, 0, LIMITS.maxXp, 0);
   out.rem = {};
   for (const k of REM_KEYS) out.rem[k] = bool(isObj(s.rem) ? s.rem[k] : undefined, true);
   out.guide = bool(s.guide, true);

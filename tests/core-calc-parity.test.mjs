@@ -16,6 +16,18 @@ const React = { createElement() {}, Fragment: {}, useState() {}, useRef() {}, us
 const Component = vm.runInNewContext(src + ';Component', { DCLogic: class {}, React, JSON, Math, Object, Set, parseInt, parseFloat, Number, String, Array });
 const design = new Component();
 const baseProto = () => JSON.parse(JSON.stringify(design.state));
+// MUDANCA INTENCIONAL (mesa do chato, achado 3): o aprendizado de R$/km e R$/h agora e a MEDIANA dos dias (robusta a outlier),
+// nao a media do prototipo. O harness aplica a mediana ao prototipo; o resto da conta continua comparado 1 a 1.
+const med = a => { if (!a.length) return null; const b = [...a].sort((x, y) => x - y), h = b.length >> 1; return b.length % 2 ? b[h] : (b[h - 1] + b[h]) / 2; };
+const rideOf = p => ['uber', 'n99', 'indrive', 'extra'].reduce((a, k) => a + ((p && p[k]) || 0), 0);
+const origEff = design.eff.bind(design);
+design.eff = st => {
+  const s = origEff(st);
+  const ds = Object.keys(s.recs).map(Number).filter(d => s.recs[d].closed);
+  const learned = med(ds.filter(d => s.recs[d].km > 0).map(d => rideOf(s.recs[d].p) / s.recs[d].km)) ?? 2.2;
+  const perH = med(ds.filter(d => s.recs[d].h > 0).map(d => rideOf(s.recs[d].p) / s.recs[d].h)) ?? 25;
+  return { ...s, revKm: s.revKmMode === 'manual' ? s.revKmManual : +learned.toFixed(2), revLearned: learned, perH };
+};
 const D = ps => { const s = design.eff(ps); return { s, C: design.calc(s) }; };
 
 // ---- conversor estado do prototipo -> v2 (data real)
@@ -58,7 +70,8 @@ function compare(name, ps) {
   }
   for (const d of [1, 5, 15, 21, 22, 30, 31]) close(nc.targetFor(iso(d)), dc.targetFor(d), `${name}.targetFor(${d})`);
   // contas do mes
-  const po = design.occ(ds), no = occ(v2, TODAY);
+  // (mudanca intencional, achado 5: as atrasadas do mes anterior aparecem em occ; o prototipo so ve o mes de hoje)
+  const po = design.occ(ds), no = occ(v2, TODAY).filter(o => o.date.startsWith(TODAY.slice(0, 7)));
   assert.equal(no.length, po.length, name + ' occ.length');
   // (JSON: os arrays do sandbox vm tem outro prototipo)
   assert.equal(JSON.stringify(no.map(o => [o.id, o.d, o.paid])), JSON.stringify(po.map(o => [o.id, o.d, o.paid])));
@@ -126,12 +139,12 @@ test('fevereiro bissexto e comum', () => {
 test('conta mensal dia 31 cai no ultimo dia de meses curtos', () => {
   const s = defaultState();
   s.bills.push({ id: 'x31', name: 'Dia 31', icon: 'ph-receipt', color: '#5B95FF', cat: 'casa', v: 10, rec: 'mensal', due: 31, on: true });
-  assert.equal(occ(s, '2026-11-10').find(o => o.id === 'x31').date, '2026-11-30');
-  assert.equal(occ(s, '2028-02-10').find(o => o.id === 'x31').date, '2028-02-29');
+  assert.equal(occ(s, '2026-11-10').filter(o => o.id === 'x31').pop().date, '2026-11-30');
+  assert.equal(occ(s, '2028-02-10').filter(o => o.id === 'x31').pop().date, '2028-02-29');
 });
 test('aluguel semanal: toda segunda do mes', () => {
   const s = defaultState();
-  const r = occ(s, '2026-10-21').filter(o => o.id === 'aluguel-carro');
+  const r = occ(s, '2026-10-21').filter(o => o.id === 'aluguel-carro' && o.date.startsWith('2026-10'));
   assert.deepEqual(r.map(o => o.date), ['2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26']);
 });
 test('aprendizado de receita por km usa so dias fechados e respeita o modo manual', () => {

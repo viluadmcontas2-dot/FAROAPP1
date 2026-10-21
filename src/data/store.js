@@ -1,6 +1,6 @@
 // Store minimo: guarda o estado v2, aplica acoes puras (src/core/actions.js), avisa assinantes e persiste.
 // `dirty` + `revision` dizem ao sync se ha algo local ainda nao enviado.
-import { reduce } from '../core/actions.js';
+import { reduceEx } from '../core/actions.js';
 import { normalizeState, SCHEMA_VERSION } from '../core/state.js';
 import { todayISO } from '../core/dates.js';
 import { createPersister, STORAGE_KEY } from './persist.js';
@@ -60,18 +60,23 @@ export function createStore({ persister = createPersister(), now = Date.now, gen
     } catch { /* ambiente sem eventos de pagina */ }
   }
 
+  // Como dispatch, mas devolve { state, error }: error = { error:'valor_improvavel'|'data_invalida'|'km_invalido'|'dia_vazio', campo?, limite? } e nada e gravado.
+  function dispatchEx(action) {
+    // Evento `storage` perdido (aba dormindo): confere o disco antes de agir, para nunca gravar por cima de estado mais novo.
+    if (!persister.hasPending || !persister.hasPending()) adopt(persister.load());
+    const t = now();
+    const r = reduceEx(state, action, { today: todayISO(new Date(t)), now: t, id: genId() });
+    if (!r.error && r.state !== state) commit(r.state, true);
+    return { state, error: r.error };
+  }
+
   return {
     getState: () => state,
     getMeta,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
-    dispatch(action) {
-      // Evento `storage` perdido (aba dormindo): confere o disco antes de agir, para nunca gravar por cima de estado mais novo.
-      if (!persister.hasPending || !persister.hasPending()) adopt(persister.load());
-      const t = now();
-      const next = reduce(state, action, { today: todayISO(new Date(t)), now: t, id: genId() });
-      if (next !== state) commit(next, true);
-      return state;
-    },
+    // Como dispatch, mas devolve { state, error }: error = { error:'valor_improvavel'|'data_invalida'|'km_invalido'|'dia_vazio', campo?, limite? } e nada e gravado.
+    dispatchEx,
+    dispatch: action => dispatchEx(action).state,
     getSnapshot: () => state, // nome que o sync usa
     // Estado vindo da nuvem; null = voltar ao estado de fabrica (logout). Lixo (outra versao etc.) NAO apaga o que ja existe.
     replaceState(remote) {

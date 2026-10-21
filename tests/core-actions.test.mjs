@@ -49,7 +49,7 @@ test('day/close grava o dia, da XP uma vez e ignora km zero', () => {
 
 test('day/close aceita texto do teclado e mantem os gastos ja lancados', () => {
   let s = run(fresh(), 'entry/add', { kind: 'out', amount: 24, cat: 'Alimentação' });
-  s = run(freeze(s), 'day/close', { p: { uber: '241,80', n99: 'abc', __proto__: 5 }, km: '206', h: 40 });
+  s = run(freeze(s), 'day/close', { p: { uber: '241,80', n99: 'abc', __proto__: 5 }, km: '206', h: 24 });
   const r = s.recs[TODAY];
   assert.equal(r.p.uber, 241.8);
   assert.equal(r.p.n99, 0);
@@ -118,7 +118,7 @@ test('entry/edit e entry/remove acertam o total do dia', () => {
 });
 
 test('bill/pay e unpay: chave billId:ISO e XP so na primeira vez', () => {
-  const oid = occ(fresh(), TODAY).find(o => o.id === 'luz').oid;
+  const oid = occ(fresh(), TODAY).filter(o => o.id === 'luz').pop().oid;
   assert.equal(oid, 'luz:2026-10-25');
   let s = run(fresh(), 'bill/pay', { oid });
   assert.equal(s.paid[oid], 1);
@@ -126,7 +126,8 @@ test('bill/pay e unpay: chave billId:ISO e XP so na primeira vez', () => {
   const f = freeze(s);
   assert.equal(run(f, 'bill/pay', { oid }), f);
   s = run(f, 'bill/unpay', { oid });
-  assert.equal('luz:2026-10-25' in s.paid, false);
+  assert.equal(s.paid[oid], 0); // desfeito, mas o XP dessa ocorrencia ja foi dado
+  assert.equal(run(s, 'bill/pay', { oid }).xp, 10);
   for (const bad of ['luz:2026-13-01', 'naoexiste:2026-10-25', '__proto__:2026-10-25', 'luz', 5, null]) assert.equal(run(f, 'bill/pay', { oid: bad }), f, String(bad));
 });
 

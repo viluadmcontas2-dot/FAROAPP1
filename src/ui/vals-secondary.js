@@ -102,7 +102,7 @@ const CLOUD_TEXT = {
   syncing: ['ph-fill ph-clock', 'Enviando para a nuvem', ''],
   offline: ['ph-fill ph-warning', 'Sem internet', 'Seus dados estão salvos aqui e sobem quando a conexão voltar.'],
   error: ['ph-fill ph-warning', 'Não deu para sincronizar', 'O Faro tenta de novo sozinho. Seus dados continuam salvos neste aparelho.'],
-  conflict: ['ph-fill ph-warning', 'A nuvem tem dados diferentes', 'Escolha quais dados manter para continuar sincronizando.'],
+  conflict: ['ph-fill ph-warning', 'A nuvem tem dados diferentes', ''],
 };
 
 // Tela Conta: entrar/criar conta/sair, estado da nuvem, conflito, assinatura, backup, nova versão e versão do app.
@@ -167,8 +167,8 @@ export function contaVals(k) {
     onCloud: () => conta.askResolve('cloud'), onLocal: () => conta.askResolve('local'),
     asking: !!ask,
     askTitle: ask === 'cloud' ? 'Manter os dados da nuvem?' : 'Usar os dados deste aparelho?',
-    askText: ask === 'cloud' ? `Os dados deste aparelho serão substituídos por estes: ${remote ? snapshotSummary(remote.state, today) : ''}. Não dá para desfazer.`
-      : `Os dados da nuvem serão substituídos por estes: ${local ? snapshotSummary(local, today) : ''}. Não dá para desfazer.`,
+    askText: ask === 'cloud' ? `Os dados deste aparelho serão substituídos pelos da nuvem (${remote ? snapshotSummary(remote.state, today).toLowerCase() : ''}). Não dá para desfazer.`
+      : `Os dados da nuvem serão substituídos pelos deste aparelho (${local ? snapshotSummary(local, today).toLowerCase() : ''}). Não dá para desfazer.`,
     onConfirm: conta.doResolve, onBack: conta.cancelResolve,
   };
 
