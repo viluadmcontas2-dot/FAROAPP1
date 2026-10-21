@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Compila design/template.body.html -> src/ui/view.gen.js (React.createElement estatico).
+// Compila src/ui/template.body.html -> src/ui/view.gen.js (React.createElement estatico).
+// (design/ guarda o original so como referencia historica; a fonte da verdade e src/ui.)
 // Semantica identica ao runtime do design (sc-for, sc-if, {{ }}, style string, sc-camel-*),
 // mas TODO o codigo e gerado aqui, no build: nada de eval/new Function em runtime (CSP estrita).
 import { parseFragment } from 'parse5';
@@ -217,7 +218,7 @@ export function compileTemplate(source) {
 
   const top = children(frag, new Map());
   const body = top.length ? `h(Fragment, null,\n    ${top.join(',\n    ')})` : 'null';
-  const code = `// GERADO — não editar. Fonte: design/template.body.html. Regerar: node tools/compile-template.mjs
+  const code = `// GERADO — não editar. Fonte: src/ui/template.body.html. Regerar: node tools/compile-template.mjs
 /* eslint-disable */
 import { createElement as h, Fragment } from 'react';
 
@@ -246,7 +247,7 @@ export function View(v = {}) {
 // ---------- CLI ----------
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-  const { code, css } = compileTemplate(readFileSync(resolve(root, 'design/template.body.html'), 'utf8'));
+  const { code, css } = compileTemplate(readFileSync(resolve(root, 'src/ui/template.body.html'), 'utf8'));
   mkdirSync(resolve(root, 'src/ui'), { recursive: true });
   writeFileSync(resolve(root, 'src/ui/view.gen.js'), code);
   writeFileSync(resolve(root, 'src/ui/pseudo.gen.css'), css);

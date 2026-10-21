@@ -1,5 +1,6 @@
 import { withSupabase } from 'npm:@supabase/server@1.4.1';
 import Stripe from 'npm:stripe@22.5.0';
+import { checkoutTrialParams, hasBlockingSubscription, stripeFailure } from '../_shared/faro-billing.js';
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
 const priceId = Deno.env.get('STRIPE_FARO_MONTHLY_PRICE_ID') || '';
@@ -12,45 +13,98 @@ export default {
     if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
     const userId = String(ctx.userClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
+    if (ctx.userClaims?.is_anonymous === true) return json({ error: 'Crie sua conta com e-mail para assinar.' }, 403);
+    if (!(Deno.env.get('FARO_BILLING_ENABLED') === 'true')) return json({ error: 'Cobrança ainda não aberta.' }, 503);
     if (!stripeSecret || !priceId || !/^https:\/\/[^\s]+$/.test(appUrl)) return json({ error: 'Cobrança ainda não configurada.' }, 503);
 
     const stripe = new Stripe(stripeSecret);
     const { data: existing, error: readError } = await ctx.supabaseAdmin
       .from('faro_subscriptions')
-      .select('stripe_customer_id,status')
+      .select('stripe_customer_id,stripe_subscription_id,status')
       .eq('user_id', userId)
       .maybeSingle();
     if (readError) return json({ error: 'Não foi possível preparar a assinatura.' }, 500);
 
-    // Já tem assinatura viva: não cria uma segunda cobrança; o caminho é o portal.
-    if (existing && ['active', 'trialing', 'past_due', 'unpaid', 'paused'].includes(existing.status)) {
-      return json({ error: 'Você já tem uma assinatura. Use "Gerenciar assinatura".' }, 409);
+    try {
+      // Já tem assinatura viva: não cria outra cobrança; o caminho é o portal.
+      if (hasBlockingSubscription(existing) && existing?.stripe_customer_id) {
+        const portal = await stripe.billingPortal.sessions.create({
+          customer: existing.stripe_customer_id,
+          return_url: `${appUrl}?faro_cobranca=portal`
+        });
+        return json({ url: portal.url, portal: true });
+      }
+
+      let customerId = existing?.stripe_customer_id || null;
+      if (!customerId) {
+        const customer = await stripe.customers.create(
+          { metadata: { faro_user_id: userId } },
+          { idempotencyKey: `faro-customer-${userId}` }
+        );
+        customerId = customer.id;
+        const { error: saveCustomerError } = await ctx.supabaseAdmin
+          .from('faro_subscriptions')
+          .upsert({ user_id: userId, stripe_customer_id: customerId, status: 'inactive', updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+        if (saveCustomerError) return json({ error: 'Não foi possível vincular a assinatura à sua conta.' }, 500);
+      }
+
+      const { data: reservation, error: reserveError } = await ctx.supabaseAdmin
+        .rpc('faro_reserve_checkout', { p_user_id: userId })
+        .single();
+      if (reserveError || !reservation) return json({ error: 'Não foi possível preparar a assinatura.' }, 500);
+      const decision = (reservation as { decision: string }).decision;
+      if (decision === 'deleting') return json({ error: 'Sua conta está sendo excluída.' }, 409);
+      if (decision === 'reuse') return json({ url: (reservation as { checkout_url: string }).checkout_url, reused: true });
+      if (decision === 'busy') return json({ error: 'Seu pagamento já está sendo preparado. Tente de novo em instantes.' }, 409);
+
+      // Trial UMA vez por pessoa: o banco decide (e-mail normalizado + histórico de assinatura). 0 = sem trial.
+      const { data: trialDaysData, error: trialError } = await ctx.supabaseAdmin.rpc('faro_trial_days_for', { p_user_id: userId });
+      if (trialError) {
+        await ctx.supabaseAdmin.rpc('faro_release_checkout', { p_user_id: userId });
+        return json({ error: 'Não foi possível preparar a assinatura.' }, 500);
+      }
+      const trialDays = Number(trialDaysData) > 0 ? Number(trialDaysData) : 0;
+
+      // Chave estável por (usuário, janela de 30 min, com/sem trial): duplo toque não cria duas sessões.
+      const windowMs = 30 * 60 * 1000;
+      const windowIndex = Math.floor(Date.now() / windowMs);
+      const expiresAt = Math.floor(((windowIndex + 1) * windowMs) / 1000) + 30 * 60;
+      let session;
+      try {
+        session = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          customer: customerId,
+          line_items: [{ price: priceId, quantity: 1 }],
+          allow_promotion_codes: true,
+          payment_method_collection: 'always',
+          integration_identifier: 'faro_finance_qmvktzra',
+          client_reference_id: userId,
+          metadata: { faro_user_id: userId },
+          subscription_data: { metadata: { faro_user_id: userId }, ...checkoutTrialParams(trialDays) },
+          expires_at: expiresAt,
+          success_url: `${appUrl}?faro_cobranca=retorno`,
+          cancel_url: `${appUrl}?faro_cobranca=cancelada`
+        }, { idempotencyKey: `faro-checkout-${userId}-${windowIndex}-${trialDays > 0 ? 't' : 'n'}` });
+      } catch (error) {
+        await ctx.supabaseAdmin.rpc('faro_release_checkout', { p_user_id: userId });
+        throw error;
+      }
+
+      if (!session.url) {
+        await ctx.supabaseAdmin.rpc('faro_release_checkout', { p_user_id: userId });
+        return json({ error: 'Checkout indisponível agora.' }, 503);
+      }
+      await ctx.supabaseAdmin.rpc('faro_save_checkout', {
+        p_user_id: userId,
+        p_session_id: session.id,
+        p_url: session.url,
+        p_expires_at: new Date(session.expires_at * 1000).toISOString()
+      });
+      return json({ url: session.url, trialDays });
+    } catch (error) {
+      console.error('FARO checkout falhou', (error as { type?: string })?.type || 'erro');
+      const failure = stripeFailure(error);
+      return json(failure.body, failure.status);
     }
-
-    let customerId = existing?.stripe_customer_id || null;
-    if (!customerId) {
-      const customer = await stripe.customers.create({ metadata: { faro_user_id: userId } });
-      customerId = customer.id;
-      const { error: saveCustomerError } = await ctx.supabaseAdmin
-        .from('faro_subscriptions')
-        .upsert({ user_id: userId, stripe_customer_id: customerId, status: 'inactive', updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-      if (saveCustomerError) return json({ error: 'Não foi possível vincular a assinatura à sua conta.' }, 500);
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      allow_promotion_codes: true,
-      integration_identifier: 'faro_finance_qmvktzra',
-      client_reference_id: userId,
-      metadata: { faro_user_id: userId },
-      subscription_data: { metadata: { faro_user_id: userId } },
-      success_url: `${appUrl}?faro_cobranca=retorno`,
-      cancel_url: `${appUrl}?faro_cobranca=cancelada`
-    });
-
-    if (!session.url) return json({ error: 'Checkout indisponível agora.' }, 503);
-    return json({ url: session.url });
   })
 };

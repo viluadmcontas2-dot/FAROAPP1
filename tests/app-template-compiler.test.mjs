@@ -89,8 +89,8 @@ test('view.gen.js real: cabecalho de arquivo gerado e sem eval/new Function', ()
   assert.doesNotMatch(src, /\{\{|sc-if|sc-for|sc-camel/);
 });
 
-test('view.gen.js esta em dia com design/template.body.html', async () => {
-  const tpl = readFileSync(join(root, 'design/template.body.html'), 'utf8');
+test('view.gen.js esta em dia com src/ui/template.body.html', async () => {
+  const tpl = readFileSync(join(root, 'src/ui/template.body.html'), 'utf8');
   const { code } = compileTemplate(tpl);
   assert.equal(readFileSync(join(root, 'src/ui/view.gen.js'), 'utf8'), code, 'view.gen.js desatualizado: rode node tools/compile-template.mjs');
 });
