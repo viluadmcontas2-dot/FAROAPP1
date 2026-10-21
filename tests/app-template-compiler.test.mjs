@@ -95,11 +95,20 @@ test('view.gen.js esta em dia com src/ui/template.body.html', async () => {
   assert.equal(readFileSync(join(root, 'src/ui/view.gen.js'), 'utf8'), code, 'view.gen.js desatualizado: rode node tools/compile-template.mjs');
 });
 
-test('app real renderiza (home e onboarding) com os dados de mentira', async () => {
+test('app real renderiza onboarding e home a partir do store (sem dado de mentira)', async () => {
   const { default: App } = await import(pathToFileURL(join(root, 'src/ui/logic.js')));
-  const out = renderToStaticMarkup(React.createElement(App));
-  assert.ok(out.length > 2000, 'html renderizado muito curto');
-  assert.doesNotMatch(out, /\{\{|sc-if|sc-for|undefined|NaN/);
+  const { createStore } = await import(pathToFileURL(join(root, 'src/data/store.js')));
+  const store = createStore({ persister: { load: () => null, schedule() {}, flush: () => true }, autoFlush: false });
+  const broken = /\{\{|sc-if|sc-for|undefined|NaN/;
+  const onboarding = renderToStaticMarkup(React.createElement(App, { store }));
+  assert.match(onboarding, /Farejar meu lucro/);
+  assert.doesNotMatch(onboarding, broken);
+  store.dispatch({ type: 'onboarding/complete', payload: {} });
+  const home = renderToStaticMarkup(React.createElement(App, { store }));
+  assert.ok(home.length > 2000, 'html renderizado muito curto');
+  assert.match(home, /Lucro líquido estimado/);
+  assert.doesNotMatch(home, broken);
+  assert.doesNotMatch(home, /9:41|Chevrolet|84\.320/, 'sem moldura nem dado de mentira do protótipo');
 });
 
 test('bundle de producao (_site) sem eval/new Function e sem scripts inline', () => {

@@ -249,7 +249,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
   const { code, css } = compileTemplate(readFileSync(resolve(root, 'src/ui/template.body.html'), 'utf8'));
   mkdirSync(resolve(root, 'src/ui'), { recursive: true });
-  writeFileSync(resolve(root, 'src/ui/view.gen.js'), code);
-  writeFileSync(resolve(root, 'src/ui/pseudo.gen.css'), css);
+  // so grava se mudou: builds em paralelo (testes) nunca leem um arquivo truncado no meio da reescrita
+  const writeIfChanged = (file, text) => { try { if (readFileSync(file, 'utf8') === text) return; } catch { /* ainda nao existe */ } writeFileSync(file, text); };
+  writeIfChanged(resolve(root, 'src/ui/view.gen.js'), code);
+  writeIfChanged(resolve(root, 'src/ui/pseudo.gen.css'), css);
   console.log(`view.gen.js: ${code.length} bytes; pseudo.gen.css: ${css.length} bytes`);
 }

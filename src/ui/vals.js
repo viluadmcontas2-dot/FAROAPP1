@@ -4,10 +4,11 @@ import React from 'react';
 import { fmt, R, splitMoney } from '../core/money.js';
 import { diffDays, dayOfMonth, monthName } from '../core/dates.js';
 import { weekDates, WD_SHORT } from '../core/dates.js';
+import { activeBills } from '../core/calc.js';
 import { sourceColor } from './theme.js';
-import { logoStyle, segOpt, DAYS_WEEK_OPTIONS } from './kit.js';
+import { logoStyle, segOpt, plural, DAYS_WEEK_OPTIONS } from './kit.js';
 import { energyWord } from './vals-forms.js';
-import { calendarCells, records as recordsOf, tip as tipOf, isWorkDay } from './derive.js';
+import { calendarCells, records as recordsOf, tip as tipOf, isWorkDay, carFixedPerKm } from './derive.js';
 import CountUp from './count-up.js';
 
 // Status de uma conta a pagar, na linguagem do motorista (usado no início e em Contas).
@@ -18,7 +19,7 @@ export const billStatus = (today, t) => ({
 
 // ---------------------------------------------------------------- início
 export function homeVals(k) {
-  const { app, C, t, ui, today, occ } = k;
+  const { app, C, t, ui, today } = k;
   const P = ui.period, M = C.month, word = energyWord(app);
   const week = weekDates(today);
   const weekNums = week.map(C.num);
@@ -32,7 +33,7 @@ export function homeVals(k) {
   const badge = {
     dia: C.todayClosed ? ['Lucro líquido de hoje', 'ph-bold ph-check', `Dia fechado · ${view.km} km`] : ['Lucro líquido estimado', 'ph-bold ph-clock', 'Feche o dia para o valor real'],
     semana: ['Lucro líquido da semana', 'ph-bold ph-calendar', `${view.n} de ${app.daysWeek} dias · seg ${dayOfMonth(week[0])} a dom ${dayOfMonth(week[6])}`],
-    mes: [`Lucro líquido de ${monthName(today)}`, 'ph-bold ph-trend-up', `${view.n} dias rodados · ${C.rem} pela frente`],
+    mes: [`Lucro líquido de ${monthName(today)}`, 'ph-bold ph-trend-up', `${plural(view.n, 'dia rodado', 'dias rodados')} · ${C.rem} pela frente`],
   }[P];
   const h = { num: React.createElement(CountUp, { value: +view.lucro.toFixed(2) }), label: badge[0], int: hi, cents: hc, badgeIcon: badge[1], badge: badge[2], chips: [{ icon: 'ph-bold ph-arrow-down-left', color: '#5EE6A8', label: 'Bruto', value: R(view.g) }, { icon: 'ph-bold ph-arrow-up-right', color: '#FF9A9A', label: 'Carro', value: R(carCost) }, { icon: 'ph-fill ph-wallet', color: t.gold, label: 'Sobra', value: R(view.sobra) }] };
   const periods = [['dia', 'Hoje'], ['semana', 'Semana'], ['mes', 'Mês']].map(([key, label]) => ({ label, bg: P === key ? '#fff' : 'transparent', color: P === key ? '#0D1530' : '#fff', onClick: () => k.set({ period: key }) }));
@@ -132,7 +133,7 @@ export function planVals(k) {
   const { app, C, t, today } = k;
   const M = C.month, ring = 2 * Math.PI * 84;
   const mp = C.target > 0 ? Math.max(0, Math.min(100, Math.round(M.lucro / C.target * 100))) : 0, ahead = C.proj >= C.target;
-  const lifeCount = app.bills.filter(b => b.on && b.cat !== 'carro' && (!b.veh || b.veh === app.vehicle)).length;
+  const lifeCount = activeBills(app).filter(b => b.cat !== 'carro').length;
   const style = calendarStyle(t);
   const cells = calendarCells(app, C).map(c => ({ n: c.n, ...style[c.kind] }));
   const edit = () => k.openSheet('plan');
@@ -145,7 +146,7 @@ export function planVals(k) {
     ],
     rhythm: [
       { icon: 'ph-fill ph-path', label: 'Ganho médio por km', sub: app.revKmMode === 'manual' ? 'definido por você' : C.learnDays ? `aprendido de ${C.learnDays} dias` : 'estimativa inicial · aprende ao fechar dias', value: R(C.revKm, 2), onClick: edit },
-      { icon: 'ph-fill ph-coins', label: 'Custo por km do carro', sub: 'combustível, desgaste e carro fixo · em Carro', value: R(C.fuelKm + app.wear + C.carShare / Math.max(1, C.planDailyGross / C.revKm), 2), onClick: () => k.go('car') },
+      { icon: 'ph-fill ph-coins', label: 'Custo por km do carro', sub: 'combustível, desgaste e carro fixo · em Carro', value: R(C.fuelKm + app.wear + carFixedPerKm(C), 2), onClick: () => k.go('car') },
       { icon: 'ph-fill ph-calendar', label: 'Dias de pista', sub: `${C.rem} dias até o fim do mês`, value: `${app.daysWeek}/sem`, onClick: edit },
     ],
     dash: `${ring * mp / 100} ${ring}`, paceBg: ahead ? 'rgba(61,220,151,.2)' : 'rgba(233,176,75,.2)', paceInk: ahead ? '#7FF0BE' : '#FFD77A', paceIcon: ahead ? 'ph-bold ph-check' : 'ph-bold ph-warning',

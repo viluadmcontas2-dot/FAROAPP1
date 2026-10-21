@@ -7,12 +7,15 @@ export const SW_UPDATE_EVENT = 'faro:sw-update';
 
 export async function registerServiceWorker({ onUpdate, onReady, url = 'sw.js', scope = './' } = {}) {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return null;
+  const hadController = !!navigator.serviceWorker.controller; // antes de registrar: depois, a 1ª instalação já pode ter assumido a página
   let reg;
   try { reg = await navigator.serviceWorker.register(url, { scope, updateViaCache: 'none' }); } catch { return null; }
 
+  // Recarrega só quando uma versão nova assume uma página que JÁ tinha service worker.
+  // Na 1ª instalação o worker também assume a página (clients.claim), mas recarregar ali apagaria o que o motorista acabou de digitar.
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
+    if (!hadController || reloading) return;
     reloading = true;
     location.reload();
   });

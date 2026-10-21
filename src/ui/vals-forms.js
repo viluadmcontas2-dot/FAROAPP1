@@ -6,7 +6,7 @@ import { fmt, R, parseMoney } from '../core/money.js';
 import { monthName, WD_LONG, MONTHS, parseISO, weekday } from '../core/dates.js';
 import { FUEL, SRC_CAT, XP, ENERGIES, RIDE_KEYS, FUEL_CAT } from '../core/catalog.js';
 import { LOGO } from './theme.js';
-import { ICON_IN, ICON_OUT, BILL_ICONS, BILL_COLORS, BILL_PRESETS, BILL_CAT_LABELS, ENERGY_LABELS, VEHICLE_LABELS, DAYS_WEEK_OPTIONS, MAX_CHOICES, logoStyle, sel, segOpt, stepper } from './kit.js';
+import { plural, ICON_IN, ICON_OUT, BILL_ICONS, BILL_COLORS, BILL_PRESETS, BILL_CAT_LABELS, ENERGY_LABELS, VEHICLE_LABELS, DAYS_WEEK_OPTIONS, MAX_CHOICES, logoStyle, sel, segOpt, stepper } from './kit.js';
 
 export const energyWord = app => (app.energy === 'eletrico' ? 'Recarga' : 'Combustível');
 const KM_MAX_DIGITS = 4, MONEY_MAX_DIGITS = 7;
@@ -156,7 +156,7 @@ export function closeVals(k) {
     net: done ? R(done.lucro, 2) : '', badge: done ? (done.lucro >= goal ? 'Meta do dia batida' : `${R(Math.max(0, goal - done.lucro))} abaixo da meta de ${R(goal)}`) : '',
     stats: done ? [{ label: 'Lucro/km', value: R(done.lucro / done.km, 2) }, { label: 'Lucro/hora', value: R(done.lucro / done.h, 2) }, { label: 'Rodou', value: done.km + ' km' }] : [],
     rows: done ? [{ label: 'Bruto', value: R(done.g, 2), vc: t.ink }, { label: `${energyWord(app)} + desgaste`, value: '− ' + R(done.en + done.we, 2), vc: t.ink }, { label: 'Carro fixo + gastos na rua', value: '− ' + R(done.car + done.ex, 2), vc: t.ink }, { label: 'Contas da vida', value: '− ' + R(done.life, 2), vc: t.ink }, { label: 'Sobra do dia', value: R(done.sobra, 2), vc: t.pos }] : [],
-    rewards: [{ icon: 'ph-fill ph-star-four', v: `+${XP.close} XP`, l: 'dia fechado' }, { icon: 'ph-fill ph-fire', v: k.streakNow + ' dias', l: 'sequência' }, { icon: 'ph-fill ph-gauge', v: String(k.idx.score), l: 'Índice Faro' }],
+    rewards: [{ icon: 'ph-fill ph-star-four', v: `+${XP.close} XP`, l: 'dia fechado' }, { icon: 'ph-fill ph-fire', v: plural(k.streakNow, 'dia', 'dias'), l: 'sequência' }, { icon: 'ph-fill ph-gauge', v: String(k.idx.score), l: 'Índice Faro' }],
     toMonth: () => k.set({ screen: 'home', period: 'mes' }), done: () => k.set({ screen: 'home', period: 'dia' }),
   };
 }

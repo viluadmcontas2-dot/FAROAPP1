@@ -2,6 +2,7 @@
 // Funcoes puras: recebem o estado `app`, o `calc` (C), as ocorrencias de contas (occ) e a data de hoje.
 import { addDays, diffDays, mondayIndex, leadingBlanks } from '../core/dates.js';
 import { R } from '../core/money.js';
+import { plural } from './kit.js';
 
 const LUCRO_KM_REFERENCIA = 1.2; // lucro liquido por km que vale nota 100 no pilar de eficiencia
 const pct = v => Math.round(Math.max(0, Math.min(100, v)));
@@ -33,7 +34,7 @@ export function indexFaro(app, C, occ) {
   const pillars = [
     { key: 'const', label: 'Constância', score: pct(closedSoFar / Math.max(1, workSoFar) * 100), hint: `${closedSoFar} de ${workSoFar} dias fechados no mês` },
     { key: 'km', label: 'Lucro líquido por km', score: pct(lkm / LUCRO_KM_REFERENCIA * 100), hint: C.month.km ? `${R(lkm, 2)}/km · referência ${R(LUCRO_KM_REFERENCIA, 2)}` : 'feche um dia para medir' },
-    { key: 'bills', label: 'Contas em dia', score: pct(paidOn / Math.max(1, due.length) * 100), hint: due.length - paidOn ? `${due.length - paidOn} conta atrasada` : 'nenhuma atrasada' },
+    { key: 'bills', label: 'Contas em dia', score: pct(paidOn / Math.max(1, due.length) * 100), hint: due.length - paidOn ? `${plural(due.length - paidOn, 'conta atrasada', 'contas atrasadas')}` : 'nenhuma atrasada' },
     { key: 'pace', label: 'Ritmo da meta', score: C.target > 0 ? pct(C.proj / C.target * 100) : 0, hint: C.target > 0 ? `projeção ${R(C.proj)} de ${R(C.target)}` : '' },
   ];
   const hasData = C.closedDays.length > 0;
@@ -41,7 +42,7 @@ export function indexFaro(app, C, occ) {
   const label = !hasData ? 'Sem dados' : score >= 85 ? 'Excelente' : score >= 70 ? 'Bom' : score >= 50 ? 'Regular' : 'Atenção';
   const next = !hasData ? 'Feche seu primeiro dia para ver o seu índice.'
     : score >= 85 ? 'Você está no topo. Mantenha a constância.'
-    : `Faltam ${85 - score} pontos para Excelente. ${due.length - paidOn ? 'Pague a conta atrasada.' : 'Feche todos os dias de pista.'}`;
+    : `Faltam ${85 - score} pontos para Excelente. ${due.length - paidOn ? 'Pague as contas atrasadas.' : 'Feche todos os dias de pista.'}`;
   return { score, label, next, pillars, hasData };
 }
 
@@ -59,6 +60,9 @@ export function calendarCells(app, C) {
   }
   return cells;
 }
+
+// Rateio do carro fixo por km: dos km já rodados no mês; sem km ainda, dos km por dia que a meta pede.
+export const carFixedPerKm = C => (C.month.km ? C.month.car / C.month.km : C.carShare / Math.max(1, C.planDailyGross / C.revKm));
 
 export function records(C) {
   const list = C.closedDays.map(C.num).filter(r => r.km > 0);

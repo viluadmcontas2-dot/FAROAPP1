@@ -213,11 +213,13 @@ export default class App extends React.Component {
   }
 
   buildVals(ui, app) {
-    const today = this.today(), t = themeOf(app.theme), C = calc(app, today), occ = occOf(app, today);
+    const today = this.today(), t = themeOf(app.theme), C = calc(app, today);
+    // contas que venceram antes de o motorista começar a usar o Faro não contam como atrasadas (as já pagas continuam)
+    const occ = occOf(app, today).filter(o => o.paid || !app.onboardedAt || o.date >= app.onboardedAt);
     const pend = occ.filter(o => !o.paid).sort((a, b) => a.date.localeCompare(b.date));
     const k = {
       app, C, t, ui, today, occ, pend, idx: indexFaro(app, C, occ), streakNow: streakOf(app, today), cloud: ui.cloud,
-      calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary,
+      cloudApi: this.props.cloud, calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary,
       closeDay: this.closeDay, payBill: this.payBill, unpayBill: this.unpayBill, saveEntry: this.saveEntry, removeEntry: this.removeEntry, createBill: this.createBill,
       addSource: this.addSource, addExpenseCategory: this.addExpenseCategory, finishOnboarding: this.finishOnboarding, exportBackup: this.exportBackup, importBackupFile: this.importBackupFile,
     };

@@ -3,10 +3,10 @@ import { fmt, R } from '../core/money.js';
 import { addDays, weekday, WD_SHORT, MONTHS, dayOfMonth } from '../core/dates.js';
 import { FUEL } from '../core/catalog.js';
 import { level } from '../core/calc.js';
-import { BILL_CAT_LABELS, VEHICLE_LABELS, ENERGY_LABELS } from './kit.js';
+import { BILL_CAT_LABELS, VEHICLE_LABELS, ENERGY_LABELS, plural } from './kit.js';
 import { energyWord } from './vals-forms.js';
 import { billStatus } from './vals.js';
-import { records as recordsOf, badges as badgesOf, reminders as remindersOf, bestStreak } from './derive.js';
+import { records as recordsOf, badges as badgesOf, reminders as remindersOf, bestStreak, carFixedPerKm } from './derive.js';
 
 const sumOf = list => list.reduce((a, o) => a + o.v, 0);
 
@@ -38,7 +38,7 @@ export function remindVals(k) {
     ...(app.vehicle === 'dono' ? [] : [['rent', app.vehicle === 'alugado' ? 'Aluguel do carro' : 'Parcela do carro', 'na véspera, às 20h', 'ph-duotone ph-car-profile']]),
     ['week', 'Resumo da semana', 'domingo às 19h', 'ph-duotone ph-chart-bar']];
   return {
-    count: items.length, badgeD: items.length ? 'flex' : 'none',
+    count: items.length, summary: `${plural(items.length, 'aviso', 'avisos')} nos próximos 7 dias`, badgeD: items.length ? 'flex' : 'none',
     next: first ? { icon: first.icon, title: first.title, sub: first.sub, when: `${dayWord(first.date).toLowerCase()}${first.time ? ' às ' + first.time : ''}` } : { icon: 'ph-fill ph-check', when: '—', title: 'Tudo em dia', sub: '' },
     items: items.map((x, i) => ({ ...x, color: tone(x), day: dayWord(x.date), dnum: dayOfMonth(x.date), dc: x.date === today ? t.gold : t.muted, sep: i === items.length - 1 ? 'transparent' : t.line })),
     resGoal: R(goal),
@@ -49,10 +49,9 @@ export function remindVals(k) {
 
 // ---------------------------------------------------------------- carro
 export function carVals(k) {
-  const { app, C, t } = k, M = C.month, F = C.F, word = energyWord(app);
+  const { app, C, t } = k, F = C.F, word = energyWord(app);
   const bill = id => app.bills.find(b => b.id === id);
-  // custo por km: dos km já rodados no mês; sem km ainda, do plano (km por dia que a meta pede)
-  const carPerKm = M.km ? M.car / M.km : C.carShare / Math.max(1, C.planDailyGross / C.revKm);
+  const carPerKm = carFixedPerKm(C);
   const perKm = [[word, C.fuelKm, t.accent], ['Desgaste', app.wear, t.cW], ['Carro fixo', carPerKm, t.cF]];
   const costKm = perKm.reduce((a, p) => a + p[1], 0);
   const compare = ['gasolina', 'etanol', 'gnv'].map(key => ({ key, ...FUEL[key], ...app.fuel[key], perKm: app.fuel[key].price / app.fuel[key].eff }));
@@ -82,12 +81,12 @@ export function journeyVals(k) {
   const { best: bestDay, bestKm } = recordsOf(C);
   const list = badgesOf(app, C, occ, k.streakNow);
   return {
-    game: { streak: k.streakNow, bestStreak: best, level: lv.level, levelName: lv.name, xp: app.xp, xpW: lv.pct + '%', nextLv: lv.next ? `${lv.toNext} XP para ${lv.next}` : '' },
+    game: { streakLabel: plural(k.streakNow, 'dia', 'dias'), streakRun: k.streakNow === 1 ? '1 dia seguido' : `${k.streakNow} dias seguidos`, streak: k.streakNow, bestStreak: best, level: lv.level, levelName: lv.name, xp: app.xp, xpW: lv.pct + '%', nextLv: lv.next ? `${lv.toNext} XP para ${lv.next}` : '' },
     idx: { score: idx.score, label: idx.label, next: idx.next, pillars: idx.pillars.map(p => ({ icon: PILLAR_VIEW[p.key][0], color: t[PILLAR_VIEW[p.key][1]], label: p.label, score: p.score, hint: p.hint, w: p.score + '%' })) },
     records: [
       { icon: 'ph-fill ph-trophy', v: bestDay ? R(bestDay.lucro) : '—', l: bestDay ? `melhor dia · ${bestDay.d} ${MONTHS[Number(bestDay.date.slice(5, 7)) - 1].slice(0, 3)}` : 'melhor dia' },
       { icon: 'ph-fill ph-path', v: bestKm ? R(bestKm.lucro / bestKm.km, 2) : '—', l: 'melhor lucro/km' },
-      { icon: 'ph-fill ph-fire', v: best + ' dias', l: 'maior sequência' },
+      { icon: 'ph-fill ph-fire', v: plural(best, 'dia', 'dias'), l: 'maior sequência' },
     ],
     badges: list.map(b => ({ ...b, bg: b.got ? t.gold : t.surface2, color: b.got ? t.goldInk : t.muted, op: b.got ? '1' : '.55' })),
     badgeCount: `${list.filter(b => b.got).length} de ${list.length}`,
@@ -96,18 +95,21 @@ export function journeyVals(k) {
 
 // ---------------------------------------------------------------- conta
 const CLOUD_TEXT = {
-  idle: ['ph-duotone ph-info', 'Dados só neste aparelho', 'Entrar na conta guarda uma cópia na nuvem e leva seus dados para outros aparelhos.'],
-  synced: ['ph-duotone ph-check-circle', 'Tudo salvo na nuvem', ''],
-  pending: ['ph-duotone ph-clock', 'Aguardando envio', 'As últimas mudanças sobem em instantes.'],
-  syncing: ['ph-duotone ph-clock', 'Enviando para a nuvem', ''],
-  offline: ['ph-duotone ph-warning', 'Sem internet', 'Seus dados estão salvos aqui e sobem quando a conexão voltar.'],
-  error: ['ph-duotone ph-warning', 'Não deu para sincronizar', 'O Faro tenta de novo sozinho. Seus dados continuam salvos neste aparelho.'],
-  conflict: ['ph-duotone ph-warning', 'A nuvem tem dados diferentes', 'Escolha qual versão manter para continuar sincronizando.'],
+  idle: ['ph-fill ph-info', 'Dados só neste aparelho', 'Entrar na conta guarda uma cópia na nuvem e leva seus dados para outros aparelhos.'],
+  synced: ['ph-fill ph-check-circle', 'Tudo salvo na nuvem', ''],
+  pending: ['ph-fill ph-clock', 'Aguardando envio', 'As últimas mudanças sobem em instantes.'],
+  syncing: ['ph-fill ph-clock', 'Enviando para a nuvem', ''],
+  offline: ['ph-fill ph-warning', 'Sem internet', 'Seus dados estão salvos aqui e sobem quando a conexão voltar.'],
+  error: ['ph-fill ph-warning', 'Não deu para sincronizar', 'O Faro tenta de novo sozinho. Seus dados continuam salvos neste aparelho.'],
+  conflict: ['ph-fill ph-warning', 'A nuvem tem dados diferentes', 'Escolha qual versão manter para continuar sincronizando.'],
 };
 
+// PONTO DE ENTRADA DA TELA CONTA (tarefa 6): screen 'conta' (Jornada > "Conta", ou "Já uso o Faro · Entrar" no onboarding),
+// seção `isConta` em src/ui/template.body.html, estes valores em `conta.*`. Hoje mostra o estado da nuvem e o backup local.
+// Para ligar login/assinatura: k.cloudApi = { backend, sync } (entrar, sair, assinar, resolver conflito) e k.cloud = { configured, user, status }.
 export function contaVals(k) {
   const { t, ui, cloud } = k;
-  const [icon, title, sub] = !cloud.configured ? ['ph-duotone ph-info', 'Nuvem indisponível', 'Neste aparelho os dados ficam salvos normalmente.']
+  const [icon, title, sub] = !cloud.configured ? ['ph-fill ph-info', 'Nuvem indisponível', 'Neste aparelho os dados ficam salvos normalmente.']
     : cloud.user ? CLOUD_TEXT[cloud.status] || CLOUD_TEXT.idle : CLOUD_TEXT.idle;
   const msg = ui.contaMsg;
   return {

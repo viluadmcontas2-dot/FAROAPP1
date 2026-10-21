@@ -14,6 +14,9 @@ export const ENERGY_LABELS = { flex: ['Flex', 'ph-duotone ph-gas-pump'], gasolin
 export const VEHICLE_LABELS = { dono: 'Próprio', financiado: 'Financiado', alugado: 'Alugado' };
 export const DAYS_WEEK_OPTIONS = [4, 5, 6, 7];
 
+// "1 dia", "2 dias"
+export const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
 export const logoStyle = key => ({ logoUrl: LOGO[key] ? `url("${LOGO[key]}")` : 'none', imgD: LOGO[key] ? 'block' : 'none', icoD: LOGO[key] ? 'none' : 'flex' });
 export const sel = (t, on) => ({ border: on ? t.accent : t.line2, bg: on ? t.accentSoft : t.surface, color: on ? t.accent : t.ink });
 export const segOpt = (t, label, on, onClick) => ({ label, bg: on ? t.surface : 'transparent', color: on ? t.ink : t.muted, onClick });
