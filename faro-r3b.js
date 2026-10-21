@@ -496,7 +496,7 @@
     if ($('faroPlanProgress')) $('faroPlanProgress').style.width = `${pct}%`;
     setText($('faroPlanDaily'),`${app.money(c.dailyGross,0)}/dia`); setText($('faroPlanDays'),`${c.ctx.plannedDays} dias de pista`); setText($('faroPlanKm'),`≈ ${app.integer(c.dailyKm)} km/dia`);
     setText($('faroMetaCardValue'),app.money(target,0)); setText($('faroMetaCardMeta'),`${app.money(c.dailyGross,0)}/dia para chegar lá`); $('faroOpenMeta')?.setAttribute('aria-label',`Meta do mês: ${app.money(target,0)}. Ajustar`);
-    setText($('faroAgendaCardValue'),`${c.ctx.plannedDays} dias`); setText($('faroAgendaCardMeta'),`${app.state.extraDaysOff} folgas extras`); renderWeekStrip();
+    setText($('faroAgendaCardValue'),`${c.ctx.plannedDays} dias`); setText($('faroAgendaCardMeta'),`${app.state.extraDaysOff} ${Number(app.state.extraDaysOff) === 1 ? 'folga extra' : 'folgas extras'}`); renderWeekStrip();
     const operationIcon = $('faroOpenOperation')?.querySelector('.faro-r3-icon i'); if (operationIcon) operationIcon.className = `fas ${energyIcon(app.state.fuel.type)}`;
     setText($('faroOperationCardValue'),`${app.money(c.fuelKm)}/km`); setText($('faroOperationCardMeta'),`${app.state.fuel.label || 'Energia'} · receita ${app.money(app.state.revenueKm)}/km`);
     const moneyCard = $('faroOpenMoney'); if (moneyCard) moneyCard.dataset.r3bState = model.state;

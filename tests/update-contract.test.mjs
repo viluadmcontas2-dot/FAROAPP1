@@ -16,7 +16,7 @@ assert.match(update, /window\.addEventListener\('pageshow', \(\) => checkForUpda
 assert.match(update, /worker\.postMessage\(\{ type: 'FARO_ACTIVATE_WHEN_SAFE' \}\)/);
 assert.doesNotMatch(update, /location\.reload|skipWaiting\s*\(/);
 
-assert.match(sw, /const CORE_CACHE = 'faro-v1-core-36'/, 'Geração premium precisa invalidar o cache anterior');
+assert.match(sw, /const CORE_CACHE = 'faro-v1-core-37'/, 'Geração premium precisa invalidar o cache anterior');
 assert.match(sw, /\.\/faro-update\.js\?v=1/);
 assert.match(sw, /\.\/faro-home-r2\.js\?v=3/);
 assert.match(sw, /\.\/faro-register-earnings\.js\?v=1/);

@@ -345,7 +345,7 @@
     if (remaining <= 0) text.textContent = 'Meta batida. Tudo que entrar agora é extra.';
     else if (calculation.remainingDays > 0) {
       const days = calculation.remainingDays;
-      fill(text, ['Faltam ', strongMoney(remaining, 0), '. Sobrando ', strongMoney(calculation.dailyNet, 0), ` por dia nos ${days} ${days === 1 ? 'dia que resta' : 'dias que restam'}, você fecha.`]);
+      fill(text, ['Faltam ', strongMoney(remaining, 0), '. Junte ', strongMoney(calculation.dailyNet, 0), ` por dia nos ${days} ${days === 1 ? 'dia que resta' : 'dias que restam'} e você fecha a meta.`]);
     } else fill(text, ['Faltam ', strongMoney(remaining, 0), '. Não restam dias planejados: ajuste a meta ou a agenda.']);
     goal.setAttribute('aria-label', `Meta de ${month}: ${app.money(actual, 0)} de ${app.money(target, 0)}${calculation.records.length ? `, ${pill}` : ''}. Ajustar meta`);
   };
