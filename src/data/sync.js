@@ -25,6 +25,9 @@ export const hasUserData = s => {
   } catch { return false; }
 };
 
+// Dias fechados: a nuvem nunca pode perder dias por um envio automatico.
+export const closedCount = s => { try { return Object.keys(s.recs).filter(k => s.recs[k] && s.recs[k].closed).length; } catch { return 0; } };
+
 const same = (a, b) => { try { return JSON.stringify(a) === JSON.stringify(b); } catch { return false; } };
 
 export const createSync = ({
@@ -65,7 +68,7 @@ export const createSync = ({
   const getStatus = () => ({ ...st });
 
   const metaKey = u => META_PREFIX + u;
-  const getMeta = u => ({ remoteRevision: 0, dirty: false, lastMutationId: null, linked: false, lastSyncedAt: null, ...(readJson(metaKey(u)) || {}) });
+  const getMeta = u => ({ remoteRevision: 0, dirty: false, lastMutationId: null, linked: false, outside: false, closed: 0, lastSyncedAt: null, ...(readJson(metaKey(u)) || {}) });
   const setMeta = (u, m) => write(metaKey(u), JSON.stringify(m));
 
   const clearTimerNow = () => { if (timer != null) { clearTimer(timer); timer = null; } };
@@ -85,12 +88,12 @@ export const createSync = ({
   const applyRemote = (u, remote) => {
     suppress = true;
     try { store.replaceState(remote.state); } finally { suppress = false; }
-    setMeta(u, { ...getMeta(u), remoteRevision: Number(remote.revision) || 0, dirty: false, linked: true, lastSyncedAt: remote.server_updated_at || null });
+    setMeta(u, { ...getMeta(u), remoteRevision: Number(remote.revision) || 0, dirty: false, linked: true, outside: false, closed: closedCount(remote.state), lastSyncedAt: remote.server_updated_at || null });
   };
 
   const markSynced = (u, revision, at) => {
     const meta = getMeta(u);
-    setMeta(u, { ...meta, remoteRevision: Number(revision) || 0, dirty: false, linked: true, lastSyncedAt: at || null });
+    setMeta(u, { ...meta, remoteRevision: Number(revision) || 0, dirty: false, linked: true, outside: false, closed: closedCount(store.getSnapshot()), lastSyncedAt: at || null });
     attempt = 0;
     emit({ status: 'synced', lastSyncedAt: at || null, error: null, retryInMs: null });
   };
@@ -151,6 +154,8 @@ export const createSync = ({
     const revision = Number(remote.revision) || 0;
     const usable = remote.schema_version === 2;
     const sendLocal = async () => {
+      // Nunca envia por cima um estado com menos dias fechados que a nuvem: o motorista decide.
+      if (usable && closedCount(local) < closedCount(remote.state)) return toConflict(remote, local);
       setMeta(u, { ...meta, remoteRevision: revision, dirty: true });
       return void (await push(u, revision, meta.lastMutationId));
     };
@@ -163,7 +168,7 @@ export const createSync = ({
     if (!hasData(remote.state)) return sendLocal();
     if (same(local, remote.state)) return markSynced(u, revision, remote.server_updated_at);
 
-    if (!meta.linked || revision < meta.remoteRevision) return toConflict(remote, local);
+    if (!meta.linked || meta.outside || revision < meta.remoteRevision) return toConflict(remote, local);
     if (meta.dirty) return revision === meta.remoteRevision ? sendLocal() : toConflict(remote, local);
     if (revision > meta.remoteRevision) return (applyRemote(u, remote), markSynced(u, revision, remote.server_updated_at));
     return sendLocal();
@@ -179,7 +184,8 @@ export const createSync = ({
     try {
       const meta = getMeta(u);
       let result;
-      if (meta.linked && meta.dirty && meta.lastMutationId) result = await push(u, meta.remoteRevision, meta.lastMutationId);
+      const risky = meta.outside || closedCount(store.getSnapshot()) < (meta.closed || 0);
+      if (meta.linked && meta.dirty && meta.lastMutationId && !risky) result = await push(u, meta.remoteRevision, meta.lastMutationId);
       if (result === 'conflict' || result === 'stale') { /* tratado */ } else if (result === 'ok') { /* ok */ } else await reconcile(u);
       if (my === epoch && getMeta(u).dirty && st.status !== 'conflict' && st.status !== 'error') again = true;
     } catch (e) {
@@ -208,8 +214,10 @@ export const createSync = ({
     schedule(debounceMs);
   };
 
+  // Guarda o estado da conta ao sair (limpo ou pendente): nada se perde, e a nuvem continua sendo a fonte.
   const stashIfDirty = owner => {
-    if (!owner || !getMeta(owner).dirty) return;
+    if (!owner) return;
+    if (!getMeta(owner).dirty && !hasData(store.getSnapshot())) return;
     write(STASH_PREFIX + owner, JSON.stringify(store.getSnapshot()));
   };
 
@@ -234,7 +242,9 @@ export const createSync = ({
     uid = user.id;
     const stash = readJson(STASH_PREFIX + user.id);
     if (owner && owner !== user.id) stashIfDirty(owner); // dados locais são de outra conta: nunca sobem
-    if (stash) {
+    const m0 = getMeta(user.id);
+    const localNow = store.getSnapshot();
+    if (stash && m0.dirty && !(!owner && hasData(localNow))) {
       // Pendência guardada desta conta (saiu com dados não enviados): volta ao aparelho e sobe para ela.
       suppress = true;
       try { store.replaceState(stash); } finally { suppress = false; }
@@ -244,8 +254,8 @@ export const createSync = ({
       suppress = true;
       try { store.replaceState(null); } finally { suppress = false; }
     } else if (!owner) {
-      const m = getMeta(user.id);
-      if (!m.linked && hasData(store.getSnapshot())) setMeta(user.id, { ...m, dirty: true, lastMutationId: m.lastMutationId || randomId() });
+      // Dados criados fora da conta: sobem so por escolha explicita se a nuvem ja tiver dados.
+      if (hasData(localNow)) setMeta(user.id, { ...m0, dirty: true, outside: true, lastMutationId: m0.lastMutationId || randomId() });
     }
     write(OWNER_KEY, user.id);
     attempt = 0;
@@ -256,6 +266,7 @@ export const createSync = ({
   const resolve = async choice => {
     if (st.status !== 'conflict' || !uid) return getStatus();
     const u = uid; const remote = st.remote;
+    drop(STASH_PREFIX + u); // a escolha explicita encerra a copia antiga
     // Aparelho sem dado real nunca sobe por cima da nuvem: "usar este aparelho" vira "usar a nuvem".
     if (choice === 'local' && !hasData(store.getSnapshot())) choice = 'cloud';
     if (choice === 'cloud') {

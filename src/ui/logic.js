@@ -14,6 +14,8 @@ import { SCREEN_NAV } from './kit.js';
 import { indexFaro } from './derive.js';
 import { homeVals, planVals } from './vals.js';
 import { billsVals, remindVals, carVals, journeyVals, contaVals } from './vals-secondary.js';
+import { decideAccess, isBlocked } from '../data/access.js';
+import { contaActions, newContaState } from './conta-actions.js';
 import { onboardingVals, closeVals, sheetVals, keypadVals, newOnboardingDraft, onboardingPayload, newCloseDraft } from './vals-forms.js';
 
 const TOAST_MS = 2300;
@@ -46,10 +48,11 @@ export default class App extends React.Component {
     const app = this.store.getState();
     this.state = {
       app, screen: 'home', prev: 'home', onbStep: 0, ob: newOnboardingDraft(app), period: 'dia', billFilter: 'todas', wfOpen: false,
-      cl: newCloseDraft(app, todayISO()), sh: NEW_SHEET, nb: NEW_BILL, toast: null, more: false, cloud: readCloud(props.cloud), contaMsg: null,
+      cl: newCloseDraft(app, todayISO()), sh: NEW_SHEET, nb: NEW_BILL, toast: null, more: false, cloud: readCloud(props.cloud), contaMsg: null, ct: newContaState(props.cloud),
     };
   }
 
+  conta = contaActions(this);
   scRef = React.createRef();
   guards = new Set();
 
@@ -57,8 +60,9 @@ export default class App extends React.Component {
     this.unsubscribe = [this.store.subscribe(app => this.setState({ app }))];
     const { cloud } = this.props;
     if (cloud) {
-      const refresh = () => this.setState({ cloud: readCloud(cloud) });
-      this.unsubscribe.push(cloud.sync.subscribe(refresh), cloud.backend.onAuthChange(refresh));
+      this.seenUser = cloud.backend.getUser() ? cloud.backend.getUser().id : null;
+      this.unsubscribe.push(cloud.sync.subscribe(this.refreshCloud), cloud.backend.onAuthChange(this.refreshCloud));
+      this.conta.start();
     }
     // ao voltar para o app em outro dia, "hoje" muda
     this.onVisible = () => { if (document.visibilityState === 'visible') this.forceUpdate(); };
@@ -77,6 +81,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.toastTimer);
     clearTimeout(this.hintTimer);
+    this.conta.stop();
     this.unsubscribe.forEach(fn => fn());
     document.removeEventListener('visibilitychange', this.onVisible);
   }
@@ -87,6 +92,14 @@ export default class App extends React.Component {
     const more = el.scrollHeight - el.clientHeight - el.scrollTop > SCROLL_HINT_MIN_PX;
     if (more !== this.state.more) this.setState({ more });
   }
+
+  // conta/nuvem mudou: relê o estado e, se trocou de usuário, confere a assinatura de novo
+  refreshCloud = () => {
+    const next = readCloud(this.props.cloud);
+    this.setState({ cloud: next });
+    const id = next.user ? next.user.id : null;
+    if (id !== this.seenUser) { const prev = this.seenUser; this.seenUser = id; this.conta.onUser(prev, id); }
+  };
 
   // ---- ações de UI (o que o usuário toca)
   set = o => this.setState(o);
@@ -207,9 +220,20 @@ export default class App extends React.Component {
   // Estado de tela + estado do app. No onboarding, o app mostrado é uma prévia (estado + escolhas do rascunho).
   viewModel() {
     const ui = this.state, today = this.today();
-    const screen = !ui.app.onboarded && ui.screen !== 'conta' ? ONBOARDING_SCREEN : ui.screen;
+    const access = this.access();
+    const screen = access.blocked ? 'conta' : !ui.app.onboarded && ui.screen !== 'conta' ? ONBOARDING_SCREEN : ui.screen;
     const app = screen === ONBOARDING_SCREEN ? reduce(ui.app, { type: 'onboarding/complete', payload: onboardingPayload(ui.ob) }, { today }) : ui.app;
-    return { ui: { ...ui, screen }, app };
+    return { ui: { ...ui, screen, access }, app };
+  }
+
+  // Paywall: só bloqueia com a cobrança ligada. Enquanto confere sessão/assinatura, `checking` mostra uma tela neutra (nunca o app).
+  access() {
+    const { cloud, ct } = this.state, backend = this.props.cloud && this.props.cloud.backend;
+    const billing = !!(backend && backend.billingEnabled);
+    if (!billing) return { billing, blocked: false, checking: false, decision: decideAccess({ billingEnabled: false }) };
+    const checking = !ct.restored || (!!cloud.user && ct.sub === undefined);
+    const decision = decideAccess({ billingEnabled: true, user: cloud.user, subscription: ct.sub });
+    return { billing, checking, decision, blocked: checking || isBlocked(decision) };
   }
 
   buildVals(ui, app) {
@@ -219,7 +243,7 @@ export default class App extends React.Component {
     const pend = occ.filter(o => !o.paid).sort((a, b) => a.date.localeCompare(b.date));
     const k = {
       app, C, t, ui, today, occ, pend, idx: indexFaro(app, C, occ), streakNow: streakOf(app, today), cloud: ui.cloud,
-      cloudApi: this.props.cloud, calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary,
+      cloudApi: this.props.cloud, conta: this.conta, version: this.props.version || '', calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openSummary: this.openSummary,
       closeDay: this.closeDay, payBill: this.payBill, unpayBill: this.unpayBill, saveEntry: this.saveEntry, removeEntry: this.removeEntry, createBill: this.createBill,
       addSource: this.addSource, addExpenseCategory: this.addExpenseCategory, finishOnboarding: this.finishOnboarding, exportBackup: this.exportBackup, importBackupFile: this.importBackupFile,
     };

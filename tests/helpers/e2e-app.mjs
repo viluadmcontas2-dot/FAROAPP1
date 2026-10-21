@@ -36,9 +36,24 @@ export function serve(dir) {
   return new Promise(ok => server.listen(0, '127.0.0.1', () => ok({ url: `http://127.0.0.1:${server.address().port}/`, close: () => new Promise(done => server.close(done)) })));
 }
 
-export async function launch() {
+// O app só abre instalado (display-mode: standalone). Os testes simulam isso sobrescrevendo matchMedia antes de qualquer script da página.
+// Roda dentro do navegador: precisa ser autocontida.
+export function forceStandalone() {
+  const real = window.matchMedia.bind(window);
+  window.matchMedia = query => (/display-mode:\s*standalone/.test(query)
+    ? { matches: true, media: query, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => false }
+    : real(query));
+}
+
+// `standalone: false` devolve o navegador comum (para testar a tela "Instalar o Faro").
+export async function launch({ standalone = true } = {}) {
   const { chromium } = createRequire(import.meta.url)(PLAYWRIGHT);
-  return chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
+  if (standalone) {
+    const newContext = browser.newContext.bind(browser);
+    browser.newContext = async (...args) => { const context = await newContext(...args); await context.addInitScript(forceStandalone); return context; };
+  }
+  return browser;
 }
 
 export const prepareShots = () => { mkdirSync(SHOTS_DIR, { recursive: true }); return SHOTS_DIR; };

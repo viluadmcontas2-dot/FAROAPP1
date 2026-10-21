@@ -2,7 +2,8 @@
 import { fmt, R } from '../core/money.js';
 import { addDays, weekday, WD_SHORT, MONTHS, dayOfMonth } from '../core/dates.js';
 import { FUEL } from '../core/catalog.js';
-import { level } from '../core/calc.js';
+import { level, calc } from '../core/calc.js';
+import { daysLeft } from '../data/access.js';
 import { BILL_CAT_LABELS, VEHICLE_LABELS, ENERGY_LABELS, plural } from './kit.js';
 import { energyWord } from './vals-forms.js';
 import { billStatus } from './vals.js';
@@ -101,20 +102,95 @@ const CLOUD_TEXT = {
   syncing: ['ph-fill ph-clock', 'Enviando para a nuvem', ''],
   offline: ['ph-fill ph-warning', 'Sem internet', 'Seus dados estão salvos aqui e sobem quando a conexão voltar.'],
   error: ['ph-fill ph-warning', 'Não deu para sincronizar', 'O Faro tenta de novo sozinho. Seus dados continuam salvos neste aparelho.'],
-  conflict: ['ph-fill ph-warning', 'A nuvem tem dados diferentes', 'Escolha qual versão manter para continuar sincronizando.'],
+  conflict: ['ph-fill ph-warning', 'A nuvem tem dados diferentes', 'Escolha quais dados manter para continuar sincronizando.'],
 };
 
-// PONTO DE ENTRADA DA TELA CONTA (tarefa 6): screen 'conta' (Jornada > "Conta", ou "Já uso o Faro · Entrar" no onboarding),
-// seção `isConta` em src/ui/template.body.html, estes valores em `conta.*`. Hoje mostra o estado da nuvem e o backup local.
-// Para ligar login/assinatura: k.cloudApi = { backend, sync } (entrar, sair, assinar, resolver conflito) e k.cloud = { configured, user, status }.
+// Tela Conta: entrar/criar conta/sair, estado da nuvem, conflito, assinatura, backup, nova versão e versão do app.
+// Ações em conta-actions.js (k.conta); o cartão de cada seção só aparece quando faz sentido (flags `show*`).
+const brDate = iso => {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return '';
+  return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} às ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+};
+
+// resumo de lucro de um estado (o que será mantido): "Lucro do mês R$ 1.234 · 12 dias fechados"
+export function snapshotSummary(state, today) {
+  try {
+    const C = calc(state, today), n = C.month.n;
+    if (n > 0) return `Lucro do mês ${R(C.month.lucro)} · ${plural(n, 'dia fechado', 'dias fechados')}`;
+    const closed = Object.values((state && state.recs) || {}).filter(r => r && r.closed).length;
+    return closed ? `${plural(closed, 'dia fechado', 'dias fechados')}, nenhum neste mês` : 'Ainda sem dias fechados';
+  } catch { return 'Resumo indisponível'; }
+}
+
+const SUB_VIEW = (sub, now) => {
+  const end = sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
+  if (sub.error) return { title: 'Não deu para conferir sua assinatura', sub: 'Conecte-se à internet e tente de novo.', action: 'retry', label: 'Tentar de novo' };
+  switch (sub.status) {
+    case 'trialing': { const d = daysLeft(sub, now); return { title: 'Teste grátis', sub: d === null ? 'Seu teste grátis está ativo.' : d === 0 ? 'Seu teste termina hoje.' : `Faltam ${plural(d, 'dia', 'dias')} do teste grátis.`, action: 'portal', label: 'Gerenciar assinatura' }; }
+    case 'active': return { title: 'Assinatura ativa', sub: end ? (sub.cancelAtPeriodEnd ? `Termina em ${end}.` : `Renova em ${end}.`) : 'Tudo certo com a sua assinatura.', action: 'portal', label: 'Gerenciar assinatura' };
+    case 'past_due': case 'unpaid': return { title: 'Pagamento pendente', sub: 'Atualize o pagamento para continuar usando o Faro.', action: 'portal', label: 'Atualizar pagamento' };
+    case 'canceled': case 'paused': return { title: 'Assinatura cancelada', sub: 'Assine de novo para voltar a usar o Faro.', action: 'checkout', label: 'Assinar de novo' };
+    default: return { title: 'Sem assinatura', sub: 'Teste o Faro por 7 dias sem pagar. Cancele quando quiser.', action: 'checkout', label: 'Começar 7 dias grátis' };
+  }
+};
+
 export function contaVals(k) {
-  const { t, ui, cloud } = k;
-  const [icon, title, sub] = !cloud.configured ? ['ph-fill ph-info', 'Nuvem indisponível', 'Neste aparelho os dados ficam salvos normalmente.']
-    : cloud.user ? CLOUD_TEXT[cloud.status] || CLOUD_TEXT.idle : CLOUD_TEXT.idle;
+  const { t, ui, cloud, conta, today } = k, ct = ui.ct, au = ct.auth, access = ui.access || { billing: false, blocked: false, checking: false, decision: {} };
+  const api = k.cloudApi, configured = cloud.configured, user = cloud.user, now = Date.now();
+  const [icon, title, sub] = !configured ? ['ph-fill ph-info', 'Nuvem indisponível', 'Neste aparelho os dados ficam salvos normalmente.']
+    : user ? CLOUD_TEXT[cloud.status] || CLOUD_TEXT.idle : CLOUD_TEXT.idle;
   const msg = ui.contaMsg;
+  const isConflict = !!user && cloud.status === 'conflict', status = isConflict && api ? api.sync.getStatus() : null;
+
+  // entrar / criar conta
+  const create = au.mode === 'criar', showAuth = configured && !user && !access.checking;
+  const auth = {
+    show: showAuth, title: create ? 'Criar sua conta' : 'Entrar na conta',
+    sub: create ? 'Com a conta, seus dados ficam guardados na nuvem e seguem com você.' : 'Use o e-mail e a senha da sua conta Faro.',
+    email: au.email, password: au.password, pwType: au.show ? 'text' : 'password', pwToggle: au.show ? 'Ocultar' : 'Mostrar',
+    pwHint: create ? 'Mínimo de 8 caracteres' : '', autoPw: create ? 'new-password' : 'current-password',
+    submit: au.busy ? (create ? 'Criando conta…' : 'Entrando…') : create ? 'Criar conta' : 'Entrar',
+    other: create ? 'Já tenho conta' : 'Criar conta', forgot: !create,
+    msg: au.msg ? au.msg.text : '', msgColor: au.msg && au.msg.ok ? t.pos : t.neg,
+    onEmail: conta.setField('email'), onPassword: conta.setField('password'), onToggle: conta.toggleShow, onSubmit: e => conta.submit(e), onOther: conta.switchMode, onForgot: conta.forgot,
+  };
+
+  // conflito: duas escolhas explícitas, sem padrão
+  const remote = status && status.remote, local = status && status.local;
+  const when = remote && brDate(remote.serverUpdatedAt);
+  const ask = ct.confirm;
+  const conflict = {
+    show: isConflict && !!remote,
+    cloudLine: remote ? [snapshotSummary(remote.state, today), when && `salvo em ${when}`].filter(Boolean).join(' · ') : '',
+    localLine: local ? snapshotSummary(local, today) : '',
+    onCloud: () => conta.askResolve('cloud'), onLocal: () => conta.askResolve('local'),
+    asking: !!ask,
+    askTitle: ask === 'cloud' ? 'Manter os dados da nuvem?' : 'Usar os dados deste aparelho?',
+    askText: ask === 'cloud' ? `Os dados deste aparelho serão substituídos por estes: ${remote ? snapshotSummary(remote.state, today) : ''}. Não dá para desfazer.`
+      : `Os dados da nuvem serão substituídos por estes: ${local ? snapshotSummary(local, today) : ''}. Não dá para desfazer.`,
+    onConfirm: conta.doResolve, onBack: conta.cancelResolve,
+  };
+
+  // assinatura
+  const billing = access.billing;
+  let subView;
+  if (!billing) subView = { title: 'Assinatura abre em breve', sub: 'Por enquanto o Faro está liberado para você usar sem pagar.', action: '', label: '' };
+  else if (!user) subView = { title: 'Teste grátis por 7 dias', sub: 'Entre ou crie sua conta para começar o teste.', action: '', label: '' };
+  else if (ct.sub === undefined) subView = { title: 'Conferindo sua assinatura…', sub: '', action: '', label: '' };
+  else subView = SUB_VIEW(ct.sub, now);
+  const onSub = { checkout: conta.checkout, portal: conta.portal, retry: conta.retrySub }[subView.action];
+  const subscription = { show: configured && !access.checking, icon: billing ? 'ph-fill ph-star-four' : 'ph-fill ph-clock', title: subView.title, sub: subView.sub, label: subView.label, hasAction: !!onSub, onAction: onSub || (() => {}) };
+
+  const blockedText = access.blocked && !access.checking ? (access.decision.state === 'precisa_entrar' ? 'Entre ou crie sua conta para usar o Faro. Seus dados ficam salvos neste aparelho.' : 'Comece o teste grátis para usar o Faro. Seus dados continuam salvos neste aparelho.') : '';
   return {
-    intro: 'Seus dados, o backup e a conexão com a nuvem.',
-    cloudIcon: icon, cloudTitle: title, cloudSub: [cloud.user && cloud.user.email, sub].filter(Boolean).join(' · '),
+    intro: access.checking ? 'Conferindo sua conta…' : blockedText || 'Seus dados, o backup e a conexão com a nuvem.',
+    canBack: !access.blocked, checking: access.checking, full: !access.checking,
+    cloudIcon: icon, cloudTitle: title, cloudSub: [user && user.email, sub].filter(Boolean).join(' · '),
+    signedIn: !!user, signOut: conta.signOut,
+    auth, conflict, subscription,
+    update: { show: !!ct.swApply, apply: conta.applyUpdate },
+    version: k.version ? `Faro ${k.version}` : '',
     exportBackup: k.exportBackup, onFile: e => k.importBackupFile(e.target),
     msg: msg ? msg.text : '', msgColor: msg && msg.ok ? t.pos : t.neg,
   };

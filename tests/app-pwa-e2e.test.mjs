@@ -6,6 +6,7 @@ import { readFileSync, existsSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { extname, join, normalize } from 'node:path';
 import { buildTo, root } from './helpers/pwa-build.mjs';
+import { forceStandalone } from './helpers/e2e-app.mjs';
 
 const require = createRequire(import.meta.url);
 let chromium;
@@ -38,6 +39,7 @@ test('instalavel e offline com CSP estrita', { skip, timeout: 120000 }, async ()
   const browser = await chromium.launch({ executablePath: EXE, args: ['--no-sandbox'] });
   try {
     const ctx = await browser.newContext({ serviceWorkers: 'allow' });
+    await ctx.addInitScript(forceStandalone); // o app só abre instalado
     const page = await ctx.newPage();
     const problems = [];
     page.on('console', (m) => { if (/content security policy|refused to|violat/i.test(m.text())) problems.push(m.text()); });

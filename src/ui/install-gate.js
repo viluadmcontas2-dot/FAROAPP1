@@ -83,7 +83,7 @@ export function installCopy(info, canPrompt, installedNow) {
   if (canPrompt) return { kind: 'prompt', title: 'Instale o Faro no celular', text: 'O Faro funciona como app: abre pelo ícone, sem barra de navegador e mesmo sem internet.', steps: [], install: true };
   if (info.os === 'ios') {
     return {
-      kind: 'ios', title: 'Instale o Faro no iPhone', text: info.browser === 'safari' ? 'No iPhone a instalação é feita pelo Safari, em dois toques.' : 'Se não achar estas opções, abra este link no Safari.',
+      kind: 'ios', title: 'Instale o Faro no iPhone', text: info.browser === 'safari' ? 'A instalação é feita pelo Safari e leva poucos segundos.' : 'Se não achar estas opções, abra este link no Safari.',
       steps: [['share', 'Toque em Compartilhar'], ['plus', 'Toque em Adicionar à Tela de Início'], ['phone', 'Abra o Faro pelo novo ícone']],
     };
   }
