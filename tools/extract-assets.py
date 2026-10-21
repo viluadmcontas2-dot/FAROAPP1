@@ -18,6 +18,7 @@ def blob(uuid):
 helmet = re.search(r'<helmet.*?</helmet>', full, re.S).group(0)
 styles = re.findall(r'<style>(.*?)</style>', helmet, re.S)
 (root / 'assets/fonts').mkdir(parents=True, exist_ok=True)
+written = set()
 
 # ---- fontes de texto: so latin + latin-ext, pesos fundidos (fontes variaveis)
 KEEP = {'latin', 'latin-ext'}
@@ -35,13 +36,13 @@ css = ['/* GERADO por tools/extract-assets.py - fontes locais (sem CDN) */']
 for (fam, sub, uuid), d in sorted(faces.items()):
     data = blob(uuid); h = hashlib.sha256(data).hexdigest()[:8]
     name = f"{fam.lower().replace(' ', '-')}-{sub}.{h}.woff2"
-    (root / 'assets/fonts' / name).write_bytes(data)
+    (root / 'assets/fonts' / name).write_bytes(data); written.add(name)
     lo, hi = min(d['w']), max(d['w'])
     css.append(f"@font-face{{font-family:'{fam}';font-style:normal;font-weight:{lo} {hi};font-display:swap;"
                f"src:url(\"../../assets/fonts/{name}\") format('woff2');unicode-range:{d['ur']}}}")
 
 # ---- Phosphor: so os icones usados
-src = (root / 'design/template.body.html').read_text() + (root / 'design/logic.dc.js').read_text()
+src = (root / 'src/ui/template.body.html').read_text()
 for p in (root / 'src/ui').glob('*.js'):
     if p.name != 'view.gen.js': src += p.read_text()
 used = sorted(set(re.findall(r'\bph-([a-z0-9]+(?:-[a-z0-9]+)*)', src)) - {'fill', 'bold', 'duotone', 'light', 'thin'})
@@ -52,27 +53,39 @@ base = re.search(r'\.ph \{.*?\n\}', style_of('Phosphor'), re.S).group(0)
 for fam, cls in weights:
     s = style_of(fam)
     ttf_uuid = re.findall(r'url\("([0-9a-f-]{36})[^"]*"\) format\("truetype"\)', s)[0]
-    codes = {}
+    codes = {}   # nome -> [camada principal] ou, no duotone, [camada 20% (:before), camada solida (:after)]
     for n in used:
-        m = re.search(r'\.%s\.ph-%s:before\s*\{\s*content:\s*"\\([0-9a-f]+)"' % (re.escape(cls), re.escape(n)), s)
-        if m: codes[n] = int(m.group(1), 16)
+        pseudos = ('before', 'after') if cls == 'ph-duotone' else ('before',)
+        got = []
+        for ps in pseudos:
+            m = re.search(r'\.%s\.ph-%s:%s\s*\{\s*content:\s*"\\([0-9a-f]+)"' % (re.escape(cls), re.escape(n), ps), s)
+            if m: got.append(int(m.group(1), 16))
+        if len(got) == len(pseudos): codes[n] = got
     missing = [n for n in used if n not in codes]
     if missing: print('AVISO', cls, 'sem glifo:', missing)
     font = TTFont(io.BytesIO(blob(ttf_uuid)))
     opts = subset.Options(); opts.flavor = 'woff2'; opts.layout_features = []; opts.glyph_names = False
     opts.notdef_outline = True; opts.name_IDs = []; opts.hinting = False
-    sub = subset.Subsetter(opts); sub.populate(unicodes=list(codes.values())); sub.subset(font)
+    sub = subset.Subsetter(opts); sub.populate(unicodes=[c for v in codes.values() for c in v]); sub.subset(font)
+    font.recalcTimestamp = False; font['head'].modified = font['head'].created = 0   # saida identica a cada rodada (sem data/hora)
     out = io.BytesIO(); font.flavor = 'woff2'; font.save(out); data = out.getvalue()
     h = hashlib.sha256(data).hexdigest()[:8]; name = f"phosphor-{cls[3:] or 'regular'}.{h}.woff2"
-    (root / 'assets/fonts' / name).write_bytes(data)
+    (root / 'assets/fonts' / name).write_bytes(data); written.add(name)
     css.append(f"@font-face{{font-family:\"{fam}\";src:url(\"../../assets/fonts/{name}\") format('woff2');font-weight:normal;font-style:normal;font-display:block}}")
     if cls == 'ph':
         css.append(re.sub(r'font-family: "Phosphor"', 'font-family: "Phosphor"', re.sub(r'/\*.*?\*/|\s*-(?:moz|ms)-[^;]*;|\s*-webkit-font-feature-settings[^;]*;', '', base, flags=re.S)))
     else:
         b2 = re.search(r'\.%s \{.*?\n\}' % re.escape(cls), s, re.S).group(0)
         css.append(re.sub(r'/\*.*?\*/', '', b2, flags=re.S))
-    for n, c in codes.items():
-        css.append(f".{cls}.ph-{n}:before{{content:\"\\{c:x}\"}}")
+    if cls == 'ph-duotone':   # duotone = 2 camadas: :before a 20% e :after solida sobreposta (margin-left:-1em)
+        css.append('.ph-duotone:before{opacity:.2}\n.ph-duotone:after{margin-left:-1em}')
+        for n, (c1, c2) in codes.items():
+            css.append(f".ph-duotone.ph-{n}:before{{content:\"\\{c1:x}\"}}.ph-duotone.ph-{n}:after{{content:\"\\{c2:x}\"}}")
+    else:
+        for n, (c,) in codes.items():
+            css.append(f".{cls}.ph-{n}:before{{content:\"\\{c:x}\"}}")
+for old in (root / 'assets/fonts').glob('*.woff2'):   # idempotente: some fonte velha de rodadas anteriores
+    if old.name not in written: old.unlink()
 css.append(styles[-1].strip())
 css = '\n'.join(re.sub(r'\n\s*\n', '\n', c) for c in css) + '\n'
 (root / 'src/ui').mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,7 @@
 @font-face{font-family:'Manrope';font-style:normal;font-weight:400 800;font-display:swap;src:url("../../assets/fonts/manrope-latin-ext.3911b66d.woff2") format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
 @font-face{font-family:'Unbounded';font-style:normal;font-weight:600 700;font-display:swap;src:url("../../assets/fonts/unbounded-latin.22f9b928.woff2") format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 @font-face{font-family:'Unbounded';font-style:normal;font-weight:600 700;font-display:swap;src:url("../../assets/fonts/unbounded-latin-ext.845e1c9f.woff2") format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
-@font-face{font-family:"Phosphor";src:url("../../assets/fonts/phosphor-regular.74289ceb.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
+@font-face{font-family:"Phosphor";src:url("../../assets/fonts/phosphor-regular.86268e06.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
 .ph {
   font-family: "Phosphor" !important;
   speak: never;
@@ -21,7 +21,6 @@
   -webkit-font-smoothing: antialiased;
 }
 .ph.ph-arrow-circle-down:before{content:"\e028"}
-.ph.ph-arrow-circle-up:before{content:"\e030"}
 .ph.ph-arrow-counter-clockwise:before{content:"\e038"}
 .ph.ph-arrow-down-left:before{content:"\e040"}
 .ph.ph-arrow-right:before{content:"\e06c"}
@@ -30,7 +29,6 @@
 .ph.ph-backspace:before{content:"\e0ae"}
 .ph.ph-bank:before{content:"\e0b4"}
 .ph.ph-barcode:before{content:"\e0b8"}
-.ph.ph-battery-full:before{content:"\e0c0"}
 .ph.ph-beer-bottle:before{content:"\e7b0"}
 .ph.ph-bell-ringing:before{content:"\e5e8"}
 .ph.ph-bell-simple:before{content:"\e0d0"}
@@ -42,7 +40,6 @@
 .ph.ph-caret-left:before{content:"\e138"}
 .ph.ph-caret-right:before{content:"\e13a"}
 .ph.ph-caret-up:before{content:"\e13c"}
-.ph.ph-cell-signal-full:before{content:"\e142"}
 .ph.ph-chart-bar:before{content:"\e150"}
 .ph.ph-check:before{content:"\e182"}
 .ph.ph-check-circle:before{content:"\e184"}
@@ -54,21 +51,16 @@
 .ph.ph-credit-card:before{content:"\e1d2"}
 .ph.ph-cylinder:before{content:"\e8fc"}
 .ph.ph-device-mobile:before{content:"\e1e0"}
-.ph.ph-disc:before{content:"\e564"}
-.ph.ph-dots-three-circle:before{content:"\e200"}
 .ph.ph-drop:before{content:"\e210"}
 .ph.ph-drop-half:before{content:"\e566"}
 .ph.ph-fire:before{content:"\e242"}
 .ph.ph-first-aid-kit:before{content:"\e570"}
 .ph.ph-flag-checkered:before{content:"\ea38"}
-.ph.ph-fork-knife:before{content:"\e262"}
 .ph.ph-gas-pump:before{content:"\e768"}
 .ph.ph-gauge:before{content:"\e628"}
 .ph.ph-gift:before{content:"\e276"}
 .ph.ph-graduation-cap:before{content:"\e62c"}
 .ph.ph-hand-coins:before{content:"\ea8c"}
-.ph.ph-handshake:before{content:"\e582"}
-.ph.ph-heart:before{content:"\e2a8"}
 .ph.ph-heartbeat:before{content:"\e2ac"}
 .ph.ph-house:before{content:"\e2c2"}
 .ph.ph-house-line:before{content:"\e2c4"}
@@ -87,7 +79,6 @@
 .ph.ph-plant:before{content:"\ebae"}
 .ph.ph-plus:before{content:"\e3d4"}
 .ph.ph-receipt:before{content:"\e3ec"}
-.ph.ph-road-horizon:before{content:"\e838"}
 .ph.ph-scales:before{content:"\e750"}
 .ph.ph-shield-check:before{content:"\e40c"}
 .ph.ph-shopping-bag:before{content:"\e416"}
@@ -101,12 +92,10 @@
 .ph.ph-target:before{content:"\e47c"}
 .ph.ph-ticket:before{content:"\e490"}
 .ph.ph-timer:before{content:"\e492"}
-.ph.ph-tire:before{content:"\edd2"}
 .ph.ph-traffic-sign:before{content:"\e67a"}
 .ph.ph-trash:before{content:"\e4a6"}
 .ph.ph-trend-up:before{content:"\e4ae"}
 .ph.ph-trophy:before{content:"\e67e"}
-.ph.ph-umbrella-simple:before{content:"\e686"}
 .ph.ph-vault:before{content:"\e76e"}
 .ph.ph-wallet:before{content:"\e68a"}
 .ph.ph-warning:before{content:"\e4e0"}
@@ -114,7 +103,7 @@
 .ph.ph-wifi-high:before{content:"\e4ea"}
 .ph.ph-wrench:before{content:"\e5d4"}
 .ph.ph-x:before{content:"\e4f6"}
-@font-face{font-family:"Phosphor-Fill";src:url("../../assets/fonts/phosphor-fill.c4bf8bbd.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
+@font-face{font-family:"Phosphor-Fill";src:url("../../assets/fonts/phosphor-fill.799e5e25.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
 .ph-fill {
   font-family: "Phosphor-Fill" !important;
   speak: never;
@@ -135,7 +124,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 .ph-fill.ph-arrow-circle-down:before{content:"\e028"}
-.ph-fill.ph-arrow-circle-up:before{content:"\e030"}
 .ph-fill.ph-arrow-counter-clockwise:before{content:"\e038"}
 .ph-fill.ph-arrow-down-left:before{content:"\e040"}
 .ph-fill.ph-arrow-right:before{content:"\e06c"}
@@ -144,7 +132,6 @@
 .ph-fill.ph-backspace:before{content:"\e0ae"}
 .ph-fill.ph-bank:before{content:"\e0b4"}
 .ph-fill.ph-barcode:before{content:"\e0b8"}
-.ph-fill.ph-battery-full:before{content:"\e0c0"}
 .ph-fill.ph-beer-bottle:before{content:"\e7b0"}
 .ph-fill.ph-bell-ringing:before{content:"\e5e8"}
 .ph-fill.ph-bell-simple:before{content:"\e0d0"}
@@ -156,7 +143,6 @@
 .ph-fill.ph-caret-left:before{content:"\e138"}
 .ph-fill.ph-caret-right:before{content:"\e13a"}
 .ph-fill.ph-caret-up:before{content:"\e13c"}
-.ph-fill.ph-cell-signal-full:before{content:"\e142"}
 .ph-fill.ph-chart-bar:before{content:"\e150"}
 .ph-fill.ph-check:before{content:"\e182"}
 .ph-fill.ph-check-circle:before{content:"\e184"}
@@ -168,21 +154,16 @@
 .ph-fill.ph-credit-card:before{content:"\e1d2"}
 .ph-fill.ph-cylinder:before{content:"\e8fc"}
 .ph-fill.ph-device-mobile:before{content:"\e1e0"}
-.ph-fill.ph-disc:before{content:"\e564"}
-.ph-fill.ph-dots-three-circle:before{content:"\e200"}
 .ph-fill.ph-drop:before{content:"\e210"}
 .ph-fill.ph-drop-half:before{content:"\e566"}
 .ph-fill.ph-fire:before{content:"\e242"}
 .ph-fill.ph-first-aid-kit:before{content:"\e570"}
 .ph-fill.ph-flag-checkered:before{content:"\ea38"}
-.ph-fill.ph-fork-knife:before{content:"\e262"}
 .ph-fill.ph-gas-pump:before{content:"\e768"}
 .ph-fill.ph-gauge:before{content:"\e628"}
 .ph-fill.ph-gift:before{content:"\e276"}
 .ph-fill.ph-graduation-cap:before{content:"\e62c"}
 .ph-fill.ph-hand-coins:before{content:"\ea8c"}
-.ph-fill.ph-handshake:before{content:"\e582"}
-.ph-fill.ph-heart:before{content:"\e2a8"}
 .ph-fill.ph-heartbeat:before{content:"\e2ac"}
 .ph-fill.ph-house:before{content:"\e2c2"}
 .ph-fill.ph-house-line:before{content:"\e2c4"}
@@ -201,7 +182,6 @@
 .ph-fill.ph-plant:before{content:"\ebae"}
 .ph-fill.ph-plus:before{content:"\e3d4"}
 .ph-fill.ph-receipt:before{content:"\e3ec"}
-.ph-fill.ph-road-horizon:before{content:"\e838"}
 .ph-fill.ph-scales:before{content:"\e750"}
 .ph-fill.ph-shield-check:before{content:"\e40c"}
 .ph-fill.ph-shopping-bag:before{content:"\e416"}
@@ -215,12 +195,10 @@
 .ph-fill.ph-target:before{content:"\e47c"}
 .ph-fill.ph-ticket:before{content:"\e490"}
 .ph-fill.ph-timer:before{content:"\e492"}
-.ph-fill.ph-tire:before{content:"\edd2"}
 .ph-fill.ph-traffic-sign:before{content:"\e67a"}
 .ph-fill.ph-trash:before{content:"\e4a6"}
 .ph-fill.ph-trend-up:before{content:"\e4ae"}
 .ph-fill.ph-trophy:before{content:"\e67e"}
-.ph-fill.ph-umbrella-simple:before{content:"\e686"}
 .ph-fill.ph-vault:before{content:"\e76e"}
 .ph-fill.ph-wallet:before{content:"\e68a"}
 .ph-fill.ph-warning:before{content:"\e4e0"}
@@ -228,7 +206,7 @@
 .ph-fill.ph-wifi-high:before{content:"\e4ea"}
 .ph-fill.ph-wrench:before{content:"\e5d4"}
 .ph-fill.ph-x:before{content:"\e4f6"}
-@font-face{font-family:"Phosphor-Bold";src:url("../../assets/fonts/phosphor-bold.1013be5b.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
+@font-face{font-family:"Phosphor-Bold";src:url("../../assets/fonts/phosphor-bold.bfea7cd9.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
 .ph-bold {
   font-family: "Phosphor-Bold" !important;
   speak: never;
@@ -249,7 +227,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 .ph-bold.ph-arrow-circle-down:before{content:"\e028"}
-.ph-bold.ph-arrow-circle-up:before{content:"\e030"}
 .ph-bold.ph-arrow-counter-clockwise:before{content:"\e038"}
 .ph-bold.ph-arrow-down-left:before{content:"\e040"}
 .ph-bold.ph-arrow-right:before{content:"\e06c"}
@@ -258,7 +235,6 @@
 .ph-bold.ph-backspace:before{content:"\e0ae"}
 .ph-bold.ph-bank:before{content:"\e0b4"}
 .ph-bold.ph-barcode:before{content:"\e0b8"}
-.ph-bold.ph-battery-full:before{content:"\e0c0"}
 .ph-bold.ph-beer-bottle:before{content:"\e7b0"}
 .ph-bold.ph-bell-ringing:before{content:"\e5e8"}
 .ph-bold.ph-bell-simple:before{content:"\e0d0"}
@@ -270,7 +246,6 @@
 .ph-bold.ph-caret-left:before{content:"\e138"}
 .ph-bold.ph-caret-right:before{content:"\e13a"}
 .ph-bold.ph-caret-up:before{content:"\e13c"}
-.ph-bold.ph-cell-signal-full:before{content:"\e142"}
 .ph-bold.ph-chart-bar:before{content:"\e150"}
 .ph-bold.ph-check:before{content:"\e182"}
 .ph-bold.ph-check-circle:before{content:"\e184"}
@@ -282,21 +257,16 @@
 .ph-bold.ph-credit-card:before{content:"\e1d2"}
 .ph-bold.ph-cylinder:before{content:"\e8fc"}
 .ph-bold.ph-device-mobile:before{content:"\e1e0"}
-.ph-bold.ph-disc:before{content:"\e564"}
-.ph-bold.ph-dots-three-circle:before{content:"\e200"}
 .ph-bold.ph-drop:before{content:"\e210"}
 .ph-bold.ph-drop-half:before{content:"\e566"}
 .ph-bold.ph-fire:before{content:"\e242"}
 .ph-bold.ph-first-aid-kit:before{content:"\e570"}
 .ph-bold.ph-flag-checkered:before{content:"\ea38"}
-.ph-bold.ph-fork-knife:before{content:"\e262"}
 .ph-bold.ph-gas-pump:before{content:"\e768"}
 .ph-bold.ph-gauge:before{content:"\e628"}
 .ph-bold.ph-gift:before{content:"\e276"}
 .ph-bold.ph-graduation-cap:before{content:"\e62c"}
 .ph-bold.ph-hand-coins:before{content:"\ea8c"}
-.ph-bold.ph-handshake:before{content:"\e582"}
-.ph-bold.ph-heart:before{content:"\e2a8"}
 .ph-bold.ph-heartbeat:before{content:"\e2ac"}
 .ph-bold.ph-house:before{content:"\e2c2"}
 .ph-bold.ph-house-line:before{content:"\e2c4"}
@@ -315,7 +285,6 @@
 .ph-bold.ph-plant:before{content:"\ebae"}
 .ph-bold.ph-plus:before{content:"\e3d4"}
 .ph-bold.ph-receipt:before{content:"\e3ec"}
-.ph-bold.ph-road-horizon:before{content:"\e838"}
 .ph-bold.ph-scales:before{content:"\e750"}
 .ph-bold.ph-shield-check:before{content:"\e40c"}
 .ph-bold.ph-shopping-bag:before{content:"\e416"}
@@ -329,12 +298,10 @@
 .ph-bold.ph-target:before{content:"\e47c"}
 .ph-bold.ph-ticket:before{content:"\e490"}
 .ph-bold.ph-timer:before{content:"\e492"}
-.ph-bold.ph-tire:before{content:"\edd2"}
 .ph-bold.ph-traffic-sign:before{content:"\e67a"}
 .ph-bold.ph-trash:before{content:"\e4a6"}
 .ph-bold.ph-trend-up:before{content:"\e4ae"}
 .ph-bold.ph-trophy:before{content:"\e67e"}
-.ph-bold.ph-umbrella-simple:before{content:"\e686"}
 .ph-bold.ph-vault:before{content:"\e76e"}
 .ph-bold.ph-wallet:before{content:"\e68a"}
 .ph-bold.ph-warning:before{content:"\e4e0"}
@@ -342,7 +309,7 @@
 .ph-bold.ph-wifi-high:before{content:"\e4ea"}
 .ph-bold.ph-wrench:before{content:"\e5d4"}
 .ph-bold.ph-x:before{content:"\e4f6"}
-@font-face{font-family:"Phosphor-Duotone";src:url("../../assets/fonts/phosphor-duotone.43f3f63e.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
+@font-face{font-family:"Phosphor-Duotone";src:url("../../assets/fonts/phosphor-duotone.02945240.woff2") format('woff2');font-weight:normal;font-style:normal;font-display:block}
 .ph-duotone {
   font-family: "Phosphor-Duotone" !important;
   speak: never;
@@ -354,99 +321,89 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.ph-duotone.ph-arrow-circle-down:before{content:"\e028"}
-.ph-duotone.ph-arrow-circle-up:before{content:"\e030"}
-.ph-duotone.ph-arrow-counter-clockwise:before{content:"\e038"}
-.ph-duotone.ph-arrow-down-left:before{content:"\e040"}
-.ph-duotone.ph-arrow-right:before{content:"\e06c"}
-.ph-duotone.ph-arrow-up-right:before{content:"\e092"}
-.ph-duotone.ph-arrows-clockwise:before{content:"\e094"}
-.ph-duotone.ph-backspace:before{content:"\e0ae"}
-.ph-duotone.ph-bank:before{content:"\e0b4"}
-.ph-duotone.ph-barcode:before{content:"\e0b8"}
-.ph-duotone.ph-battery-full:before{content:"\e0c0"}
-.ph-duotone.ph-beer-bottle:before{content:"\e7b0"}
-.ph-duotone.ph-bell-ringing:before{content:"\e5e8"}
-.ph-duotone.ph-bell-simple:before{content:"\e0d0"}
-.ph-duotone.ph-calendar:before{content:"\e108"}
-.ph-duotone.ph-calendar-check:before{content:"\e712"}
-.ph-duotone.ph-car-battery:before{content:"\ee30"}
-.ph-duotone.ph-car-profile:before{content:"\e8cc"}
-.ph-duotone.ph-caret-down:before{content:"\e136"}
-.ph-duotone.ph-caret-left:before{content:"\e138"}
-.ph-duotone.ph-caret-right:before{content:"\e13a"}
-.ph-duotone.ph-caret-up:before{content:"\e13c"}
-.ph-duotone.ph-cell-signal-full:before{content:"\e142"}
-.ph-duotone.ph-chart-bar:before{content:"\e150"}
-.ph-duotone.ph-check:before{content:"\e182"}
-.ph-duotone.ph-check-circle:before{content:"\e184"}
-.ph-duotone.ph-circle:before{content:"\e18a"}
-.ph-duotone.ph-clock:before{content:"\e19a"}
-.ph-duotone.ph-coffee:before{content:"\e1c2"}
-.ph-duotone.ph-coins:before{content:"\e78e"}
-.ph-duotone.ph-cookie:before{content:"\e6ca"}
-.ph-duotone.ph-credit-card:before{content:"\e1d2"}
-.ph-duotone.ph-cylinder:before{content:"\e8fc"}
-.ph-duotone.ph-device-mobile:before{content:"\e1e0"}
-.ph-duotone.ph-disc:before{content:"\e564"}
-.ph-duotone.ph-dots-three-circle:before{content:"\e200"}
-.ph-duotone.ph-drop:before{content:"\e210"}
-.ph-duotone.ph-drop-half:before{content:"\e566"}
-.ph-duotone.ph-fire:before{content:"\e242"}
-.ph-duotone.ph-first-aid-kit:before{content:"\e570"}
-.ph-duotone.ph-flag-checkered:before{content:"\ea38"}
-.ph-duotone.ph-fork-knife:before{content:"\e262"}
-.ph-duotone.ph-gas-pump:before{content:"\e768"}
-.ph-duotone.ph-gauge:before{content:"\e628"}
-.ph-duotone.ph-gift:before{content:"\e276"}
-.ph-duotone.ph-graduation-cap:before{content:"\e62c"}
-.ph-duotone.ph-hand-coins:before{content:"\ea8c"}
-.ph-duotone.ph-handshake:before{content:"\e582"}
-.ph-duotone.ph-heart:before{content:"\e2a8"}
-.ph-duotone.ph-heartbeat:before{content:"\e2ac"}
-.ph-duotone.ph-house:before{content:"\e2c2"}
-.ph-duotone.ph-house-line:before{content:"\e2c4"}
-.ph-duotone.ph-identification-badge:before{content:"\e6f6"}
-.ph-duotone.ph-info:before{content:"\e2ce"}
-.ph-duotone.ph-key:before{content:"\e2d6"}
-.ph-duotone.ph-leaf:before{content:"\e2da"}
-.ph-duotone.ph-lifebuoy:before{content:"\e63a"}
-.ph-duotone.ph-lightbulb:before{content:"\e2dc"}
-.ph-duotone.ph-lightning:before{content:"\e2de"}
-.ph-duotone.ph-medal:before{content:"\e320"}
-.ph-duotone.ph-minus:before{content:"\e32a"}
-.ph-duotone.ph-package:before{content:"\e390"}
-.ph-duotone.ph-path:before{content:"\e39c"}
-.ph-duotone.ph-pencil-simple:before{content:"\e3b4"}
-.ph-duotone.ph-plant:before{content:"\ebae"}
-.ph-duotone.ph-plus:before{content:"\e3d4"}
-.ph-duotone.ph-receipt:before{content:"\e3ec"}
-.ph-duotone.ph-road-horizon:before{content:"\e838"}
-.ph-duotone.ph-scales:before{content:"\e750"}
-.ph-duotone.ph-shield-check:before{content:"\e40c"}
-.ph-duotone.ph-shopping-bag:before{content:"\e416"}
-.ph-duotone.ph-sliders-horizontal:before{content:"\e434"}
-.ph-duotone.ph-smiley:before{content:"\e436"}
-.ph-duotone.ph-sparkle:before{content:"\e6a2"}
-.ph-duotone.ph-star-four:before{content:"\e6a4"}
-.ph-duotone.ph-steering-wheel:before{content:"\e9ac"}
-.ph-duotone.ph-storefront:before{content:"\e470"}
-.ph-duotone.ph-t-shirt:before{content:"\e670"}
-.ph-duotone.ph-target:before{content:"\e47c"}
-.ph-duotone.ph-ticket:before{content:"\e490"}
-.ph-duotone.ph-timer:before{content:"\e492"}
-.ph-duotone.ph-tire:before{content:"\edd2"}
-.ph-duotone.ph-traffic-sign:before{content:"\e67a"}
-.ph-duotone.ph-trash:before{content:"\e4a6"}
-.ph-duotone.ph-trend-up:before{content:"\e4ae"}
-.ph-duotone.ph-trophy:before{content:"\e67e"}
-.ph-duotone.ph-umbrella-simple:before{content:"\e686"}
-.ph-duotone.ph-vault:before{content:"\e76e"}
-.ph-duotone.ph-wallet:before{content:"\e68a"}
-.ph-duotone.ph-warning:before{content:"\e4e0"}
-.ph-duotone.ph-warning-circle:before{content:"\e4e2"}
-.ph-duotone.ph-wifi-high:before{content:"\e4ea"}
-.ph-duotone.ph-wrench:before{content:"\e5d4"}
-.ph-duotone.ph-x:before{content:"\e4f6"}
+.ph-duotone:before{opacity:.2}
+.ph-duotone:after{margin-left:-1em}
+.ph-duotone.ph-arrow-circle-down:before{content:"\e028"}.ph-duotone.ph-arrow-circle-down:after{content:"\e029"}
+.ph-duotone.ph-arrow-counter-clockwise:before{content:"\e038"}.ph-duotone.ph-arrow-counter-clockwise:after{content:"\e039"}
+.ph-duotone.ph-arrow-down-left:before{content:"\e040"}.ph-duotone.ph-arrow-down-left:after{content:"\e041"}
+.ph-duotone.ph-arrow-right:before{content:"\e06c"}.ph-duotone.ph-arrow-right:after{content:"\e06d"}
+.ph-duotone.ph-arrow-up-right:before{content:"\e092"}.ph-duotone.ph-arrow-up-right:after{content:"\e093"}
+.ph-duotone.ph-arrows-clockwise:before{content:"\e094"}.ph-duotone.ph-arrows-clockwise:after{content:"\e095"}
+.ph-duotone.ph-backspace:before{content:"\e0ae"}.ph-duotone.ph-backspace:after{content:"\e0af"}
+.ph-duotone.ph-bank:before{content:"\e0b4"}.ph-duotone.ph-bank:after{content:"\e0b5"}
+.ph-duotone.ph-barcode:before{content:"\e0b8"}.ph-duotone.ph-barcode:after{content:"\e0b9"}
+.ph-duotone.ph-beer-bottle:before{content:"\e7b0"}.ph-duotone.ph-beer-bottle:after{content:"\e7b1"}
+.ph-duotone.ph-bell-ringing:before{content:"\e5e8"}.ph-duotone.ph-bell-ringing:after{content:"\e5e9"}
+.ph-duotone.ph-bell-simple:before{content:"\e0d0"}.ph-duotone.ph-bell-simple:after{content:"\e0d1"}
+.ph-duotone.ph-calendar:before{content:"\e108"}.ph-duotone.ph-calendar:after{content:"\e109"}
+.ph-duotone.ph-calendar-check:before{content:"\e712"}.ph-duotone.ph-calendar-check:after{content:"\e713"}
+.ph-duotone.ph-car-battery:before{content:"\ee30"}.ph-duotone.ph-car-battery:after{content:"\ee31"}
+.ph-duotone.ph-car-profile:before{content:"\e8cc"}.ph-duotone.ph-car-profile:after{content:"\e8cd"}
+.ph-duotone.ph-caret-down:before{content:"\e136"}.ph-duotone.ph-caret-down:after{content:"\e137"}
+.ph-duotone.ph-caret-left:before{content:"\e138"}.ph-duotone.ph-caret-left:after{content:"\e139"}
+.ph-duotone.ph-caret-right:before{content:"\e13a"}.ph-duotone.ph-caret-right:after{content:"\e13b"}
+.ph-duotone.ph-caret-up:before{content:"\e13c"}.ph-duotone.ph-caret-up:after{content:"\e13d"}
+.ph-duotone.ph-chart-bar:before{content:"\e150"}.ph-duotone.ph-chart-bar:after{content:"\e151"}
+.ph-duotone.ph-check:before{content:"\e182"}.ph-duotone.ph-check:after{content:"\e183"}
+.ph-duotone.ph-check-circle:before{content:"\e184"}.ph-duotone.ph-check-circle:after{content:"\e185"}
+.ph-duotone.ph-circle:before{content:"\e18a"}.ph-duotone.ph-circle:after{content:"\e18b"}
+.ph-duotone.ph-clock:before{content:"\e19a"}.ph-duotone.ph-clock:after{content:"\e19b"}
+.ph-duotone.ph-coffee:before{content:"\e1c2"}.ph-duotone.ph-coffee:after{content:"\e1c3"}
+.ph-duotone.ph-coins:before{content:"\e78e"}.ph-duotone.ph-coins:after{content:"\e78f"}
+.ph-duotone.ph-cookie:before{content:"\e6ca"}.ph-duotone.ph-cookie:after{content:"\e6cb"}
+.ph-duotone.ph-credit-card:before{content:"\e1d2"}.ph-duotone.ph-credit-card:after{content:"\e1d3"}
+.ph-duotone.ph-cylinder:before{content:"\e8fc"}.ph-duotone.ph-cylinder:after{content:"\e8fd"}
+.ph-duotone.ph-device-mobile:before{content:"\e1e0"}.ph-duotone.ph-device-mobile:after{content:"\e1e1"}
+.ph-duotone.ph-drop:before{content:"\e210"}.ph-duotone.ph-drop:after{content:"\e211"}
+.ph-duotone.ph-drop-half:before{content:"\e566"}.ph-duotone.ph-drop-half:after{content:"\e567"}
+.ph-duotone.ph-fire:before{content:"\e242"}.ph-duotone.ph-fire:after{content:"\e243"}
+.ph-duotone.ph-first-aid-kit:before{content:"\e570"}.ph-duotone.ph-first-aid-kit:after{content:"\e571"}
+.ph-duotone.ph-flag-checkered:before{content:"\ea38"}.ph-duotone.ph-flag-checkered:after{content:"\ea39"}
+.ph-duotone.ph-gas-pump:before{content:"\e768"}.ph-duotone.ph-gas-pump:after{content:"\e769"}
+.ph-duotone.ph-gauge:before{content:"\e628"}.ph-duotone.ph-gauge:after{content:"\e629"}
+.ph-duotone.ph-gift:before{content:"\e276"}.ph-duotone.ph-gift:after{content:"\e277"}
+.ph-duotone.ph-graduation-cap:before{content:"\e62c"}.ph-duotone.ph-graduation-cap:after{content:"\e62d"}
+.ph-duotone.ph-hand-coins:before{content:"\ea8c"}.ph-duotone.ph-hand-coins:after{content:"\ea8d"}
+.ph-duotone.ph-heartbeat:before{content:"\e2ac"}.ph-duotone.ph-heartbeat:after{content:"\e2ad"}
+.ph-duotone.ph-house:before{content:"\e2c2"}.ph-duotone.ph-house:after{content:"\e2c3"}
+.ph-duotone.ph-house-line:before{content:"\e2c4"}.ph-duotone.ph-house-line:after{content:"\e2c5"}
+.ph-duotone.ph-identification-badge:before{content:"\e6f6"}.ph-duotone.ph-identification-badge:after{content:"\e6f7"}
+.ph-duotone.ph-info:before{content:"\e2ce"}.ph-duotone.ph-info:after{content:"\e2cf"}
+.ph-duotone.ph-key:before{content:"\e2d6"}.ph-duotone.ph-key:after{content:"\e2d7"}
+.ph-duotone.ph-leaf:before{content:"\e2da"}.ph-duotone.ph-leaf:after{content:"\e2db"}
+.ph-duotone.ph-lifebuoy:before{content:"\e63a"}.ph-duotone.ph-lifebuoy:after{content:"\e63b"}
+.ph-duotone.ph-lightbulb:before{content:"\e2dc"}.ph-duotone.ph-lightbulb:after{content:"\e2dd"}
+.ph-duotone.ph-lightning:before{content:"\e2de"}.ph-duotone.ph-lightning:after{content:"\e2df"}
+.ph-duotone.ph-medal:before{content:"\e320"}.ph-duotone.ph-medal:after{content:"\e321"}
+.ph-duotone.ph-minus:before{content:"\e32a"}.ph-duotone.ph-minus:after{content:"\e32b"}
+.ph-duotone.ph-package:before{content:"\e390"}.ph-duotone.ph-package:after{content:"\e391"}
+.ph-duotone.ph-path:before{content:"\e39c"}.ph-duotone.ph-path:after{content:"\e39d"}
+.ph-duotone.ph-pencil-simple:before{content:"\e3b4"}.ph-duotone.ph-pencil-simple:after{content:"\e3b5"}
+.ph-duotone.ph-plant:before{content:"\ebae"}.ph-duotone.ph-plant:after{content:"\ebaf"}
+.ph-duotone.ph-plus:before{content:"\e3d4"}.ph-duotone.ph-plus:after{content:"\e3d5"}
+.ph-duotone.ph-receipt:before{content:"\e3ec"}.ph-duotone.ph-receipt:after{content:"\e3f1"}
+.ph-duotone.ph-scales:before{content:"\e750"}.ph-duotone.ph-scales:after{content:"\e751"}
+.ph-duotone.ph-shield-check:before{content:"\e40c"}.ph-duotone.ph-shield-check:after{content:"\e40f"}
+.ph-duotone.ph-shopping-bag:before{content:"\e416"}.ph-duotone.ph-shopping-bag:after{content:"\e417"}
+.ph-duotone.ph-sliders-horizontal:before{content:"\e434"}.ph-duotone.ph-sliders-horizontal:after{content:"\e435"}
+.ph-duotone.ph-smiley:before{content:"\e436"}.ph-duotone.ph-smiley:after{content:"\e437"}
+.ph-duotone.ph-sparkle:before{content:"\e6a2"}.ph-duotone.ph-sparkle:after{content:"\e6a3"}
+.ph-duotone.ph-star-four:before{content:"\e6a4"}.ph-duotone.ph-star-four:after{content:"\e6a5"}
+.ph-duotone.ph-steering-wheel:before{content:"\e9ac"}.ph-duotone.ph-steering-wheel:after{content:"\e9ad"}
+.ph-duotone.ph-storefront:before{content:"\e470"}.ph-duotone.ph-storefront:after{content:"\e471"}
+.ph-duotone.ph-t-shirt:before{content:"\e670"}.ph-duotone.ph-t-shirt:after{content:"\e671"}
+.ph-duotone.ph-target:before{content:"\e47c"}.ph-duotone.ph-target:after{content:"\e47d"}
+.ph-duotone.ph-ticket:before{content:"\e490"}.ph-duotone.ph-ticket:after{content:"\e491"}
+.ph-duotone.ph-timer:before{content:"\e492"}.ph-duotone.ph-timer:after{content:"\e493"}
+.ph-duotone.ph-traffic-sign:before{content:"\e67a"}.ph-duotone.ph-traffic-sign:after{content:"\e67b"}
+.ph-duotone.ph-trash:before{content:"\e4a6"}.ph-duotone.ph-trash:after{content:"\e4a7"}
+.ph-duotone.ph-trend-up:before{content:"\e4ae"}.ph-duotone.ph-trend-up:after{content:"\e4af"}
+.ph-duotone.ph-trophy:before{content:"\e67e"}.ph-duotone.ph-trophy:after{content:"\e67f"}
+.ph-duotone.ph-vault:before{content:"\e76e"}.ph-duotone.ph-vault:after{content:"\e76f"}
+.ph-duotone.ph-wallet:before{content:"\e68a"}.ph-duotone.ph-wallet:after{content:"\e68b"}
+.ph-duotone.ph-warning:before{content:"\e4e0"}.ph-duotone.ph-warning:after{content:"\e4e1"}
+.ph-duotone.ph-warning-circle:before{content:"\e4e2"}.ph-duotone.ph-warning-circle:after{content:"\e4e3"}
+.ph-duotone.ph-wifi-high:before{content:"\e4ea"}.ph-duotone.ph-wifi-high:after{content:"\e4eb"}
+.ph-duotone.ph-wrench:before{content:"\e5d4"}.ph-duotone.ph-wrench:after{content:"\e5d5"}
+.ph-duotone.ph-x:before{content:"\e4f6"}.ph-duotone.ph-x:after{content:"\e4f7"}
 *{box-sizing:border-box}button,input{font-family:inherit}.fscroll::-webkit-scrollbar,.hscroll::-webkit-scrollbar{display:none}@keyframes ftoast{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes fsheet{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes ffade{from{opacity:0}to{opacity:1}}@keyframes fnudge{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}@keyframes fbob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,4px)}}@keyframes frise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes fpop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
-html,body{margin:0;height:100%;background:#07090F;overscroll-behavior:none}
