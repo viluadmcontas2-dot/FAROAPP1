@@ -57,7 +57,7 @@ Peça pelo contato do encarregado, no topo. Respondemos em até [CONFIRMAR COM O
 No app: Perfil > "Excluir minha conta". Você digita EXCLUIR para confirmar. [CONFIRMAR COM O DONO: caminho exato da tela de exclusão no app.]
 O que acontece, nesta ordem:
 1. A conta é marcada como "em exclusão" e novos pagamentos são bloqueados.
-2. Abertas de pagamento (checkout) pendentes são encerradas e a assinatura é cancelada no Stripe.
+2. Pagamentos (checkout) abertos e pendentes são encerrados e a assinatura é cancelada no Stripe.
 3. Só então a conta e os dados ligados a ela são apagados.
 
 Se o Stripe falhar no passo 2, **a conta é mantida** e você vê um erro para tentar de novo. Assim ninguém fica sem conta e ainda cobrado. A exclusão não tem volta.
