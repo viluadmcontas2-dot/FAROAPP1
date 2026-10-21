@@ -112,12 +112,21 @@ test('replaceState (vindo da nuvem): normaliza, limpa pendencia e ignora lixo', 
   assert.equal(store.getMeta().dirty, false);
   assert.ok(store.getMeta().revision > 1);
   const before = store.getState();
-  for (const bad of [null, undefined, 'x', 5, [], {}, { schemaVersion: 1, xp: 5 }]) {
+  for (const bad of [undefined, 'x', 5, [], {}, { schemaVersion: 1, xp: 5 }]) {
     assert.equal(store.replaceState(bad), false, JSON.stringify(bad));
     assert.equal(store.getState(), before); // nao apaga os dados locais
   }
   assert.equal(store.replaceState({ ...remote, xp: 'Infinity', paid: { '__proto__:2026-10-01': 1 } }), true);
   assert.equal(store.getState().xp, 0);
+});
+
+test('contrato com o sync: getSnapshot e replaceState(null) volta ao estado de fabrica', () => {
+  const { store } = mk();
+  store.dispatch(CLOSE);
+  assert.equal(store.getSnapshot(), store.getState());
+  assert.equal(store.replaceState(null), true);
+  assert.deepEqual(store.getState(), defaultState());
+  assert.equal(store.getMeta().dirty, false);
 });
 
 test('markSynced so limpa a pendencia se nada mudou durante o envio', () => {

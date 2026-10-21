@@ -50,8 +50,10 @@ export function createStore({ persister = createPersister(), now = Date.now, gen
       if (next !== state) commit(next, true);
       return state;
     },
-    // Estado vindo da nuvem. Lixo (nulo, outra versao) NAO apaga o que ja existe localmente.
+    getSnapshot: () => state, // nome que o sync usa
+    // Estado vindo da nuvem; null = voltar ao estado de fabrica (logout). Lixo (outra versao etc.) NAO apaga o que ja existe.
     replaceState(remote) {
+      if (remote === null) { commit(normalizeState(null), false); return true; }
       if (!isObj(remote) || remote.schemaVersion !== SCHEMA_VERSION) return false;
       commit(normalizeState(remote), false);
       return true;
