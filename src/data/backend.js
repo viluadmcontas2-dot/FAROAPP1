@@ -29,6 +29,9 @@ const MSG = {
   not_signed_in: 'Entre na sua conta para continuar.',
   reset_failed: 'Não foi possível enviar a recuperação agora. Tente novamente em instantes.',
   password_update_failed: 'Não foi possível salvar a nova senha. Peça outro link de recuperação e tente novamente.',
+  delete_offline: 'Sem internet. Conecte e tente de novo.',
+  delete_failed: 'Não foi possível excluir a conta agora. Tente de novo.',
+  confirmation_required: 'Confirme para excluir a conta.',
   billing_off: 'Assinatura ainda não está disponível.',
   billing_failed: 'Não foi possível abrir a assinatura agora. Tente novamente em instantes.',
   billing_bad_url: 'Recebemos um endereço de pagamento inesperado e não abrimos. Tente novamente.',
@@ -252,6 +255,33 @@ export const createBackend = ({
   const startCheckout = () => invokeAndGo('criar-checkout-faro', CHECKOUT_HOSTS);
   const openPortal = () => invokeAndGo('abrir-portal-faro', PORTAL_HOSTS);
 
+  // Excluir minha conta: a função `excluir-conta-faro` cancela a assinatura no Stripe e só então apaga a conta e os dados da nuvem.
+  // Só roda com confirmed === true (a tela pede em 2 passos). NÃO mexe no aparelho: quem chama limpa os dados locais (sync.discardLocal)
+  // e encerra a sessão (endLocalSession) depois do sucesso.
+  const deleteAccount = async ({ confirmed = false } = {}) => {
+    if (confirmed !== true) throw fail('confirmation_required');
+    requireUser();
+    let data;
+    try {
+      const res = await getClient().functions.invoke('excluir-conta-faro', { method: 'POST', body: { confirmation: 'EXCLUIR' } });
+      if (res.error) throw res.error;
+      data = res.data;
+    } catch (e) {
+      if (isNetworkError(e)) throw new BackendError('offline', MSG.delete_offline);
+      let said = '';
+      try { const body = await e?.context?.json?.(); if (typeof body?.error === 'string') said = body.error.slice(0, 200); } catch { /* sem corpo */ }
+      throw said ? new BackendError('delete_failed', said) : fail('delete_failed');
+    }
+    if (data?.deleted !== true) throw fail('delete_failed');
+    return { deleted: true };
+  };
+
+  // Encerra a sessão só neste aparelho (a conta já não existe no servidor, então não há o que revogar lá).
+  const endLocalSession = async () => {
+    if (config.configured) { try { await getClient().auth.signOut({ scope: 'local' }); } catch { /* segue */ } }
+    if (user) { user = null; emit('signedOut'); }
+  };
+
   const registerPushDevice = async ({ subscription = null, platform = 'web', city = null, region = null } = {}) => {
     if (!config.pushEnabled) throw fail('push_off');
     requireUser();
@@ -280,7 +310,7 @@ export const createBackend = ({
     getUser: () => user,
     getClient,
     onAuthChange: fn => { listeners.add(fn); return () => listeners.delete(fn); },
-    restore, signIn, signUp, signOut, resetPassword, updatePassword,
+    restore, signIn, signUp, signOut, resetPassword, updatePassword, deleteAccount, endLocalSession,
     fetchSubscription, startCheckout, openPortal,
     registerPushDevice, unregisterPushDevice
   };

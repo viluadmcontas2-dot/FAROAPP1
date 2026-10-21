@@ -59,7 +59,7 @@ export const makeFakeCreateClient = (server) => (url, key, options) => {
     if (cur && cur.last_mutation_id === a.p_mutation_id && cur.device_id === a.p_device_id) return { data: { ok: true, replay: true, revision: cur.revision, server_updated_at: 't' + cur.revision }, error: null };
     return { data: { ok: false, conflict: true, revision: cur?.revision || 0, state: cur?.state || null, server_updated_at: 't', device_id: cur?.device_id }, error: null };
   };
-  return { auth, from: table, rpc, functions: { invoke: async (name) => { net(); const r = server.invoke[name]; if (r instanceof Error) return { data: null, error: r }; return { data: r ?? null, error: null }; } }, _setSession: s => { session = s; } };
+  return { auth, from: table, rpc, functions: { invoke: async (name, opts) => { net(); (server.calls ||= []).push({ name, body: opts && opts.body }); const r = typeof server.invoke[name] === 'function' ? server.invoke[name](opts) : server.invoke[name]; if (r instanceof Error) return { data: null, error: r }; return { data: r ?? null, error: null }; } }, _setSession: s => { session = s; } };
 };
 
 export const memStorage = () => { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), _m: m }; };

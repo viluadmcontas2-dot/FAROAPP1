@@ -158,6 +158,13 @@
 </div>
 
 <div style="padding:18px 18px calc(130px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:frise .45s ease-out">
+<sc-if value="{{ aviso.show }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:22px;background:{{ t.goldSoft }};border:1px solid {{ t.gold }}">
+<span style="font-size:15px;font-weight:800">{{ aviso.titulo }}</span>
+<span style="font-size:14px;line-height:1.45;text-wrap:pretty">{{ aviso.texto }}</span>
+<button sc-camel-on-click="{{ aviso.onAction }}" style="min-height:48px;border-radius:24px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">{{ aviso.botao }}</button>
+</div>
+</sc-if>
 <sc-if value="{{ yday.show }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;align-items:center;gap:12px;padding:10px 10px 10px 16px;border-radius:22px;background:{{ t.surface }};border:1px dashed {{ t.line2 }}">
 <span style="flex:1;font-size:14px;line-height:1.35;color:{{ t.muted }};font-weight:600;text-wrap:pretty">{{ yday.text }}</span>
@@ -678,6 +685,17 @@
 <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:800">{{ conta.cloudTitle }}</span><span style="font-size:14px;line-height:1.4;color:{{ t.muted }};overflow-wrap:anywhere">{{ conta.cloudSub }}</span></span>
 </div>
 <sc-if value="{{ conta.signedIn }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ conta.signOut }}" style="height:52px;border-radius:26px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Sair da conta</button></sc-if>
+<sc-if value="{{ conta.del.showAsk }}" hint-placeholder-val="{{ true }}"><button sc-camel-on-click="{{ conta.del.onAsk }}" style="height:52px;border-radius:26px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.neg }};font-size:14px;font-weight:800;cursor:pointer">Excluir minha conta</button></sc-if>
+<sc-if value="{{ conta.del.show }}" hint-placeholder-val="{{ false }}">
+<div role="alertdialog" aria-labelledby="del-title" aria-describedby="del-text" style="display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:{{ t.surface2 }};border:1.5px solid {{ t.neg }}">
+<span id="del-title" style="font-size:15px;font-weight:800">{{ conta.del.title }}</span>
+<span id="del-text" style="font-size:14px;line-height:1.45;text-wrap:pretty">{{ conta.del.text }}</span>
+<sc-if value="{{ conta.del.msg }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size:14px;font-weight:700;color:{{ t.neg }};text-wrap:pretty">{{ conta.del.msg }}</span></sc-if>
+<div style="display:flex;gap:10px"><button sc-camel-on-click="{{ conta.del.onBack }}" style="flex:1;height:52px;border-radius:26px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Voltar</button>
+<sc-if value="{{ conta.del.step1 }}" hint-placeholder-val="{{ true }}"><button sc-camel-on-click="{{ conta.del.onNext }}" style="flex:1;height:52px;border-radius:26px;border:none;background:{{ t.neg }};color:#fff;font-size:14px;font-weight:800;cursor:pointer">Continuar</button></sc-if>
+<sc-if value="{{ conta.del.step2 }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ conta.del.onConfirm }}" style="flex:1;height:52px;border-radius:26px;border:none;background:{{ t.neg }};color:#fff;font-size:14px;font-weight:800;cursor:pointer">{{ conta.del.confirmLabel }}</button></sc-if></div>
+</div>
+</sc-if>
 <div style="height:1px;background:{{ t.line }}"></div>
 <div style="display:flex;gap:10px;align-items:flex-start"><i class="ph-fill ph-info" style="font-size:18px;color:{{ t.accent }};margin-top:1px"></i><span style="font-size:14px;line-height:1.45;font-weight:700;text-wrap:pretty">{{ conta.localNote }}</span></div>
 <span style="font-size:15px;font-weight:800">Backup dos seus dados</span>

@@ -317,6 +317,17 @@ export const createSync = ({
       if (!online) { clearTimerNow(); if (st.status !== 'conflict') emit({ status: 'offline' }); }
       else if (st.status !== 'conflict') { attempt = 0; emit({ status: 'pending' }); schedule(0); }
     },
+    // Conta excluída: apaga TUDO o que é dela neste aparelho (estado, pendência, rascunho, dono) sem enviar nada. Idempotente.
+    // Chame antes de encerrar a sessão, para o "sair" não guardar um rascunho dos dados.
+    discardLocal() {
+      clearTimerNow(); epoch += 1; again = false; attempt = 0;
+      const owner = uid || read(OWNER_KEY);
+      if (owner) { drop(metaKey(owner)); drop(STASH_PREFIX + owner); }
+      drop(OWNER_KEY);
+      suppress = true;
+      try { store.replaceState(null); } finally { suppress = false; }
+      emit({ status: uid ? 'idle' : st.status, error: null, retryInMs: null });
+    },
     usarEsteAparelho: () => resolve('local'),
     usarNuvem: () => resolve('cloud')
   };

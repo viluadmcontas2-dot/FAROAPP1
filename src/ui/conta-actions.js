@@ -8,7 +8,7 @@ const writeCache = (uid, sub) => { try { window.localStorage.setItem(SUB_CACHE, 
 
 export const newContaState = cloud => ({
   auth: { mode: 'entrar', email: '', password: '', show: false, busy: false, msg: null },
-  sub: undefined, confirm: null, swApply: null, restored: !(cloud && cloud.ready), busy: false, trialWarned: false,
+  sub: undefined, confirm: null, swApply: null, restored: !(cloud && cloud.ready), busy: false, trialWarned: false, del: 0, delBusy: false, delMsg: '',
 });
 
 export function contaActions(app) {
@@ -47,7 +47,7 @@ export function contaActions(app) {
     },
     stop() { window.removeEventListener(SW_UPDATE_EVENT, this.onSw); seq += 1; },
     // chamado quando a conta muda (entrou/saiu): confere a assinatura de novo
-    onUser(prevId, id) { if (prevId !== id) { setCt({ sub: undefined, confirm: null }); loadSub(); } },
+    onUser(prevId, id) { if (prevId !== id) { setCt({ sub: undefined, confirm: null, del: 0, delBusy: false, delMsg: '' }); loadSub(); } },
 
     setAuth, setCt,
     setField: key => e => setAuth({ [key]: e.target.value, msg: null }),
@@ -91,6 +91,28 @@ export function contaActions(app) {
       try { ({ clean } = await sync.flush()); } catch { clean = false; }
       if (!clean && !window.confirm('Há mudanças que ainda não subiram para a nuvem. Elas ficam guardadas neste aparelho. Sair da conta mesmo assim?')) return;
       try { await backend.signOut(); app.setState({ contaMsg: null }); app.flash('Você saiu da conta'); } catch (err) { say(false, (err && err.message) || 'Não deu para sair agora. Tente de novo.'); }
+    },
+
+    // Excluir minha conta: 2 passos (explica -> confirma). Nada é apagado antes do "Excluir tudo"; o aparelho só é limpo depois que a nuvem confirmou.
+    askDelete: () => setCt({ del: 1, delMsg: '', confirm: null }),
+    nextDelete: () => app.state.ct.del === 1 && setCt({ del: 2, delMsg: '' }),
+    cancelDelete: () => { if (!app.state.ct.delBusy) setCt({ del: 0, delMsg: '' }); },
+    async doDelete() {
+      const c = cloud();
+      if (!c || app.state.ct.del !== 2 || app.state.ct.delBusy) return; // sem o 2º passo não apaga
+      setCt({ delBusy: true, delMsg: '' });
+      try {
+        await c.backend.deleteAccount({ confirmed: true });
+      } catch (err) {
+        setCt({ delBusy: false, delMsg: (err && err.message) || 'Não deu para excluir a conta. Tente de novo.' });
+        return;
+      }
+      c.sync.discardLocal();
+      try { window.localStorage.removeItem(SUB_CACHE); } catch { /* sem armazenamento */ }
+      await c.backend.endLocalSession();
+      setCt({ del: 0, delBusy: false, delMsg: '', sub: undefined, confirm: null });
+      app.setState({ contaMsg: null, screen: 'home' }); // sem dados e sem conta: volta para a tela de entrada
+      app.flash('Conta excluída');
     },
 
     askResolve: choice => {

@@ -190,6 +190,14 @@ export function contaVals(k) {
     canBack: !access.blocked, checking: access.checking, full: !access.checking,
     cloudIcon: icon, cloudTitle: title, cloudSub: [user && user.email, sub].filter(Boolean).join(' · '),
     signedIn: !!user, signOut: conta.signOut,
+    del: {
+      showAsk: !!user && !ct.del, show: !!user && ct.del > 0, step1: ct.del === 1, step2: ct.del === 2,
+      title: ct.del === 2 ? 'Excluir tudo agora?' : 'Excluir minha conta?',
+      text: ct.del === 2 ? 'Não dá para desfazer. Sua conta, os dados da nuvem e os dados deste aparelho serão apagados agora.'
+        : 'Vamos apagar sua conta e os dados da nuvem. Os dados deste aparelho também serão apagados. Se você tem assinatura ativa, ela será cancelada. Quer guardar uma cópia? Salve um backup antes.',
+      msg: ct.delMsg || '', confirmLabel: ct.delBusy ? 'Excluindo…' : 'Excluir tudo',
+      onAsk: conta.askDelete, onNext: conta.nextDelete, onBack: conta.cancelDelete, onConfirm: conta.doDelete,
+    },
     auth, conflict, subscription,
     update: { show: !!ct.swApply, apply: conta.applyUpdate },
     version: k.version ? `Faro ${k.version}` : '',

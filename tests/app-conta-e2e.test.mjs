@@ -236,6 +236,86 @@ test('cobrança ligada: pagamento pendente bloqueia e pede "Atualizar pagamento"
   }
 });
 
+// ---- aviso de fim do teste (início) e exclusão de conta
+const trialEndsIn = days => new Date(Date.now() + days * 86400000).toISOString();
+const logar = async page => { await hasText(page, 'Entre ou crie sua conta'); await fill(page, 'motorista@faro.app', 'senha-forte-1'); await button(page, 'Entrar').click(); await hasText(page, 'Primeiros passos no Faro'); };
+const subCfg = (over = {}, billing = true) => ({ billing, users: USERS, subs: { 'id-1': { status: 'trialing', stripe_customer_id: 'cus_1', current_period_end: trialEndsIn(2.5), cancel_at_period_end: false, ...over } }, invoke: { 'abrir-portal-faro': { url: 'https://billing.stripe.com/p/session/falso' } } });
+
+test('aviso de fim do teste aparece no topo do Início e "Gerenciar assinatura" abre o portal', { skip }, async () => {
+  const { context, page, errors, shot } = await open(VIEWPORTS[0], subCfg(), { local: onboarded });
+  await logar(page);
+  await hasText(page, 'Seu teste termina em 3 dias');
+  const body = await text(page);
+  assert.match(body, /cobramos R\$ 22,99 no cartão cadastrado/);
+  assert.ok(body.indexOf('Seu teste termina em 3 dias') < body.indexOf('Primeiros passos no Faro'), 'o aviso fica no topo do conteúdo');
+  await shot('aviso-fim-do-teste');
+  await button(page, 'Gerenciar assinatura').click();
+  await page.waitForFunction(() => window.__redirects.length === 1);
+  assert.deepEqual(await redirects(page), ['https://billing.stripe.com/p/session/falso']);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('aviso de fim do teste: nada com teste longe, já cancelado ou cobrança desligada', { skip }, async () => {
+  for (const [nome, cfg, entra] of [['teste longe', subCfg({ current_period_end: trialEndsIn(6) }), true], ['teste cancelado', subCfg({ cancel_at_period_end: true }), true], ['cobrança desligada', subCfg({}, false), false]]) {
+    const { context, page, errors } = await open(VIEWPORTS[0], cfg, { local: onboarded });
+    if (entra) await logar(page); else await hasText(page, 'Primeiros passos no Faro');
+    await page.waitForTimeout(500);
+    assert.doesNotMatch(await text(page), /teste termina|Amanhã o teste|termina hoje/i, nome);
+    assert.deepEqual(errors, [], nome);
+    await context.close();
+  }
+});
+
+test('excluir minha conta: 2 passos, nada some antes de "Excluir tudo", e depois volta para a entrada', { skip }, async () => {
+  const cfg = { users: USERS, invoke: { 'excluir-conta-faro': { deleted: true } } };
+  const { context, page, errors, shot } = await open(VIEWPORTS[0], cfg, { local: withDay });
+  await hasText(page, 'Primeiros passos no Faro');
+  await goConta(page);
+  assert.equal(await button(page, 'Excluir minha conta').count(), 0, 'sem conta não há o que excluir');
+  await fill(page, 'motorista@faro.app', 'senha-forte-1');
+  await button(page, 'Entrar').click();
+  await hasText(page, 'Tudo salvo na nuvem');
+  const calls = () => page.evaluate(() => (window.__server.calls || []).filter(c => c.name === 'excluir-conta-faro'));
+
+  // passo 1: explica o que acontece; Voltar cancela e nada é chamado
+  await button(page, 'Excluir minha conta').click();
+  await hasText(page, 'Excluir minha conta?');
+  let body = await text(page);
+  assert.match(body, /apagar sua conta e os dados da nuvem/);
+  assert.match(body, /dados deste aparelho também serão apagados/);
+  assert.match(body, /assinatura ativa, ela será cancelada/);
+  assert.equal(await button(page, 'Excluir tudo').count(), 0, 'o botão perigoso só vem no passo 2');
+  await shot('excluir-passo-1');
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Voltar' }).click();
+  await noText(page, 'Excluir minha conta?');
+  assert.equal((await calls()).length, 0);
+
+  // passo 2 + sem internet: mensagem diz o que fazer e nada é apagado
+  await button(page, 'Excluir minha conta').click();
+  await button(page, 'Continuar').click();
+  await hasText(page, 'Excluir tudo agora?');
+  await shot('excluir-passo-2');
+  await page.evaluate(() => { window.__server.down = true; });
+  await button(page, 'Excluir tudo').click();
+  await hasText(page, 'Sem internet. Conecte e tente de novo.');
+  assert.equal(JSON.parse(await page.evaluate(() => localStorage.getItem('faro-v2-state'))).state.onboarded, true, 'dados locais intactos');
+  assert.equal(await button(page, 'Sair da conta').count(), 1, 'continua logado');
+
+  // volta a conexão e tenta de novo: exclui, limpa o aparelho e volta para a entrada
+  await page.evaluate(() => { window.__server.down = false; });
+  await button(page, 'Excluir tudo').click();
+  await hasText(page, 'Ver meu lucro de verdade');
+  const sent = await calls();
+  assert.equal(sent.length, 1);
+  assert.deepEqual(sent[0].body, { confirmation: 'EXCLUIR' });
+  await page.waitForFunction(() => { try { return JSON.parse(localStorage.getItem('faro-v2-state')).state.onboarded === false; } catch { return false; } });
+  assert.deepEqual(await page.evaluate(() => Object.keys(localStorage).filter(k => /^faro-sync-/.test(k))), [], 'sem rastro de sync da conta');
+  assert.doesNotMatch(await text(page), /motorista@faro\.app/);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
 test('aviso "Nova versão disponível" chama apply() em "Atualizar agora"', { skip }, async () => {
   const { context, page, errors, shot } = await open(VIEWPORTS[0], {}, { local: onboarded });
   await hasText(page, 'Primeiros passos no Faro');

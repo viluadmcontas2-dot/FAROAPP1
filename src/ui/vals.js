@@ -9,6 +9,7 @@ import { logoStyle, segOpt, plural, DAYS_WEEK_OPTIONS } from './kit.js';
 import { energyWord } from './vals-forms.js';
 import { calendarCells, records as recordsOf, tip as tipOf, isWorkDay, carFixedPerKm } from './derive.js';
 import CountUp from './count-up.js';
+import { avisoFimDoTeste } from '../data/aviso-fim-do-teste.js';
 
 // Status de uma conta a pagar, na linguagem do motorista (usado no início e em Contas).
 export const billStatus = (today, t) => ({
@@ -126,7 +127,11 @@ export function homeVals(k) {
   const doneSteps = guideSteps.filter(x => x[2]).length;
   const guide = { show: app.guide && doneSteps < 4 && P === 'dia', count: `${doneSteps} de 4 feitos`, dismiss: () => k.act({ type: 'guide/dismiss' }), steps: guideSteps.map(([title, sub, ok, fn], i) => ({ title, sub, onClick: fn, n: ok ? '' : String(i + 1), icon: ok ? 'ph-bold ph-check' : '', bg: ok ? t.pos : t.accent, color: ok ? t.posInk : t.accentInk, op: ok ? '.6' : '1' })) };
 
-  return { periods, h, actions, yday, isDia: P === 'dia', notDia: P !== 'dia', isSemana: P === 'semana', isMes: P === 'mes', dg, alert, nextBills, wk, weekBars, mo, wf, metrics, plats, platTotal: R(view.g, 2), showPlats: P !== 'dia', tip, lifeCard, guide };
+  // aviso de fim do teste: discreto, só com cobrança ligada, conta aberta e assinatura conferida; o botão abre o portal
+  const billing = !!(ui.access && ui.access.billing), cloudUser = ui.cloud && ui.cloud.user;
+  const av = billing && cloudUser && ui.ct ? avisoFimDoTeste({ sub: ui.ct.sub, billingEnabled: true, now: Date.now() }) : null;
+  const aviso = { show: !!av, titulo: av ? av.titulo : '', texto: av ? av.texto : '', botao: av ? av.botao : '', onAction: k.conta.portal };
+  return { periods, h, actions, yday, aviso, isDia: P === 'dia', notDia: P !== 'dia', isSemana: P === 'semana', isMes: P === 'mes', dg, alert, nextBills, wk, weekBars, mo, wf, metrics, plats, platTotal: R(view.g, 2), showPlats: P !== 'dia', tip, lifeCard, guide };
 }
 
 // ---------------------------------------------------------------- plano
