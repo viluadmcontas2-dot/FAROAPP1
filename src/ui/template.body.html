@@ -15,7 +15,7 @@
 <div style="flex:1"></div>
 <div style="display:flex;flex-direction:column;gap:16px">
 <span style="font-family:'Bricolage Grotesque';font-size:40px;line-height:1.02;font-weight:700;letter-spacing:-1.4px;text-wrap:pretty">Faro pra dinheiro, <span style="color:{{ t.gold }}">do volante ao fim do mês.</span></span>
-<span style="font-size:16px;line-height:1.5;opacity:.82;text-wrap:pretty">Você conta quanto entrou. O Faro desconta o carro, avisa das contas e mostra quanto foi lucro de verdade.</span>
+<span style="font-size:16px;line-height:1.5;opacity:.9;text-wrap:pretty">Você conta quanto entrou. O Faro desconta o carro, avisa das contas e mostra quanto foi lucro de verdade.</span>
 </div>
 <div style="display:flex;flex-direction:column;gap:10px;margin:26px 0 28px">
 <sc-for list="{{ onb.pitch }}" as="p" hint-placeholder-count="3">
@@ -25,9 +25,9 @@
 </div>
 </sc-for>
 </div>
-<button sc-camel-on-click="{{ onb.next }}" style="height:60px;border-radius:30px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">Ver meu lucro de verdade<span style="font-weight:600;opacity:.7">· 2 min</span><i class="ph-bold ph-arrow-right"></i></button>
+<button sc-camel-on-click="{{ onb.next }}" style="height:60px;border-radius:30px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">Ver meu lucro de verdade<span style="font-weight:600;opacity:.88">· 2 min</span><i class="ph-bold ph-arrow-right"></i></button>
 <span style="text-align:center;margin-top:14px;font-size:15px;font-weight:800;color:{{ t.gold }}">{{ onb.priceLine }}</span>
-<button sc-camel-on-click="{{ skipOnb }}" style="margin-top:4px;min-height:44px;border:none;background:none;color:#fff;opacity:.75;font-size:14px;font-weight:600;cursor:pointer">Já uso o Faro · Entrar</button>
+<button sc-camel-on-click="{{ skipOnb }}" style="margin-top:4px;min-height:44px;border:none;background:none;color:#fff;opacity:.88;font-size:14px;font-weight:600;cursor:pointer">Já uso o Faro · Entrar</button>
 </div>
 </sc-if>
 
@@ -109,9 +109,9 @@
 </sc-if>
 <sc-if value="{{ onb.s5 }}" hint-placeholder-val="{{ false }}">
 <div style="border-radius:28px;padding:22px;background:{{ t.heroBg }};color:#fff;display:flex;flex-direction:column;gap:16px">
-<span style="font-size:14px;font-weight:700;opacity:.8">Por dia de pista, você precisa ganhar</span>
-<div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:20px;opacity:.8">R$</span><span style="font-family:'Bricolage Grotesque';font-size:54px;font-weight:700;letter-spacing:-2px;line-height:1">{{ onb.dailyGross }}</span></div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><sc-for list="{{ onb.planChips }}" as="c" hint-placeholder-count="3"><div style="padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.1);display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;opacity:.75;font-weight:600">{{ c.label }}</span><span style="font-size:15px;font-weight:800">{{ c.value }}</span></div></sc-for></div>
+<span style="font-size:14px;font-weight:700;opacity:.9">Por dia de pista, você precisa ganhar</span>
+<div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:20px;opacity:.9">R$</span><span style="font-family:'Bricolage Grotesque';font-size:54px;font-weight:700;letter-spacing:-2px;line-height:1">{{ onb.dailyGross }}</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><sc-for list="{{ onb.planChips }}" as="c" hint-placeholder-count="3"><div style="padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.1);display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;opacity:.88;font-weight:600">{{ c.label }}</span><span style="font-size:15px;font-weight:800">{{ c.value }}</span></div></sc-for></div>
 </div>
 <div style="display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:24px;background:{{ t.surface }};border:1px solid {{ t.line }}">
 <span style="font-size:15px;font-weight:800">De cada R$ 100 que entram</span>
@@ -136,15 +136,15 @@
 </div>
 <div style="display:flex;align-items:center;gap:8px">
 <button sc-camel-on-click="{{ goRemind }}" aria-label="Lembretes" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative"><i class="ph ph-bell-simple"></i><span style="position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:{{ t.gold }};color:{{ t.goldInk }};font-size:14px;font-weight:800;display:{{ rm.badgeD }};align-items:center;justify-content:center">{{ rm.count }}</span></button>
-<button sc-camel-on-click="{{ goJourney }}" style="height:40px;padding:0 12px 0 5px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;gap:7px"><span style="width:30px;height:30px;border-radius:50%;background:{{ t.gold }};color:{{ t.goldInk }};display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ph-fill ph-fire"></i></span><span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.1"><span style="font-size:14px;font-weight:800">{{ game.streakLabel }}</span><span style="font-size:14px;font-weight:700;opacity:.8">Jornada</span></span><i class="ph-bold ph-caret-right" style="font-size:14px;opacity:.7"></i></button>
+<button sc-camel-on-click="{{ goJourney }}" style="height:40px;padding:0 12px 0 5px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;gap:7px"><span style="width:30px;height:30px;border-radius:50%;background:{{ t.gold }};color:{{ t.goldInk }};display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ph-fill ph-fire"></i></span><span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.1"><span style="font-size:14px;font-weight:800">{{ game.streakLabel }}</span><span style="font-size:14px;font-weight:700;opacity:.9">Jornada</span></span><i class="ph-bold ph-caret-right" style="font-size:14px;opacity:.88"></i></button>
 </div>
 </div>
 <div style="display:flex;padding:3px;border-radius:20px;background:rgba(255,255,255,.08);align-self:center;width:250px">
 <sc-for list="{{ periods }}" as="p" hint-placeholder-count="3"><button sc-camel-on-click="{{ p.onClick }}" style="flex:1;height:34px;border:none;border-radius:17px;background:{{ p.bg }};color:{{ p.color }};font-size:14px;font-weight:800;cursor:pointer;transition:all .25s">{{ p.label }}</button></sc-for>
 </div>
 <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-<span style="font-size:14px;font-weight:600;opacity:.82">{{ h.label }}</span>
-<div style="display:flex;align-items:baseline;letter-spacing:-2px"><span style="font-size:22px;opacity:.75;margin-right:6px;letter-spacing:0">R$</span>{{ h.num }}</div>
+<span style="font-size:14px;font-weight:600;opacity:.9">{{ h.label }}</span>
+<div style="display:flex;align-items:baseline;letter-spacing:-2px"><span style="font-size:22px;opacity:.88;margin-right:6px;letter-spacing:0">R$</span>{{ h.num }}</div>
 <span style="display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:17px;background:rgba(0,0,0,.18);font-size:14px;font-weight:700"><i class="{{ h.badgeIcon }}"></i>{{ h.badge }}</span>
 </div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
@@ -408,11 +408,11 @@
 <sc-if value="{{ isBills }}" hint-placeholder-val="{{ false }}">
 <div style="position:relative;padding:calc(env(safe-area-inset-top,0px) + 22px) 18px 20px;background:{{ t.heroBg }};border-radius:0 0 36px 36px;color:#fff;animation:ffade .35s ease-out;display:flex;flex-direction:column;gap:14px">
 <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:'Bricolage Grotesque';font-size:26px;font-weight:700;letter-spacing:-.6px">Contas</span><button sc-camel-on-click="{{ openNewBill }}" style="height:40px;padding:0 14px;border-radius:20px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="ph-bold ph-plus"></i>Nova conta</button></div>
-<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700;opacity:.8">{{ bl.title }}</span><span style="font-family:'Bricolage Grotesque';font-size:42px;font-weight:700;letter-spacing:-1.4px;line-height:1">{{ bl.total }}</span></div>
+<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700;opacity:.9">{{ bl.title }}</span><span style="font-family:'Bricolage Grotesque';font-size:42px;font-weight:700;letter-spacing:-1.4px;line-height:1">{{ bl.total }}</span></div>
 <div style="height:10px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden"><div style="height:100%;width:{{ bl.w }};background:#5EE6A8;border-radius:5px;transition:width .5s"></div></div>
 <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span style="opacity:.85">Pagas {{ bl.paid }}</span><span>Faltam {{ bl.left }}</span></div>
 <div style="position:relative;margin:0 -18px"><div class="hscroll" style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 44px 0 18px;scroll-snap-type:x proximity">
-<sc-for list="{{ bl.filters }}" as="f" hint-placeholder-count="5"><button sc-camel-on-click="{{ f.onClick }}" style="flex:none;height:36px;padding:0 13px;border-radius:18px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">{{ f.label }}<span style="opacity:.7;font-weight:700">{{ f.v }}</span></button></sc-for>
+<sc-for list="{{ bl.filters }}" as="f" hint-placeholder-count="5"><button sc-camel-on-click="{{ f.onClick }}" style="flex:none;height:36px;padding:0 13px;border-radius:18px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">{{ f.label }}<span style="opacity:.88;font-weight:700">{{ f.v }}</span></button></sc-for>
 </div><div style="position:absolute;top:0;right:0;bottom:0;width:56px;pointer-events:none;background:none;display:flex;align-items:center;justify-content:flex-end;padding-right:12px"><i class="ph-bold ph-caret-right" style="font-size:14px;color:#fff;animation:fnudge 1.6s ease-in-out infinite"></i></div></div>
 </div>
 <div style="padding:16px 18px calc(130px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px">
@@ -456,10 +456,10 @@
 <sc-if value="{{ isRemind }}" hint-placeholder-val="{{ false }}">
 <div style="position:relative;padding:calc(env(safe-area-inset-top,0px) + 22px) 20px 22px;background:{{ t.heroBg }};border-radius:0 0 36px 36px;color:#fff;animation:ffade .35s ease-out;display:flex;flex-direction:column;gap:18px">
 <div style="display:flex;align-items:center;gap:12px"><button sc-camel-on-click="{{ back }}" aria-label="Voltar" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="ph-bold ph-caret-left"></i></button><span style="font-family:'Bricolage Grotesque';font-size:26px;font-weight:700;letter-spacing:-.6px">Lembretes</span></div>
-<div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600;opacity:.82">Você não precisa lembrar de nada.</span><span style="font-family:'Bricolage Grotesque';font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1.05">{{ rm.summary }}</span></div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600;opacity:.9">Você não precisa lembrar de nada.</span><span style="font-family:'Bricolage Grotesque';font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1.05">{{ rm.summary }}</span></div>
 <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:22px;background:rgba(255,255,255,.1)">
 <span style="width:44px;height:44px;border-radius:14px;background:{{ t.gold }};color:{{ t.goldInk }};display:flex;align-items:center;justify-content:center;font-size:22px"><i class="{{ rm.next.icon }}"></i></span>
-<span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;opacity:.75">Próximo · {{ rm.next.when }}</span><span style="font-size:15px;font-weight:800">{{ rm.next.title }}</span><span style="font-size:14px;opacity:.8">{{ rm.next.sub }}</span></span>
+<span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;opacity:.88">Próximo · {{ rm.next.when }}</span><span style="font-size:15px;font-weight:800">{{ rm.next.title }}</span><span style="font-size:14px;opacity:.9">{{ rm.next.sub }}</span></span>
 </div>
 </div>
 <div style="padding:18px 18px calc(130px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:frise .45s ease-out">
@@ -499,10 +499,10 @@
 <span style="display:flex;flex-direction:column;gap:8px">
 <span style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:19px;color:{{ t.gold }}"><i class="ph-fill ph-gauge"></i></span>
 <span style="font-size:15px;font-weight:800">Sua nota · {{ idx.label }}</span>
-<span style="font-size:14px;opacity:.8;line-height:1.4">{{ idx.next }}</span>
+<span style="font-size:14px;opacity:.9;line-height:1.4">{{ idx.next }}</span>
 </span>
 </div>
-<div style="display:flex;flex-direction:column;gap:6px"><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.12)"><div style="height:100%;width:{{ game.xpW }};border-radius:3px;background:{{ t.gold }}"></div></div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;opacity:.75"><span>{{ game.xp }} pontos</span><span>{{ game.nextLv }}</span></div></div>
+<div style="display:flex;flex-direction:column;gap:6px"><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.12)"><div style="height:100%;width:{{ game.xpW }};border-radius:3px;background:{{ t.gold }}"></div></div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;opacity:.88"><span>{{ game.xp }} pontos</span><span>{{ game.nextLv }}</span></div></div>
 </div>
 <div style="padding:16px 18px calc(130px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px">
 <sc-if value="{{ game.empty }}" hint-placeholder-val="{{ false }}">
@@ -557,7 +557,7 @@
 <div style="align-self:stretch;display:flex;align-items:center;justify-content:space-between"><span style="font-family:'Bricolage Grotesque';font-size:24px;font-weight:700;letter-spacing:-.6px">{{ pl.title }}</span><button sc-camel-on-click="{{ pl.edit }}" style="height:38px;padding:0 14px;border-radius:19px;border:none;background:#fff;color:#0D1530;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="ph-bold ph-pencil-simple"></i>Editar plano</button></div>
 <div style="position:relative;width:180px;height:180px">
 <svg width="180" height="180" sc-camel-view-box="0 0 200 200" style="transform:rotate(-90deg)"><circle cx="100" cy="100" r="84" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="14"></circle><circle cx="100" cy="100" r="84" fill="none" stroke="{{ t.gold }}" stroke-width="14" stroke-linecap="round" stroke-dasharray="{{ pl.dash }}" style="transition:stroke-dasharray .8s cubic-bezier(.2,.8,.2,1)"></circle></svg>
-<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-family:'Bricolage Grotesque';font-size:46px;font-weight:700;letter-spacing:-2px;line-height:1">{{ mo.pct }}%</span><span style="font-size:14px;opacity:.8;font-weight:600">da meta de lucro</span></div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-family:'Bricolage Grotesque';font-size:46px;font-weight:700;letter-spacing:-2px;line-height:1">{{ mo.pct }}%</span><span style="font-size:14px;opacity:.9;font-weight:600">da meta de lucro</span></div>
 </div>
 <span style="font-size:15px;font-weight:700">{{ mo.of }}</span>
 <span style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:14px;background:{{ pl.paceBg }};color:{{ pl.paceInk }};font-size:14px;font-weight:800"><i class="{{ pl.paceIcon }}"></i>{{ mo.pace }}</span>
@@ -613,7 +613,7 @@
 <span style="flex:1;display:flex;flex-direction:column;gap:6px"><span style="font-size:17px;font-weight:800">{{ car.title }}</span><span style="display:flex;gap:6px"><sc-for list="{{ car.tags }}" as="g" hint-placeholder-count="3"><span style="padding:4px 9px;border-radius:10px;background:rgba(255,255,255,.12);font-size:14px;font-weight:800">{{ g }}</span></sc-for></span></span>
 </div>
 <div style="padding:16px;border-radius:22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:12px">
-<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700;opacity:.8">Cada km rodado custa</span><span style="font-family:'Bricolage Grotesque';font-size:30px;font-weight:700;letter-spacing:-1px">{{ car.costKm }}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700;opacity:.9">Cada km rodado custa</span><span style="font-family:'Bricolage Grotesque';font-size:30px;font-weight:700;letter-spacing:-1px">{{ car.costKm }}</span></div>
 <div style="display:flex;gap:3px;height:10px"><sc-for list="{{ car.parts }}" as="p" hint-placeholder-count="3"><div style="width:{{ p.w }};background:{{ p.color }};border-radius:5px"></div></sc-for></div>
 <div style="display:flex;justify-content:space-between"><sc-for list="{{ car.parts }}" as="p" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span style="width:8px;height:8px;border-radius:3px;background:{{ p.color }}"></span>{{ p.label }} {{ p.v }}</span></sc-for></div>
 </div>
@@ -644,7 +644,7 @@
 <sc-if value="{{ isConta }}" hint-placeholder-val="{{ false }}">
 <div style="position:relative;padding:calc(env(safe-area-inset-top,0px) + 22px) 20px 22px;background:{{ t.heroBg }};border-radius:0 0 36px 36px;color:#fff;animation:ffade .35s ease-out;display:flex;flex-direction:column;gap:12px">
 <div style="display:flex;align-items:center;gap:12px"><sc-if value="{{ conta.canBack }}" hint-placeholder-val="{{ true }}"><button sc-camel-on-click="{{ back }}" aria-label="Voltar" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="ph-bold ph-caret-left"></i></button></sc-if><span style="font-family:'Bricolage Grotesque';font-size:26px;font-weight:700;letter-spacing:-.6px">Conta</span></div>
-<span style="font-size:14px;line-height:1.45;opacity:.82;text-wrap:pretty">{{ conta.intro }}</span>
+<span style="font-size:14px;line-height:1.45;opacity:.9;text-wrap:pretty">{{ conta.intro }}</span>
 </div>
 <div style="padding:18px 18px calc(40px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:frise .45s ease-out">
 
@@ -739,7 +739,7 @@
 
 <sc-if value="{{ sh.open }}" hint-placeholder-val="{{ false }}">
 <div sc-camel-on-click="{{ sh.close }}" style="position:absolute;inset:0;background:rgba(4,6,14,.6);z-index:40;animation:ffade .25s"></div>
-<div inert="{{ shInert }}" style="position:absolute;left:0;right:0;bottom:0;height:min(752px,calc(100% - 20px - env(safe-area-inset-top,0px)));z-index:41;background:{{ t.surface }};border-radius:36px 36px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;animation:fsheet .35s cubic-bezier(.2,.8,.2,1)">
+<div class="fsheet" inert="{{ shInert }}" style="position:absolute;left:0;right:0;bottom:0;height:min(752px,calc(100% - 20px - env(safe-area-inset-top,0px)));z-index:41;background:{{ t.surface }};border-radius:36px 36px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;animation:fsheet .35s cubic-bezier(.2,.8,.2,1)">
 <div style="width:40px;height:5px;border-radius:3px;background:{{ t.line2 }};align-self:center"></div>
 <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:'Bricolage Grotesque';font-size:22px;font-weight:700;letter-spacing:-.5px">{{ sh.title }}</span><button sc-camel-on-click="{{ sh.close }}" aria-label="Fechar" style="width:38px;height:38px;border-radius:50%;border:none;background:{{ t.surface2 }};color:{{ t.ink }};font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="ph-bold ph-x"></i></button></div>
 
@@ -768,7 +768,7 @@
 <div style="display:flex;padding:4px;border-radius:20px;background:{{ t.surface2 }}"><sc-for list="{{ sh.tabs }}" as="p" hint-placeholder-count="2"><button sc-camel-on-click="{{ p.onClick }}" style="flex:1;height:40px;border:none;border-radius:16px;background:{{ p.bg }};color:{{ p.color }};font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s"><i class="{{ p.icon }}"></i>{{ p.label }}</button></sc-for></div>
 <div role="group" aria-label="Qual dia?" style="display:flex;gap:8px"><sc-for list="{{ sh.dayChips }}" as="d" hint-placeholder-count="2"><button sc-camel-on-click="{{ d.onClick }}" aria-pressed="{{ d.pressed }}" style="flex:1;min-height:44px;border-radius:22px;border:1.5px solid {{ d.border }};background:{{ d.bg }};color:{{ d.color }};font-size:14px;font-weight:800;cursor:pointer">{{ d.label }}</button></sc-for></div>
 <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px 0">
-<div style="display:flex;align-items:baseline;letter-spacing:-1.5px;color:{{ t.ink }}"><span style="font-size:20px;margin-right:6px;letter-spacing:0;color:{{ t.muted }}">R$</span><span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;opacity:.5;font-variant-numeric:tabular-nums">{{ sh.amtDim }}</span><span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums">{{ sh.amtLit }}</span></div>
+<div style="display:flex;align-items:baseline;letter-spacing:-1.5px;color:{{ t.ink }}"><span style="font-size:20px;margin-right:6px;letter-spacing:0;color:{{ t.muted }}">R$</span><span class="famt" style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;opacity:.5;font-variant-numeric:tabular-nums">{{ sh.amtDim }}</span><span class="famt" style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums">{{ sh.amtLit }}</span></div>
 <span style="font-size:14px;color:{{ t.muted }};font-weight:600;text-align:center">{{ sh.hint }}</span>
 </div>
 <div class="fscroll" style="flex:0 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;margin:0 -18px;padding:0 18px;display:flex;flex-direction:column;gap:8px">
@@ -797,9 +797,9 @@
 </sc-if>
 <sc-if value="{{ sh.isSet }}" hint-placeholder-val="{{ false }}">
 <div style="flex:none;border-radius:22px;padding:14px 16px;background:{{ t.heroBg }};color:#fff;display:flex;flex-direction:column;gap:10px">
-<span style="font-size:14px;font-weight:800;letter-spacing:1px;opacity:.8;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#5EE6A8"></span>{{ sh.liveTitle }}</span>
+<span style="font-size:14px;font-weight:800;letter-spacing:1px;opacity:.9;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#5EE6A8"></span>{{ sh.liveTitle }}</span>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-<sc-for list="{{ sh.live }}" as="l" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:700;opacity:.75">{{ l.label }}</span><span style="font-family:'Bricolage Grotesque';font-size:19px;font-weight:700;letter-spacing:-.4px;color:{{ l.color }};transition:color .3s">{{ l.value }}</span></div></sc-for>
+<sc-for list="{{ sh.live }}" as="l" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:700;opacity:.88">{{ l.label }}</span><span style="font-family:'Bricolage Grotesque';font-size:19px;font-weight:700;letter-spacing:-.4px;color:{{ l.color }};transition:color .3s">{{ l.value }}</span></div></sc-for>
 </div>
 </div>
 <div class="fscroll" style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:12px;padding-bottom:6px">
@@ -829,7 +829,7 @@
 <div style="position:absolute;inset:0;z-index:80;background:rgba(5,8,18,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(24px + env(safe-area-inset-bottom,0px))">
 <div role="alertdialog" aria-labelledby="ask-title" aria-describedby="ask-text" style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px;padding:22px 20px 20px;border-radius:28px;background:{{ t.surface }};color:{{ t.ink }};border:1px solid {{ t.line2 }};box-shadow:0 24px 60px -16px rgba(0,0,0,.6)">
 <span id="ask-title" style="font-family:'Bricolage Grotesque';font-size:24px;font-weight:700;letter-spacing:-.5px">{{ ask.title }}</span>
-<span id="ask-text" style="font-size:18px;font-weight:800;color:{{ t.gold }}">{{ ask.text }}</span>
+<span id="ask-text" style="font-size:18px;font-weight:800;color:{{ t.goldText }}">{{ ask.text }}</span>
 <span style="font-size:14px;line-height:1.45;color:{{ t.muted }};text-wrap:pretty">{{ ask.sub }}</span>
 <div style="display:flex;flex-direction:column;gap:8px">
 <button sc-camel-on-click="{{ ask.onFix }}" style="min-height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer">Corrigir</button>

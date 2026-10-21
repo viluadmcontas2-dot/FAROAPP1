@@ -52,7 +52,7 @@ async function decoderPage(page) {
   return decoders.get(ctx);
 }
 
-export async function auditContrast(page, min = 4.5) {
+async function auditContrastOnce(page, min = 4.5) {
   const items = await page.evaluate(min => {
     const out = [];
     const parse = s => { const m = /rgba?\(([^)]+)\)/.exec(s); if (!m) return null; const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
@@ -83,12 +83,28 @@ export async function auditContrast(page, min = 4.5) {
         if (color && color.a > 0) bgs = bgs.map(b => over(color, b));
         if (c.backgroundImage && /gradient/.test(c.backgroundImage)) {
           grad = true;
-          const stops = [...c.backgroundImage.matchAll(/rgba?\([^)]+\)/g)].map(m => parse(m[0])).filter(Boolean);
-          if (stops.length) bgs = stops.flatMap(top => bgs.map(b => over(top, b))).slice(0, 80);
+          // camadas separadas por vírgula de fora; a última é a de baixo. Cada cor de uma camada compõe sobre as de baixo (pior caso).
+          const layers = []; let depth = 0, cur = '';
+          for (const ch of c.backgroundImage) { if (ch === '(') depth++; if (ch === ')') depth--; if (ch === ',' && depth === 0) { layers.push(cur); cur = ''; } else cur += ch; }
+          layers.push(cur);
+          for (const layer of layers.reverse()) {
+            const stops = [...layer.matchAll(/rgba?\([^)]+\)/g)].map(m => parse(m[0])).filter(Boolean);
+            if (stops.length) bgs = stops.flatMap(top => bgs.map(b => over(top, b))).slice(0, 80);
+          }
         }
       }
-      const inView = rect.top >= 0 && rect.bottom <= innerHeight && rect.left >= 0 && rect.right <= innerWidth;
-      out.push({ i: out.length, label: label(el), color: cs.color, o: opacityOf(el), fg, need: size >= 24 || (size >= 18.66 && bold) ? 3 : min, bgs: bgs.map(b => over({ ...b, a: 1 }, { r: 255, g: 255, b: 255, a: 1 })), grad, inView, rect: { x: rect.x, y: rect.y, w: rect.width, h: rect.height } });
+      // parte do texto que o usuário vê agora: recorta pela tela e por cada contêiner que rola ou corta (faixas .hscroll, folhas)
+      let vis = { l: Math.max(0, rect.left), t: Math.max(0, rect.top), r: Math.min(innerWidth, rect.right), b: Math.min(innerHeight, rect.bottom) };
+      for (let a = el.parentElement; a; a = a.parentElement) {
+        const ac = getComputedStyle(a);
+        if (ac.overflowX === 'visible' && ac.overflowY === 'visible') continue;
+        const ar = a.getBoundingClientRect();
+        vis = { l: Math.max(vis.l, ar.left), t: Math.max(vis.t, ar.top), r: Math.min(vis.r, ar.right), b: Math.min(vis.b, ar.bottom) };
+      }
+      const area = Math.max(0, vis.r - vis.l) * Math.max(0, vis.b - vis.t);
+      if (area < rect.width * rect.height * 0.999) { seen.delete(el); if (area < rect.width * rect.height * 0.5) continue; } // fora de vista: outra passada (faixa rolada até o fim) cuida
+      const inView = vis.b - vis.t > 0 && vis.r - vis.l > 0;
+      out.push({ i: out.length, label: label(el), color: cs.color, o: opacityOf(el), fg, need: size >= 24 || (size >= 18.66 && bold) ? 3 : min, bgs: bgs.map(b => over({ ...b, a: 1 }, { r: 255, g: 255, b: 255, a: 1 })), grad, inView, rect: { x: vis.l, y: vis.t, w: vis.r - vis.l, h: vis.b - vis.t } });
     }
     return out;
   }, min);
@@ -108,7 +124,7 @@ export async function auditContrast(page, min = 4.5) {
       await page.evaluate(() => { document.adoptedStyleSheets = document.adoptedStyleSheets.filter(x => x !== window.__noText); });
       const dec = await decoderPage(page);
       const dpr = await page.evaluate(() => devicePixelRatio);
-      const px = await dec.evaluate(async ([b64, rects, dpr]) => {
+      const px = await dec.evaluate(async ([b64, rects, dpr, vw]) => {
         const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
         const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
         const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0);
@@ -117,7 +133,7 @@ export async function auditContrast(page, min = 4.5) {
           for (let i = 0; i < 8; i++) for (let j = 0; j < 3; j++) pts.push([r.x + (r.w * (i + 0.5)) / 8, r.y + (r.h * (j + 0.5)) / 3]);
           return pts.map(([x, y]) => { const d = g.getImageData(Math.min(img.width - 1, Math.max(0, Math.round(x * dpr))), Math.min(img.height - 1, Math.max(0, Math.round(y * dpr))), 1, 1).data; return { r: d[0], g: d[1], b: d[2] }; });
         });
-      }, [png.toString('base64'), sampled.map(s => s.rect), dpr]);
+      }, [png.toString('base64'), sampled.map(s => s.rect), dpr, await page.evaluate(() => innerWidth)]);
       sampled.forEach((s, k) => pixelBgs.set(s.i, px[k]));
     }
   }
@@ -128,6 +144,18 @@ export async function auditContrast(page, min = 4.5) {
     let worst = Infinity;
     for (const bg of bgs) worst = Math.min(worst, ratio(blend(x.fg, x.o, bg), bg));
     if (worst < x.need) out.push(`contraste ${worst.toFixed(2)} < ${x.need}: ${x.label} cor ${x.color} opacidade ${x.o}${pixelBgs.has(x.i) ? ' (fundo lido dos pixels)' : ''}`);
+  }
+  return out;
+}
+
+// duas passadas: faixas .hscroll no começo e rolada até o fim (assim todo chip é lido enquanto está à vista)
+export async function auditContrast(page, min = 4.5) {
+  const out = await auditContrastOnce(page, min);
+  const moved = await page.evaluate(() => { let n = 0; for (const e of document.querySelectorAll('.hscroll')) if (e.scrollWidth > e.clientWidth + 1) { e.style.scrollBehavior = 'auto'; e.scrollLeft = e.scrollWidth; n++; } return n; });
+  if (moved) {
+    await page.waitForTimeout(120);
+    for (const m of await auditContrastOnce(page, min)) if (!out.includes(m)) out.push(m);
+    await page.evaluate(() => { for (const e of document.querySelectorAll('.hscroll')) e.scrollLeft = 0; });
   }
   return out;
 }

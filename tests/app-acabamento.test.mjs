@@ -71,8 +71,8 @@ function auditor(page, problems, vp, tag) {
   };
 }
 
-// cada teste abre o próprio contexto do navegador: rodam 4 ao mesmo tempo
-describe('acabamento de ponta a ponta', { concurrency: 4 }, () => {
+// cada teste abre o próprio contexto do navegador: rodam 2 ao mesmo tempo
+describe('acabamento de ponta a ponta', { concurrency: 2 }, () => {
 for (const vp of VIEWPORTS) for (const theme of THEMES) {
   test(`acabamento de todas as telas e folhas · ${vp.name} ${vp.width}x${vp.height} · ${theme}`, { skip }, async () => {
     const { context, page, errors } = await open(vp, fullState(theme));

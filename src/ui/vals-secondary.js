@@ -43,7 +43,7 @@ export function remindVals(k) {
   return {
     count: items.length, summary: `${plural(items.length, 'aviso', 'avisos')} nos próximos 7 dias`, badgeD: items.length ? 'flex' : 'none',
     next: first ? { icon: first.icon, title: first.title, sub: first.sub, when: `${dayWord(first.date).toLowerCase()}${first.time ? ' às ' + first.time : ''}` } : { icon: 'ph-fill ph-check', when: '—', title: 'Tudo em dia', sub: '' },
-    items: items.map((x, i) => ({ ...x, color: tone(x), day: dayWord(x.date), dnum: dayOfMonth(x.date), dc: x.date === today ? t.gold : t.muted, sep: i === items.length - 1 ? 'transparent' : t.line })),
+    items: items.map((x, i) => ({ ...x, color: tone(x), day: dayWord(x.date), dnum: dayOfMonth(x.date), dc: x.date === today ? t.goldText : t.muted, sep: i === items.length - 1 ? 'transparent' : t.line })),
     resGoal: R(goal),
     resText: perDaySave > 0 ? `Guardando ${R(perDaySave)} por dia de pista (15% da sua sobra média), você junta um mês de contas em cerca de ${fmt(months, 0)} meses. O Faro sugere o valor em cada fechamento.` : 'Feche alguns dias de pista e o Faro sugere quanto guardar por dia para juntar um mês das suas contas.',
     prefs: prefs.map(([key, label, sub, icon], i, all) => ({ label, sub, icon, trk: app.rem[key] ? t.accent : t.line2, knob: app.rem[key] ? '21px' : '3px', sep: i === all.length - 1 ? 'transparent' : t.line, onToggle: () => k.act({ type: 'rem/set', payload: { key, on: !app.rem[key] } }) })),

@@ -13,7 +13,7 @@ import CountUp from './count-up.js';
 // Status de uma conta a pagar, na linguagem do motorista (usado no início e em Contas).
 export const billStatus = (today, t) => ({
   when: o => { const dd = diffDays(today, o.date); return o.paid ? `paga · dia ${o.d}` : dd < 0 ? `venceu há ${-dd} dia${-dd > 1 ? 's' : ''}` : dd === 0 ? 'vence hoje' : dd === 1 ? 'vence amanhã' : `vence em ${dd} dias · dia ${o.d}`; },
-  color: o => { const dd = diffDays(today, o.date); return o.paid ? t.muted : dd < 0 ? t.neg : dd <= 5 ? t.gold : t.muted; },
+  color: o => { const dd = diffDays(today, o.date); return o.paid ? t.muted : dd < 0 ? t.neg : dd <= 5 ? t.goldText : t.muted; },
 });
 
 // ---------------------------------------------------------------- início
@@ -83,14 +83,14 @@ export function homeVals(k) {
   const weekBars = week.map((date, i) => {
     const r = weekNums[i], off = !isWorkDay(app, date), isT = date === today, day = WD_SHORT[(i + 1) % 7];
     if (r && r.closed) return { day, val: fmt(r.lucro, 0), h: Math.max(8, r.lucro / wmax * 100) + 'px', bg: r.lucro >= dailyGoal ? t.pos : t.gold, border: 'none', lc: t.ink, fw: '800' };
-    return { day, val: off ? 'folga' : isT ? 'hoje' : '', h: off ? '8px' : '40px', bg: isT ? t.goldSoft : 'transparent', border: off ? 'none' : `1.5px dashed ${isT ? t.gold : t.line2}`, lc: isT ? t.gold : t.muted, fw: isT ? '800' : '600' };
+    return { day, val: off ? 'folga' : isT ? 'hoje' : '', h: off ? '8px' : '40px', bg: isT ? t.goldSoft : 'transparent', border: off ? 'none' : `1.5px dashed ${isT ? t.gold : t.line2}`, lc: isT ? t.goldText : t.muted, fw: isT ? '800' : '600' };
   });
 
   const ring = 2 * Math.PI * 34, mp = C.target > 0 ? Math.max(0, Math.min(100, Math.round(M.lucro / C.target * 100))) : 0, ahead = C.proj >= C.target;
   const mg = Math.max(1, M.g);
   const mo = {
     title: `Meta de ${monthName(today)}`, pct: mp, dash: `${ring * mp / 100} ${ring}`, of: `${R(M.lucro)} de ${R(C.target)}`,
-    pace: M.n ? (ahead ? `No ritmo, você chega a ${R(C.proj)}` : `Atrás do ritmo, você chega a ${R(C.proj)}`) : 'Feche um dia para ver o ritmo', paceColor: ahead || !M.n ? t.pos : t.gold, gross: R(M.g),
+    pace: M.n ? (ahead ? `No ritmo, você chega a ${R(C.proj)}` : `Atrás do ritmo, você chega a ${R(C.proj)}`) : 'Feche um dia para ver o ritmo', paceColor: ahead || !M.n ? t.pos : t.goldText, gross: R(M.g),
     split: [[word, M.en, t.accent], ['Carro e desgaste', M.car + M.we, t.cW], ['Gastos na rua', M.ex, t.cF], ['Lucro de verdade', Math.max(0, M.lucro), t.pos]].map(([label, v, color]) => ({ label, v: R(v), w: (v / mg * 100) + '%', color })),
   };
 

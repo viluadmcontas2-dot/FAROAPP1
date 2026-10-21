@@ -151,7 +151,7 @@ export function closeVals(k) {
 
   return {
     dateLabel: dateLabel(date),
-    dayChips: dayOptions(today, date).map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.gold : t.ink, onClick: () => setCl(newCloseDraft(app, d)) })),
+    dayChips: dayOptions(today, date).map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.goldText : t.ink, onClick: () => setCl(newCloseDraft(app, d)) })),
     askTitle: `Quanto entrou ${when}?`, kmLabel: `Km rodados ${when}`,
     s0: cs.step === 0, s1: cs.step === 1, s2: false, s3: cs.step === 2, keypad: cs.step < 2,
     exit: () => (cs.step === 1 ? setCl({ step: 0, err: null }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x', exitAria: cs.step === 1 ? 'Voltar' : 'Fechar',
@@ -305,7 +305,7 @@ export function sheetVals(k) {
     open: ss.open, isSet, live, liveTitle: 'ATUALIZA ENQUANTO VOCÊ AJUSTA', blocks, isBill: ss.type === 'bill', isMoney, adding, notAdding: !adding, showPad: !adding && !isSet, add,
     strip, hasStrip: strip.length > 0, stripLabel: `Já anotados ${when} · toque para corrigir`,
     editing: !!ss.editId && ss.type === 'out', del: () => k.removeEntry(ss.editId),
-    dayChips: ss.editId ? [] : [[today, 'Hoje'], [addDays(today, -1), 'Ontem']].map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.gold : t.ink, onClick: () => setSh({ date: d }) })),
+    dayChips: ss.editId ? [] : [[today, 'Hoje'], [addDays(today, -1), 'Ontem']].map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.goldText : t.ink, onClick: () => setSh({ date: d }) })),
     title, tabs, chips, hint, saveLabel, int: '', cents: '', centsOp: '1', centsPh: '', amtDim, amtLit, amtColor: amt > 0 ? t.ink : t.muted, op: amt > 0 ? '1' : '.4', off: !(amt > 0),
     close: () => setSh({ open: false, adding: false }), save,
   };
