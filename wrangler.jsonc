@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers Static Assets. Preview = producao. Sem deploy automatico.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "faro",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./_site",
+    "not_found_handling": "single-page-application"
+  }
+}

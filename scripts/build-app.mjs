@@ -6,6 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { toCloudflare } from '../src/pwa/headers.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const out = resolve(process.env.FARO_APP_OUT || join(root, '_site'));
@@ -85,4 +86,5 @@ await build({
 
 const sizes = Object.entries(result.metafile.outputs).filter(([k]) => /\.(js|css)$/.test(k))
   .map(([k, v]) => `${k.split('/').pop()} ${(v.bytes / 1024).toFixed(1)} KiB`);
+await writeFile(join(out, '_headers'), toCloudflare());
 console.log(`build-app: ${out} -> ${sizes.join(', ')}, sw ${version}`);

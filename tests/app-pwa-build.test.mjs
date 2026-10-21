@@ -17,7 +17,7 @@ test('sw.js existe e a versao e deterministica (duas builds -> mesmo hash)', () 
 });
 test('pre-cache cobre todos os arquivos de _site exceto sw.js', () => {
   const body = sw(a);
-  const files = listFiles(a).filter((f) => f !== 'sw.js');
+  const files = listFiles(a).filter((f) => f !== 'sw.js' && f !== '_headers');
   for (const f of files) assert.ok(body.includes(JSON.stringify(f)) || body.includes(`"${f}"`), `fora do pre-cache: ${f}`);
   assert.ok(body.includes('"index.html"') && body.includes('"app.js"') && body.includes('"app.css"'));
   assert.ok(files.some((f) => f.endsWith('.woff2')), 'fontes presentes');
@@ -78,4 +78,23 @@ test('vercel.json: cabecalhos e CSP estrita', () => {
   assert.match(hdr('/index.html')['Cache-Control'], /no-cache/);
   assert.match(hdr('/assets/fonts/(.*)')['Cache-Control'], /immutable/);
   assert.equal(hdr('/sw.js')['Service-Worker-Allowed'], '/');
+});
+
+test('vercel.json e _headers (Cloudflare) trazem os mesmos cabecalhos', () => {
+  const v = JSON.parse(read('vercel.json'));
+  const cf = readFileSync(join(a, '_headers'), 'utf8');
+  assert.ok(!listFiles(a).length || !sw(a).includes('_headers'), '_headers fora do pre-cache');
+  const parsed = {}; let cur;
+  for (const line of cf.split('\n')) {
+    if (!line.trim() || line.startsWith('#')) continue;
+    if (!/^\s/.test(line)) { cur = line.trim(); parsed[cur] = {}; } else { const i = line.indexOf(':'); parsed[cur][line.slice(0, i).trim()] = line.slice(i + 1).trim(); }
+  }
+  const fromV = {};
+  for (const h of v.headers) fromV[h.source.replace('(.*)', '*')] = Object.fromEntries(h.headers.map((x) => [x.key, x.value]));
+  assert.deepEqual(parsed, fromV);
+  assert.match(parsed['/*']['Content-Security-Policy'], /script-src 'self';/);
+});
+test('wrangler.jsonc minimo', () => {
+  const w = read('wrangler.jsonc');
+  assert.match(w, /"name": "faro"/); assert.match(w, /"directory": "\.\/_site"/); assert.match(w, /single-page-application/);
 });
