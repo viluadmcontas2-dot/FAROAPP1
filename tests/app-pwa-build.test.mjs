@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildTo, listFiles, root } from './helpers/pwa-build.mjs';
+import { parseHeaders, headersFor } from './helpers/cloudflare-headers.mjs';
 
 const a = buildTo();
 const b = buildTo();
@@ -53,11 +54,10 @@ test('index aponta para icones novos', () => {
   const h = readFileSync(join(a, 'index.html'), 'utf8');
   assert.match(h, /icons\/icon-192\.png/);
 });
-test('vercel.json: cabecalhos e CSP estrita', () => {
-  const v = JSON.parse(read('vercel.json'));
-  assert.equal(v.outputDirectory, '_site');
-  assert.equal(v.git.deploymentEnabled, false);
-  const all = Object.fromEntries(v.headers.find((h) => h.source === '/(.*)').headers.map((h) => [h.key, h.value]));
+test('_site/_headers: cabecalhos e CSP estrita', () => {
+  const h = parseHeaders(readFileSync(join(a, '_headers'), 'utf8'));
+  assert.ok(!sw(a).includes('_headers'), '_headers fora do pre-cache');
+  const all = h['/*'];
   const csp = all['Content-Security-Policy'];
   assert.ok(csp);
   const dir = Object.fromEntries(csp.split(';').map((s) => s.trim()).filter(Boolean).map((s) => { const [k, ...r] = s.split(/\s+/); return [k, r]; }));
@@ -73,26 +73,12 @@ test('vercel.json: cabecalhos e CSP estrita', () => {
   assert.equal(all['Referrer-Policy'], 'strict-origin-when-cross-origin');
   assert.match(all['Strict-Transport-Security'], /max-age=\d{7,}/);
   assert.match(all['Permissions-Policy'], /camera=\(\)/);
-  const hdr = (src) => Object.fromEntries((v.headers.find((h) => h.source === src)?.headers || []).map((h) => [h.key, h.value]));
-  assert.match(hdr('/sw.js')['Cache-Control'], /no-cache/);
-  assert.match(hdr('/index.html')['Cache-Control'], /no-cache/);
-  assert.match(hdr('/assets/fonts/(.*)')['Cache-Control'], /immutable/);
-  assert.equal(hdr('/sw.js')['Service-Worker-Allowed'], '/');
-});
-
-test('vercel.json e _headers (Cloudflare) trazem os mesmos cabecalhos', () => {
-  const v = JSON.parse(read('vercel.json'));
-  const cf = readFileSync(join(a, '_headers'), 'utf8');
-  assert.ok(!listFiles(a).length || !sw(a).includes('_headers'), '_headers fora do pre-cache');
-  const parsed = {}; let cur;
-  for (const line of cf.split('\n')) {
-    if (!line.trim() || line.startsWith('#')) continue;
-    if (!/^\s/.test(line)) { cur = line.trim(); parsed[cur] = {}; } else { const i = line.indexOf(':'); parsed[cur][line.slice(0, i).trim()] = line.slice(i + 1).trim(); }
-  }
-  const fromV = {};
-  for (const h of v.headers) fromV[h.source.replace('(.*)', '*')] = Object.fromEntries(h.headers.map((x) => [x.key, x.value]));
-  assert.deepEqual(parsed, fromV);
-  assert.match(parsed['/*']['Content-Security-Policy'], /script-src 'self';/);
+  assert.match(h['/sw.js']['Cache-Control'], /no-cache/);
+  assert.match(h['/index.html']['Cache-Control'], /no-cache/);
+  assert.match(h['/assets/fonts/*']['Cache-Control'], /immutable/);
+  assert.equal(h['/sw.js']['Service-Worker-Allowed'], '/');
+  assert.match(all['Content-Security-Policy'], /script-src 'self';/);
+  assert.equal(headersFor(h, '/sw.js')['Cache-Control'], 'no-cache, no-store, must-revalidate');
 });
 test('wrangler.jsonc minimo', () => {
   const w = read('wrangler.jsonc');

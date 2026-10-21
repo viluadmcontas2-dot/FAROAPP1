@@ -14,7 +14,7 @@
 | 5 | Ligar todas as telas do design aos dados e à nuvem (tela cheia, sem moldura de celular) | #26 | feito, com fluxo E2E (`dcdd6b5`) | 1, 3, 4 |
 | 6 | Tela Conta: entrar, nuvem, assinar, backup | #27 | parcial (telas ligadas em `dcdd6b5`); falta assinar e backup completos | 3, 5 |
 | 7 | App instalável, offline, CSP estrita | #28 | parcial: build PWA, CSP e detector testados; falta revisão em aparelho real | 5 |
-| 8 | Limpeza: apagar tudo do app antigo | #29 | feito no working tree (a commitar); pendente: `vercel.json`, `toVercel()`, `scripts/sync-headers.mjs` | 5, 6, 7 |
+| 8 | Limpeza: apagar tudo do app antigo | #29 | feito no working tree (a commitar); configuração da hospedagem antiga removida | 5, 6, 7 |
 | 9 | Segurança: ataques reais contra app e banco | #30 | a fazer | 8 |
 | 10 | Assinatura Stripe de ponta a ponta (modo teste) | #34 | a fazer | 6, 2 aplicada |
 | 11 | Publicar prévia na Cloudflare e conferir (preview = produção) | #33 | a fazer | 8, 9 |

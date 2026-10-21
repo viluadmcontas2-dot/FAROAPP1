@@ -1,5 +1,5 @@
-// Fonte unica dos cabecalhos HTTP. Deriva: _site/_headers (Cloudflare, no build) e vercel.json (node scripts/sync-headers.mjs).
-// Padrao: '*' no fim = qualquer sufixo (Cloudflare '/*', Vercel '/(.*)').
+// Fonte unica dos cabecalhos HTTP. Deriva _site/_headers (Cloudflare), gerado no build por scripts/build-app.mjs.
+// Padrao: '*' no fim = qualquer sufixo (formato Cloudflare '/*').
 export const HEADER_RULES = [
   {
     "path": "/*",
@@ -57,11 +57,6 @@ export const HEADER_RULES = [
     }
   }
 ];
-
-export const toVercel = (rules = HEADER_RULES) => rules.map((r) => ({
-  source: r.path.replace(/\*$/, '(.*)'),
-  headers: Object.entries(r.headers).map(([key, value]) => ({ key, value })),
-}));
 
 export const toCloudflare = (rules = HEADER_RULES) =>
   '# Gerado por scripts/build-app.mjs a partir de src/pwa/headers.mjs. Nao edite.\n' +

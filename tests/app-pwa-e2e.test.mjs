@@ -5,8 +5,9 @@ import http from 'node:http';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { extname, join, normalize } from 'node:path';
-import { buildTo, root } from './helpers/pwa-build.mjs';
+import { buildTo } from './helpers/pwa-build.mjs';
 import { forceStandalone } from './helpers/e2e-app.mjs';
+import { parseHeaders, headersFor } from './helpers/cloudflare-headers.mjs';
 
 const require = createRequire(import.meta.url);
 let chromium;
@@ -15,10 +16,9 @@ const EXE = process.env.FARO_CHROMIUM || '/opt/pw-browsers/chromium';
 const skip = !chromium || !existsSync(EXE) ? 'Playwright/chromium indisponivel' : false;
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.woff2': 'font/woff2', '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
-const cfg = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
-const rules = cfg.headers.map((h) => ({ re: new RegExp(`^${h.source}$`), headers: h.headers }));
-
 function serve(dir) {
+  // mesmos cabecalhos que o Cloudflare aplica: vem do _site/_headers gerado no build
+  const headers = parseHeaders(readFileSync(join(dir, '_headers'), 'utf8'));
   return new Promise((res) => {
     const srv = http.createServer((req, rsp) => {
       const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
@@ -26,7 +26,7 @@ function serve(dir) {
       if (statSync(dir).isDirectory() && existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
       if (!file.startsWith(dir) || !existsSync(file)) { rsp.writeHead(404); return rsp.end('nao encontrado'); }
       const h = { 'content-type': MIME[extname(file)] || 'application/octet-stream' };
-      for (const r of rules) if (r.re.test(path)) for (const x of r.headers) h[x.key.toLowerCase()] = x.value;
+      for (const [k, v] of Object.entries(headersFor(headers, path))) h[k.toLowerCase()] = v;
       rsp.writeHead(200, h); rsp.end(readFileSync(file));
     }).listen(0, '127.0.0.1', () => res(srv));
   });
