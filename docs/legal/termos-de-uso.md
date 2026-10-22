@@ -6,7 +6,7 @@
 ## 1. O que é o Faro
 O Faro é um aplicativo de celular para motorista de aplicativo (Uber, 99, inDrive). Você digita seus ganhos, quilômetros e contas, e o Faro mostra quanto sobrou de verdade no dia, na semana e no mês.
 
-Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA Endereço (igual ao do cadastro do MEI): Rua Mairi, 3, Nova Abrantes (Abrantes), Camaçari/BA, CEP 42826-600. [CONFIRMAR COM O DONO: nome fantasia, se houver.]
+Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA Endereço (igual ao do cadastro do MEI): Rua Mairi, 3, Nova Abrantes (Abrantes), Camaçari/BA, CEP 42826-600. Nome fantasia: Brasko Agency. Na fatura do cartão aparece FAROAPP.
 
 ## 2. Sua conta
 - Você entra com seu e-mail. Precisa ter 18 anos ou mais.

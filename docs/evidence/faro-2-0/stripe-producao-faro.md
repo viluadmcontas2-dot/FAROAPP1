@@ -33,3 +33,6 @@ Checkout real com a página de pagamento, o webhook real, o aviso de fim do test
 
 ## Ainda NÃO provado
 Pagar de verdade (cartão real, mesmo com o cupom `FARODONO` de R$ 0), a entrega do webhook real, e a conta do Stripe aprovada para cobrar. Isso exige o dono abrir o checkout e informar um cartão.
+
+## Fatura do cartão (22/10/2026)
+O produto real `prod_VU9iCYi4hYGNQz` agora se chama "FaroApp - assinatura mensal" e tem `statement_descriptor = FAROAPP` (é o texto que aparece na fatura do cartão nas assinaturas). Nome fantasia nos textos legais: Brasko Agency. Não provado: como o banco do cliente mostra o texto (o Stripe pode juntar um prefixo da conta, ex.: BRASKO* FAROAPP). Conferir na primeira cobrança real.

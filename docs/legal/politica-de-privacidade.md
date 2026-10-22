@@ -5,7 +5,7 @@
 
 Esta política explica, em palavras simples, o que o Faro guarda sobre você, para quê, e como você apaga tudo. Segue a LGPD (Lei 13.709/2018).
 
-**Controlador (quem decide sobre os dados):** 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA (Rua Mairi, 3, Nova Abrantes, CEP 42826-600).
+**Controlador (quem decide sobre os dados):** 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA (Rua Mairi, 3, Nova Abrantes, CEP 42826-600). Nome fantasia: Brasko Agency.
 **Encarregado (DPO):** [CONFIRMAR COM O DONO: nome] — [CONFIRMAR COM O DONO: e-mail].
 
 ## 1. Quais dados e para quê
