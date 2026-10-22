@@ -14,6 +14,9 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0-beta-pago`. Tarefa mãe no Git
 - Segurança: 58 testes de ataque nossos e 2 varreduras do Strix, nenhum alerta real alto (`docs/evidence/faro-2-0/seguranca.md` e `strix-faro-2-0.md`).
 - Documentação e decisões em português (`docs/decisions/`).
 
+## Corrigido em 22/10 (erro grave)
+- As 3 funções de cobrança davam 401 para todo mundo (campo errado do usuário); corrigido, testado e publicado no Supabase. Detalhes em `docs/evidence/faro-2-0/bug-funcoes-de-cobranca-sessao-invalida.md`. Webhook do Stripe provado com evento real de teste; checkout completo ainda sem prova (precisa ligar `FARO_BILLING_ENABLED` por alguns minutos, ação do dono).
+
 ## Parcial
 - Tela Conta: entrar, criar conta, conflito e status funcionam; falta assinar e backup completos.
 - Instalável e offline: build, CSP e detector testados; falta conferir em aparelho real.
