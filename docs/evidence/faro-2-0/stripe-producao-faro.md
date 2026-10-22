@@ -24,3 +24,12 @@ Decisão do dono: não testar em sandbox; ir direto para produção e testar com
 
 ## Não provado
 Checkout real com a página de pagamento, o webhook real, o aviso de fim do teste e a conta do Stripe aprovada para cobrar de verdade (o painel de teste mostrava o aviso "Verify your business"; confirmar se a conta real já está verificada).
+
+## Prova em produção (22/10/2026, depois de o dono trocar os segredos)
+- Endpoint de webhook REAL `we_1UTC6QL57ISnOgzhhztKS4yX` ativo, apontando para `.../functions/v1/stripe-webhook-faro` (inclui os 6 eventos que o servidor usa).
+- Checkout com um usuário descartável: `criar-checkout-faro` respondeu **200** com `trialDays: 7` e uma página `checkout.stripe.com` em **modo real**.
+- Sessão lida no Stripe real: modo assinatura, preço `price_1UTBP6L57ISnOgzhv6Uwz6hW` (R$ 22,99/mês), `allow_promotion_codes: true` (campo de cupom), cartão exigido (`payment_method_collection: always`), `success_url`/`cancel_url` no endereço do app, total hoje R$ 0 (7 dias de teste).
+- Limpeza: `excluir-conta-faro` respondeu 200; a sessão ficou `expired`; o banco voltou a 0 usuários e 0 assinaturas. Sobrou 1 cliente vazio no Stripe real (`cus_VUATHZWw0VonAm`) que a ferramenta não apaga.
+
+## Ainda NÃO provado
+Pagar de verdade (cartão real, mesmo com o cupom `FARODONO` de R$ 0), a entrega do webhook real, e a conta do Stripe aprovada para cobrar. Isso exige o dono abrir o checkout e informar um cartão.
