@@ -3,4 +3,5 @@
 **Por quê:** o dono quer testar o produto com a mesma regra do produto final, inclusive a cobrança.
 **Condição (não é opcional):** a cobrança (`FARO_BILLING_ENABLED`) liga na abertura, mas só com tudo pronto: termos de uso, privacidade, suporte, excluir minha conta, aviso de fim do teste, segredos do Stripe no Supabase, teste de ponta a ponta no modo de teste do Stripe, conferência do modo real (live) do Stripe e tela de assinatura revisada.
 **Motivo da condição:** cobrar de verdade sem isso é risco jurídico. O direito de arrependimento de 7 dias do Código de Defesa do Consumidor e a LGPD (dados pessoais e exclusão) exigem esses itens antes da primeira cobrança.
+**Atualização (21/10/2026):** o "cartão pedido na entrada" foi substituído pela decisão `0009-teste-sem-cartao.md`; o resto desta decisão continua valendo.
 **Consequência:** esses itens viram o caminho crítico do projeto. As datas do plano da semana dependem deles, não de uma data fixa de "começo do beta". Substitui a ideia anterior de beta grátis com cobrança desligada. Estado atual em `STATUS.md`.

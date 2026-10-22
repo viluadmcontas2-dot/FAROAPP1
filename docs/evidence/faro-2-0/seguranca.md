@@ -36,7 +36,7 @@ Reexecutar tudo: `node --test tests/seguranca-*.test.mjs` (58 testes, todos pass
 | 9 | Paywall pelo cliente | Contornável no cliente, como esperado (`billingEnabled` vem da config compilada) |
 | 9 | Servidor exige direito? | NÃO: `faro_save_state` e as tabelas não chamam `faro_has_access` (decisão D1) |
 | 9 | Enumeração (`signUp`, `resetPassword`, login) | PASSOU: respostas iguais |
-| 9 | Farm de trial | Alias gmail (ponto, `+x`, googlemail) e `+` em qualquer domínio normalizados; histórico sobrevive à exclusão da conta. Sem cartão no início desde o ADR 0009 (21/10/2026): contas com e-mails realmente distintos, inclusive descartáveis, ganham um trial cada (risco aceito pelo dono). Compensação recomendada, ainda não feita: CAPTCHA no cadastro (Supabase Auth) |
+| 9 | Farm de trial | Alias gmail (ponto, `+x`, googlemail) e `+` em qualquer domínio normalizados; histórico sobrevive à exclusão da conta. Sem cartão no início desde o ADR 0009 (21/10/2026): contas com e-mails realmente distintos, inclusive descartáveis, ganham um trial cada (risco aceito pelo dono). Limites conhecidos: variantes do mesmo Gmail em sessões simultâneas ganham testes simultâneos (o histórico só é gravado quando o webhook vê `trialing`); CAPTCHA exige código no cadastro (CSP e token), não só o painel. Compensação recomendada, ainda não feita: CAPTCHA no cadastro antes de trocar o SMTP padrão |
 
 ## Falhas reais
 

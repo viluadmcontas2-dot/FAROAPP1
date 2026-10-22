@@ -49,6 +49,8 @@ test('textos: valor, dia e verbo igual no botão e no aviso', () => {
     assert.doesNotMatch(x.texto, /no cartão/, 'não promete cobrança num cartão que pode não existir');
     assert.match(x.texto, /Gerenciar assinatura/, 'diz onde cadastrar o pagamento');
     assert.match(x.texto, /não paga nada/, 'diz que sem pagamento cadastrado não há cobrança');
+    assert.match(x.texto, /cadastre o pagamento em Gerenciar assinatura \(se já cadastrou, está tudo certo\)/, 'o app não sabe se há pagamento: a frase serve aos dois casos');
+    assert.match(x.texto, /o acesso termina/, 'diz o que acontece sem pagamento');
   }
 });
 
