@@ -140,7 +140,8 @@ export default class App extends React.Component {
   closeSheet = () => this.patch('sh', { open: false, adding: false, editId: null, digits: '' });
   // `date`: o dia a fechar (hoje por padrão; "Fechar ontem" passa o dia anterior)
   openClose = date => this.setState({ screen: 'close', cl: newCloseDraft(this.store.getState(), typeof date === 'string' ? date : this.today()) });
-  openSummary = () => this.setState({ screen: 'close', cl: { ...newCloseDraft(this.store.getState(), this.today()), step: 2 } });
+  // ver o dia já fechado é a mesma tela única, com tudo preenchido
+  openSummary = () => this.openClose();
 
   focusId = id => setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 0);
   // Despacha no núcleo com `dispatchEx`. Sem erro: `onOk(xp ganhos)`. Com erro: o motorista sempre recebe uma resposta
@@ -156,10 +157,10 @@ export default class App extends React.Component {
   showError = (error, ctx = {}) => {
     const cl = this.state.cl, when = dayWord(this.today(), cl.date || this.today());
     if (error.error === 'dia_vazio') {
-      this.patch('cl', { step: 0, err: { where: 'p', text: `Lance quanto entrou ${when}` } });
+      this.patch('cl', { err: { where: 'p', text: `Lance quanto entrou ${when}` } });
       this.focusId('faro-p-' + (this.store.getState().sources[0] || { k: 'uber' }).k);
     } else if (error.error === 'km_invalido') {
-      this.patch('cl', { step: 1, err: { where: 'km', text: 'Informe os km rodados' } });
+      this.patch('cl', { err: { where: 'km', text: 'Informe os km rodados' } });
       this.focusId('faro-km');
     } else if (error.error === 'data_invalida') {
       this.flash('Essa data não vale. Escolha hoje ou um dos últimos dias.');
@@ -169,10 +170,10 @@ export default class App extends React.Component {
   askConfirm = (error, { key, action, onOk, info = {} }) => {
     const p = action.payload || {}, campo = String(error.campo || ''), src = campo.startsWith('p.') ? campo.slice(2) : '';
     const name = k => (this.store.getState().sources.find(x => x.k === k) || {}).name || k;
-    let text, fixStep = 0, fixId = src ? 'faro-p-' + src : null;
+    let text, fixId = src ? 'faro-p-' + src : null;
     if (src) text = `${R(action.type === 'day/close' ? (p.p || {})[src] : info.amt, 2)} em ${name(src)}`;
     else if (campo === 'bruto') text = `${R(action.type === 'day/close' ? Object.values(p.p || {}).reduce((a, b) => a + (+b || 0), 0) : info.amt, 2)} num dia só`;
-    else if (campo === 'km') { text = `${fmt(p.km, 0)} km num dia só`; fixStep = 1; fixId = 'faro-km'; }
+    else if (campo === 'km') { text = `${fmt(p.km, 0)} km num dia só`; fixId = 'faro-km'; }
     else text = `${fmt(p.h, 0)} horas num dia só`;
     const limit = campo === 'km' ? `${fmt(error.limite, 0)} km` : campo === 'h' ? `${error.limite} horas` : R(error.limite, 0);
     const close = () => this.setState({ ask: null });
@@ -181,18 +182,21 @@ export default class App extends React.Component {
       onYes: () => { close(); if (this.once(key)) this.submit(key, { ...action, payload: { ...p, confirmed: true } }, onOk, info); },
       onFix: () => {
         close();
-        if (action.type === 'day/close') { this.patch('cl', { step: fixStep, err: null }); if (fixId) this.focusId(fixId); }
+        if (action.type === 'day/close') { this.patch('cl', { err: null }); if (fixId) this.focusId(fixId); }
       },
     } });
   };
 
-  closeDay = payload => {
+  // `ops`: os gastos corrigidos, removidos ou novos da tela. Entram só depois que o núcleo aceita o fechamento,
+  // então um erro (km vazio, valor improvável) não deixa nada pela metade.
+  closeDay = ({ ops = [], ...payload }) => {
     if (!this.once('close-day')) return;
     const date = payload.date || this.today();
     this.submit('close-day', { type: 'day/close', payload: { ...payload, date } }, gain => {
       const rec = this.store.getState().recs[date];
       if (!rec || !rec.closed) return;
-      this.patch('cl', { step: 2, err: null });
+      for (const op of ops) this.store.dispatch(op);
+      this.patch('cl', { err: null, gx: {}, gr: [], gn: [] });
       this.flash(gain ? `Dia fechado · +${gain} pontos` : 'Dia atualizado');
     });
   };
@@ -300,7 +304,7 @@ export default class App extends React.Component {
     const k = {
       app, C, t, ui, today, occ, pend, idx: indexFaro(app, C, occ), streakNow: streakOf(app, today), cloud: ui.cloud,
       cloudApi: this.props.cloud, conta: this.conta, version: this.props.version || '', calcOf: s => calc(s, today), set: this.set, patch: this.patch, act: this.act, go: this.go, openSheet: this.openSheet, openClose: this.openClose, openNewBill: this.openNewBill, openSummary: this.openSummary, showError: this.showError,
-      closeDay: this.closeDay, payBill: this.payBill, unpayBill: this.unpayBill, saveEntry: this.saveEntry, removeEntry: this.removeEntry, createBill: this.createBill,
+      closeDay: this.closeDay, focusId: this.focusId, payBill: this.payBill, unpayBill: this.unpayBill, saveEntry: this.saveEntry, removeEntry: this.removeEntry, createBill: this.createBill,
       addSource: this.addSource, addExpenseCategory: this.addExpenseCategory, finishOnboarding: this.finishOnboarding, exportBackup: this.exportBackup, importBackupFile: this.importBackupFile,
     };
     const screen = ui.screen, onb = screen === ONBOARDING_SCREEN, sheetOpen = ui.sh.open;

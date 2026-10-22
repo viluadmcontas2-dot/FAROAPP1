@@ -134,14 +134,12 @@ for (const vp of VIEWPORTS) for (const theme of THEMES) {
     await check('conta', { end: true, focus: true, shot: shotHere });
     await click(page, 'Voltar'); await click(page, 'Voltar');
 
-    // --- fechar o dia: 3 passos e o resumo
-    await click(page, 'Fechar dia'); await hasText(page, 'Quanto entrou hoje?');
-    await check('fechar-dia-1', { focus: true, shot: shotHere });
-    await click(page, 'Informar km e horas');
-    await page.locator('input[placeholder="0"]').fill('100'); await click(page, '9h');
-    await check('fechar-dia-2', { focus: true, shot: shotHere });
+    // --- fechar o dia: uma tela só, antes e depois de fechar
+    await click(page, 'Fechar dia'); await hasText(page, 'Quanto entrou hoje');
+    await page.locator('#faro-km').fill('100'); await click(page, '9h');
+    await check('fechar-dia', { focus: true, shot: shotHere });
     await click(page, 'Fechar o dia'); await hasText(page, 'Dia fechado · lucro de verdade');
-    await check('fechar-dia-resumo', { shot: shotHere });
+    await check('fechar-dia-fechado', { shot: shotHere });
 
     await context.close();
     assert.deepEqual(errors, [], 'o navegador não pode reportar erros');

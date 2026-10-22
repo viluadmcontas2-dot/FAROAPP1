@@ -106,19 +106,21 @@ for (const vp of VIEWPORTS) {
     await click(page, 'Anotar gasto');
     await hasText(page, 'Gasto de R$ 24,00 anotado');
 
-    // --- fechar o dia (3 passos)
+    // --- fechar o dia (uma tela só: lucro no topo, quanto entrou, gastos, km e um botão)
     await click(page, 'Fechar dia');
-    await hasText(page, 'Quanto entrou hoje?');
+    await hasText(page, 'Quanto entrou hoje');
+    await hasText(page, 'Gastos do dia');
+    await hasText(page, 'Alimentação');
     assert.equal(await page.locator('input[placeholder="0,00"]').first().inputValue(), '150,00', 'o que foi lançado vem preenchido');
-    await shot('fechar-dia-1');
-    await click(page, 'Informar km e horas');
-    await page.locator('input[placeholder="0"]').fill('100');
+    assert.equal(await button(page, 'Informar km e horas').count(), 0, 'não existe mais passo intermediário');
+    await shot('fechar-dia');
+    await page.locator('#faro-km').fill('100');
     await click(page, '9h');
-    await shot('fechar-dia-2');
+    await page.waitForFunction(t => document.querySelector('#faro-lucro-vivo').textContent.includes(t), R(dayLucro, 2));
     await click(page, 'Fechar o dia');
     await hasText(page, 'Dia fechado · lucro de verdade');
     await hasText(page, R(dayLucro, 2));
-    await shot('fechar-dia-resumo');
+    await shot('fechar-dia-fechado');
 
     // --- lucro e meta conferidos contra o calc
     await click(page, 'Voltar ao início');

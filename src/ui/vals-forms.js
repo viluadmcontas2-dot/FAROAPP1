@@ -95,9 +95,24 @@ export const billRhythm = b => (b.rec === 'semanal' ? `toda ${WD_LONG[b.due]}` :
 // ---------------------------------------------------------------- fechar o dia
 // `date` = o dia que está sendo fechado (hoje, ontem ou anteontem). Vai SEMPRE no `day/close`.
 export const newCloseDraft = (app, date) => {
-  const rec = app.recs[date], f = { km: '' };
+  const rec = app.recs[date], f = { km: rec && rec.closed ? String(rec.km) : '' };
   for (const x of app.sources) { const v = rec && rec.p[x.k]; f[x.k] = v ? v.toFixed(2).replace('.', ',') : ''; }
-  return { step: 0, date, f, h: 9, adding: false, newName: '', newIcon: '', kmEst: false, hEst: false, hTouched: false, err: null };
+  // `gx`/`gr`/`gn`: correções, remoções e gastos novos do rascunho; só viram lançamentos no núcleo ao fechar o dia
+  const closed = !!(rec && rec.closed);
+  return { date, f, h: closed ? rec.h : 9, hTouched: closed, adding: false, newName: '', newIcon: '', kmEst: !closed, showConta: false, gx: {}, gr: [], gn: [], nk: 0, err: null };
+};
+const moneyText = v => v.toFixed(2).replace('.', ',');
+
+// Os gastos do rascunho viram ações do núcleo (corrigir, remover, anotar), sempre no dia que está na tela.
+export const expenseOps = (app, date, cs) => {
+  const ops = [];
+  for (const e of app.exps.filter(x => x.date === date)) {
+    const amt = e.id in cs.gx ? parseMoney(cs.gx[e.id]) : e.v;
+    if (cs.gr.includes(e.id) || amt < 0.01) ops.push({ type: 'entry/remove', payload: { id: e.id } });
+    else if (amt !== e.v) ops.push({ type: 'entry/edit', payload: { id: e.id, amount: amt, cat: e.cat } });
+  }
+  for (const n of cs.gn) { const amt = parseMoney(n.v); if (amt >= 0.01) ops.push({ type: 'entry/add', payload: { kind: 'out', cat: n.cat, amount: amt, date } }); }
+  return ops;
 };
 
 const dateLabel = date => {
@@ -118,44 +133,61 @@ export function closeVals(k) {
   const setCl = o => k.patch('cl', o);
   const amounts = Object.fromEntries(app.sources.map(x => [x.k, parseMoney(cf[x.k])]));
   const gross = Object.values(amounts).reduce((a, b) => a + b, 0);
-  const km = parseInt(cf.km || '0', 10) || 0;
-  // prévia do lucro: aplica o fechamento a um estado de rascunho e lê o calc, sem gravar nada
-  const prev = km > 0 ? k.calcOf(reduce(app, { type: 'day/close', payload: { date, p: amounts, km, h: cs.h, confirmed: true } }, { today })).num(date) : null;
-  const done = C.num(date) && C.num(date).closed ? C.num(date) : null;
-  const sep = sepAmounts(C, date);
-  const goal = C.targetFor(date);
   const rideGross = rideOf(amounts), estKm = Math.min(LIMITS_DAY.km, Math.round(rideGross / C.revKm));
-  const iconNew = cs.newIcon || ICON_IN[0];
+  // km e horas começam estimados pelo ritmo do motorista, até ele mexer neles
+  const kmText = cs.kmEst ? (rideGross > 0 ? String(estKm) : '') : cf.km;
+  const km = parseInt(kmText || '0', 10) || 0;
+  const h = cs.hTouched ? cs.h : rideGross > 0 ? Math.max(6, Math.min(12, Math.round(rideGross / C.perH))) : cs.h;
   const when = dayWord(today, date);
+  const ops = expenseOps(app, date, cs);
+  // lucro ao vivo: aplica gastos e fechamento do rascunho a uma cópia do estado e lê o calc, sem gravar nada
+  const draft = km > 0 && gross >= 1 ? ops.reduce((st, a) => reduce(st, a, { today }), app) : null;
+  const prev = draft ? k.calcOf(reduce(draft, { type: 'day/close', payload: { date, p: amounts, km, h, confirmed: true } }, { today })).num(date) : null;
+  const closed = !!(C.num(date) && C.num(date).closed);
+  const done = closed ? C.num(date) : null;
+  const goal = C.targetFor(date);
+  const iconNew = cs.newIcon || ICON_IN[0];
+  const err = cs.err || null;
 
   // a conta do dia, com os mesmos números do calc: o que entrou menos cada custo = lucro de verdade
   const row = (label, value, o = {}) => ({ label, value, lc: o.lc || t.muted, vc: o.vc || t.ink, fw: o.fw || '600' });
-  const conta = done ? [
-    row('Quanto entrou', R(done.g, 2), { lc: t.ink, fw: '800' }),
-    row(energyWord(app), '− ' + R(done.en, 2)), row('Desgaste do carro', '− ' + R(done.we, 2)),
-    row(`${carFixName(app.vehicle)} (parte do dia)`, '− ' + R(done.car, 2)), row('Gastos na rua', '− ' + R(done.ex, 2)),
-    row('Lucro de verdade', R(done.lucro, 2), { lc: t.ink, vc: done.lucro >= 0 ? t.pos : t.neg, fw: '800' }),
+  const n = prev || done;
+  const conta = n ? [
+    row('Quanto entrou', R(n.g, 2), { lc: t.ink, fw: '800' }),
+    row(energyWord(app), '− ' + R(n.en, 2)), row('Desgaste do carro', '− ' + R(n.we, 2)),
+    row(`${carFixName(app.vehicle)} (parte do dia)`, '− ' + R(n.car, 2)), row('Gastos na rua', '− ' + R(n.ex, 2)),
+    row('Lucro de verdade', R(n.lucro, 2), { lc: t.ink, vc: n.lucro >= 0 ? t.pos : t.neg, fw: '800' }),
   ] : [];
-  // a sugestão divide o lucro de verdade: contas da casa, reserva e livre somam o lucro (nunca mais que ele)
+  // a sugestão divide o lucro de verdade (do dia já fechado): contas da casa, reserva e livre somam o lucro, nunca mais que ele
+  const sep = done ? sepAmounts(C, date) : { reserva: 0, livre: 0 };
   const casa = done ? Math.min(done.life, Math.max(0, done.lucro)) : 0;
   const sepRows = [['Contas da casa', 'sua parte do dia', 'ph-fill ph-house-line', t.cW, casa], ['Reserva', '15% do que sobra · seu fôlego', 'ph-fill ph-lifebuoy', t.pos, sep.reserva], ['Livre pra você', 'pode gastar sem culpa', 'ph-fill ph-smiley', t.gold, sep.livre]].map(([label, sub, icon, color, v]) => ({ label, sub, icon, color, value: R(v, 2) }));
   const short = done && done.lucro < done.life ? done.life - Math.max(0, done.lucro) : 0;
-  const err = cs.err || null;
 
-  const goNext = () => {
-    if (cs.step === 0) {
-      if (gross <= 0) { k.showError({ error: 'dia_vazio' }); return; }
-      setCl({ err: null, step: 1, kmEst: !cf.km, f: { ...cf, km: cf.km || String(estKm) }, h: cs.hTouched ? cs.h : Math.max(6, Math.min(12, Math.round(rideGross / C.perH))), hEst: !cs.hTouched });
-    } else k.closeDay({ date, p: amounts, km, h: cs.h });
+  // gastos do dia: os já anotados (corrigíveis e removíveis) e os novos deste rascunho
+  const expRow = (id, cat, icon, val, onChange, onRemove) => ({ id: 'faro-g-' + id, label: cat, aria: 'Gasto: ' + cat, aria2: 'Remover ' + cat, icon, val, note: cat === FUEL_CAT ? 'já descontado pelos km' : '', noteD: cat === FUEL_CAT ? 'block' : 'none', onChange, onRemove });
+  const money = e => e.target.value.replace(/[^\d.,]/g, '').slice(0, 9);
+  const spent = [
+    ...app.exps.filter(e => e.date === date && !cs.gr.includes(e.id)).map(e => expRow(e.id, e.cat, e.icon, e.id in cs.gx ? cs.gx[e.id] : moneyText(e.v), ev => setCl({ gx: { ...cs.gx, [e.id]: money(ev) } }), () => setCl({ gr: [...cs.gr, e.id] }))),
+    ...cs.gn.map(g => expRow(g.k, g.cat, g.icon, g.v, ev => setCl({ gn: cs.gn.map(x => (x.k === g.k ? { ...x, v: money(ev) } : x)) }), () => setCl({ gn: cs.gn.filter(x => x.k !== g.k) }))),
+  ];
+  const addSpent = c => { const key = 'n' + cs.nk; setCl({ nk: cs.nk + 1, gn: [...cs.gn, { k: key, cat: c.name, icon: c.icon, v: '' }] }); k.focusId('faro-g-' + key); };
+
+  const close = () => {
+    if (gross < 1) { k.showError({ error: 'dia_vazio' }); return; }
+    k.closeDay({ date, p: amounts, km, h, ops });
   };
 
   return {
     dateLabel: dateLabel(date),
     dayChips: dayOptions(today, date).map(([d, label]) => ({ label, pressed: d === date ? 'true' : 'false', border: d === date ? t.gold : t.line2, bg: d === date ? t.goldSoft : 'transparent', color: d === date ? t.goldText : t.ink, onClick: () => setCl(newCloseDraft(app, d)) })),
-    askTitle: `Quanto entrou ${when}?`, kmLabel: `Km rodados ${when}`,
-    s0: cs.step === 0, s1: cs.step === 1, s2: false, s3: cs.step === 2, keypad: cs.step < 2,
-    exit: () => (cs.step === 1 ? setCl({ step: 0, err: null }) : k.set({ screen: 'home' })), exitIcon: cs.step === 1 ? 'ph-bold ph-caret-left' : 'ph-bold ph-x', exitAria: cs.step === 1 ? 'Voltar' : 'Fechar',
-    dots: [0, 1, 2].map(i => ({ w: i === cs.step ? '22px' : '7px', bg: i <= cs.step ? t.gold : t.line2 })),
+    askTitle: `Quanto entrou ${when}?`, spentTitle: 'Gastos do dia', kmTitle: `Km rodados ${when}`,
+    exit: () => k.set({ screen: 'home' }),
+    // herói: o lucro de verdade, ao vivo
+    heroLabel: closed ? 'Dia fechado · lucro de verdade' : `Lucro de verdade ${when}`,
+    lucro: prev ? R(prev.lucro, 2) : '—', lucroColor: prev ? (prev.lucro >= 0 ? '#fff' : '#FF9A9A') : 'rgba(255,255,255,.7)',
+    heroSub: prev ? `${R(prev.lucro / km, 2)}/km · ${R(prev.lucro / h, 2)}/h` : gross < 1 ? 'Lance quanto entrou para ver o lucro' : 'Informe os km rodados para ver o lucro',
+    badge: closed && prev ? (prev.lucro >= goal ? 'Meta do dia batida' : `${R(Math.max(0, goal - prev.lucro))} abaixo da meta de ${R(goal)}`) : '', badgeD: closed && prev ? 'block' : 'none',
     plats: app.sources.map(x => ({
       name: x.name, id: 'faro-p-' + x.k, ...logoStyle(x.k), icon: x.icon || 'ph-duotone ph-hand-coins', sub: RIDE_KEYS.includes(x.k) ? '' : 'fora do R$/km', subD: RIDE_KEYS.includes(x.k) ? 'none' : 'block', val: cf[x.k] || '',
       onChange: e => { const v = e.target.value.replace(/[^\d.,]/g, '').slice(0, 9); setCl({ err: null, f: { ...cf, [x.k]: v } }); },
@@ -168,20 +200,17 @@ export function closeVals(k) {
       confirm: () => k.addSource((cs.newName || '').trim(), iconNew, () => setCl({ adding: false })),
     },
     adding: !!cs.adding, canAdd: !cs.adding && app.sources.length < MAX_CHOICES, startAdd: () => setCl({ adding: true, newName: '', newIcon: ICON_IN[0] }),
-    kmVal: cf.km || '', onKm: e => setCl({ kmEst: false, err: null, f: { ...cf, km: e.target.value.replace(/\D/g, '').slice(0, KM_MAX_DIGITS) } }),
-    kmErr: err && err.where === 'km' ? err.text : '', kmBad: err && err.where === 'km' ? 'true' : 'false',
-    kmNote: cs.kmEst ? `Estimado pelo seu ganho médio de ${R(C.revKm, 2)}/km nos apps. Sabe o número exato? É só trocar.` : km > 0 ? `${when === 'hoje' ? 'Hoje' : 'Nesse dia'} você ganhou ${R(rideGross / km, 2)} por km nos apps.` : 'Gorjetas e vendas não entram no cálculo por km.', kmTag: cs.kmEst ? 'estimado' : '',
-    estimate: () => { if (rideGross > 0) setCl({ f: { ...cf, km: String(estKm) } }); }, estLabel: rideGross > 0 ? `Não sei o km · usar ≈ ${estKm} km` : 'Não sei o km',
-    gross: R(gross, 2), km: km + ' km',
-    hours: [6, 7, 8, 9, 10, 11, 12].map(n => ({ label: n + 'h', ...sel(t, cs.h === n), onClick: () => setCl({ h: n, hTouched: true, hEst: false }) })),
-    hoursNote: cs.hEst ? `estimado pelo seu ritmo de ${R(C.perH, 0)}/h nos apps` : '',
-    preview: prev ? R(prev.lucro, 2) : '—', prevColor: prev ? (prev.lucro >= 0 ? t.pos : t.neg) : t.muted, prevSub: prev ? `${R(prev.lucro / km, 2)}/km · ${R(prev.lucro / cs.h, 2)}/h` : 'digite os km',
-    cta: cs.step === 0 ? 'Informar km e horas' : 'Fechar o dia', op: '1', next: goNext,
-    conta, sep: sepRows,
-    sepSub: short > 0 ? `Sua parte das contas da casa é ${R(done.life, 2)}; faltaram ${R(short, 2)} neste dia.` : 'Do lucro de verdade, é assim que ele se divide. Não precisa anotar nada.',
-    net: done ? R(done.lucro, 2) : '', badge: done ? (done.lucro >= goal ? 'Meta do dia batida' : `${R(Math.max(0, goal - done.lucro))} abaixo da meta de ${R(goal)}`) : '',
-    stats: done ? [{ label: 'Lucro por km', value: R(done.lucro / done.km, 2) }, { label: 'Lucro por hora', value: R(done.lucro / done.h, 2) }, { label: 'Rodou', value: done.km + ' km' }] : [],
-    rewards: [{ icon: 'ph-fill ph-star-four', v: `+${XP.close} pontos`, l: 'dia fechado' }, { icon: 'ph-fill ph-fire', v: plural(k.streakNow, 'dia', 'dias'), l: 'sequência' }, { icon: 'ph-fill ph-gauge', v: String(k.idx.score), l: 'sua nota' }],
+    gross: R(gross, 2),
+    spent, noSpent: spent.length === 0, spentTotal: R(spent.reduce((a, g) => a + parseMoney(g.val), 0), 2),
+    spentChips: app.expCats.map(c => ({ label: c.name, icon: c.icon, onClick: () => addSpent(c) })),
+    kmVal: kmText, onKm: e => setCl({ kmEst: false, err: null, f: { ...cf, km: e.target.value.replace(/\D/g, '').slice(0, KM_MAX_DIGITS) } }), kmBad: err && err.where === 'km' ? 'true' : 'false', kmErr: err && err.where === 'km' ? err.text : '',
+    kmNote: cs.kmEst && rideGross > 0 ? `Estimado pelo seu ganho médio de ${R(C.revKm, 2)}/km nos apps. Sabe o número exato? É só trocar.` : km > 0 ? `${when === 'hoje' ? 'Hoje' : 'Nesse dia'} você ganhou ${R(rideGross / km, 2)} por km nos apps.` : 'Gorjetas e vendas não entram no cálculo por km.', kmTag: cs.kmEst && rideGross > 0 ? 'estimado' : '',
+    estimate: () => { if (rideGross > 0) setCl({ kmEst: false, err: null, f: { ...cf, km: String(estKm) } }); }, estLabel: `Não sei o km · usar ≈ ${estKm} km`, canEstimate: rideGross > 0 && !cs.kmEst,
+    hours: [6, 7, 8, 9, 10, 11, 12].map(n => ({ label: n + 'h', ...sel(t, h === n), onClick: () => setCl({ h: n, hTouched: true }) })),
+    hoursNote: !cs.hTouched && rideGross > 0 ? `estimado pelo seu ritmo de ${R(C.perH, 0)}/h nos apps` : '',
+    cta: closed ? 'Atualizar o dia' : 'Fechar o dia', next: close,
+    showConta: !!cs.showConta && conta.length > 0, canConta: conta.length > 0, contaLabel: cs.showConta ? 'Esconder a conta do dia' : 'Ver a conta do dia', toggleConta: () => setCl({ showConta: !cs.showConta }),
+    conta, sep: sepRows, closed, sepSub: short > 0 ? `Sua parte das contas da casa é ${R(done.life, 2)}; faltaram ${R(short, 2)} neste dia.` : 'Do lucro de verdade, é assim que ele se divide. Não precisa anotar nada.',
     toMonth: () => k.set({ screen: 'home', period: 'mes' }), done: () => k.set({ screen: 'home', period: 'dia' }),
   };
 }

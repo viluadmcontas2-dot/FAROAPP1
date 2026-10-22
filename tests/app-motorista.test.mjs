@@ -44,13 +44,12 @@ test('erros do núcleo viram conversa: dia vazio, km vazio e valor improvável',
   await click(page, 'Fechar dia');
   await hasText(page, 'Quanto entrou hoje?');
   // dia vazio: o botão responde
-  await click(page, 'Informar km e horas');
+  await click(page, 'Fechar o dia');
   await hasText(page, 'Lance quanto entrou hoje');
   assert.ok(await focusedId(page), 'o foco vai para o primeiro campo de valor');
   await shot('dia-vazio');
   // valor improvável (R$ 99.999,99 num app só)
   await page.locator('input[placeholder="0,00"]').first().fill('99999,99');
-  await click(page, 'Informar km e horas');
   // km vazio: mensagem no campo e foco nele
   await page.locator('#faro-km').fill('');
   await click(page, 'Fechar o dia');
@@ -68,7 +67,6 @@ test('erros do núcleo viram conversa: dia vazio, km vazio e valor improvável',
   await flushed(page);
   assert.ok(!((await savedState(page)).recs[today()] || {}).closed, 'Corrigir não grava nada');
   assert.equal(await focusedId(page), 'faro-p-uber', 'Corrigir leva ao campo do valor');
-  await click(page, 'Informar km e horas');
   await click(page, 'Fechar o dia');
   await hasText(page, 'Esse valor está certo?');
   await click(page, 'Sim, confirmar');
@@ -123,7 +121,6 @@ test('dia retroativo: Fechar ontem, data sempre enviada e lançamento de ontem',
   await hasText(page, 'Quanto entrou');
   assert.equal(await page.locator('input[placeholder="0,00"]').first().inputValue(), '50,00', 'o que foi anotado ontem vem preenchido');
   await shot('fechar-ontem');
-  await click(page, 'Informar km e horas');
   await page.locator('#faro-km').fill('80');
   await click(page, 'Fechar o dia');
   await hasText(page, 'Dia fechado');
@@ -141,7 +138,6 @@ test('fechamento aberto na virada das 04:00 cai no dia que estava na tela', { sk
   await hasText(page, 'Meta do dia');
   await click(page, 'Fechar dia');
   await page.locator('input[placeholder="0,00"]').first().fill('200');
-  await click(page, 'Informar km e horas');
   await page.locator('#faro-km').fill('130');
   // o relógio passa da virada com a tela aberta
   await page.evaluate(() => {
@@ -172,7 +168,7 @@ async function walk(page, visit) {
   await click(page, 'Agenda'); await hasText(page, 'nos próximos 7 dias'); await visit('lembretes'); await click(page, 'Voltar');
   await click(page, /Jornada/); await hasText(page, 'Sua nota'); await visit('jornada'); await dismiss();
   await click(page, /^[\s\uE000-\uF8FF]*Conta/); await hasText(page, 'Seus dados'); await visit('conta'); await click(page, 'Voltar'); await click(page, 'Voltar');
-  await click(page, 'Resumo'); await hasText(page, 'Lucro de verdade'); await visit('resumo');
+  await click(page, 'Resumo'); await hasText(page, 'Dia fechado · lucro de verdade'); await visit('resumo');
   await click(page, 'Voltar ao início');
 }
 
@@ -336,6 +332,7 @@ test('a conta do fechamento fecha: quanto entrou − custos = lucro de verdade, 
   const { context, page, errors, shot } = await open(s, { name: 'conta-do-dia' });
   await hasText(page, 'Meta do dia');
   await click(page, 'Resumo');
+  await click(page, 'Ver a conta do dia');
   await hasText(page, 'Lucro de verdade');
   const card = page.locator('#conta-do-dia');
   await card.waitFor();
@@ -353,6 +350,110 @@ test('a conta do fechamento fecha: quanto entrou − custos = lucro de verdade, 
   const soma = parts.reduce((a, b) => a + b, 0);
   assert.ok(Math.abs(soma - Math.max(0, lucro)) < 0.05, `a sugestão soma ${soma} e o lucro de verdade é ${lucro}`);
   await shot('resumo');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('fechar o dia é UMA tela: lucro ao vivo no topo, entrou, gastos e km editáveis ali, um botão fixo', { skip }, async () => {
+  const ctx = { today: today() };
+  let s = seedState();
+  s = reduce(s, { type: 'entry/add', payload: { kind: 'in', plat: 'uber', amount: 150 } }, ctx);
+  s = reduce(s, { type: 'entry/add', payload: { kind: 'in', plat: 'n99', amount: 80 } }, ctx);
+  s = reduce(s, { type: 'entry/add', payload: { kind: 'out', cat: 'Alimentação', amount: 24 } }, ctx);
+  // o que o núcleo diz para o mesmo dia: base, com o Uber corrigido e com um gasto novo e outro corrigido
+  const lucroDe = (st, p, exps = []) => {
+    let x = st;
+    for (const a of exps) x = reduce(x, a, ctx);
+    return calc(reduce(x, { type: 'day/close', payload: { p, km: 100, h: 9, confirmed: true } }, ctx), today()).num(today()).lucro;
+  };
+  const base = lucroDe(s, { uber: 150, n99: 80 });
+  const comUber = lucroDe(s, { uber: 200, n99: 80 });
+  const idAli = s.exps[0].id;
+  const comGastos = lucroDe(s, { uber: 200, n99: 80 }, [{ type: 'entry/edit', payload: { id: idAli, amount: 40 } }, { type: 'entry/add', payload: { kind: 'out', cat: 'Pedágio', amount: 30 } }]);
+  assert.notEqual(base, comUber);
+  assert.notEqual(comUber, comGastos);
+
+  const { context, page, errors, shot } = await open(s, { name: 'uma-tela' });
+  await hasText(page, 'Meta do dia');
+  await click(page, 'Fechar dia');
+  await hasText(page, 'Quanto entrou hoje');
+  const lucroVivo = () => page.locator('#faro-lucro-vivo').innerText();
+  const lucroIs = v => page.waitForFunction(t => document.querySelector('#faro-lucro-vivo').textContent.includes(t), R(v, 2));
+
+  // ordem de cima para baixo: lucro, quanto entrou, gastos, km, botão; e nada de passo intermediário
+  const y = async sel => (await page.locator(sel).first().boundingBox()).y;
+  const yText = async txt => page.evaluate(t => { const e = [...document.querySelectorAll('span,h2,div')].find(n => n.children.length === 0 && n.textContent.trim().startsWith(t)); return e ? e.getBoundingClientRect().y : -1; }, txt);
+  const ys = [await y('#faro-lucro-vivo'), await yText('Quanto entrou hoje'), await yText('Gastos do dia'), await yText('Km rodados')];
+  assert.ok(ys.every(v => v >= 0), `seções não achadas: ${ys}`);
+  assert.deepEqual([...ys].sort((a, b) => a - b), ys, 'ordem: lucro, entrou, gastos, km');
+  assert.equal(await button(page, 'Informar km e horas').count(), 0);
+  assert.equal(await button(page, 'Fechar o dia').count(), 1, 'um único botão principal');
+  await shot('inicio');
+
+  // 1) lucro ao vivo conforme o que está na tela
+  await page.locator('#faro-km').fill('100');
+  await click(page, '9h');
+  await lucroIs(base);
+  await page.locator('#faro-p-uber').fill('200');
+  await lucroIs(comUber);
+  assert.match(await lucroVivo(), /R\$/);
+  // 2) gastos editáveis ali mesmo: corrige o existente e adiciona um novo
+  await page.getByLabel('Gasto: Alimentação').fill('40');
+  await click(page, 'Pedágio');
+  await page.getByLabel('Gasto: Pedágio').fill('30');
+  await lucroIs(comGastos);
+  await shot('editado');
+
+  // botão fixo, alinhado, 44 px, sempre visível; sem rolagem horizontal; texto >= 14 px
+  const layout = await page.evaluate(() => {
+    const b = [...document.querySelectorAll('button')].find(x => /^[\s-]*Fechar o dia[\s-]*$/.test(x.textContent));
+    const sc = document.querySelector('.fscroll');
+    const before = b.getBoundingClientRect();
+    sc.scrollTop = sc.scrollHeight;
+    const after = b.getBoundingClientRect();
+    const small = [...document.querySelectorAll('body *')].filter(e => [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && e.getBoundingClientRect().width > 0 && parseFloat(getComputedStyle(e).fontSize) < 14).map(e => e.textContent.trim().slice(0, 30));
+    return { h: before.height, top: before.top, same: Math.abs(before.top - after.top) < 1, bottom: after.bottom, vh: innerHeight, left: after.left, right: after.right, vw: innerWidth, docX: document.documentElement.scrollWidth - innerWidth, scX: sc.scrollWidth - sc.clientWidth, small };
+  });
+  assert.ok(layout.h >= 44, `botão com ${layout.h}px`);
+  assert.ok(layout.same, 'o botão não anda quando a tela rola');
+  assert.ok(layout.bottom <= layout.vh && layout.top >= 0, 'o botão fica sempre visível');
+  assert.ok(layout.left >= 0 && layout.right <= layout.vw);
+  assert.ok(layout.docX <= 0 && layout.scX <= 0, 'sem rolagem horizontal');
+  assert.deepEqual(layout.small, [], 'texto de pelo menos 14 px');
+
+  // fechar grava tudo junto e bate com o núcleo
+  await click(page, 'Fechar o dia');
+  await hasText(page, 'Dia fechado · lucro de verdade');
+  await flushed(page);
+  const saved = await savedState(page);
+  assert.equal(saved.recs[today()].closed, true);
+  assert.equal(saved.recs[today()].p.uber, 200);
+  assert.equal(saved.exps.find(e => e.id === idAli).v, 40, 'o gasto corrigido foi gravado');
+  assert.equal(saved.exps.find(e => e.cat === 'Pedágio').v, 30, 'o gasto novo foi gravado');
+  assert.equal(saved.recs[today()].exp, 70);
+  assert.equal(Math.round(calc(saved, today()).num(today()).lucro * 100), Math.round(comGastos * 100));
+  await lucroIs(comGastos);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('fechar o dia: sair sem fechar não grava gasto nem corrige nada', { skip }, async () => {
+  const ctx = { today: today() };
+  let s = reduce(seedState(), { type: 'entry/add', payload: { kind: 'in', plat: 'uber', amount: 150 } }, ctx);
+  s = reduce(s, { type: 'entry/add', payload: { kind: 'out', cat: 'Alimentação', amount: 24 } }, ctx);
+  const { context, page, errors } = await open(s, { name: 'sair' });
+  await hasText(page, 'Meta do dia');
+  await click(page, 'Fechar dia');
+  await hasText(page, 'Gastos do dia');
+  await page.getByLabel('Gasto: Alimentação').fill('99');
+  await click(page, 'Pedágio');
+  await page.getByLabel('Gasto: Pedágio').fill('10');
+  await click(page, 'Fechar');
+  await hasText(page, 'Meta do dia');
+  await flushed(page);
+  const st = await savedState(page);
+  assert.deepEqual(st.exps.map(e => [e.cat, e.v]), [['Alimentação', 24]]);
+  assert.ok(!(st.recs[today()] || {}).closed);
   assert.deepEqual(errors, []);
   await context.close();
 });

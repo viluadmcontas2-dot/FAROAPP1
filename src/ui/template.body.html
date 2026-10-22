@@ -323,23 +323,31 @@
 </sc-if>
 
 <sc-if value="{{ isClose }}" hint-placeholder-val="{{ false }}">
-<div style="position:relative;height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 22px) 18px calc(26px + env(safe-area-inset-bottom,0px));gap:14px">
-<div style="display:flex;align-items:center;gap:12px">
-<button sc-camel-on-click="{{ cl.exit }}" aria-label="{{ cl.exitAria }}" style="width:42px;height:42px;border-radius:50%;border:1px solid {{ t.line2 }};background:{{ t.surface }};color:{{ t.ink }};font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="{{ cl.exitIcon }}"></i></button>
-<span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:800">Fechar o dia</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">{{ cl.dateLabel }}</span></span>
-<span style="display:flex;gap:5px"><sc-for list="{{ cl.dots }}" as="d" hint-placeholder-count="4"><span style="width:{{ d.w }};height:7px;border-radius:4px;background:{{ d.bg }};transition:all .3s"></span></sc-for></span>
+<div style="position:relative;height:100%;display:flex;flex-direction:column;padding-top:calc(env(safe-area-inset-top,0px) + 18px);gap:12px">
+<div style="display:flex;align-items:center;gap:12px;padding:0 18px;flex:none">
+<button sc-camel-on-click="{{ cl.exit }}" aria-label="Fechar" style="width:44px;height:44px;border-radius:50%;border:1px solid {{ t.line2 }};background:{{ t.surface }};color:{{ t.ink }};font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer"><i class="ph-bold ph-x"></i></button>
+<span style="flex:1;display:flex;flex-direction:column"><span style="font-size:16px;font-weight:800">Fechar o dia</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">{{ cl.dateLabel }}</span></span>
 </div>
 
-<sc-if value="{{ cl.s0 }}" hint-placeholder-val="{{ false }}">
-<div role="group" aria-label="Qual dia?" style="display:flex;gap:8px"><sc-for list="{{ cl.dayChips }}" as="d" hint-placeholder-count="3"><button sc-camel-on-click="{{ d.onClick }}" aria-pressed="{{ d.pressed }}" style="flex:1;min-height:44px;border-radius:22px;border:1.5px solid {{ d.border }};background:{{ d.bg }};color:{{ d.color }};font-size:14px;font-weight:800;cursor:pointer">{{ d.label }}</button></sc-for></div>
-<div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Bricolage Grotesque';font-size:26px;font-weight:700;letter-spacing:-.7px;line-height:1.1">{{ cl.askTitle }}</span><span style="font-size:14px;line-height:1.45;color:{{ t.muted }};text-wrap:pretty">Copie do resumo de ganhos de cada app. O que você já anotou nesse dia está preenchido.</span></div>
-<div style="display:flex;flex-direction:column;gap:7px">
+<div style="margin:0 18px;flex:none;border-radius:26px;padding:16px 18px;background:{{ t.heroBg }};color:#fff;display:flex;flex-direction:column;gap:2px">
+<span style="font-size:14px;font-weight:700;opacity:.88">{{ cl.heroLabel }}</span>
+<span id="faro-lucro-vivo" role="status" aria-live="polite" style="font-family:'Bricolage Grotesque';font-size:44px;font-weight:700;letter-spacing:-1.6px;line-height:1.05;color:{{ cl.lucroColor }}">{{ cl.lucro }}</span>
+<span style="font-size:14px;font-weight:700;opacity:.88">{{ cl.heroSub }}</span>
+<span style="display:{{ cl.badgeD }};align-self:flex-start;margin-top:6px;padding:4px 12px;border-radius:14px;background:rgba(255,255,255,.16);font-size:14px;font-weight:800">{{ cl.badge }}</span>
+</div>
+
+<div class="fscroll" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:2px 18px 12px;display:flex;flex-direction:column;gap:20px">
+
+<div role="group" aria-label="Qual dia?" style="display:flex;gap:8px;flex:none"><sc-for list="{{ cl.dayChips }}" as="d" hint-placeholder-count="3"><button sc-camel-on-click="{{ d.onClick }}" aria-pressed="{{ d.pressed }}" style="flex:1;min-height:44px;border-radius:22px;border:1.5px solid {{ d.border }};background:{{ d.bg }};color:{{ d.color }};font-size:14px;font-weight:800;cursor:pointer">{{ d.label }}</button></sc-for></div>
+
+<section style="display:flex;flex-direction:column;gap:8px;flex:none">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:0 4px"><h2 style="margin:0;font-size:16px;font-weight:800">{{ cl.askTitle }}</h2><span style="font-family:'Bricolage Grotesque';font-size:20px;font-weight:700">{{ cl.gross }}</span></div>
 <sc-for list="{{ cl.plats }}" as="p" hint-placeholder-count="5">
 <label style="display:flex;align-items:center;gap:11px;padding:5px 5px 5px 9px;border-radius:17px;border:1.5px solid {{ t.line }};background:{{ t.surface }};flex:none">
 <span style="width:36px;height:36px;border-radius:11px;flex:none;display:{{ p.imgD }};background:{{ p.logoUrl }} center/cover no-repeat"></span>
 <span style="width:36px;height:36px;border-radius:11px;flex:none;background:{{ t.surface2 }};color:{{ t.accent }};display:{{ p.icoD }};align-items:center;justify-content:center;font-size:19px"><i class="{{ p.icon }}"></i></span>
 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:14px;font-weight:800">{{ p.name }}</span><span style="font-size:14px;font-weight:700;color:{{ t.muted }};display:{{ p.subD }}">{{ p.sub }}</span></span>
-<span style="display:flex;align-items:center;gap:4px;height:46px;padding:0 12px;border-radius:14px;background:{{ t.surface2 }};width:138px;flex:none"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">R$</span><input value="{{ p.val }}" sc-camel-on-change="{{ p.onChange }}" sc-camel-input-mode="decimal" placeholder="0,00" id="{{ p.id }}" aria-label="{{ p.name }}" style="flex:1;min-width:0;border:none;background:transparent;color:{{ t.ink }};font-family:'Bricolage Grotesque';font-size:20px;font-weight:700;text-align:right"></span>
+<span style="display:flex;align-items:center;gap:4px;height:46px;padding:0 12px;border-radius:14px;background:{{ t.surface2 }};width:138px;flex:none"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">R$</span><input value="{{ p.val }}" sc-camel-on-change="{{ p.onChange }}" sc-camel-input-mode="decimal" placeholder="0,00" id="{{ p.id }}" aria-label="{{ p.name }}" style="flex:1;min-width:0;height:44px;border:none;background:transparent;color:{{ t.ink }};font-family:'Bricolage Grotesque';font-size:20px;font-weight:700;text-align:right"></span>
 </label>
 </sc-for>
 <sc-if value="{{ cl.adding }}" hint-placeholder-val="{{ false }}">
@@ -347,68 +355,75 @@
 <span style="font-size:14px;font-weight:800">{{ cl.add.title }}</span>
 <div style="display:flex;align-items:center;gap:10px"><span style="width:44px;height:44px;flex:none;border-radius:14px;background:{{ t.accent }};color:{{ t.accentInk }};display:flex;align-items:center;justify-content:center;font-size:22px"><i class="{{ cl.add.icon }}"></i></span><input value="{{ cl.add.name }}" sc-camel-on-change="{{ cl.add.onName }}" placeholder="{{ cl.add.ph }}" aria-label="{{ cl.add.ph }}" style="flex:1;min-width:0;height:44px;border-radius:14px;border:1.5px solid {{ t.accent }};background:{{ t.surface }};color:{{ t.ink }};padding:0 14px;font-size:15px;font-weight:700"></div>
 <div class="ficons"><sc-for list="{{ cl.add.iconOpts }}" as="i" hint-placeholder-count="8"><button sc-camel-on-click="{{ i.onClick }}" aria-label="{{ i.aria }}" aria-pressed="{{ i.on }}" style="border-radius:11px;border:1.5px solid {{ i.border }};background:{{ i.bg }};color:{{ t.ink }};font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"><i class="{{ i.icon }}"></i></button></sc-for></div>
-<div style="display:flex;gap:8px"><button sc-camel-on-click="{{ cl.add.cancel }}" style="height:42px;padding:0 16px;border-radius:21px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Cancelar</button><button sc-camel-on-click="{{ cl.add.confirm }}" aria-disabled="{{ cl.add.off }}" style="flex:1;height:42px;border-radius:21px;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:14px;font-weight:800;cursor:pointer;opacity:{{ cl.add.op }}">Adicionar</button></div>
+<div style="display:flex;gap:8px"><button sc-camel-on-click="{{ cl.add.cancel }}" style="height:44px;padding:0 16px;border-radius:22px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:800;cursor:pointer">Cancelar</button><button sc-camel-on-click="{{ cl.add.confirm }}" aria-disabled="{{ cl.add.off }}" style="flex:1;height:44px;border-radius:22px;border:none;background:{{ t.accent }};color:{{ t.accentInk }};font-size:14px;font-weight:800;cursor:pointer;opacity:{{ cl.add.op }}">Adicionar</button></div>
 </div>
 </sc-if>
 <sc-if value="{{ cl.canAdd }}" hint-placeholder-val="{{ true }}">
-<button sc-camel-on-click="{{ cl.startAdd }}" style="flex:none;height:40px;border-radius:16px;border:1.5px dashed {{ t.line2 }};background:transparent;color:{{ t.muted }};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ph-bold ph-plus"></i>Outra fonte · vendas no carro, bônus…</button>
+<button sc-camel-on-click="{{ cl.startAdd }}" style="flex:none;min-height:44px;border-radius:16px;border:1.5px dashed {{ t.line2 }};background:transparent;color:{{ t.muted }};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ph-bold ph-plus"></i>Outra fonte · vendas no carro, bônus…</button>
 </sc-if>
-</div>
 <sc-if value="{{ cl.err0 }}" hint-placeholder-val="{{ false }}"><span role="alert" style="padding:0 6px;font-size:14px;font-weight:800;color:{{ t.neg }}">{{ cl.err0 }}</span></sc-if>
-<div style="display:flex;justify-content:space-between;align-items:center;padding:0 6px"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">Total do dia</span><span style="font-family:'Bricolage Grotesque';font-size:24px;font-weight:700;letter-spacing:-.5px">{{ cl.gross }}</span></div>
-</sc-if>
+</section>
 
-<sc-if value="{{ cl.s1 }}" hint-placeholder-val="{{ false }}">
-<span style="font-family:'Bricolage Grotesque';font-size:26px;font-weight:700;letter-spacing:-.7px;line-height:1.1">Como foi a rodagem?</span>
-<div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:20px;border:1.5px solid {{ t.accent }};background:{{ t.surface }}">
+<section style="display:flex;flex-direction:column;gap:8px;flex:none">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:0 4px"><h2 style="margin:0;font-size:16px;font-weight:800">{{ cl.spentTitle }}</h2><span style="font-family:'Bricolage Grotesque';font-size:20px;font-weight:700">{{ cl.spentTotal }}</span></div>
+<sc-for list="{{ cl.spent }}" as="g" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:8px;padding:5px 5px 5px 9px;border-radius:17px;border:1.5px solid {{ t.line }};background:{{ t.surface }};flex:none">
+<span style="width:36px;height:36px;border-radius:11px;flex:none;background:{{ t.surface2 }};color:{{ t.accent }};display:flex;align-items:center;justify-content:center;font-size:19px"><i class="{{ g.icon }}"></i></span>
+<span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:14px;font-weight:800">{{ g.label }}</span><span style="font-size:14px;font-weight:700;color:{{ t.muted }};display:{{ g.noteD }}">{{ g.note }}</span></span>
+<span style="display:flex;align-items:center;gap:4px;height:46px;padding:0 12px;border-radius:14px;background:{{ t.surface2 }};width:128px;flex:none"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">R$</span><input value="{{ g.val }}" sc-camel-on-change="{{ g.onChange }}" sc-camel-input-mode="decimal" placeholder="0,00" id="{{ g.id }}" aria-label="{{ g.aria }}" style="flex:1;min-width:0;height:44px;border:none;background:transparent;color:{{ t.ink }};font-family:'Bricolage Grotesque';font-size:20px;font-weight:700;text-align:right"></span>
+<button sc-camel-on-click="{{ g.onRemove }}" aria-label="{{ g.aria2 }}" style="width:44px;height:44px;border-radius:50%;border:none;background:transparent;color:{{ t.muted }};font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none"><i class="ph-bold ph-x"></i></button>
+</div>
+</sc-for>
+<sc-if value="{{ cl.noSpent }}" hint-placeholder-val="{{ false }}"><span style="padding:0 4px;font-size:14px;line-height:1.45;color:{{ t.muted }}">Nenhum gasto neste dia. Toque numa categoria para adicionar.</span></sc-if>
+<div role="group" aria-label="Adicionar gasto" style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ cl.spentChips }}" as="c" hint-placeholder-count="6"><button sc-camel-on-click="{{ c.onClick }}" style="min-height:44px;padding:0 14px;border-radius:22px;border:1.5px dashed {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="{{ c.icon }}"></i>{{ c.label }}</button></sc-for></div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:8px;flex:none">
+<h2 style="margin:0;padding:0 4px;font-size:16px;font-weight:800">{{ cl.kmTitle }}</h2>
+<div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:20px;border:1.5px solid {{ t.line }};background:{{ t.surface }}">
 <label style="display:flex;align-items:center;gap:12px">
 <span style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ t.accentSoft }};color:{{ t.accent }};display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ph-duotone ph-path"></i></span>
-<span style="flex:1;display:flex;flex-direction:column"><span style="font-size:14px;font-weight:800">{{ cl.kmLabel }}</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">no resumo do app ou no painel do carro</span></span>
-<span style="display:flex;align-items:center;gap:4px;height:46px;padding:0 12px;border-radius:14px;background:{{ t.surface2 }};width:112px;flex:none"><input value="{{ cl.kmVal }}" sc-camel-on-change="{{ cl.onKm }}" sc-camel-input-mode="numeric" placeholder="0" id="faro-km" aria-label="Km rodados" aria-invalid="{{ cl.kmBad }}" style="flex:1;min-width:0;border:none;background:transparent;color:{{ t.ink }};font-family:'Bricolage Grotesque';font-size:22px;font-weight:700;text-align:right"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">km</span></span>
+<span style="flex:1;display:flex;flex-direction:column"><span style="font-size:14px;font-weight:800">Km rodados</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">no resumo do app ou no painel do carro</span></span>
+<span style="display:flex;align-items:center;gap:4px;height:46px;padding:0 12px;border-radius:14px;background:{{ t.surface2 }};width:112px;flex:none"><input value="{{ cl.kmVal }}" sc-camel-on-change="{{ cl.onKm }}" sc-camel-input-mode="numeric" placeholder="0" id="faro-km" aria-label="Km rodados" aria-invalid="{{ cl.kmBad }}" style="flex:1;min-width:0;height:44px;border:none;background:transparent;color:{{ t.ink }};font-family:'Bricolage Grotesque';font-size:22px;font-weight:700;text-align:right"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">km</span></span>
 </label>
 <sc-if value="{{ cl.kmErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size:14px;font-weight:800;color:{{ t.neg }}">{{ cl.kmErr }}</span></sc-if>
 <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45;color:{{ t.muted }}"><i class="ph-fill ph-sparkle" style="color:{{ t.gold }};font-size:15px;margin-top:1px"></i><span style="text-wrap:pretty">{{ cl.kmNote }}</span></div>
+<sc-if value="{{ cl.canEstimate }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ cl.estimate }}" style="align-self:flex-start;min-height:44px;padding:0 4px;border:none;background:transparent;color:{{ t.accent }};font-size:14px;font-weight:800;cursor:pointer">{{ cl.estLabel }}</button></sc-if>
 </div>
 <div style="display:flex;flex-direction:column;gap:8px">
-<span style="font-size:14px;font-weight:700;color:{{ t.muted }};padding:0 4px;display:flex;justify-content:space-between">Horas online<span style="font-weight:600;font-size:14px">{{ cl.hoursNote }}</span></span>
+<span style="font-size:14px;font-weight:700;color:{{ t.muted }};padding:0 4px;display:flex;justify-content:space-between;gap:10px">Horas online<span style="font-weight:600;font-size:14px;text-align:right">{{ cl.hoursNote }}</span></span>
 <div class="fhours"><sc-for list="{{ cl.hours }}" as="h" hint-placeholder-count="7"><button sc-camel-on-click="{{ h.onClick }}" style="height:44px;border-radius:13px;border:1.5px solid {{ h.border }};background:{{ h.bg }};color:{{ h.color }};font-size:14px;font-weight:800;cursor:pointer">{{ h.label }}</button></sc-for></div>
 </div>
-<div style="display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:18px;background:{{ t.surface }};border:1px solid {{ t.line }}">
-<span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">Lucro deste dia</span><span style="font-family:'Bricolage Grotesque';font-size:24px;font-weight:700;color:{{ cl.prevColor }}">{{ cl.preview }}</span></span>
-<span style="font-size:14px;font-weight:700;color:{{ t.muted }};text-align:right;line-height:1.5;max-width:130px">{{ cl.prevSub }}</span>
-</div>
-</sc-if>
+</section>
 
-<sc-if value="{{ cl.keypad }}" hint-placeholder-val="{{ false }}">
-<div style="flex:1"></div>
-<button sc-camel-on-click="{{ cl.next }}" style="height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;opacity:{{ cl.op }};display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s">{{ cl.cta }}<i class="ph-bold ph-arrow-right"></i></button>
-</sc-if>
-
-<sc-if value="{{ cl.s3 }}" hint-placeholder-val="{{ false }}">
-<div class="fscroll" style="flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto;scrollbar-width:none">
-<div style="border-radius:30px;padding:22px 20px;background:{{ t.heroBg }};color:#fff;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
-<span style="width:60px;height:60px;border-radius:50%;background:{{ t.gold }};color:{{ t.goldInk }};display:flex;align-items:center;justify-content:center;font-size:30px;animation:fpop .6s"><i class="ph-fill ph-trophy"></i></span>
-<span style="font-size:14px;font-weight:700;opacity:.85">Dia fechado · lucro de verdade</span>
-<span style="font-family:'Bricolage Grotesque';font-size:50px;font-weight:700;letter-spacing:-2px;line-height:1">{{ cl.net }}</span>
-<span style="padding:5px 12px;border-radius:14px;background:rgba(255,255,255,.14);font-size:14px;font-weight:800">{{ cl.badge }}</span>
-</div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><sc-for list="{{ cl.stats }}" as="c" hint-placeholder-count="3"><div style="padding:12px;border-radius:18px;background:{{ t.surface }};border:1px solid {{ t.line }};display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;color:{{ t.muted }};font-weight:700">{{ c.label }}</span><span style="font-size:16px;font-weight:800">{{ c.value }}</span></div></sc-for></div>
+<sc-if value="{{ cl.canConta }}" hint-placeholder-val="{{ false }}">
+<section style="display:flex;flex-direction:column;gap:12px;flex:none">
+<button sc-camel-on-click="{{ cl.toggleConta }}" style="align-self:flex-start;min-height:44px;padding:0 4px;border:none;background:transparent;color:{{ t.accent }};font-size:14px;font-weight:800;cursor:pointer">{{ cl.contaLabel }}</button>
+<sc-if value="{{ cl.showConta }}" hint-placeholder-val="{{ false }}">
 <div id="conta-do-dia" style="padding:16px;border-radius:22px;background:{{ t.surface }};border:1px solid {{ t.line }};display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{ cl.conta }}" as="r" hint-placeholder-count="6"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px"><span style="color:{{ r.lc }};font-weight:{{ r.fw }}">{{ r.label }}</span><span style="font-weight:800;color:{{ r.vc }};white-space:nowrap">{{ r.value }}</span></div></sc-for>
 </div>
+<sc-if value="{{ cl.closed }}" hint-placeholder-val="{{ false }}">
 <div id="sugestao-faro" style="padding:16px;border-radius:22px;background:{{ t.surface }};border:1px solid {{ t.line }};display:flex;flex-direction:column;gap:12px">
 <div style="display:flex;align-items:center;gap:10px"><span style="width:36px;height:36px;border-radius:12px;background:{{ t.goldSoft }};color:{{ t.gold }};display:flex;align-items:center;justify-content:center;font-size:19px"><i class="ph-fill ph-sparkle"></i></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:800">Sugestão do Faro</span><span style="font-size:14px;color:{{ t.muted }}">{{ cl.sepSub }}</span></span></div>
 <sc-for list="{{ cl.sep }}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:10px;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="{{ r.icon }}"></i></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:14px;font-weight:800">{{ r.label }}</span><span style="font-size:14px;color:{{ t.muted }};font-weight:600">{{ r.sub }}</span></span><span style="font-size:15px;font-weight:800">{{ r.value }}</span></div></sc-for>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-<sc-for list="{{ cl.rewards }}" as="w" hint-placeholder-count="3"><div style="padding:12px 10px;border-radius:18px;background:{{ t.goldSoft }};display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center"><i class="{{ w.icon }}" style="color:{{ t.gold }};font-size:22px"></i><span style="font-size:14px;font-weight:800">{{ w.v }}</span><span style="font-size:14px;font-weight:700;color:{{ t.muted }}">{{ w.l }}</span></div></sc-for>
-</div>
-</div>
-<div style="display:flex;gap:8px">
-<button sc-camel-on-click="{{ cl.toMonth }}" style="flex:1;height:56px;border-radius:28px;border:1px solid {{ t.line2 }};background:transparent;color:{{ t.ink }};font-size:15px;font-weight:800;cursor:pointer">Ver meu mês</button>
-<button sc-camel-on-click="{{ cl.done }}" style="flex:1;height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:15px;font-weight:800;cursor:pointer">Voltar ao início</button>
+</sc-if>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{ cl.closed }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:4px;flex-wrap:wrap;flex:none">
+<button sc-camel-on-click="{{ cl.toMonth }}" style="min-height:44px;padding:0 12px;border:none;background:transparent;color:{{ t.muted }};font-size:14px;font-weight:800;cursor:pointer">Ver meu mês</button>
+<button sc-camel-on-click="{{ cl.done }}" style="min-height:44px;padding:0 12px;border:none;background:transparent;color:{{ t.muted }};font-size:14px;font-weight:800;cursor:pointer">Voltar ao início</button>
 </div>
 </sc-if>
+</div>
+
+<div style="flex:none;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));background:{{ t.bg }};border-top:1px solid {{ t.line }}">
+<button sc-camel-on-click="{{ cl.next }}" style="width:100%;height:56px;border-radius:28px;border:none;background:{{ t.gold }};color:{{ t.goldInk }};font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">{{ cl.cta }}</button>
+</div>
 </div>
 </sc-if>
 
