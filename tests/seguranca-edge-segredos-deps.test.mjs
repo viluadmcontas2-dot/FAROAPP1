@@ -125,7 +125,7 @@ test('6.5 checkout: exige JWT de usuario, ignora o corpo do cliente (user_id, pr
   // trial: so o numero que o BANCO devolve (faro_trial_days_for) entra em subscription_data
   assert.match(checkout, /rpc\('faro_trial_days_for', \{ p_user_id: userId \}\)/);
   assert.match(checkout, /\.\.\.checkoutTrialParams\(trialDays\)/);
-  assert.match(checkout, /payment_method_collection: 'always'/, 'cartao no inicio e a defesa contra farm de trial');
+  assert.match(checkout, /payment_method_collection: paymentCollectionFor\(trialDays\)/, 'cartão depende da elegibilidade decidida no banco');
   assert.match(checkout, /ctx\.jwtClaims\?\.is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao assina');
   assert.match(checkout, /req\.method !== 'POST'[\s\S]{0,80}405/);
   assert.match(checkout, /Deno\.env\.get\('FARO_BILLING_ENABLED'\) === 'true'/, 'interruptor de cobranca fail-closed');

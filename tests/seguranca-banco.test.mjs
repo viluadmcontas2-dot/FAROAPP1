@@ -238,8 +238,8 @@ test('9.2 trial: e-mail normalizado (gmail com ponto/+alias) e historico sobrevi
   assert.notEqual(h('a@exemplo.com'), h('b@exemplo.com'));
   // registra o trial pelo caminho do webhook (service_role) e confere que o alias nao ganha outro
   const uid = '00000000-0000-0000-0000-0000000000d1', uid2 = '00000000-0000-0000-0000-0000000000d2';
-  pg.raw(`insert into auth.users(id,email) values ('${uid}','joao.silva@gmail.com'),('${uid2}','joaosilva+farm@gmail.com')`);
-  assert.equal(pg.service(`select public.faro_trial_days_for('${uid}')`).out, '7');
+  pg.raw(`insert into auth.users(id,email,email_confirmed_at) values ('${uid}','joao.silva@gmail.com',now()),('${uid2}','joaosilva+farm@gmail.com',now())`);
+  assert.equal(pg.service(`select public.faro_trial_days_for('${uid}')`).out, '2');
   assert.equal(pg.service(`select public.faro_apply_subscription_event('evt_trial1','customer.subscription.created',now(),'${uid}','cus_d1','sub_d1','trialing',now()+interval '7 days',false)`).out, 'applied');
   assert.equal(pg.service(`select public.faro_trial_days_for('${uid2}')`).out, '0', 'alias do mesmo gmail ganhou segundo trial');
   pg.raw(`delete from auth.users where id='${uid}'`);

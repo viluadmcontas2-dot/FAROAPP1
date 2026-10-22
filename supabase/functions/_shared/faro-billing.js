@@ -22,8 +22,12 @@ export const hasBlockingSubscription = row => Boolean(row?.stripe_subscription_i
 // Trial so na primeira vez: dias vindos do banco (faro_trial_days_for); 0 = sem trial.
 export const checkoutTrialParams = days => {
   const n = Number(days);
-  return Number.isInteger(n) && n > 0 ? { trial_period_days: n } : {};
+  return Number.isInteger(n) && n > 0 ? { trial_period_days: n, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } } : {};
 };
+
+// Só dispensa cartão quando os parâmetros realmente concedem teste.
+export const paymentCollectionFor = days =>
+  checkoutTrialParams(days).trial_period_days ? 'if_required' : 'always';
 
 export const stripeFailure = error => {
   const type = String(error?.type || '');

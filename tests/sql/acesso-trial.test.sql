@@ -10,14 +10,16 @@ insert into auth.users (id, email, is_anonymous) values
   ('00000000-0000-0000-0000-0000000000c3', null, true),
   ('00000000-0000-0000-0000-0000000000c4', 'maria@exemplo.com', false);
 
--- 1. trial: elegivel na primeira vez; 0 para anonimo; 7 dias vindos de faro_billing_settings
-select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c1') = 7, 'primeira vez: 7 dias');
+update auth.users set email_confirmed_at = now() where id in ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000c4');
+
+-- 1. trial: elegivel na primeira vez; 0 para anonimo; 2 dias vindos de faro_billing_settings
+select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c1') = 2, 'primeira vez: 2 dias');
 select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c3') = 0, 'anonimo sem trial');
 select pg_temp.assert(public.faro_trial_days_for(gen_random_uuid()) = 0, 'usuario inexistente sem trial');
 
 -- 2. webhook: trialing grava assinatura e consome o trial
 select pg_temp.assert(public.faro_apply_subscription_event('evt_1','customer.subscription.created', now(),
-  '00000000-0000-0000-0000-0000000000c1','cus_1','sub_1','trialing', now() + interval '7 days', false) = 'applied', 'trialing aplicado');
+  '00000000-0000-0000-0000-0000000000c1','cus_1','sub_1','trialing', now() + interval '2 days', false) = 'applied', 'trialing aplicado');
 select pg_temp.assert((select status from public.faro_subscriptions where user_id='00000000-0000-0000-0000-0000000000c1') = 'trialing', 'status trialing salvo');
 select pg_temp.assert((select count(*) from public.faro_trials_used) = 1, 'trial registrado');
 
@@ -33,7 +35,7 @@ select pg_temp.assert(public.faro_apply_subscription_event('evt_2','customer.sub
 -- 5. trial UMA vez: mesmo usuario e o mesmo e-mail normalizado (gmail com pontos/+tag) nao ganham outro
 select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c1') = 0, 'mesmo usuario sem 2o trial');
 select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c2') = 0, 'alias do mesmo e-mail sem 2o trial');
-select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c4') = 7, 'outra pessoa tem trial');
+select pg_temp.assert(public.faro_trial_days_for('00000000-0000-0000-0000-0000000000c4') = 2, 'outra pessoa tem trial');
 
 -- 6. quem ja teve assinatura (mesmo cancelada) nao ganha trial
 select pg_temp.assert(public.faro_apply_subscription_event('evt_3','customer.subscription.created', now(),

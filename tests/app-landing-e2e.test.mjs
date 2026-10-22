@@ -46,7 +46,7 @@ test('landing de uma tela: promessa, como funciona, preço e botões; sem passos
   const { context, page, errors } = await open({ cfg: { billing: true, users: USERS } });
   await hasText(page, 'Veja o lucro de verdade do seu dia');
   const body = await text(page);
-  assert.match(body, /7 dias de teste, depois R\$ 22,99\/mês\. Cancele quando quiser\./);
+  assert.match(body, /2 dias de teste, sem cartão, depois R\$ 22,99\/mês\. Cancele quando quiser\./);
   assert.match(body, /Tem cupom\? Digite na tela de pagamento\./);
   await btn(page, 'Assinar e começar').waitFor();
   await btn(page, 'Já tenho conta').waitFor();
@@ -67,7 +67,7 @@ test('landing de uma tela: promessa, como funciona, preço e botões; sem passos
 
 test('cobrança desligada: preço aparece, botão desativado diz "A assinatura abre em breve" e nada de checkout', { skip }, async () => {
   const { context, page, errors } = await open({ cfg: { billing: false, users: USERS } });
-  await hasText(page, '7 dias de teste, depois R$ 22,99/mês');
+  await hasText(page, '2 dias de teste, sem cartão, depois R$ 22,99/mês');
   const primary = btn(page, 'A assinatura abre em breve');
   await primary.waitFor();
   assert.equal(await primary.isDisabled(), true);

@@ -17,7 +17,7 @@ Esta política explica, em palavras simples, o que o Faro guarda sobre você, pa
 | Perfil (nome de exibição, cidade, região, escolha de receber avisos) | Personalizar o app e os avisos | Execução do contrato; consentimento para avisos (art. 7, I) |
 | Identificador do aparelho e dados de notificação | Sincronizar sem conflito entre aparelhos e enviar avisos, se você ligar | Execução do contrato; consentimento para avisos |
 | Dados da assinatura (situação, data de renovação, códigos do Stripe) | Liberar o acesso e cobrar | Execução do contrato |
-| Marca irreversível do seu e-mail (resumo criptográfico, "hash") e data do teste | Garantir que o teste de 7 dias valha uma vez por pessoa | Legítimo interesse (art. 7, IX), prevenção a fraude |
+| Marca irreversível do seu e-mail (resumo criptográfico, "hash") e data do teste | Garantir que o teste de 2 dias valha uma vez por pessoa | Legítimo interesse (art. 7, IX), prevenção a fraude |
 | Registros técnicos de segurança (ex.: limites de uso) | Proteger o serviço contra abuso | Legítimo interesse; segurança |
 
 - **Cartão:** o pagamento fica só no Stripe. O Faro não vê nem guarda o número do cartão.

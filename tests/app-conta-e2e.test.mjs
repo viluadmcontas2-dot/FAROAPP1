@@ -55,7 +55,7 @@ for (const vp of VIEWPORTS) {
     await hasText(page, 'Entrar na conta');
     const body = await text(page);
     assert.match(body, /Assinatura abre em breve/);
-    assert.equal(await button(page, 'Começar 7 dias grátis').count(), 0, 'sem botão de assinatura enquanto a cobrança está desligada');
+    assert.equal(await button(page, 'Começar 2 dias grátis').count(), 0, 'sem botão de assinatura enquanto a cobrança está desligada');
     assert.match(body, /Faro 9\.9\.9/, 'mostra a versão do app');
     assert.match(body, /Sem conta, seus dados ficam só neste aparelho/);
     await shot('entrar');
@@ -192,7 +192,7 @@ test('cobrança ligada: sem sessão só aparece a tela Conta (paywall), sem apag
   assert.match(await text(page), /Comece o teste grátis para usar o Faro/);
   assert.doesNotMatch(await text(page), /Lucro de verdade/);
   await shot('paywall-assinar');
-  await button(page, 'Começar 7 dias grátis').click();
+  await button(page, 'Começar 2 dias grátis').click();
   await page.waitForFunction(() => window.__redirects.length === 1);
   assert.deepEqual(await redirects(page), ['https://checkout.stripe.com/c/pay/cs_test_falso']);
   assert.match(page.url(), /127\.0\.0\.1/, 'a URL de checkout falsa nunca navega');
@@ -241,15 +241,17 @@ const trialEndsIn = days => new Date(Date.now() + days * 86400000).toISOString()
 const logar = async page => { await hasText(page, 'Entre ou crie sua conta'); await fill(page, 'motorista@faro.app', 'senha-forte-1'); await button(page, 'Entrar').click(); await hasText(page, 'Primeiros passos no Faro'); };
 const subCfg = (over = {}, billing = true) => ({ billing, users: USERS, subs: { 'id-1': { status: 'trialing', stripe_customer_id: 'cus_1', current_period_end: trialEndsIn(2.5), cancel_at_period_end: false, ...over } }, invoke: { 'abrir-portal-faro': { url: 'https://billing.stripe.com/p/session/falso' } } });
 
-test('aviso de fim do teste aparece no topo do Início e "Gerenciar assinatura" abre o portal', { skip }, async () => {
+test('aviso de fim do teste aparece no topo do Início e "Adicionar cartão" abre o portal', { skip }, async () => {
   const { context, page, errors, shot } = await open(VIEWPORTS[0], subCfg(), { local: onboarded });
   await logar(page);
-  await hasText(page, 'Seu teste termina em 3 dias');
+  await hasText(page, 'Com cartão, cobramos R$ 22,99 nesse dia');
   const body = await text(page);
-  assert.match(body, /cobramos R\$ 22,99 no cartão cadastrado/);
-  assert.ok(body.indexOf('Seu teste termina em 3 dias') < body.indexOf('Primeiros passos no Faro'), 'o aviso fica no topo do conteúdo');
+  const titulo = body.match(/Seu teste termina em [23] dias/)?.[0];
+  assert.ok(titulo, 'título com os dias que faltam');
+  assert.match(body, /Com cartão, cobramos R\$ 22,99 nesse dia/);
+  assert.ok(body.indexOf(titulo) < body.indexOf('Primeiros passos no Faro'), 'o aviso fica no topo do conteúdo');
   await shot('aviso-fim-do-teste');
-  await button(page, 'Gerenciar assinatura').click();
+  await button(page, 'Adicionar cartão').click();
   await page.waitForFunction(() => window.__redirects.length === 1);
   assert.deepEqual(await redirects(page), ['https://billing.stripe.com/p/session/falso']);
   assert.deepEqual(errors, []);

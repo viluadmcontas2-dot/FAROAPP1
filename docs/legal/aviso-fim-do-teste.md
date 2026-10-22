@@ -4,20 +4,20 @@
 > Para cada aviso, o canal é [CONFIRMAR COM O DONO: e-mail, aviso dentro do app ou os dois]. O Stripe já emite um evento 3 dias antes do fim do teste (`customer.subscription.trial_will_end`); hoje o webhook só o registra, não envia nada. Ligar o envio é trabalho de código, fora deste rascunho.
 > `{data}` = dia da primeira cobrança. `{valor}` = R$ 22,99 (ou R$ 14,99 com RATAO).
 
-## 1. Três dias antes (dia 5 do teste)
-**Título:** Seu teste termina em 3 dias
-**Texto:** Seu teste grátis do Faro termina em {data}. Nesse dia cobramos {valor} no cartão cadastrado. Se não quiser continuar, cancele antes e não paga nada.
-**Botões:** [Gerenciar assinatura] [Cancelar assinatura]
+## 1. Três dias antes (início do teste)
+**Título:** Seu teste termina em {dias} dias
+**Texto:** Seu teste grátis do Faro termina em {data}. Para continuar, adicione um cartão antes. Com cartão, cobramos {valor} nesse dia. Sem cartão, o teste só termina e você não paga nada.
+**Botões:** [Adicionar cartão]
 
-## 2. Um dia antes (dia 7 do teste)
+## 2. Um dia antes (véspera do fim)
 **Título:** Amanhã o teste termina
-**Texto:** Amanhã, {data}, cobramos {valor} no cartão. Quer continuar? Não precisa fazer nada. Prefere parar? Cancele hoje e não paga nada.
-**Botões:** [Cancelar assinatura] [Gerenciar assinatura]
+**Texto:** Amanhã, {data}, o teste termina. Quer continuar? Adicione um cartão hoje: a cobrança de {valor} começa amanhã. Prefere parar? Não precisa fazer nada e não paga nada.
+**Botões:** [Adicionar cartão]
 
-## 3. No dia (dia 8)
+## 3. No dia (dia do fim)
 **Título:** Seu teste terminou hoje
-**Texto:** Hoje começa sua assinatura do Faro: {valor} por mês no cartão cadastrado. Você pode cancelar quando quiser.
-**Botões:** [Gerenciar assinatura] [Cancelar assinatura]
+**Texto:** Hoje o teste termina. Para continuar usando o Faro, adicione um cartão: {valor} por mês. Você pode cancelar quando quiser.
+**Botões:** [Adicionar cartão]
 
 ## 4. Depois da cobrança
 **Título:** Cobrança feita: {valor}

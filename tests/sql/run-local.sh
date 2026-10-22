@@ -10,7 +10,9 @@ trap 'RUN "$BIN/pg_ctl -D $D/data -m immediate stop >/dev/null" || true; rm -rf 
 P="psql -v ON_ERROR_STOP=1 -q -h $D -p $PORT -U postgres -d postgres"
 RUN "$P -f tests/sql/stub-auth.sql"
 for f in supabase/migrations/*.sql; do RUN "$P -f $f"; done
-for f in supabase/migrations/20261021*.sql supabase/migrations/20261022*.sql; do RUN "$P -f $f"; done  # reaplicar TODAS as novas: têm que ser idempotentes
+for f in supabase/migrations/2026102*.sql; do RUN "$P -f $f"; done  # reaplicar TODAS as novas: têm que ser idempotentes
 RUN "$P -f tests/sql/acesso-trial.test.sql"
 RUN "$P -f tests/sql/rls.test.sql"
 RUN "$P -f tests/sql/trial-end.test.sql"
+
+RUN "$P -f tests/sql/teste-2-dias.test.sql"

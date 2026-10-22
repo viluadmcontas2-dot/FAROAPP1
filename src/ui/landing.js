@@ -142,7 +142,7 @@ export class Landing extends React.Component {
     else body = [
       h('h1', { key: 'h', style: H1 }, 'Veja o lucro de verdade do seu dia'),
       h('p', { key: 'p', style: P }, 'Anote o que entrou e o que saiu em segundos. O Faro mostra quanto sobrou de verdade.'),
-      h('p', { key: 'price', style: { margin: '14px 0 0', fontSize: 16, fontWeight: 800, lineHeight: 1.4 } }, '7 dias de teste, depois R$ 22,99/mês. Cancele quando quiser.'),
+      h('p', { key: 'price', style: { margin: '14px 0 0', fontSize: 16, fontWeight: 800, lineHeight: 1.4 } }, '2 dias de teste, sem cartão, depois R$ 22,99/mês. Cancele quando quiser.'),
       off ? null : h('p', { key: 'cup', style: { margin: '6px 0 0', fontSize: 14, opacity: 0.8 } }, 'Tem cupom? Digite na tela de pagamento.'),
       h('div', { key: 'sp', style: { height: 24 } }),
       s.notice ? h('p', { key: 'no', role: 'status', style: { margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: t.gold } }, s.notice) : null,

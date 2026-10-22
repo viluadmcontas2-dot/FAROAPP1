@@ -35,7 +35,7 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0-beta-pago`. Tarefa mãe no Git
 - **Branches antigas:** foram copiadas para nomes `legado/...`; os nomes antigos continuam existindo porque o ambiente não apaga branch. O dono apaga na página Branches do GitHub. Os pedidos de junção rascunho antigos foram fechados. A branch `claude/hopeful-feynman-51q8b1` está inteira dentro desta; nada se perde.
 
 ## Beta pago desde o primeiro dia
-Não haverá beta grátis. As pessoas assinam para usar: 7 dias de teste com cartão pedido na entrada (primeira cobrança no dia 8), preço R$ 22,99 por mês, cupom `RATAO`. Motivo e detalhes em `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`.
+Não haverá beta grátis. As pessoas assinam para usar: 2 dias de teste sem cartão obrigatório (decisão 0010; quem já usou o teste ou tem e-mail descartável paga já com cartão), preço R$ 22,99 por mês, cupom `RATAO`. Motivo e detalhes em `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`. Reembolso: até 7 dias depois da cobrança.
 
 A cobrança (`FARO_BILLING_ENABLED`) liga na abertura, mas só quando TODOS estes itens estiverem prontos:
 1. termos de uso

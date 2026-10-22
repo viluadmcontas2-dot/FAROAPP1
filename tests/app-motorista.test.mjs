@@ -301,12 +301,12 @@ test('legibilidade de rua: texto >= 14 px, alvos >= 44 px, Paguei grande, rótul
   await context.close();
 });
 
-test('confiança: preço e 7 dias grátis na 1ª tela; restaurar backup é secundário e avisa', { skip }, async () => {
+test('confiança: preço e 2 dias grátis na 1ª tela; restaurar backup é secundário e avisa', { skip }, async () => {
   const { context, page, errors, shot } = await open(null, { name: 'confianca' });
   await hasText(page, 'Ver meu lucro de verdade');
   const gold = await page.evaluate(() => getComputedStyle([...document.querySelectorAll('button')].find(b => /Ver meu lucro de verdade/.test(b.textContent))).backgroundColor);
   const first = await bodyText(page);
-  assert.match(first, /Grátis por 7 dias · depois R\$ 22,99\/mês/);
+  assert.match(first, /Grátis por 2 dias · depois R\$ 22,99\/mês/);
   assert.equal(await button(page, /pagar|assinar|cartão/i).count(), 0, 'sem botão de pagar enquanto a assinatura não abre');
   await shot('onboarding-0');
   // tela Conta

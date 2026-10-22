@@ -6,13 +6,14 @@ export const FUSO_PADRAO = 'America/Sao_Paulo';
 export const VALOR_PADRAO = 'R$ 22,99';
 export const JANELA_COBRADO_DIAS = 2; // depois da cobrança, o aviso fica por 2 dias
 const DIA_MS = 86400000;
-const BOTAO = 'Gerenciar assinatura';
+const BOTAO_TESTE = 'Adicionar cartão';
+const BOTAO_COBRADO = 'Gerenciar assinatura';
 
 // {data} = dia da cobrança (dd/mm); {valor} = valor da mensalidade
 const TEXTOS = {
-  tres_dias: { titulo: () => 'Seu teste termina em 3 dias', texto: ({ data, valor }) => `Seu teste grátis do Faro termina em ${data}. Nesse dia cobramos ${valor} no cartão cadastrado. Se não quiser continuar, cancele antes e não paga nada.` },
-  um_dia: { titulo: () => 'Amanhã o teste termina', texto: ({ data, valor }) => `Amanhã, ${data}, cobramos ${valor} no cartão. Quer continuar? Não precisa fazer nada. Prefere parar? Cancele hoje e não paga nada.` },
-  hoje: { titulo: () => 'Seu teste termina hoje', texto: ({ valor }) => `Hoje começa sua assinatura do Faro: ${valor} por mês no cartão cadastrado. Você pode cancelar quando quiser.` },
+  tres_dias: { titulo: ({ dias }) => `Seu teste termina em ${dias} dias`, texto: ({ data, valor }) => `Seu teste grátis do Faro termina em ${data}. Para continuar, adicione um cartão antes. Com cartão, cobramos ${valor} nesse dia. Sem cartão, o teste só termina e você não paga nada.` },
+  um_dia: { titulo: () => 'Amanhã o teste termina', texto: ({ data, valor }) => `Amanhã, ${data}, o teste termina. Quer continuar? Adicione um cartão hoje: a cobrança de ${valor} começa amanhã. Prefere parar? Não precisa fazer nada e não paga nada.` },
+  hoje: { titulo: () => 'Seu teste termina hoje', texto: ({ valor }) => `Hoje o teste termina. Para continuar usando o Faro, adicione um cartão: ${valor} por mês. Você pode cancelar quando quiser.` },
   cobrado: { titulo: ({ valor }) => `Cobrança feita: ${valor}`, texto: ({ proxima }) => `Sua assinatura do Faro está ativa.${proxima ? ` Próxima cobrança em ${proxima}.` : ''} Foi cobrado e se arrependeu? Você tem 7 dias para pedir o dinheiro de volta.` },
 };
 
@@ -30,7 +31,7 @@ export function avisoFimDoTeste({ sub = null, billingEnabled = false, now = Date
   if (billingEnabled !== true || !sub || typeof sub !== 'object' || sub.error) return null;
   const agora = ms(now);
   if (agora === null) return null;
-  const monta = (nivel, dados) => ({ nivel, titulo: TEXTOS[nivel].titulo({ valor, ...dados }), texto: TEXTOS[nivel].texto({ valor, ...dados }), botao: BOTAO });
+  const monta = (nivel, dados) => ({ nivel, titulo: TEXTOS[nivel].titulo({ valor, ...dados }), texto: TEXTOS[nivel].texto({ valor, ...dados }), botao: nivel === 'cobrado' ? BOTAO_COBRADO : BOTAO_TESTE });
   try {
     const fim = ms(sub.trialEnd) ?? (sub.status === 'trialing' ? ms(sub.currentPeriodEnd) : null);
     if (fim === null) return null;
@@ -46,7 +47,7 @@ export function avisoFimDoTeste({ sub = null, billingEnabled = false, now = Date
     const data = ddmm(dFim);
     if (dias <= 0) return monta('hoje', { data });
     if (dias === 1) return monta('um_dia', { data });
-    if (dias <= 3) return monta('tres_dias', { data });
+    if (dias <= 3) return monta('tres_dias', { data, dias });
     return null;
   } catch { return null; } // fuso inválido etc.: o aviso nunca derruba o app
 }

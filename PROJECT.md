@@ -3,7 +3,7 @@
 ## Produto
 App do motorista de aplicativo. Responde: "quanto sobrou de verdade?" (lucro real = ganhos − combustível − custos − contas do mês), com metas, reservas e histórico.
 - Instalado na tela inicial; fora disso, só explica a instalação (ADR 0005).
-- Teste grátis de 7 dias; depois R$ 22,99/mês (Stripe). Cupom `RATAO`: R$ 14,99 nos 5 primeiros meses.
+- Teste grátis de 2 dias, sem cartão; depois R$ 22,99/mês (Stripe). Cupom `RATAO`: R$ 14,99 nos 5 primeiros meses.
 - Cobrança está **desligada** (`billingEnabled=false`) até as condições em `governance/constitution.md`.
 
 ## Arquitetura

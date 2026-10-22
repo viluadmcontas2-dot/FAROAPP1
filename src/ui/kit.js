@@ -4,7 +4,7 @@ import { LOGO } from './theme.js';
 export const SCREEN_NAV = ['home', 'bills', 'remind', 'journey', 'plan', 'car'];
 // Preço combinado (a cobrança só abre quando a assinatura for ligada: ver data/access.js). Um lugar só para o texto.
 export const PRICE = 'R$ 22,99/mês';
-export const PRICE_LINE = `Grátis por 7 dias · depois ${PRICE}`;
+export const PRICE_LINE = `Grátis por 2 dias · depois ${PRICE}`;
 // nome do custo fixo do carro, na palavra do motorista
 export const carFixName = vehicle => (vehicle === 'alugado' ? 'Aluguel' : vehicle === 'financiado' ? 'Parcela' : 'Seguro');
 export const UNIT_WORD = { L: 'litro', 'm³': 'm³', kWh: 'kWh' };

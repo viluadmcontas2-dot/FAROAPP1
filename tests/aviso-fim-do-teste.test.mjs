@@ -34,8 +34,8 @@ test('textos: valor, dia e verbo igual no botão e no aviso', () => {
   assert.equal(a.titulo, 'Seu teste termina em 3 dias');
   assert.match(a.texto, /24\/10/);
   assert.match(a.texto, /R\$ 22,99/);
-  assert.match(a.texto, /cancele antes/);
-  assert.equal(a.botao, 'Gerenciar assinatura');
+  assert.match(a.texto, /adicione um cartão/);
+  assert.equal(a.botao, 'Adicionar cartão');
   const u = aviso(trial('2026-10-24T15:00:00Z'), '2026-10-23T15:00:00Z');
   assert.equal(u.titulo, 'Amanhã o teste termina');
   assert.match(u.texto, /Amanhã, 24\/10/);

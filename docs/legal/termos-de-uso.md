@@ -15,9 +15,9 @@ Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.
 - O app funciona offline, com os dados no seu aparelho. Com a conta, uma cópia fica na nuvem para você trocar de celular sem perder nada.
 - Você pode excluir a conta quando quiser, no próprio app (veja a Política de Privacidade).
 
-## 3. Assinatura e teste de 7 dias
+## 3. Assinatura e teste de 2 dias
 - Preço: R$ 22,99 por mês, cobrado todo mês no cartão.
-- Teste de 7 dias: você usa tudo por 7 dias. Pedimos o cartão na entrada. A primeira cobrança acontece no dia 8, a não ser que você cancele antes.
+- Teste de 2 dias: você usa tudo por 2 dias, sem cartão. Para continuar depois, você adiciona um cartão e a cobrança começa no fim do teste. Sem cartão, o acesso para e você não paga nada. O teste vale uma vez por pessoa e exige e-mail confirmado.
 - O teste vale uma vez por pessoa.
 - Avisamos você antes do fim do teste (veja `aviso-fim-do-teste.md`).
 - O pagamento é feito pelo Stripe. O Faro não vê nem guarda o número do seu cartão.
@@ -31,7 +31,7 @@ Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.
 
 ## 5. Reembolso e arrependimento (7 dias)
 Pelo Código de Defesa do Consumidor, quem compra pela internet pode desistir em até 7 dias.
-- Durante os 7 dias de teste você não paga nada.
+- Durante os 2 dias de teste você não paga nada.
 - Se você for cobrado e se arrepender, peça o reembolso em até 7 dias depois da cobrança, pelo canal de suporte (`suporte-e-contato.md`). Devolvemos o valor integral. [CONFIRMAR COM O DONO: este prazo contado a partir da cobrança é uma escolha generosa do rascunho; o mínimo da lei conta da contratação. Confirme com o advogado.]
 - O reembolso volta pela mesma forma de pagamento. [CONFIRMAR COM O DONO: prazo para devolver, ex.: até 10 dias úteis.]
 

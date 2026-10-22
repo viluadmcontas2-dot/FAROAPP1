@@ -33,12 +33,13 @@ test('migração faro_save_state: revoga escrita direta, limites e schema 2', ()
   assert.match(sql, /524288/); assert.match(sql, /set search_path = ''/); assert.match(sql, /revoke all on function public\.faro_save_state[^;]*from public, anon/);
 });
 
-test('checkout: trial de 7 dias UMA vez (decidido no banco), cartão sempre, idempotência estável por usuário+janela', () => {
+test('checkout: trial de 2 dias UMA vez (decidido no banco), cartão conforme elegibilidade, idempotência estável por usuário+janela', () => {
+  assert.match(checkout, /import \{[^}]*paymentCollectionFor[^}]*\} from '\.\.\/_shared\/faro-billing\.js'/);
   assert.match(checkout, /faro_trial_days_for/); assert.match(checkout, /checkoutTrialParams\(/);
-  assert.match(checkout, /payment_method_collection: 'always'/); assert.match(checkout, /subscription_data: \{.*\.\.\.checkoutTrialParams\(trialDays\)/);
+  assert.match(checkout, /payment_method_collection: paymentCollectionFor\(trialDays\)/); assert.match(checkout, /subscription_data: \{.*\.\.\.checkoutTrialParams\(trialDays\)/);
   assert.match(checkout, /idempotencyKey: `faro-checkout-\$\{userId\}-\$\{windowIndex\}-\$\{trialDays > 0 \? 't' : 'n'\}`/);
   assert.match(checkout, /allow_promotion_codes: true/, 'cupom RATAO continua valendo');
-  assert.doesNotMatch(checkout, /trial_period_days:\s*7/, 'dias vêm do banco, não do código');
+  assert.doesNotMatch(checkout, /trial_period_days:\s*\d+/, 'dias vêm do banco, não do código');
   assert.ok(checkout.indexOf('faro_trial_days_for') < checkout.indexOf('checkout.sessions.create'));
 });
 test('checkout: anônimo recusado, cobrança só com FARO_BILLING_ENABLED', () => {
@@ -46,7 +47,7 @@ test('checkout: anônimo recusado, cobrança só com FARO_BILLING_ENABLED', () =
 });
 test('shared faro-billing: trial só com dias inteiros positivos', async () => {
   const m = await import('../supabase/functions/_shared/faro-billing.js');
-  assert.deepEqual(m.checkoutTrialParams(7), { trial_period_days: 7 });
+  assert.deepEqual(m.checkoutTrialParams(2), { trial_period_days: 2, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } });
   for (const v of [0, -1, 1.5, null, undefined, 'x', NaN]) assert.deepEqual(m.checkoutTrialParams(v), {});
   assert.equal(m.normalizedStatus('trialing'), 'trialing'); assert.equal(m.normalizedStatus('foo'), 'inactive');
   assert.equal(m.hasBlockingSubscription({ stripe_subscription_id: 's', status: 'trialing' }), true);

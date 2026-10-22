@@ -133,7 +133,7 @@ const SUB_VIEW = (sub, now) => {
     case 'active': return { title: 'Assinatura ativa', sub: end ? (sub.cancelAtPeriodEnd ? `Termina em ${end}.` : `Renova em ${end}.`) : 'Tudo certo com a sua assinatura.', action: 'portal', label: 'Gerenciar assinatura' };
     case 'past_due': case 'unpaid': return { title: 'Pagamento pendente', sub: 'Atualize o pagamento para continuar usando o Faro.', action: 'portal', label: 'Atualizar pagamento' };
     case 'canceled': case 'paused': return { title: 'Assinatura cancelada', sub: 'Assine de novo para voltar a usar o Faro.', action: 'checkout', label: 'Assinar de novo' };
-    default: return { title: 'Sem assinatura', sub: `Teste o Faro por 7 dias sem pagar, depois ${PRICE}. Cancele quando quiser.`, action: 'checkout', label: 'Começar 7 dias grátis' };
+    default: return { title: 'Sem assinatura', sub: `Teste o Faro por 2 dias, sem cartão, depois ${PRICE}. Cancele quando quiser.`, action: 'checkout', label: 'Começar 2 dias grátis' };
   }
 };
 
@@ -177,8 +177,8 @@ export function contaVals(k) {
   // assinatura
   const billing = access.billing;
   let subView;
-  if (!billing) subView = { title: 'Assinatura abre em breve', sub: `Por enquanto o Faro está liberado para você usar sem pagar. Quando abrir: grátis por 7 dias, depois ${PRICE}.`, action: '', label: '' };
-  else if (!user) subView = { title: 'Teste grátis por 7 dias', sub: 'Entre ou crie sua conta para começar o teste.', action: '', label: '' };
+  if (!billing) subView = { title: 'Assinatura abre em breve', sub: `Por enquanto o Faro está liberado para você usar sem pagar. Quando abrir: grátis por 2 dias, depois ${PRICE}.`, action: '', label: '' };
+  else if (!user) subView = { title: 'Teste grátis por 2 dias', sub: 'Entre ou crie sua conta para começar o teste.', action: '', label: '' };
   else if (ct.sub === undefined) subView = { title: 'Conferindo sua assinatura…', sub: '', action: '', label: '' };
   else subView = SUB_VIEW(ct.sub, now);
   const onSub = { checkout: conta.checkout, portal: conta.portal, retry: conta.retrySub }[subView.action];

@@ -1,7 +1,7 @@
 # Retomada do Faro 2.0 (leia isto primeiro após compactar a conversa)
 
 **Estado:** leia `STATUS.md`. É a única fonte; aqui não repito números.
-**Objetivo:** app do motorista (lucro de verdade), só instalado, 7 dias de teste com cartão na entrada, R$ 22,99/mês. Beta PAGO desde o primeiro dia (decisão `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`). Nada do app antigo.
+**Objetivo:** app do motorista (lucro de verdade), só instalado, 2 dias de teste sem cartão (ADR 0010), R$ 22,99/mês. Beta PAGO desde o primeiro dia (decisão `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`). Nada do app antigo.
 **Onde:** branch `claude/faro-2-0-beta-pago` (viluadmcontas2-dot/FAROAPP1), tarefa mãe issue 21. Painel: https://claude.ai/artifact/DCK5CYRBnmQVcdhgLAJaio (fonte `docs/painel/painel-faro-2-0.html`). Tarefas do dono: Todoist, projeto "Faro 2.0".
 **Hospedagem:** Cloudflare. Link: https://faroapp1.hugovitorslipknot.workers.dev (público). Publicação automática: cada commit na `claude/faro-2-0-beta-pago` publica sozinho (Workers Builds). O Claude controla a Cloudflare pelo conector oficial; nada de token no chat. Antes de cobrar clientes, trocar a branch observada para `main`.
 **Caminho crítico:** a cobrança liga na abertura, só com tudo pronto: termos, privacidade, suporte, excluir minha conta, aviso de fim do teste, segredos do Stripe no Supabase, teste ponta a ponta no Stripe de teste, conferência do Stripe real, tela de assinatura revisada.

@@ -1,6 +1,6 @@
 import { withSupabase } from 'npm:@supabase/server@1.4.1';
 import Stripe from 'npm:stripe@22.5.0';
-import { checkoutTrialParams, hasBlockingSubscription, stripeFailure } from '../_shared/faro-billing.js';
+import { checkoutTrialParams, paymentCollectionFor, hasBlockingSubscription, stripeFailure } from '../_shared/faro-billing.js';
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
 const priceId = Deno.env.get('STRIPE_FARO_MONTHLY_PRICE_ID') || '';
@@ -77,7 +77,7 @@ export default {
           customer: customerId,
           line_items: [{ price: priceId, quantity: 1 }],
           allow_promotion_codes: true,
-          payment_method_collection: 'always',
+          payment_method_collection: paymentCollectionFor(trialDays),
           integration_identifier: 'faro_finance_qmvktzra',
           client_reference_id: userId,
           metadata: { faro_user_id: userId },
