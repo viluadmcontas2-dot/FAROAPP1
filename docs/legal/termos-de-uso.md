@@ -59,7 +59,7 @@ Não use o Faro para fraudar, atacar o sistema, tentar acessar dados de outras p
 - Se mudarmos estes termos de forma importante, avisamos do mesmo jeito.
 
 ## 11. Foro e lei
-Valem as leis do Brasil. Qualquer disputa será tratada no foro do domicílio do consumidor, como manda o CDC. O responsável é de Camaçari/BA (dado do CNPJ).
+Valem as leis do Brasil. Qualquer disputa será tratada no foro do domicílio do consumidor, como manda o CDC. O responsável atende em Salvador/BA (informado pelo dono em 22/10); o endereço registrado no CNPJ é Camaçari/BA. [CONFIRMAR COM O DONO: qual endereço completo vai nos termos; o endereço do CNPJ e o dos termos devem ser o mesmo].
 
 ## 12. Contato
 Dúvidas: [CONFIRMAR COM O DONO: e-mail de suporte]. Veja também `suporte-e-contato.md`.
