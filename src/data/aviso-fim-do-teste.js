@@ -8,11 +8,12 @@ export const JANELA_COBRADO_DIAS = 2; // depois da cobrança, o aviso fica por 2
 const DIA_MS = 86400000;
 const BOTAO = 'Gerenciar assinatura';
 
-// {data} = dia da cobrança (dd/mm); {valor} = valor da mensalidade
+// {data} = dia em que o teste termina (dd/mm); com pagamento cadastrado é também o dia da cobrança; {valor} = valor da mensalidade
+// ADR 0009: o teste não pede cartão. Os textos valem para quem cadastrou pagamento e para quem não cadastrou (sem pagamento, o acesso termina e nada é cobrado).
 const TEXTOS = {
-  tres_dias: { titulo: () => 'Seu teste termina em 3 dias', texto: ({ data, valor }) => `Seu teste grátis do Faro termina em ${data}. Nesse dia cobramos ${valor} no cartão cadastrado. Se não quiser continuar, cancele antes e não paga nada.` },
-  um_dia: { titulo: () => 'Amanhã o teste termina', texto: ({ data, valor }) => `Amanhã, ${data}, cobramos ${valor} no cartão. Quer continuar? Não precisa fazer nada. Prefere parar? Cancele hoje e não paga nada.` },
-  hoje: { titulo: () => 'Seu teste termina hoje', texto: ({ valor }) => `Hoje começa sua assinatura do Faro: ${valor} por mês no cartão cadastrado. Você pode cancelar quando quiser.` },
+  tres_dias: { titulo: () => 'Seu teste termina em 3 dias', texto: ({ data, valor }) => `Seu teste grátis do Faro termina em ${data}. Para continuar, deixe o pagamento cadastrado em Gerenciar assinatura: nesse dia cobramos ${valor}. Se não quiser continuar, cancele antes ou não cadastre nada, e você não paga nada.` },
+  um_dia: { titulo: () => 'Amanhã o teste termina', texto: ({ data, valor }) => `Amanhã, ${data}, termina seu teste. Quer continuar? Deixe o pagamento cadastrado em Gerenciar assinatura e cobramos ${valor} no dia. Prefere parar? Cancele hoje ou não cadastre nada, e você não paga nada.` },
+  hoje: { titulo: () => 'Seu teste termina hoje', texto: ({ valor }) => `Hoje termina seu teste. Para continuar, cadastre o pagamento em Gerenciar assinatura: a assinatura do Faro começa hoje, ${valor} por mês, e você cancela quando quiser. Sem pagamento cadastrado, o acesso termina hoje e você não paga nada.` },
   cobrado: { titulo: ({ valor }) => `Cobrança feita: ${valor}`, texto: ({ proxima }) => `Sua assinatura do Faro está ativa.${proxima ? ` Próxima cobrança em ${proxima}.` : ''} Foi cobrado e se arrependeu? Você tem 7 dias para pedir o dinheiro de volta.` },
 };
 
@@ -24,7 +25,7 @@ const diasEntre = (de, ate) => Math.round((Date.parse(`${ate}T00:00:00Z`) - Date
 const ddmm = iso => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 
 // sub: { status, currentPeriodEnd, trialEnd?, cancelAtPeriodEnd? } (o que backend.fetchSubscription devolve).
-// Durante o teste, `trialEnd` (se vier) ou `currentPeriodEnd` é o dia da primeira cobrança.
+// Durante o teste, `trialEnd` (se vier) ou `currentPeriodEnd` é o dia em que o teste termina (e da primeira cobrança, se houver pagamento cadastrado).
 // Devolve null ou { nivel: 'tres_dias'|'um_dia'|'hoje'|'cobrado', titulo, texto, botao }.
 export function avisoFimDoTeste({ sub = null, billingEnabled = false, now = Date.now(), timeZone = FUSO_PADRAO, valor = VALOR_PADRAO } = {}) {
   if (billingEnabled !== true || !sub || typeof sub !== 'object' || sub.error) return null;

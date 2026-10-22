@@ -24,3 +24,14 @@ Decisão do dono: não testar em sandbox; ir direto para produção e testar com
 
 ## Não provado
 Checkout real com a página de pagamento, o webhook real, o aviso de fim do teste e a conta do Stripe aprovada para cobrar de verdade (o painel de teste mostrava o aviso "Verify your business"; confirmar se a conta real já está verificada).
+
+## Conferido em 21/10/2026 (só leitura, nada foi alterado no Stripe nem no Supabase)
+- **Conta real não ativada:** `charges_enabled=false`, `details_submitted=false`, sem conta bancária e sem capabilities. Ativar antes de cobrar (só o dono). Isso responde o "não provado" acima.
+- **ID do price com a letra O, não zero:** `price_1UTBP6L57ISnOgzhv6Uwz6hW`. A versão com zero devolve "No such price". Copiar e colar, não digitar.
+- **Webhook real: nenhum.** O sandbox tem um ativo (`we_1UAFofLsq19Xe9NBk4gSh2tW`) para a mesma URL, com os mesmos 6 eventos: gera 500 hoje e vai gerar 400 depois da troca do segredo (a função confere um segredo só). Desativar.
+- **Eventos:** o código trata 8, não 6. Assinar também `charge.dispute.created` (grava a contestação; a chave precisa de Charges: Read). `customer.subscription.trial_will_end` só vira log.
+- **Chave restrita (mínimo, pelo código):** Checkout Sessions Write, Customers Write, Subscriptions Write, Customer portal Write, Charges Read, Prices Read; o resto None. Os rótulos exatos na tela do Stripe não foram conferidos; se der 502, o log do Workbench diz qual permissão falta.
+- **Segredos lidos pelo código além dos 3:** `FARO_APP_URL` (https) e `FARO_BILLING_ENABLED` (exatamente `true`).
+- **FARODONO:** 100% para sempre (`forever`), 5 usos, resgate até 21/11/2026 23:59:59 (BRT). O prazo só limita o resgate; quem usa fica grátis para sempre. Desativar o código depois do teste do dono.
+- **Pix Automático:** não existe para conta domiciliada no Brasil (https://docs.stripe.com/payments/pix). Por isso o teste passou a ser sem cartão: `docs/decisions/0009-teste-sem-cartao.md`.
+- **Logs:** o checkout e o webhook só registram o tipo do erro (`StripeInvalidRequestError`), sem `code` nem `param`; acrescentar `error.code` ajudaria a diagnosticar.

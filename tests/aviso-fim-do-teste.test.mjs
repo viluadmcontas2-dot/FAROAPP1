@@ -44,6 +44,12 @@ test('textos: valor, dia e verbo igual no botão e no aviso', () => {
   assert.match(h.texto, /22,99/);
   assert.equal(aviso(trial('2026-10-24T15:00:00Z'), '2026-10-21T15:00:00Z', { valor: 'R$ 14,99' }).texto.includes('R$ 14,99'), true);
   for (const x of [a, u, h]) assert.doesNotMatch(`${x.titulo} ${x.texto}`, /não perca|última chance/i);
+  // ADR 0009: o teste não pede cartão. O texto precisa ser verdadeiro para quem cadastrou pagamento e para quem não cadastrou.
+  for (const x of [a, u, h]) {
+    assert.doesNotMatch(x.texto, /no cartão/, 'não promete cobrança num cartão que pode não existir');
+    assert.match(x.texto, /Gerenciar assinatura/, 'diz onde cadastrar o pagamento');
+    assert.match(x.texto, /não paga nada/, 'diz que sem pagamento cadastrado não há cobrança');
+  }
 });
 
 test('cobrado: assinatura ativa logo depois do fim do teste', () => {

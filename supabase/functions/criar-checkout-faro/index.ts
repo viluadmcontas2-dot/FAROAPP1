@@ -77,7 +77,8 @@ export default {
           customer: customerId,
           line_items: [{ price: priceId, quantity: 1 }],
           allow_promotion_codes: true,
-          payment_method_collection: 'always',
+          // Sem cartão na entrada (ADR 0009): só pede pagamento quando a 1ª fatura tem valor (teste grátis e cupom de 100% não pedem).
+          payment_method_collection: 'if_required',
           integration_identifier: 'faro_finance_qmvktzra',
           client_reference_id: userId,
           metadata: { faro_user_id: userId },

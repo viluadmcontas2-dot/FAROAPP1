@@ -125,7 +125,9 @@ test('6.5 checkout: exige JWT de usuario, ignora o corpo do cliente (user_id, pr
   // trial: so o numero que o BANCO devolve (faro_trial_days_for) entra em subscription_data
   assert.match(checkout, /rpc\('faro_trial_days_for', \{ p_user_id: userId \}\)/);
   assert.match(checkout, /\.\.\.checkoutTrialParams\(trialDays\)/);
-  assert.match(checkout, /payment_method_collection: 'always'/, 'cartao no inicio e a defesa contra farm de trial');
+  // ADR 0009: teste sem cartao. O cartao so e pedido quando ha valor a cobrar; sem pagamento ao fim do teste, a assinatura e cancelada.
+  assert.match(checkout, /payment_method_collection: 'if_required'/, 'teste sem cartao (ADR 0009)');
+  assert.doesNotMatch(checkout, /payment_method_collection: 'always'/);
   assert.match(checkout, /ctx\.jwtClaims\?\.is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao assina');
   assert.match(checkout, /req\.method !== 'POST'[\s\S]{0,80}405/);
   assert.match(checkout, /Deno\.env\.get\('FARO_BILLING_ENABLED'\) === 'true'/, 'interruptor de cobranca fail-closed');
@@ -304,7 +306,7 @@ test('9.4 farm de trial/XP: e-mail alias do gmail e normalizado no banco (ver 9.
   const sql = read('supabase/migrations/20261021000200_faro_acesso_e_trial.sql');
   assert.match(sql, /replace\(v_local, '\.', ''\)/, 'pontos do gmail precisam ser removidos');
   assert.match(sql, /split_part\(split_part\(v, '@', 1\), '\+', 1\)/, '+alias precisa ser removido');
-  assert.match(sql, /payment_method_collection|cartao/i);
+  assert.match(sql, /faro_trials_used/, 'historico de trial por e-mail normalizado: o controle que sobrou sem o cartao (ADR 0009)');
   // XP nao decide nada no servidor: nenhuma tabela/RPC usa o campo xp
   for (const f of readdirSync(join(root, 'supabase/migrations'))) assert.doesNotMatch(read(`supabase/migrations/${f}`), /\bxp\b/i, `${f}: servidor usando XP`);
   for (const f of ['criar-checkout-faro', 'abrir-portal-faro', 'stripe-webhook-faro']) assert.doesNotMatch(fn(f), /\bxp\b/i);

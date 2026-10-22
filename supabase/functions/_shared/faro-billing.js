@@ -20,9 +20,13 @@ export const subscriptionIdFrom = object => {
 export const hasBlockingSubscription = row => Boolean(row?.stripe_subscription_id && BLOCKING_STATUS.has(row.status));
 
 // Trial so na primeira vez: dias vindos do banco (faro_trial_days_for); 0 = sem trial.
+// Sem cartao na entrada (ADR 0009): se o teste acabar sem pagamento cadastrado, o Stripe cancela a assinatura
+// (evento customer.subscription.deleted); com pagamento cadastrado, cobra no fim do teste.
 export const checkoutTrialParams = days => {
   const n = Number(days);
-  return Number.isInteger(n) && n > 0 ? { trial_period_days: n } : {};
+  return Number.isInteger(n) && n > 0
+    ? { trial_period_days: n, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } }
+    : {};
 };
 
 export const stripeFailure = error => {

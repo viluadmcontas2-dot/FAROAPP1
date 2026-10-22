@@ -246,7 +246,8 @@ test('aviso de fim do teste aparece no topo do Início e "Gerenciar assinatura" 
   await logar(page);
   await hasText(page, 'Seu teste termina em 3 dias');
   const body = await text(page);
-  assert.match(body, /cobramos R\$ 22,99 no cartão cadastrado/);
+  assert.match(body, /nesse dia cobramos R\$ 22,99/);
+  assert.doesNotMatch(body, /no cartão cadastrado/, 'teste sem cartão (ADR 0009)');
   assert.ok(body.indexOf('Seu teste termina em 3 dias') < body.indexOf('Primeiros passos no Faro'), 'o aviso fica no topo do conteúdo');
   await shot('aviso-fim-do-teste');
   await button(page, 'Gerenciar assinatura').click();

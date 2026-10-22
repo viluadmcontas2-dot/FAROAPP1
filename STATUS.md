@@ -31,11 +31,11 @@ Atualizado em 21/10/2026. Branch `claude/faro-2-0-beta-pago`. Tarefa mãe no Git
 ## Bloqueado pelo dono
 - **Link do app:** https://faroapp1.hugovitorslipknot.workers.dev — aberto ao público (o Cloudflare Access foi desligado em 21/10). Ligado ao GitHub: cada commit na branch `claude/faro-2-0-beta-pago` (fora docs/specs/.md) é construído e publicado sozinho pelo Cloudflare Workers Builds; build de teste passou. Falta conferir em celular real (#28, #33). O Claude controla a Cloudflare pelo conector oficial (API completa), sem token colado.
 - **Decisão:** fechar o dia em 1 tela ou em 3.
-- **Segredos do Stripe** no Supabase (o dono cadastra; nunca no chat).
+- **Stripe real:** ativar a conta para cobrar, criar o webhook real e cadastrar no Supabase `STRIPE_SECRET_KEY`, `STRIPE_FARO_MONTHLY_PRICE_ID` e `STRIPE_WEBHOOK_SECRET` (o dono cadastra; nunca no chat).
 - **Branches antigas:** foram copiadas para nomes `legado/...`; os nomes antigos continuam existindo porque o ambiente não apaga branch. O dono apaga na página Branches do GitHub. Os pedidos de junção rascunho antigos foram fechados. A branch `claude/hopeful-feynman-51q8b1` está inteira dentro desta; nada se perde.
 
 ## Beta pago desde o primeiro dia
-Não haverá beta grátis. As pessoas assinam para usar: 7 dias de teste com cartão pedido na entrada (primeira cobrança no dia 8), preço R$ 22,99 por mês, cupom `RATAO`. Motivo e detalhes em `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`.
+Não haverá beta grátis. As pessoas assinam para usar: 7 dias de teste sem cartão (o pagamento só é pedido para continuar; primeira cobrança no dia 8 se houver pagamento cadastrado, senão a assinatura é cancelada), preço R$ 22,99 por mês, cupom `RATAO`. Motivo e detalhes em `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md`; o teste sem cartão é a decisão `docs/decisions/0009-teste-sem-cartao.md`.
 
 A cobrança (`FARO_BILLING_ENABLED`) liga na abertura, mas só quando TODOS estes itens estiverem prontos:
 1. termos de uso
@@ -51,7 +51,7 @@ A cobrança (`FARO_BILLING_ENABLED`) liga na abertura, mas só quando TODOS este
 Hoje a cobrança está desligada porque esses itens ainda não existem. Esse é o caminho crítico.
 
 ## Stripe
-Preço e cupom reais: `docs/evidence/faro-2-0/stripe-cupom-e-preco.md` (só modo de teste lido). O cupom ainda não tem trava de uso. Modo real não foi conferido.
+Preço e cupom do modo de teste: `docs/evidence/faro-2-0/stripe-cupom-e-preco.md`. Modo real: produto, preço, cupons e portal criados (`docs/evidence/faro-2-0/stripe-producao-faro.md`). Conferido em 21/10/2026: a conta real ainda NÃO está ativada para cobrar (`charges_enabled=false`) e não tem webhook real; o webhook do sandbox ainda aponta para a mesma função. Pix Automático não existe para conta do Brasil (decisão 0009).
 
 ## Próximo passo
 O dono liga o repositório ao Worker `faroapp1` na Cloudflare para existir um link de prévia. Em paralelo, escrevemos os rascunhos de termos, privacidade, suporte, excluir conta e aviso de fim do teste.

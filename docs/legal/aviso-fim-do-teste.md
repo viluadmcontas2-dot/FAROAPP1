@@ -2,21 +2,22 @@
 
 > RASCUNHO. Tom: claro, sem pressão. Verbo + objeto nos botões. A mesma palavra no botão e no aviso.
 > Para cada aviso, o canal é [CONFIRMAR COM O DONO: e-mail, aviso dentro do app ou os dois]. O Stripe já emite um evento 3 dias antes do fim do teste (`customer.subscription.trial_will_end`); hoje o webhook só o registra, não envia nada. Ligar o envio é trabalho de código, fora deste rascunho.
-> `{data}` = dia da primeira cobrança. `{valor}` = R$ 22,99 (ou R$ 14,99 com RATAO).
+> O teste não pede cartão (decisão `docs/decisions/0009-teste-sem-cartao.md`). Cada texto vale para quem cadastrou pagamento e para quem não cadastrou: sem pagamento ao fim do teste a assinatura é cancelada e nada é cobrado.
+> `{data}` = dia em que o teste termina (com pagamento cadastrado, também o dia da primeira cobrança). `{valor}` = R$ 22,99 (ou R$ 14,99 com RATAO).
 
 ## 1. Três dias antes (dia 5 do teste)
 **Título:** Seu teste termina em 3 dias
-**Texto:** Seu teste grátis do Faro termina em {data}. Nesse dia cobramos {valor} no cartão cadastrado. Se não quiser continuar, cancele antes e não paga nada.
+**Texto:** Seu teste grátis do Faro termina em {data}. Para continuar, deixe o pagamento cadastrado em Gerenciar assinatura: nesse dia cobramos {valor}. Se não quiser continuar, cancele antes ou não cadastre nada, e você não paga nada.
 **Botões:** [Gerenciar assinatura] [Cancelar assinatura]
 
 ## 2. Um dia antes (dia 7 do teste)
 **Título:** Amanhã o teste termina
-**Texto:** Amanhã, {data}, cobramos {valor} no cartão. Quer continuar? Não precisa fazer nada. Prefere parar? Cancele hoje e não paga nada.
+**Texto:** Amanhã, {data}, termina seu teste. Quer continuar? Deixe o pagamento cadastrado em Gerenciar assinatura e cobramos {valor} no dia. Prefere parar? Cancele hoje ou não cadastre nada, e você não paga nada.
 **Botões:** [Cancelar assinatura] [Gerenciar assinatura]
 
 ## 3. No dia (dia 8)
-**Título:** Seu teste terminou hoje
-**Texto:** Hoje começa sua assinatura do Faro: {valor} por mês no cartão cadastrado. Você pode cancelar quando quiser.
+**Título:** Seu teste termina hoje
+**Texto:** Hoje termina seu teste. Para continuar, cadastre o pagamento em Gerenciar assinatura: a assinatura do Faro começa hoje, {valor} por mês, e você cancela quando quiser. Sem pagamento cadastrado, o acesso termina hoje e você não paga nada.
 **Botões:** [Gerenciar assinatura] [Cancelar assinatura]
 
 ## 4. Depois da cobrança

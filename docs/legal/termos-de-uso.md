@@ -17,7 +17,7 @@ Quem oferece o Faro: [CONFIRMAR COM O DONO: nome ou razão social, CPF/CNPJ e en
 
 ## 3. Assinatura e teste de 7 dias
 - Preço: R$ 22,99 por mês, cobrado todo mês no cartão.
-- Teste de 7 dias: você usa tudo por 7 dias. Pedimos o cartão na entrada. A primeira cobrança acontece no dia 8, a não ser que você cancele antes.
+- Teste de 7 dias: você usa tudo por 7 dias, sem informar cartão. Para continuar depois, cadastre o pagamento em "Gerenciar assinatura" antes do fim do teste: a primeira cobrança acontece no dia 8, a não ser que você cancele antes. Se não cadastrar nada, o acesso termina no fim do teste e você não paga nada. Para voltar depois, é só assinar de novo.
 - O teste vale uma vez por pessoa.
 - Avisamos você antes do fim do teste (veja `aviso-fim-do-teste.md`).
 - O pagamento é feito pelo Stripe. O Faro não vê nem guarda o número do seu cartão.

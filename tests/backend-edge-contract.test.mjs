@@ -33,20 +33,25 @@ test('migração faro_save_state: revoga escrita direta, limites e schema 2', ()
   assert.match(sql, /524288/); assert.match(sql, /set search_path = ''/); assert.match(sql, /revoke all on function public\.faro_save_state[^;]*from public, anon/);
 });
 
-test('checkout: trial de 7 dias UMA vez (decidido no banco), cartão sempre, idempotência estável por usuário+janela', () => {
+test('checkout: trial de 7 dias UMA vez (decidido no banco), sem cartão para começar (ADR 0009), idempotência estável por usuário+janela', () => {
   assert.match(checkout, /faro_trial_days_for/); assert.match(checkout, /checkoutTrialParams\(/);
-  assert.match(checkout, /payment_method_collection: 'always'/); assert.match(checkout, /subscription_data: \{.*\.\.\.checkoutTrialParams\(trialDays\)/);
+  assert.match(checkout, /payment_method_collection: 'if_required'/); assert.doesNotMatch(checkout, /payment_method_collection: 'always'/);
+  assert.match(checkout, /subscription_data: \{.*\.\.\.checkoutTrialParams\(trialDays\)/);
   assert.match(checkout, /idempotencyKey: `faro-checkout-\$\{userId\}-\$\{windowIndex\}-\$\{trialDays > 0 \? 't' : 'n'\}`/);
   assert.match(checkout, /allow_promotion_codes: true/, 'cupom RATAO continua valendo');
   assert.doesNotMatch(checkout, /trial_period_days:\s*7/, 'dias vêm do banco, não do código');
   assert.ok(checkout.indexOf('faro_trial_days_for') < checkout.indexOf('checkout.sessions.create'));
+  // a decisão e o risco aceito ficam escritos junto do código que os implementa
+  const adr = readFileSync(new URL('../docs/decisions/0009-teste-sem-cartao.md', import.meta.url), 'utf8');
+  assert.match(adr, /if_required/); assert.match(adr, /missing_payment_method/); assert.match(adr, /farm de trial/i, 'o risco aceito fica registrado');
 });
 test('checkout: anônimo recusado, cobrança só com FARO_BILLING_ENABLED', () => {
   assert.match(checkout, /is_anonymous === true[^\n]*403/); assert.match(checkout, /FARO_BILLING_ENABLED/);
 });
 test('shared faro-billing: trial só com dias inteiros positivos', async () => {
   const m = await import('../supabase/functions/_shared/faro-billing.js');
-  assert.deepEqual(m.checkoutTrialParams(7), { trial_period_days: 7 });
+  // sem pagamento ao fim do teste a assinatura é cancelada (ADR 0009); com pagamento cadastrado o Stripe cobra no dia 8
+  assert.deepEqual(m.checkoutTrialParams(7), { trial_period_days: 7, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } });
   for (const v of [0, -1, 1.5, null, undefined, 'x', NaN]) assert.deepEqual(m.checkoutTrialParams(v), {});
   assert.equal(m.normalizedStatus('trialing'), 'trialing'); assert.equal(m.normalizedStatus('foo'), 'inactive');
   assert.equal(m.hasBlockingSubscription({ stripe_subscription_id: 's', status: 'trialing' }), true);
@@ -59,7 +64,7 @@ test('webhook: trial_will_end só registra; trialing e demais status via RPC at�
   assert.match(webhook, /customer\.subscription\.trial_will_end/);
   assert.match(webhook, /normalizedStatus/);
 });
-test('migração faro_acesso_e_trial: idempotente, search_path vazio, acesso só active/trialing, sem trial sem cartão', () => {
+test('migração faro_acesso_e_trial: idempotente, search_path vazio, acesso só active/trialing, sem trial concedido pelo banco', () => {
   const sql = readFileSync(new URL('../supabase/migrations/20261021000200_faro_acesso_e_trial.sql', import.meta.url), 'utf8');
   assert.match(sql, /create table if not exists public\.faro_trials_used/); assert.match(sql, /create table if not exists public\.faro_billing_settings/);
   assert.match(sql, /faro_has_access/); assert.match(sql, /faro_my_trial_ends_at/);
