@@ -2,23 +2,41 @@
 // Regra (modo estrito): busca (Grep/Glob) sem consulta recente ao mapa é SEMPRE barrada, com a instrução.
 // A consulta é um comando de terminal (Bash), que nunca é bloqueado: não há como ficar preso.
 // Consultar o mapa (graphify query/path/explain) libera por 20 minutos. Sem mapa, nunca barra.
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, utimesSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, utimesSync, symlinkSync, rmSync, openSync, closeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const SCRIPT = new URL('../.claude/hooks/graphify-gate.sh', import.meta.url).pathname;
 
+const bin = mkdtempSync(join(tmpdir(), 'gate-path-'));
+const falso = join(bin, 'com-graphify');
+mkdirSync(falso);
+for (const cmd of ['bash', 'python3', 'date', 'stat', 'cat', 'grep', 'touch']) {
+  symlinkSync(spawnSync('/bin/bash', ['-c', 'command -v ' + cmd], { encoding: 'utf8', timeout: 1000 }).stdout.trim(), join(bin, cmd));
+}
+writeFileSync(join(falso, 'graphify'), '#!/bin/bash\nexit 0\n', { mode: 0o755 });
+after(() => rmSync(bin, { recursive: true, force: true }));
 const projeto = ({ comMapa = true } = {}) => {
   const dir = mkdtempSync(join(tmpdir(), 'gate-'));
   mkdirSync(join(dir, 'graphify-out'), { recursive: true });
   if (comMapa) writeFileSync(join(dir, 'graphify-out', 'graph.json'), '{"nodes":[],"links":[]}');
   return dir;
 };
-const rodar = (dir, entrada, arg = '') =>
-  spawnSync('bash', [SCRIPT, arg].filter(Boolean), { input: JSON.stringify(entrada), env: { ...process.env, CLAUDE_PROJECT_DIR: dir }, encoding: 'utf8' });
+const rodar = (dir, entrada, arg = '', comGraphify = true) => {
+  const arquivo = join(dir, 'entrada.json');
+  writeFileSync(arquivo, typeof entrada === 'string' ? entrada : JSON.stringify(entrada));
+  const fd = openSync(arquivo, 'r');
+  try {
+    return spawnSync('bash', [SCRIPT, arg].filter(Boolean), {
+      stdio: [fd, 'pipe', 'pipe'],
+      env: { ...process.env, CLAUDE_PROJECT_DIR: dir, PATH: comGraphify ? falso + ':' + bin : bin },
+      encoding: 'utf8', timeout: 5000,
+    });
+  } finally { closeSync(fd); }
+};
 const grep = { hook_event_name: 'PreToolUse', tool_name: 'Grep', tool_input: { pattern: 'closeDay' } };
 const glob = { hook_event_name: 'PreToolUse', tool_name: 'Glob', tool_input: { pattern: 'src/**/*.js' } };
 const bash = cmd => ({ hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: cmd } });
@@ -75,7 +93,7 @@ test('depois de 20 minutos sem consultar, barra de novo', () => {
 
 test('entrada inválida ou vazia nunca derruba o trabalho', () => {
   const d = projeto();
-  const r = spawnSync('bash', [SCRIPT], { input: 'isto não é json', env: { ...process.env, CLAUDE_PROJECT_DIR: d }, encoding: 'utf8' });
+  const r = rodar(d, 'isto não é json');
   assert.equal(r.status, 0);
   assert.equal(r.stdout.trim(), '');
 });
@@ -95,4 +113,16 @@ test('o projeto liga o gancho no .claude/settings.json (Grep|Glob antes, Bash de
   const pos = s.hooks.PostToolUse.find(h => h.matcher === 'Bash');
   assert.ok(pos, 'falta PostToolUse Bash');
   assert.match(pos.hooks[0].command, /graphify-gate\.sh.* mark/);
+});
+
+test('sem graphify no PATH nunca barra mesmo com mapa e sem consulta', () => {
+  const d = projeto();
+  for (const entrada of [grep, glob]) {
+    const r = rodar(d, entrada, '', false);
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout.trim(), '');
+  }
+});
+test('com graphify no PATH continua barrando sem consulta', () => {
+  assert.equal(decisao(rodar(projeto(), grep)).permissionDecision, 'deny');
 });

@@ -4,8 +4,9 @@
 #     Não há como ficar preso: a consulta é um comando Bash, que este gancho nunca bloqueia.
 #     Saída de emergência: criar o arquivo graphify-out/.sem-trava.
 #  PostToolUse (Bash, arg "mark"): se o comando foi graphify query/path/explain, libera por 20 min.
-# Sem mapa construído, nunca barra. Qualquer erro aqui sai em silêncio (exit 0): o gancho nunca derruba a sessão.
+# Sem graphify no PATH ou sem mapa construído, nunca barra. Qualquer erro aqui sai em silêncio (exit 0): o gancho nunca derruba a sessão.
 # Registro de uso: graphify-out/uso.log (uma linha por consulta e por lembrete), para medir quanto o mapa é usado.
+command -v graphify >/dev/null 2>&1 || exit 0
 modo="${1:-pre}"
 raiz="${CLAUDE_PROJECT_DIR:-$PWD}"
 saida="$raiz/graphify-out"
