@@ -3,7 +3,7 @@ import { fmt, R } from '../core/money.js';
 import { addDays, weekday, WD_SHORT, MONTHS, dayOfMonth, monthName } from '../core/dates.js';
 import { FUEL } from '../core/catalog.js';
 import { level, calc } from '../core/calc.js';
-import { daysLeft } from '../data/access.js';
+import { daysLeft, blockedIntro } from '../data/access.js';
 import { BILL_CAT_LABELS, VEHICLE_LABELS, ENERGY_LABELS, plural, PRICE, carFixName, UNIT_WORD } from './kit.js';
 import { energyWord } from './vals-forms.js';
 import { billStatus } from './vals.js';
@@ -132,7 +132,7 @@ const SUB_VIEW = (sub, now) => {
     case 'trialing': { const d = daysLeft(sub, now); return { title: 'Teste grátis', sub: d === null ? 'Seu teste grátis está ativo.' : d === 0 ? 'Seu teste termina hoje.' : `Faltam ${plural(d, 'dia', 'dias')} do teste grátis.`, action: 'portal', label: 'Gerenciar assinatura' }; }
     case 'active': return { title: 'Assinatura ativa', sub: end ? (sub.cancelAtPeriodEnd ? `Termina em ${end}.` : `Renova em ${end}.`) : 'Tudo certo com a sua assinatura.', action: 'portal', label: 'Gerenciar assinatura' };
     case 'past_due': case 'unpaid': return { title: 'Pagamento pendente', sub: 'Atualize o pagamento para continuar usando o Faro.', action: 'portal', label: 'Atualizar pagamento' };
-    case 'canceled': case 'paused': return { title: 'Assinatura cancelada', sub: 'Assine de novo para voltar a usar o Faro.', action: 'checkout', label: 'Assinar de novo' };
+    case 'canceled': case 'paused': return { title: 'Assinatura cancelada', sub: `Assine de novo para voltar a usar o Faro: ${PRICE}, cobrado já no começo. O teste grátis vale uma vez por pessoa.`, action: 'checkout', label: 'Assinar de novo' };
     default: return { title: 'Sem assinatura', sub: `Teste o Faro por 7 dias sem pagar, depois ${PRICE}. Cancele quando quiser.`, action: 'checkout', label: 'Começar 7 dias grátis' };
   }
 };
@@ -184,7 +184,7 @@ export function contaVals(k) {
   const onSub = { checkout: conta.checkout, portal: conta.portal, retry: conta.retrySub }[subView.action];
   const subscription = { show: configured && !access.checking, icon: billing ? 'ph-fill ph-star-four' : 'ph-fill ph-clock', title: subView.title, sub: subView.sub, label: subView.label, hasAction: !!onSub, onAction: onSub || (() => {}) };
 
-  const blockedText = access.blocked && !access.checking ? (access.decision.state === 'precisa_entrar' ? 'Entre ou crie sua conta para usar o Faro. Seus dados ficam salvos neste aparelho.' : 'Comece o teste grátis para usar o Faro. Seus dados continuam salvos neste aparelho.') : '';
+  const blockedText = access.blocked && !access.checking ? blockedIntro(access.decision) : '';
   return {
     intro: access.checking ? 'Conferindo sua conta…' : blockedText || 'Seus dados, o backup e a conexão com a nuvem.',
     canBack: !access.blocked, checking: access.checking, full: !access.checking,

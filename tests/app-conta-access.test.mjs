@@ -1,7 +1,8 @@
 // Regra de acesso (paywall): puro, sem rede. Liberado | precisa_entrar | precisa_assinar | trial_acabando.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decideAccess, hasEntitlement, daysLeft, isBlocked, ACCESS } from '../src/data/access.js';
+import { readFileSync } from 'node:fs';
+import { decideAccess, hasEntitlement, daysLeft, isBlocked, blockedIntro, ACCESS } from '../src/data/access.js';
 
 const NOW = Date.parse('2026-10-21T12:00:00Z');
 const inDays = n => new Date(NOW + n * 86400000).toISOString();
@@ -48,6 +49,28 @@ test('teste acabando: libera, mas avisa quando faltam poucos dias', () => {
   assert.equal(isBlocked(d), false);
   assert.equal(decideAccess({ billingEnabled: true, user, subscription: { status: 'trialing', currentPeriodEnd: inDays(3) }, now: NOW }).state, 'trial_acabando');
   assert.equal(decideAccess({ billingEnabled: true, user, subscription: { status: 'trialing', currentPeriodEnd: inDays(4) }, now: NOW }).state, 'liberado');
+});
+
+// ADR 0009: o teste acaba sem cartão e a assinatura é cancelada. Quem volta já usou o teste (vale uma vez): a tela não pode oferecer outro.
+test('texto da tela bloqueada: quem nunca assinou começa o teste; quem já teve assinatura assina de novo', () => {
+  const d = subscription => decideAccess({ billingEnabled: true, user, subscription, now: NOW });
+  assert.match(blockedIntro(d(null)), /Comece o teste grátis para usar o Faro/);
+  assert.match(blockedIntro(d({ status: 'inactive' })), /Comece o teste grátis/, 'cliente criado no começo do checkout, sem assinatura: ainda não usou o teste');
+  for (const sub of [{ status: 'canceled', currentPeriodEnd: inDays(-1) }, { status: 'canceled' }, { status: 'trialing', currentPeriodEnd: inDays(-1) }]) {
+    const t = blockedIntro(d(sub));
+    assert.match(t, /Assine para voltar a usar o Faro/, JSON.stringify(sub));
+    assert.doesNotMatch(t, /teste grátis/, `${JSON.stringify(sub)}: o teste já foi usado`);
+  }
+  for (const status of ['past_due', 'unpaid']) assert.match(blockedIntro(d({ status })), /Atualize o pagamento para voltar a usar o Faro/, status);
+  assert.match(blockedIntro(decideAccess({ billingEnabled: true, user: null, now: NOW })), /Entre ou crie sua conta para usar o Faro/);
+  for (const sub of [null, { status: 'canceled' }, { status: 'past_due' }]) assert.match(blockedIntro(d(sub)), /Seus dados continuam salvos neste aparelho/);
+});
+
+test('tela de assinatura cancelada avisa que o 2º checkout cobra já e que o teste não repete', () => {
+  const linha = readFileSync(new URL('../src/ui/vals-secondary.js', import.meta.url), 'utf8').split('\n').find(l => l.includes("title: 'Assinatura cancelada'"));
+  assert.ok(linha, 'caso canceled/paused existe');
+  assert.match(linha, /cobrado já no começo/); assert.match(linha, /O teste grátis vale uma vez por pessoa/);
+  assert.match(linha, /label: 'Assinar de novo'/, 'o e2e procura este botão');
 });
 
 test('auxiliares: direito e dias restantes', () => {

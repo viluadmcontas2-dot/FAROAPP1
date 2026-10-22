@@ -31,3 +31,13 @@ export function decideAccess({ billingEnabled = false, user = null, subscription
 
 // o app bloqueia só nestes dois; trial_acabando continua liberado (só avisa)
 export const isBlocked = decision => decision.state === ACCESS.ENTRAR || decision.state === ACCESS.ASSINAR;
+
+// Texto da tela bloqueada. Quem nunca teve assinatura começa o teste; quem já teve (cancelada ao fim do teste sem cartão, por
+// exemplo) assina de novo, porque o teste vale uma vez por pessoa (ADR 0009). `inactive` = cliente criado no começo do checkout, sem assinatura.
+export function blockedIntro(decision) {
+  const salvos = 'Seus dados continuam salvos neste aparelho.';
+  if (decision.state === ACCESS.ENTRAR) return 'Entre ou crie sua conta para usar o Faro. Seus dados ficam salvos neste aparelho.';
+  if (decision.reason === 'sem_assinatura' || decision.reason === 'assinatura_inactive') return `Comece o teste grátis para usar o Faro. ${salvos}`;
+  if (decision.reason === 'assinatura_past_due' || decision.reason === 'assinatura_unpaid') return `Atualize o pagamento para voltar a usar o Faro. ${salvos}`;
+  return `Assine para voltar a usar o Faro. ${salvos}`;
+}
