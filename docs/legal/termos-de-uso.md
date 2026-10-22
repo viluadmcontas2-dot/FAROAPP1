@@ -6,7 +6,7 @@
 ## 1. O que é o Faro
 O Faro é um aplicativo de celular para motorista de aplicativo (Uber, 99, inDrive). Você digita seus ganhos, quilômetros e contas, e o Faro mostra quanto sobrou de verdade no dia, na semana e no mês.
 
-Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA Endereço informado pelo dono: Avenida Jorge Amado, s/n, Imbuí, Salvador/BA. [CONFIRMAR COM O DONO: o cadastro do MEI (certificado de 30/03/2026) ainda mostra Rua Mairi, 3, Nova Abrantes, Camaçari/BA, CEP 42826-600; atualizar o endereço no Portal do Empreendedor antes de publicar, para os termos e o CNPJ baterem. Nome fantasia, se houver.]
+Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA Endereço (igual ao do cadastro do MEI): Rua Mairi, 3, Nova Abrantes (Abrantes), Camaçari/BA, CEP 42826-600. [CONFIRMAR COM O DONO: nome fantasia, se houver.]
 
 ## 2. Sua conta
 - Você entra com seu e-mail. Precisa ter 18 anos ou mais.
@@ -59,7 +59,7 @@ Não use o Faro para fraudar, atacar o sistema, tentar acessar dados de outras p
 - Se mudarmos estes termos de forma importante, avisamos do mesmo jeito.
 
 ## 11. Foro e lei
-Valem as leis do Brasil. Qualquer disputa será tratada no foro do domicílio do consumidor, como manda o CDC. O responsável atende em Salvador/BA (informado pelo dono em 22/10); o endereço registrado no CNPJ é Camaçari/BA. [CONFIRMAR COM O DONO: qual endereço completo vai nos termos; o endereço do CNPJ e o dos termos devem ser o mesmo].
+Valem as leis do Brasil. Qualquer disputa será tratada no foro do domicílio do consumidor, como manda o CDC. O responsável tem endereço em Camaçari/BA (igual ao do CNPJ).
 
 ## 12. Contato
 Dúvidas: [CONFIRMAR COM O DONO: e-mail de suporte]. Veja também `suporte-e-contato.md`.
