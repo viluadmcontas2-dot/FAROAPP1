@@ -15,9 +15,9 @@ const configured = () => ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
 
 const authenticated = withSupabase({ auth: 'user' }, async (req, ctx) => {
   if (req.method !== 'POST') return json({ error: 'Use POST.' }, 405);
-  const userId = String(ctx.userClaims?.sub || '');
+  const userId = String(ctx.userClaims?.id || ctx.jwtClaims?.sub || '');
   if (!userId) return json({ error: 'Sessão inválida.' }, 401);
-  if (ctx.userClaims?.is_anonymous === true) return json({ error: 'Entre com sua conta de e-mail.' }, 403);
+  if (ctx.jwtClaims?.is_anonymous === true) return json({ error: 'Entre com sua conta de e-mail.' }, 403);
   const raw = await readTextLimited(req, MAX_BODY_BYTES);
   if (!raw.ok) return json({ error: 'Pedido grande demais.' }, 413);
   let body: any = null;

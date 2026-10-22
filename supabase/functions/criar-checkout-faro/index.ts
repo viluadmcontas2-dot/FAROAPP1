@@ -11,9 +11,9 @@ const json = (body: unknown, status = 200) => Response.json(body, { status });
 export default {
   fetch: withSupabase({ auth: 'user' }, async (req, ctx) => {
     if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
-    const userId = String(ctx.userClaims?.sub || '');
+    const userId = String(ctx.userClaims?.id || ctx.jwtClaims?.sub || '');
     if (!userId) return json({ error: 'Sessão inválida.' }, 401);
-    if (ctx.userClaims?.is_anonymous === true) return json({ error: 'Crie sua conta com e-mail para assinar.' }, 403);
+    if (ctx.jwtClaims?.is_anonymous === true) return json({ error: 'Crie sua conta com e-mail para assinar.' }, 403);
     if (!(Deno.env.get('FARO_BILLING_ENABLED') === 'true')) return json({ error: 'Cobrança ainda não aberta.' }, 503);
     if (!stripeSecret || !priceId || !appUrl) return json({ error: 'Cobrança ainda não configurada.' }, 503);
     if (!/^https:\/\/[^\s]+$/.test(appUrl)) return json({ error: 'Cobrança ainda não configurada.' }, 503);

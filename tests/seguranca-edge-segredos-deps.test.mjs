@@ -71,9 +71,10 @@ test('6.7 excluir-conta-faro (trazida do remoto, revisada): usuario real autenti
   const del = fn('excluir-conta-faro');
   assert.match(del, /withSupabase\(\{ auth: 'user' \}/, 'exclusao sem autenticacao de usuario');
   assert.match(del, /req\.method !== 'POST'[\s\S]{0,60}405/);
-  assert.match(del, /ctx\.userClaims\?\.sub/, 'o usuario vem do JWT validado');
+  assert.match(del, /ctx\.userClaims\?\.id \|\| ctx\.jwtClaims\?\.sub/, 'o usuario vem do JWT validado (userClaims.id; o tipo UserClaims NAO tem sub)');
+  assert.doesNotMatch(del, /userClaims\?\.(sub|is_anonymous)/, 'userClaims nao tem sub nem is_anonymous: isso derrubava toda chamada com 401');
   assert.doesNotMatch(del, /body\??\.(user_id|userId|id|email)|searchParams|url\.search|req\.url/, 'usuario alvo vindo do cliente');
-  assert.match(del, /is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao exclui por aqui');
+  assert.match(del, /jwtClaims\?\.is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao exclui por aqui');
   assert.match(del, /confirmation !== 'EXCLUIR'[\s\S]{0,80}400/, 'sem confirmacao explicita nao apaga');
   assert.match(del, /readTextLimited\(req, MAX_BODY_BYTES\)/, 'corpo com limite real');
   assert.doesNotMatch(del, /await req\.(text|json|arrayBuffer)\(\)/);
@@ -111,7 +112,8 @@ test('6.4 webhook: nunca confia em campos do evento sem assinatura; usuario vem 
 
 test('6.5 checkout: exige JWT de usuario, ignora o corpo do cliente (user_id, price, trial_period_days), URLs fixas do ambiente', () => {
   assert.match(checkout, /withSupabase\(\{ auth: 'user' \}/, 'checkout sem autenticacao de usuario');
-  assert.match(checkout, /ctx\.userClaims\?\.sub/, 'o usuario deve vir do JWT validado');
+  assert.match(checkout, /ctx\.userClaims\?\.id \|\| ctx\.jwtClaims\?\.sub/, 'o usuario deve vir do JWT validado (userClaims.id; o tipo UserClaims NAO tem sub)');
+  assert.doesNotMatch(checkout, /userClaims\?\.(sub|is_anonymous)/, 'userClaims nao tem sub nem is_anonymous');
   assert.doesNotMatch(checkout, /req\.json\(\)|req\.text\(\)|req\.formData\(\)|req\.body|searchParams|url\.search/, 'o checkout le o corpo/query do cliente');
   assert.doesNotMatch(checkout, /body\.(user_id|userId|price|priceId|trial|trial_period_days|success_url|cancel_url|return_url)/);
   assert.match(checkout, /const priceId = Deno\.env\.get\('STRIPE_FARO_MONTHLY_PRICE_ID'\)/, 'preco vem do ambiente');
@@ -124,7 +126,7 @@ test('6.5 checkout: exige JWT de usuario, ignora o corpo do cliente (user_id, pr
   assert.match(checkout, /rpc\('faro_trial_days_for', \{ p_user_id: userId \}\)/);
   assert.match(checkout, /\.\.\.checkoutTrialParams\(trialDays\)/);
   assert.match(checkout, /payment_method_collection: 'always'/, 'cartao no inicio e a defesa contra farm de trial');
-  assert.match(checkout, /ctx\.userClaims\?\.is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao assina');
+  assert.match(checkout, /ctx\.jwtClaims\?\.is_anonymous === true[\s\S]{0,80}403/, 'conta anonima nao assina');
   assert.match(checkout, /req\.method !== 'POST'[\s\S]{0,80}405/);
   assert.match(checkout, /Deno\.env\.get\('FARO_BILLING_ENABLED'\) === 'true'/, 'interruptor de cobranca fail-closed');
 });
@@ -306,4 +308,12 @@ test('9.4 farm de trial/XP: e-mail alias do gmail e normalizado no banco (ver 9.
   // XP nao decide nada no servidor: nenhuma tabela/RPC usa o campo xp
   for (const f of readdirSync(join(root, 'supabase/migrations'))) assert.doesNotMatch(read(`supabase/migrations/${f}`), /\bxp\b/i, `${f}: servidor usando XP`);
   for (const f of ['criar-checkout-faro', 'abrir-portal-faro', 'stripe-webhook-faro']) assert.doesNotMatch(fn(f), /\bxp\b/i);
+});
+
+test('6.9 portal, checkout e exclusao leem o usuario do mesmo jeito certo (regressao real de 22/10: userClaims.sub era sempre vazio e dava 401)', () => {
+  for (const nome of ['abrir-portal-faro', 'criar-checkout-faro', 'excluir-conta-faro']) {
+    const src = fn(nome);
+    assert.match(src, /ctx\.userClaims\?\.id \|\| ctx\.jwtClaims\?\.sub/, `${nome}: usuario deve vir de userClaims.id ou jwtClaims.sub`);
+    assert.doesNotMatch(src, /userClaims\?\.(sub|is_anonymous)/, `${nome}: userClaims nao tem sub nem is_anonymous`);
+  }
 });
