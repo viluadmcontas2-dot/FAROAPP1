@@ -7,6 +7,8 @@
 - Responsável: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18 (ativo, consultado na base pública), Camaçari/BA.
 - Suporte principal: WhatsApp (71) 93300-8720.
 - Reembolso: até 7 dias depois da cobrança (valor integral).
+- Endereço informado: Avenida Jorge Amado, s/n, Imbuí, Salvador/BA (o certificado MEI de 30/03/2026 ainda mostra Camaçari/BA: atualizar o cadastro).
+- ALERTA para o contador: o certificado MEI lista só promoção de eventos (8230-0/01), carreto municipal (4930-2/01) e promoção de vendas (7319-0/02). Nenhuma atividade de software/assinatura de aplicativo.
 - Cupons: PRAGAS R$ 14,97, RATAO R$ 14,99 e FARODONO R$ 0 (teste), todos só na primeira compra.
 
 ## Arquivos
