@@ -4,7 +4,7 @@
 
 ## Canal de suporte
 - E-mail: [CONFIRMAR COM O DONO: e-mail de suporte]
-- WhatsApp: [CONFIRMAR COM O DONO: número de suporte, ou "não teremos WhatsApp"]
+- WhatsApp: (71) 93300-8720 (canal principal de suporte; decisão do dono em 22/10)
 - Horário: [CONFIRMAR COM O DONO: ex.: segunda a sexta, 9h às 18h]
 
 ## Prazo de resposta

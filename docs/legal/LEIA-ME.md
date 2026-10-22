@@ -3,6 +3,12 @@
 **ATENÇÃO: tudo nesta pasta é RASCUNHO escrito por IA, não é aconselhamento jurídico.**
 **Um advogado precisa revisar tudo antes da primeira cobrança de verdade.** Cobrar sem isso é risco jurídico (CDC e LGPD), como diz `docs/decisions/0006-beta-pago-desde-o-primeiro-dia.md` e a regra 4 de `governance/constitution.md`.
 
+## Já respondido pelo dono (22/10/2026)
+- Responsável: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18 (ativo, consultado na base pública), Camaçari/BA.
+- Suporte principal: WhatsApp (71) 93300-8720.
+- Reembolso: até 7 dias depois da cobrança (valor integral).
+- Cupons: PRAGAS R$ 14,97, RATAO R$ 14,99 e FARODONO R$ 0 (teste), todos só na primeira compra.
+
 ## Arquivos
 - `termos-de-uso.md`
 - `politica-de-privacidade.md`

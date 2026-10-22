@@ -6,7 +6,7 @@
 ## 1. O que é o Faro
 O Faro é um aplicativo de celular para motorista de aplicativo (Uber, 99, inDrive). Você digita seus ganhos, quilômetros e contas, e o Faro mostra quanto sobrou de verdade no dia, na semana e no mês.
 
-Quem oferece o Faro: [CONFIRMAR COM O DONO: nome ou razão social, CPF/CNPJ e endereço].
+Quem oferece o Faro: 53.362.776 Vitor Hugo de Souza da Costa (MEI), CNPJ 53.362.776/0001-18, Camaçari/BA [CONFIRMAR COM O DONO: endereço completo e nome fantasia, se houver].
 
 ## 2. Sua conta
 - Você entra com seu e-mail. Precisa ter 18 anos ou mais.
@@ -59,7 +59,7 @@ Não use o Faro para fraudar, atacar o sistema, tentar acessar dados de outras p
 - Se mudarmos estes termos de forma importante, avisamos do mesmo jeito.
 
 ## 11. Foro e lei
-Valem as leis do Brasil. Qualquer disputa será tratada no foro do domicílio do consumidor, como manda o CDC. [CONFIRMAR COM O DONO: cidade e estado do responsável, para a identificação do item 1.]
+Valem as leis do Brasil. Qualquer disputa será tratada no foro do domicílio do consumidor, como manda o CDC. O responsável é de Camaçari/BA (dado do CNPJ).
 
 ## 12. Contato
 Dúvidas: [CONFIRMAR COM O DONO: e-mail de suporte]. Veja também `suporte-e-contato.md`.
