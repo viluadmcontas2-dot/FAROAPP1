@@ -2,7 +2,7 @@
 export const makeServer = () => ({ states: new Map(), subs: new Map(), devices: [], rpcCalls: 0, down: false, invoke: {}, users: new Map() });
 
 export const makeFakeCreateClient = (server) => (url, key, options) => {
-  let session = null; let authCb = null;
+  let session = server.initialSession ? { user: { ...server.initialSession } } : null; let authCb = null;
   const uid = () => session?.user?.id;
   const net = () => { if (server.down) { const e = new Error('Failed to fetch'); e.name = 'AuthRetryableFetchError'; e.status = 0; throw e; } };
   const emitAuth = (ev) => authCb?.(ev, session);

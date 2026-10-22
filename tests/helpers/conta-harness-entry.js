@@ -8,6 +8,7 @@ server.autoConfirm = false;
 for (const [email, u] of Object.entries(T.users || {})) server.users.set(email, { ...u });
 for (const [uid, row] of Object.entries(T.states || {})) server.states.set(uid, row);
 for (const [uid, row] of Object.entries(T.subs || {})) server.subs.set(uid, row);
+if (T.session) server.initialSession = T.session; // já entra com sessão salva (volta do Stripe)
 Object.assign(server.invoke, T.invoke || {});
 window.__server = server;
 window.__redirects = [];
@@ -16,5 +17,6 @@ window.__boot = boot({
   config: { supabaseUrl: 'https://abc.supabase.co', supabasePublishableKey: 'sb_publishable_x', billingEnabled: T.billing === true, pushEnabled: false },
   createClient: makeFakeCreateClient(server),
   version: '9.9.9',
+  ...(T.poll ? { landing: T.poll } : {}), // tempos curtos para testar o prazo da conferência
   redirect: url => window.__redirects.push(url), // a URL de checkout falsa NUNCA navega: só fica registrada
 });

@@ -110,6 +110,8 @@ export class InstallGate extends React.Component {
   copy = async () => {
     try { await navigator.clipboard.writeText(location.href); this.setState({ copied: true }); clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ copied: false }), 2300); } catch { this.setState({ failed: true }); }
   };
+  // sem API e sem número fixo: o WhatsApp abre com a mensagem pronta e a pessoa escolhe quem recebe
+  whatsapp = () => { try { window.open(`https://wa.me/?text=${encodeURIComponent(`Instale o Faro no seu celular: ${location.origin}`)}`, '_blank', 'noopener'); } catch { this.setState({ failed: true }); } };
   render() {
     const t = themeOf(this.props.theme || 'noturno'), c = installCopy(this.props.info, this.state.canPrompt, this.state.installedNow);
     const btn = { height: 60, borderRadius: 30, border: 'none', background: t.gold, color: t.goldInk, fontSize: 16, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: 'inherit', width: '100%' };
@@ -118,6 +120,7 @@ export class InstallGate extends React.Component {
         h('div', { style: { fontFamily: "'Unbounded'", fontSize: 34, fontWeight: 700, letterSpacing: 2, display: 'flex', alignItems: 'baseline' } }, 'F', h('span', { style: { position: 'relative' } }, 'Λ', h('span', { style: { position: 'absolute', left: '50%', bottom: 3, transform: 'translateX(-50%)', width: 7, height: 7, borderRadius: '50%', background: t.gold } })), 'RO'),
         h('div', { style: { flex: 1 } }),
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14 } },
+          this.props.badge ? h('div', { role: 'status', style: { alignSelf: 'flex-start', padding: '8px 14px', borderRadius: 20, background: t.goldSoft, color: t.gold, fontSize: 14, fontWeight: 800 } }, this.props.badge) : null,
           h('h1', { style: { margin: 0, fontFamily: "'Bricolage Grotesque'", fontSize: 36, lineHeight: 1.05, fontWeight: 700, letterSpacing: -1.2, textWrap: 'pretty' } }, c.title),
           h('p', { style: { margin: 0, fontSize: 16, lineHeight: 1.5, opacity: 0.82, textWrap: 'pretty' } }, c.text)),
         c.steps.length ? h('ol', { style: { listStyle: 'none', margin: '24px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 } },
@@ -126,7 +129,9 @@ export class InstallGate extends React.Component {
             h('span', { style: { fontSize: 14, fontWeight: 600, lineHeight: 1.35 } }, `${i + 1}. ${text}`)))) : null,
         h('div', { style: { height: 28 } }),
         c.install ? h('button', { onClick: this.install, style: btn }, 'Instalar o Faro') : null,
+        this.props.share ? h('button', { onClick: this.whatsapp, style: { ...btn, background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,.3)', marginBottom: c.copy ? 10 : 0 } }, 'Enviar link do Faro para meu WhatsApp') : null,
         c.copy ? h('button', { onClick: this.copy, style: { ...btn, background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,.3)' } }, this.state.copied ? 'Link copiado' : 'Copiar link') : null,
+        this.props.onSwitch ? h('button', { onClick: this.props.onSwitch, style: { ...btn, height: 48, background: 'transparent', color: '#fff', border: 'none', opacity: 0.8, marginTop: 6, fontSize: 14 } }, 'Trocar de conta') : null,
         this.state.failed ? h('p', { role: 'alert', style: { margin: '14px 0 0', fontSize: 14, fontWeight: 700, color: t.gold } }, c.install ? 'Não deu para abrir a instalação. Use o menu do navegador e toque em Instalar app.' : 'Não deu para copiar. Copie o endereço na barra do navegador.') : null));
   }
 }

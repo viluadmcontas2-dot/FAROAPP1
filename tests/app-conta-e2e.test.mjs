@@ -334,7 +334,7 @@ test('o app só abre instalado, mesmo com a cobrança desligada (sem atalho)', {
   const context = await (await launch({ standalone: false })).newContext({ viewport: VIEWPORTS[0] });
   const page = await context.newPage();
   await page.goto(server.url + '?dev=1');
-  await hasText(page, 'O Faro é um app de celular');
-  assert.doesNotMatch(await text(page), /Ver meu lucro de verdade/);
+  await hasText(page, 'Veja o lucro de verdade do seu dia'); // landing de venda, não o app
+  assert.doesNotMatch(await text(page), /Ver meu lucro de verdade|Instale o Faro|Instalar o Faro/);
   await context.browser().close();
 });
