@@ -68,7 +68,8 @@ export default {
         p_subscription_id: subscription?.id || null,
         p_status: subscription ? normalizedStatus(subscription.status) : null,
         p_current_period_end: subscription ? subscriptionPeriodEnd(subscription) : null,
-        p_cancel_at_period_end: Boolean(subscription?.cancel_at_period_end)
+        p_cancel_at_period_end: Boolean(subscription?.cancel_at_period_end),
+        p_trial_end: subscription?.trial_end != null ? new Date(subscription.trial_end * 1000).toISOString() : null
       });
       if (error) throw error;
       if (data === 'stale') console.warn('FARO webhook: evento velho ignorado', event.id, event.type);

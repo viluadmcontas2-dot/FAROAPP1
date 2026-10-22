@@ -217,11 +217,11 @@ export const createBackend = ({
   };
 
   const fetchSubscription = async () => {
-    const empty = { status: 'inactive', hasCustomer: false, currentPeriodEnd: null, cancelAtPeriodEnd: false, billingEnabled: config.billingEnabled };
+    const empty = { status: 'inactive', hasCustomer: false, currentPeriodEnd: null, trialEnd: null, cancelAtPeriodEnd: false, billingEnabled: config.billingEnabled };
     if (!config.billingEnabled || !user) return empty;
     try {
       const { data, error } = await getClient().from('faro_subscriptions')
-        .select('status,stripe_customer_id,current_period_end,cancel_at_period_end')
+        .select('status,stripe_customer_id,current_period_end,cancel_at_period_end,trial_end')
         .eq('user_id', user.id).maybeSingle();
       if (error) throw error;
       if (!data) return empty;
@@ -229,6 +229,7 @@ export const createBackend = ({
         status: SUBSCRIPTION_STATUSES.includes(data.status) ? data.status : 'inactive',
         hasCustomer: Boolean(data.stripe_customer_id),
         currentPeriodEnd: data.current_period_end || null,
+        trialEnd: data.trial_end || null,
         cancelAtPeriodEnd: Boolean(data.cancel_at_period_end),
         billingEnabled: true
       };

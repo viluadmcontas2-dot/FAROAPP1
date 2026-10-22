@@ -80,7 +80,7 @@ test('assinatura: lê status; status desconhecido vira inactive', async () => {
   const { backend, server } = make();
   await backend.signIn({ email: 'a@x.com', password: 'senha-forte-1' });
   server.subs.set('ua', { status: 'active', stripe_customer_id: 'cus_1', current_period_end: '2026-12-01', cancel_at_period_end: true });
-  assert.deepEqual(await backend.fetchSubscription(), { status: 'active', hasCustomer: true, currentPeriodEnd: '2026-12-01', cancelAtPeriodEnd: true, billingEnabled: true });
+  assert.deepEqual(await backend.fetchSubscription(), { status: 'active', hasCustomer: true, currentPeriodEnd: '2026-12-01', trialEnd: null, cancelAtPeriodEnd: true, billingEnabled: true });
   server.subs.set('ua', { status: 'hacked' });
   assert.equal((await backend.fetchSubscription()).status, 'inactive');
 });
@@ -116,4 +116,19 @@ test('push: só com pushEnabled e usuário; grava aparelho do usuário', async (
   await backend.registerPushDevice({ subscription: { endpoint: 'e' }, city: 'Recife' });
   assert.equal(server.devices[0].user_id, 'ua'); assert.equal(server.devices[0].device_id, 'dev-1');
   await rejectsCode(backend.registerPushDevice({ platform: 'tv' }), 'push_failed');
+});
+
+test('assinatura: devolve fim do teste após ativação e null quando ausente', async () => {
+  const { backend, server } = make();
+  assert.equal((await backend.fetchSubscription()).trialEnd, null);
+  await backend.signIn({ email: 'a@x.com', password: 'senha-forte-1' });
+  assert.equal((await backend.fetchSubscription()).trialEnd, null);
+  for (const status of ['trialing', 'active']) {
+    server.subs.set('ua', { status, trial_end: '2026-10-22T00:00:00.000Z' });
+    const sub = await backend.fetchSubscription();
+    assert.equal(sub.status, status);
+    assert.equal(sub.trialEnd, '2026-10-22T00:00:00.000Z');
+  }
+  server.subs.set('ua', { status: 'active', trial_end: null });
+  assert.equal((await backend.fetchSubscription()).trialEnd, null);
 });

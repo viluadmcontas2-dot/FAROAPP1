@@ -70,3 +70,10 @@ test('migração faro_acesso_e_trial: idempotente, search_path vazio, acesso só
   assert.match(sql, /enable row level security/); assert.doesNotMatch(sql, /drop trigger[^;]*on auth\.users/i, 'o papel das migracoes nao e dono de auth.users: nao pode apagar gatilhos la');
   assert.match(sql, /faro_on_auth_user_created/); assert.match(sql, /return new/);
 });
+
+test('webhook: envia fim do teste em ISO, ou null, dentro de applyEvent', () => {
+  const apply = webhook.split('const applyEvent =')[1].split('if (error)')[0];
+  assert.match(apply, /p_trial_end:\s*subscription\?\.trial_end != null\s*\? new Date\(subscription.trial_end \* 1000\).toISOString\(\) : null/);
+  const backend = readFileSync(new URL('../src/data/backend.js', import.meta.url), 'utf8');
+  assert.match(backend, /\.select\('[^']*trial_end[^']*'\)/);
+});
